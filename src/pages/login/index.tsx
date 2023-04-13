@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ReactNode, MouseEvent } from 'react'
+import { useState, ReactNode } from 'react'
 
 // ** Next Imports
 import Link from 'next/link'
@@ -32,7 +32,8 @@ import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** Hooks
 import { useAuth } from 'src/hooks/useAuth'
-import useBgColor from 'src/@core/hooks/useBgColor'
+
+// import useBgColor from 'src/@core/hooks/useBgColor'
 import { useSettings } from 'src/@core/hooks/useSettings'
 
 // ** Configs
@@ -54,7 +55,7 @@ const LoginIllustrationWrapper = styled(Box)<BoxProps>(({ theme }) => ({
 }))
 
 const LoginIllustration = styled('img')(({ theme }) => ({
-  maxWidth: '48rem',
+  maxWidth: '75rem',
   [theme.breakpoints.down('lg')]: {
     maxWidth: '35rem'
   }
@@ -117,7 +118,8 @@ const LoginPage = () => {
   // ** Hooks
   const auth = useAuth()
   const theme = useTheme()
-  const bgColors = useBgColor()
+
+  // const bgColors = useBgColor()
   const { settings } = useSettings()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
 
@@ -145,19 +147,17 @@ const LoginPage = () => {
     })
   }
 
-  const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'
+  // const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'
+  const imageSource = 'highFive'
 
   return (
     <Box className='content-right'>
       {!hidden ? (
         <Box sx={{ flex: 1, display: 'flex', position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
           <LoginIllustrationWrapper>
-            <LoginIllustration
-              alt='login-illustration'
-              src={`/images/pages/${imageSource}-${theme.palette.mode}.png`}
-            />
+            <LoginIllustration alt='login-illustration' src={`/images/pages/${imageSource}.jpg`} />
           </LoginIllustrationWrapper>
-          <FooterIllustrationsV2 />
+          {/* <FooterIllustrationsV2 /> */}
         </Box>
       ) : null}
       <RightWrapper sx={skin === 'bordered' && !hidden ? { borderLeft: `1px solid ${theme.palette.divider}` } : {}}>
@@ -258,14 +258,14 @@ const LoginPage = () => {
               <TypographyStyled variant='h5'>Welcome to {themeConfig.templateName}! 👋🏻</TypographyStyled>
               <Typography variant='body2'>Please sign-in to your account and start the adventure</Typography>
             </Box>
-            <Alert icon={false} sx={{ py: 3, mb: 6, ...bgColors.primaryLight, '& .MuiAlert-message': { p: 0 } }}>
+            {/* <Alert icon={false} sx={{ py: 3, mb: 6, ...bgColors.primaryLight, '& .MuiAlert-message': { p: 0 } }}>
               <Typography variant='caption' sx={{ mb: 2, display: 'block', color: 'primary.main' }}>
                 Admin: <strong>admin@materio.com</strong> / Pass: <strong>admin</strong>
               </Typography>
               <Typography variant='caption' sx={{ display: 'block', color: 'primary.main' }}>
                 Client: <strong>client@materio.com</strong> / Pass: <strong>client</strong>
               </Typography>
-            </Alert>
+            </Alert> */}
             <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
               <FormControl fullWidth sx={{ mb: 4 }}>
                 <Controller
@@ -330,54 +330,20 @@ const LoginPage = () => {
                   label='Remember Me'
                   control={<Checkbox checked={rememberMe} onChange={e => setRememberMe(e.target.checked)} />}
                 />
-                <LinkStyled href='/forgot-password'>Forgot Password?</LinkStyled>
+                {/* <LinkStyled href='/forgot-password'>Forgot Password?</LinkStyled> */}
               </Box>
               <Button fullWidth size='large' type='submit' variant='contained' sx={{ mb: 7 }}>
                 Login
               </Button>
-              <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
+              {/* <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
                 <Typography variant='body2' sx={{ mr: 2 }}>
                   New on our platform?
                 </Typography>
                 <Typography variant='body2'>
                   <LinkStyled href='/register'>Create an account</LinkStyled>
                 </Typography>
-              </Box>
-              <Divider sx={{ my: theme => `${theme.spacing(5)} !important` }}>or</Divider>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <IconButton
-                  href='/'
-                  component={Link}
-                  sx={{ color: '#497ce2' }}
-                  onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-                >
-                  <Icon icon='mdi:facebook' />
-                </IconButton>
-                <IconButton
-                  href='/'
-                  component={Link}
-                  sx={{ color: '#1da1f2' }}
-                  onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-                >
-                  <Icon icon='mdi:twitter' />
-                </IconButton>
-                <IconButton
-                  href='/'
-                  component={Link}
-                  onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-                  sx={{ color: theme => (theme.palette.mode === 'light' ? '#272727' : 'grey.300') }}
-                >
-                  <Icon icon='mdi:github' />
-                </IconButton>
-                <IconButton
-                  href='/'
-                  component={Link}
-                  sx={{ color: '#db4437' }}
-                  onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-                >
-                  <Icon icon='mdi:google' />
-                </IconButton>
-              </Box>
+              </Box> */}
+              <Divider sx={{ my: theme => `${theme.spacing(5)} !important` }}></Divider>
             </form>
           </BoxWrapper>
         </Box>
