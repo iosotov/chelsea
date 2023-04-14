@@ -90,16 +90,14 @@ const navigation = (): VerticalNavItemsType => {
           path: '/system/workflow'
         },
         {
-          disabled: true,
           title: 'Preset Values',
           icon: 'mdi:sitemap-outline',
-          path: '/system/presetvalue'
+          path: '/presetValues'
         },
         {
-          disabled: true,
-          title: 'Preset Values',
+          title: 'Profile Setting',
           icon: 'mdi:sitemap-outline',
-          path: '/system/profilesetting'
+          path: '/profileSetting'
         },
         {
           disabled: true,
