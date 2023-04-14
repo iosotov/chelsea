@@ -14,6 +14,8 @@ interface AuthGuardProps {
 
 const AuthGuard = (props: AuthGuardProps) => {
   const { children, fallback } = props
+
+  // call from global state instead of object
   const auth = useAuth()
   const router = useRouter()
 
