@@ -50,6 +50,13 @@ const navigation = (): VerticalNavItemsType => {
       sectionTitle: 'Setting'
     },
     {
+      title: 'Access Management',
+      icon: 'mdi:cog',
+      path: '/testPage'
+
+      // path: '/accessmanagement'
+    },
+    {
       title: 'System Config',
       icon: 'mdi:cog',
       children: [
@@ -58,6 +65,30 @@ const navigation = (): VerticalNavItemsType => {
           title: 'Workflow',
           icon: 'mdi:sitemap-outline',
           path: '/system/workflow'
+        },
+        {
+          disabled: true,
+          title: 'Preset Values',
+          icon: 'mdi:sitemap-outline',
+          path: '/system/presetvalue'
+        },
+        {
+          disabled: true,
+          title: 'Preset Values',
+          icon: 'mdi:sitemap-outline',
+          path: '/system/profilesetting'
+        },
+        {
+          disabled: true,
+          title: 'System Template',
+          icon: 'mdi:sitemap-outline',
+          path: '/system/customfield'
+        },
+        {
+          disabled: true,
+          title: 'Preset Values',
+          icon: 'mdi:sitemap-outline',
+          path: '/system/ipwhitelist'
         }
       ]
     }
