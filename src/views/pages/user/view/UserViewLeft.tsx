@@ -60,11 +60,11 @@ export default function UserViewRight({ id }: Props) {
   let data = {
     createdAt: '2023-04-14T17:51:00.6733759',
     createdBy: '90eb9d4c-3eb4-4f95-95d6-02f97d0f57b7',
-    createdByName: 'Bill Templeman',
+    createdByName: 'Test File',
     createdCompany: '9dc05903-65ab-48c1-8073-33bfd6fd8cf5',
-    createdCompanyName: 'Radius Financial Solutions',
+    createdCompanyName: 'Test Financial Solutions',
     campaignId: 'fjaipejfiawefaewfa',
-    campaignName: 'Hot Ones',
+    campaignName: 'Test Ones',
     profileAssignees: [],
     profileAddresses: [],
     profileContacts: [],
@@ -119,7 +119,7 @@ export default function UserViewRight({ id }: Props) {
 
           <CardContent>
             <Typography mb={2} variant='h6'>
-              Details
+              Profile Details
             </Typography>
             <Divider sx={{ mb: 2 }} />
             <Box sx={{ pb: 1 }}>
@@ -162,7 +162,7 @@ export default function UserViewRight({ id }: Props) {
         <Card>
           <CardContent>
             <Typography mb={2} variant='h6'>
-              Enrollment Information
+              Profile Information
             </Typography>
             <Divider sx={{ mb: 2 }} />
             <Box sx={{ pb: 1 }}>
@@ -174,30 +174,82 @@ export default function UserViewRight({ id }: Props) {
                     {DateConverter(data.createdAt)}
                   </Typography>
                 </Box>
-                <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Data Point:</Typography>
-                  <Typography variant='body2'>{data.createdCompanyName}</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Campaign:</Typography>
-                  <Typography variant='body2'>{data.campaignName}</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Account Manager:</Typography>
-                  <Typography variant='body2'>{'Unassigned'}</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Servicing Company:</Typography>
-                  <Typography variant='body2'>{data.campaignName}</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Marketing Agent:</Typography>
-                  <Typography variant='body2'>{data.createdByName}</Typography>
-                </Box>
-                <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Marketing Company:</Typography>
-                  <Typography variant='body2'>{data.createdCompanyName}</Typography>
-                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Data Point:</Typography>
+                <Typography variant='body2'>{data.createdCompanyName}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Campaign:</Typography>
+                <Typography variant='body2'>{data.campaignName}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Account Manager:</Typography>
+                <Typography variant='body2'>{'Unassigned'}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Servicing Company:</Typography>
+                <Typography variant='body2'>{data.campaignName}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Marketing Agent:</Typography>
+                <Typography variant='body2'>{data.createdByName}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Marketing Company:</Typography>
+                <Typography variant='body2'>{data.createdCompanyName}</Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      </Grid>
+      <Grid item xs={12}>
+        <Card>
+          <CardContent>
+            <Typography mb={2} variant='h6'>
+              Enrollment Information
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ pb: 1 }}>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Total Enrolled Balance:</Typography>
+                <Typography variant='body2'>{'$10000'}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Enrolled Debts:</Typography>
+                <Typography variant='body2'>{'$10000'}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>% of Enrolled Debt:</Typography>
+                <Typography variant='body2'>{'40%'}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>First Payment Date:</Typography>
+                <Typography variant='body2'>{'12/1/2023'}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>First Payment Amount:</Typography>
+                <Typography variant='body2'>{'$350'}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Last Payment Date:</Typography>
+                <Typography variant='body2'>{'N/A'}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Last Payment Amount:</Typography>
+                <Typography variant='body2'>{'N/A'}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Last Payment Status:</Typography>
+                <Typography variant='body2'>{'N/A'}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Next Payment Date:</Typography>
+                <Typography variant='body2'>{'12/1/2023'}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Next Payment Amount:</Typography>
+                <Typography variant='body2'>{'$350'}</Typography>
               </Box>
             </Box>
           </CardContent>
