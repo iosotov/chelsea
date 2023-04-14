@@ -119,50 +119,7 @@ export default function UserViewRight({ id }: Props) {
 
           <CardContent>
             <Typography mb={2} variant='h6'>
-              Profile Details
-            </Typography>
-            <Divider sx={{ mb: 2 }} />
-            <Box sx={{ pb: 1 }}>
-              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Date of Birth:</Typography>
-                <Typography variant='body2'>{DateConverter(data.birthdate)}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Social Security Number:</Typography>
-                <Typography variant='body2'>{data.ssn}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Gender:</Typography>
-                <Typography variant='body2'>{data.genderName}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Primary Phone:</Typography>
-                <Typography variant='body2'>{'(949)-111-1234'}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Secondary Phone:</Typography>
-                <Typography variant='body2'>{''}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Email Address:</Typography>
-                <Typography variant='body2'>{'johntest@gmail.com'}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Mailing Address:</Typography>
-                <Box sx={{ textAlign: 'right' }}>
-                  <Typography variant='body2'>{'123 Test Street'}</Typography>
-                  <Typography variant='body2'>{'Dayton, New Jersey 20510'}</Typography>
-                </Box>
-              </Box>
-            </Box>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={12}>
-        <Card>
-          <CardContent>
-            <Typography mb={2} variant='h6'>
-              Profile Information
+              Details
             </Typography>
             <Divider sx={{ mb: 2 }} />
             <Box sx={{ pb: 1 }}>
@@ -198,6 +155,49 @@ export default function UserViewRight({ id }: Props) {
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Marketing Company:</Typography>
                 <Typography variant='body2'>{data.createdCompanyName}</Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
+      </Grid>
+      <Grid item xs={12}>
+        <Card>
+          <CardContent>
+            <Typography mb={2} variant='h6'>
+              Personal Information
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Box sx={{ pb: 1 }}>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Date of Birth:</Typography>
+                <Typography variant='body2'>{DateConverter(data.birthdate)}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Social Security Number:</Typography>
+                <Typography variant='body2'>{data.ssn}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Gender:</Typography>
+                <Typography variant='body2'>{data.genderName}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Primary Phone:</Typography>
+                <Typography variant='body2'>{'(949)-111-1234'}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Secondary Phone:</Typography>
+                <Typography variant='body2'>{''}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Email Address:</Typography>
+                <Typography variant='body2'>{'johntest@gmail.com'}</Typography>
+              </Box>
+              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Mailing Address:</Typography>
+                <Box sx={{ textAlign: 'right' }}>
+                  <Typography variant='body2'>{'123 Test Street'}</Typography>
+                  <Typography variant='body2'>{'Dayton, New Jersey 20510'}</Typography>
+                </Box>
               </Box>
             </Box>
           </CardContent>
