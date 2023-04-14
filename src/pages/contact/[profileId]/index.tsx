@@ -6,7 +6,11 @@ import { useRouter } from 'next/router'
 import UserViewLeft from 'src/views/pages/user/view/UserViewLeft'
 import UserViewRight from 'src/views/pages/user/view/UserViewRight'
 
-export default function UserProfile() {
+type Props = {
+  tab: string
+}
+
+export default function UserProfile({ tab }: Props) {
   const router = useRouter()
   const { profileId } = router.query
 
@@ -16,11 +20,11 @@ export default function UserProfile() {
 
   return (
     <Grid container spacing={4}>
-      <Grid item xs={12} md={4} lg={3}>
-        <UserViewRight id={profileId} />
+      <Grid item xs={12} md={5} lg={4}>
+        <UserViewLeft id={profileId} />
       </Grid>
-      <Grid item xs={12} md={8} lg={9}>
-        <UserViewLeft id={profileId} tab='credit' />
+      <Grid item xs={12} md={7} lg={8}>
+        <UserViewRight id={profileId} tab={tab} />
       </Grid>
     </Grid>
   )
