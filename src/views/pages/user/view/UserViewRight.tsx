@@ -14,7 +14,6 @@ import { Tabs } from '@mui/material'
 
 // Profile View Imports
 import ProfileCredit from './ProfileCreditView'
-import ProfileDebts from './ProfileDebtsView'
 import ProfilePayments from './ProfilePaymentsView'
 import ProfileBilling from './ProfileBillingView'
 import ProfileDocuments from './ProfileDocumentsView'
@@ -43,8 +42,7 @@ export default function UserViewLeft({ id, tab }: Props) {
     <TabContext value={activeTab}>
       <Box>
         <Tabs value={activeTab} variant='scrollable' scrollButtons='auto' onChange={handleChange}>
-          <Tab label='Credit Report' value='credit' />
-          <Tab label='Debts' value='debts' />
+          <Tab label='Credit & Debts' value='credit' />
           <Tab label='Payments' value='payments' />
           <Tab label='Billing' value='billing' />
           <Tab label='Documents' value='documents' />
@@ -57,9 +55,6 @@ export default function UserViewLeft({ id, tab }: Props) {
       {/* Add tab views here */}
       <TabPanel value='credit'>
         <ProfileCredit />
-      </TabPanel>
-      <TabPanel value='debts'>
-        <ProfileDebts />
       </TabPanel>
       <TabPanel value='payments'>
         <ProfilePayments />

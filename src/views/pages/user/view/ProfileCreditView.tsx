@@ -2,6 +2,7 @@ import { Button, CardContent, Typography } from '@mui/material'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
+import ButtonGroup from '@mui/material/ButtonGroup'
 
 // ** MUI Imports
 import { useTheme } from '@mui/material/styles'
@@ -76,7 +77,8 @@ export default function ProfileCredit() {
   return (
     <Grid container spacing={4}>
       <Grid item xs={12}>
-        <Card sx={{ p: 2 }}>
+        {/* Credit Report */}
+        <Card sx={{ p: 2, mb: 4 }}>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
             <Button>View</Button>
             <Button>New Report</Button>
@@ -130,6 +132,38 @@ export default function ProfileCredit() {
               </TableContainer>
             </Grid>
           </Grid>
+        </Card>
+        {/* Debts Info */}
+        <Grid container sx={{ mb: 4 }} spacing={4}>
+          <Grid item xs={6}>
+            <Card>
+              <CardContent>
+                <Typography variant='caption'>Enrolled Debts</Typography>
+                <Typography variant='h4'>5 of 15</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={6}>
+            <Card>
+              <CardContent>
+                <Typography variant='caption'>Total Enrolled Balance</Typography>
+                <Typography variant='h4'>$28,783.00</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+        {/* Debts Table */}
+        <Card>
+          <CardContent>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography variant='h6'>Debts</Typography>
+              <ButtonGroup size='small'>
+                <Button>Add</Button>
+                <Button>Enroll</Button>
+                <Button>Withdraw</Button>
+              </ButtonGroup>
+            </Box>
+          </CardContent>
         </Card>
       </Grid>
     </Grid>
