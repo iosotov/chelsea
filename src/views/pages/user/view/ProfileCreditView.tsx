@@ -512,3 +512,5 @@ const EnhancedTable = () => {
     </>
   )
 }
+
+export default ProfileCredit
