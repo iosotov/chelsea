@@ -54,7 +54,7 @@ interface HeadCell {
 
 interface EnhancedTableProps {
   numSelected: number
-  onRequestSort: (event: MouseEvent<unknown>, property: keyof Data) => void
+  onRequestSort: (event: MouseEvent<unknown>, property: keyof DebtData) => void
   onSelectAllClick: (event: ChangeEvent<HTMLInputElement>) => void
   order: Order
   orderBy: string

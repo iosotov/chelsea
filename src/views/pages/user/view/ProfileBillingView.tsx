@@ -177,28 +177,26 @@ const ProfileBilling = () => {
   }
 
   return (
-    <Grid container spacing={6}>
+    <Grid container spacing={4}>
       <Grid item xs={12}>
-        <Box sx={{ mt: 1, mb: 2.5, display: 'flex', alignItems: 'center', width: 1 }}>
-          <Card sx={{ width: 1 / 3, mr: 'auto' }}>
-            <CardHeader title='Enrolled Debts'></CardHeader>
-            <CardContent>
-              <Typography variant='body2'>2 of 10</Typography>
-            </CardContent>
-          </Card>
-          <Card sx={{ width: 1 / 3 }}>
-            <CardHeader title='hi'></CardHeader>
-            <CardContent>
-              <div>hi</div>
-            </CardContent>
-          </Card>
-          <Card sx={{ width: 1 / 3, ml: 'auto' }}>
-            <CardHeader title='Total Enrolled Balance'></CardHeader>
-            <CardContent>
-              <Typography variant='body2'>$999,999,999</Typography>
-            </CardContent>
-          </Card>
-        </Box>
+        <Grid container spacing={4}>
+          <Grid item xs={6}>
+            <Card>
+              <CardContent>
+                <Typography variant='caption'>Enrolled Debts</Typography>
+                <Typography variant='h4'>5 of 15</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={6}>
+            <Card>
+              <CardContent>
+                <Typography variant='caption'>Total Enrolled Balance</Typography>
+                <Typography variant='h4'>$28,783.00</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
       </Grid>
       <Grid item xs={12}>
         <Card>
