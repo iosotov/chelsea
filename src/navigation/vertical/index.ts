@@ -52,9 +52,7 @@ const navigation = (): VerticalNavItemsType => {
     {
       title: 'Access Management',
       icon: 'mdi:cog',
-      path: '/testPage'
-
-      // path: '/accessmanagement'
+      path: '/accessmanagement'
     },
     {
       title: 'System Config',
