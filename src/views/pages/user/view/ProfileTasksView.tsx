@@ -1,9 +1,88 @@
 // import { MouseEvent, SyntheticEvent, useState } from 'react';
+
+import { Ref, useState, forwardRef, ReactElement, ForwardedRef } from 'react'
+
 import Button from '@mui/material/Button'
+
+import TextField from '@mui/material/TextField'
+
+import AddTaskDrawer from './addTaskDrawer'
+
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
-import Box from '@mui/material/Box'
+
+// import DialogActions from '@mui/material/DialogActions'
+
+// ** Styles Import
+import 'react-credit-cards/es/styles-compiled.css'
+
+// ** MUI Imports
+
+import { styled } from '@mui/material/styles'
+
+import IconButton from '@mui/material/IconButton'
+
+import Typography from '@mui/material/Typography'
+import Box, { BoxProps } from '@mui/material/Box'
+
+// ** Third Party Imports
+import DatePicker from 'react-datepicker'
+
+// ** Icon Imports
+import Icon from 'src/@core/components/icon'
+
+// ** Styled Component
+import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
+
+// ** Types
+import { DateType } from 'src/types/forms/reactDatepickerTypes'
+
+interface Props {
+  open: boolean
+  toggle: () => void
+}
+
+// const CustomInput = forwardRef(({ ...props }, ref: ForwardedRef<HTMLElement>) => {
+//   return <TextField inputRef={ref} label='Payment Date' {...props} />
+// })
+
+// const Header = styled(Box)<BoxProps>(({ theme }) => ({
+//   display: 'flex',
+//   alignItems: 'center',
+//   padding: theme.spacing(3, 4),
+//   justifyContent: 'space-between',
+//   backgroundColor: theme.palette.background.default
+// }))
+
+// const defaultValues = {
+//   companyName: '',
+//   billingEmail: ''
+// }
 
 const ProfileTasks = () => {
+  // const Transition = forwardRef(function Transition(
+  //   props: FadeProps & { children?: ReactElement<any, any> },
+  //   ref: Ref<unknown>
+  // ) {
+  //   return <Fade ref={ref} {...props} />
+  // })
+
+  // ** Hooks
+  // const [date, setDate] = useState<DateType>(new Date())
+  // const [addPaymentOpen, setAddPaymentOpen] = useState<boolean>(false)
+  // const toggleAddPaymentDrawer = () => setAddPaymentOpen(!addPaymentOpen)
+  const [show, setShow] = useState<boolean>(false)
+
+  // const {
+  //   control,
+  //   handleSubmit,
+  //   formState: { errors }
+  // } = useForm({ defaultValues })
+  // const [show, setShow] = useState<boolean>(false)
+
+  // const onSubmit = () => {
+  //   return
+  // }
+
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 90 },
     {
@@ -51,6 +130,7 @@ const ProfileTasks = () => {
 
   return (
     <>
+      <AddTaskDrawer open={show} toggle={() => setShow(false)} />
       <Box sx={{ height: 50, width: '100%' }}>
         {' '}
         <Button
@@ -59,6 +139,7 @@ const ProfileTasks = () => {
           variant='contained'
           color='secondary'
           sx={{ mb: 7, position: 'absolute', right: '8%' }}
+          onClick={() => setShow(true)}
         >
           Create Task
         </Button>
