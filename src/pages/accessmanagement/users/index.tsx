@@ -1,8 +1,8 @@
 // import { MouseEvent, SyntheticEvent, useState } from 'react';
-import Button from '@mui/material/Button'
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
+import Button from '@mui/material/Button'
 
-const Tasks = () => {
+const AccessUsers = () => {
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 90 },
     {
@@ -57,12 +57,13 @@ const Tasks = () => {
         color='secondary'
         sx={{ mb: 7, position: 'absolute', right: '150px' }}
       >
-        Create Task
+        Create
       </Button>
       <br></br>
+
       <DataGrid rows={rows} columns={columns} checkboxSelection sx={{ mt: 7 }} />
     </>
   )
 }
 
-export default Tasks
+export default AccessUsers
