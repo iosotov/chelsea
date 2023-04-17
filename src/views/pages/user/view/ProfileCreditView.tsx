@@ -305,7 +305,7 @@ const headCells: readonly HeadCell[] = [
     id: 'enrolled',
     numeric: true,
     disablePadding: false,
-    label: 'Enrolledment Status'
+    label: 'Enrollment Status'
   },
   {
     id: 'legalStatus',
