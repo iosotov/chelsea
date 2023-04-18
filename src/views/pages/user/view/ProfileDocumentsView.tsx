@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 // ** MUI Imports
 import Button from '@mui/material/Button'
@@ -15,12 +15,18 @@ import Stepper from '@mui/material/Stepper'
 import Typography from '@mui/material/Typography'
 import StepLabel from '@mui/material/StepLabel'
 import Step from '@mui/material/Step'
+import TabContext from '@mui/lab/TabContext'
+import TabPanel from '@mui/lab/TabPanel'
+import Tab from '@mui/material/Tab'
+// import TabList from '@mui/lab/TabList'
+import { Grid, Table } from '@mui/material'
+import MuiTabList, { TabListProps } from '@mui/lab/TabList'
 
 import StepperCustomDot from './components/document/stepperCustomDot'
 
 import { CardContentProps } from '@mui/material/CardContent'
 
-import { styled } from '@mui/material'
+import { Badge, Card, Chip, styled } from '@mui/material'
 
 //Icon Import
 import Icon from 'src/@core/components/icon'
@@ -29,6 +35,9 @@ import Icon from 'src/@core/components/icon'
 import StepperWrapper from 'src/@core/styles/mui/stepper'
 import FileUploaderSingle from './components/document/fileUploader'
 import FileUploadForm from './components/document/fileUploadForm'
+import GenerateSidebar from './components/document/generateSidebar'
+import { SyntheticEvent } from 'react-draft-wysiwyg'
+import TableColumns from './components/document/table'
 
 const steps = [
   {
@@ -43,16 +52,119 @@ const steps = [
   }
 ]
 
-export default function ProfileDocuments() {
-  const [open, setOpen] = useState<boolean>(false)
+const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
+  '& .MuiTabs-indicator': {
+    display: 'none'
+  },
+  '& .Mui-selected': {
+    backgroundColor: theme.palette.primary.main,
+    //hard coded color b/c change in tablist variant
+    color: 'white !important'
+  },
+  '& .MuiTab-root': {
+    minHeight: 38,
+    minWidth: 130,
+    borderRadius: theme.shape.borderRadius
+  }
+}))
 
-  const toggleOpen = () => setOpen(!open)
+export default function ProfileDocuments() {
+  const [openUploadDialog, setUploadDialog] = useState<boolean>(false)
+  const [openGenerateDrawer, setUploadDrawer] = useState<boolean>(false)
+  const [tab, setTab] = useState<string>('esign')
+
+  //rows for tables
+  const [data, setData] = useState([])
+  const [esign, setEsign] = useState([])
+  const [generated, setGenerated] = useState([])
+  const [uploaded, setUploaded] = useState([])
+
+  // useEffect(() => {
+  //   if (data.length) {
+  //     const eSignEntries = data.filter(e => e.status === 1)
+  //     setEsign(eSignEntries)
+
+  //     const generatedEntries = data.filter(e => e.status === 2)
+  //     setGenerated(generatedEntries)
+
+  //     const uploadedEntries = data.filter(e => e.status === 3)
+  //     setLoaded(uploadedSignEntries)
+  //   }
+  // }, [data])
+
+  //toggles Upload Dialog
+  const toggleDialog = () => setUploadDialog(!openUploadDialog)
+
+  //toggles Generate Drawer
+  const toggleDrawer = () => setUploadDrawer(!openGenerateDrawer)
+
+  const handleTabChange = (e: SyntheticEvent, newValue: string) => {
+    setTab(newValue)
+  }
 
   return (
-    <>
-      <Button onClick={toggleOpen}>Profile Docs</Button>
-      <UploadDialog open={open} toggle={toggleOpen} />
-    </>
+    <TabContext value={tab}>
+      <Grid container spacing={4}>
+        <Grid item xs={4}>
+          <Card>
+            <CardContent>
+              <Typography variant='caption'>E-Sign Contracts</Typography>
+              <Typography variant='h4'>2</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={4}>
+          <Card>
+            <CardContent>
+              <Typography variant='caption'>Generated Docs</Typography>
+              <Typography variant='h4'>5</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={4}>
+          <Card>
+            <CardContent>
+              <Typography variant='caption'>Uploaded Docs</Typography>
+              <Typography variant='h4'>8</Typography>
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                <Button startIcon={<Icon icon='mdi:file-document-plus-outline' />} onClick={toggleDrawer}>
+                  Generate
+                </Button>
+                <Button startIcon={<Icon icon='mdi:file-upload-outline' />} onClick={toggleDialog}>
+                  Upload
+                </Button>
+              </Box>
+            </CardContent>
+            <CardContent>
+              <Box>
+                <TabList variant='fullWidth' onChange={handleTabChange}>
+                  <Tab value='esign' label='E-Sign Contracts' />
+                  <Tab value='generated' label={`Generated Docs`} />
+                  <Tab value='uploaded' label={`Uploaded Docs`} />
+                </TabList>
+                <TabPanel value='esign'>
+                  <TableColumns rows={esign} />
+                </TabPanel>
+                <TabPanel value='generated'>
+                  <TableColumns rows={generated} />
+                </TabPanel>
+                <TabPanel value='uploaded'>
+                  <TableColumns rows={uploaded} />
+                </TabPanel>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+      <GenerateSidebar open={openGenerateDrawer} toggle={toggleDrawer} />
+      <UploadDialog open={openUploadDialog} toggle={toggleDialog} />
+    </TabContext>
   )
 }
 
@@ -60,6 +172,8 @@ type DialogProps = {
   open: boolean
   toggle: () => void
 }
+
+//Dialog
 
 const UploadDialog = ({ open, toggle }: DialogProps) => {
   const [activeStep, setActiveStep] = useState<number>(0)
@@ -116,7 +230,7 @@ const UploadDialog = ({ open, toggle }: DialogProps) => {
 
   return (
     <>
-      <Dialog open={open} onClose={toggle} maxWidth='lg' fullWidth>
+      <Dialog open={open} onClose={toggle} maxWidth='md' fullWidth>
         <DialogTitle>
           Upload Document
           <IconButton
