@@ -179,7 +179,7 @@ const ProfileBilling = () => {
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
-        <Box sx={{ mt: 1, mb: 2.5, display: 'flex', alignItems: 'center', width: 1, gap: 5 }}>
+        <Box sx={{ mt: 1, mb: 2.5, display: 'flex', alignItems: 'center', width: 1, gap: 3 }}>
           {/* <Card sx={{ width: 1 / 3, mr: 'auto' }}>
             <CardHeader title='Enrolled Debts'></CardHeader>
             <CardContent>
@@ -195,9 +195,9 @@ const ProfileBilling = () => {
               <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                 <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
                   <Typography variant='h6'>1 of 10 Enrolled</Typography>
-                  <Typography variant='body2' sx={{ color: 'primary.main', textDecoration: 'none' }}>
+                  {/* <Typography variant='body2' sx={{ color: 'primary.main', textDecoration: 'none' }}>
                     Edit Role
-                  </Typography>
+                  </Typography> */}
                 </Box>
               </Box>
             </CardContent>
