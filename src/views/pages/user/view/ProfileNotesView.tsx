@@ -31,6 +31,8 @@ import { useForm, Controller } from 'react-hook-form'
 // ** Styles Import
 import 'react-credit-cards/es/styles-compiled.css'
 
+import NotesTable from 'src/views/table/custom/NotesTable'
+
 const defaultValues = {
   companyName: '',
   billingEmail: ''
@@ -181,7 +183,8 @@ const ProfileNotes = () => {
 
       <br></br>
       <Box sx={{ height: 400, width: '100%' }}>
-        <DataGrid rows={rows} columns={columns} checkboxSelection sx={{ mt: 7 }} />
+        {/* <DataGrid rows={rows} columns={columns} checkboxSelection sx={{ mt: 7 }} /> */}
+        <NotesTable></NotesTable>
       </Box>
     </>
   )

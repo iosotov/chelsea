@@ -2,6 +2,8 @@
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
 import Box from '@mui/material/Box'
 
+import HistoryTable from 'src/views/table/custom/HistoryTable'
+
 const ProfileHistory = () => {
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 90 },
@@ -51,7 +53,8 @@ const ProfileHistory = () => {
   return (
     <>
       <Box sx={{ height: 400, width: '100%' }}>
-        <DataGrid rows={rows} columns={columns} checkboxSelection />
+        {/* <DataGrid rows={rows} columns={columns} checkboxSelection /> */}
+        <HistoryTable></HistoryTable>
       </Box>
     </>
   )
