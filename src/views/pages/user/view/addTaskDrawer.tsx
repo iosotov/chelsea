@@ -26,6 +26,7 @@ import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 
 // ** Types
 import { DateType } from 'src/types/forms/reactDatepickerTypes'
+import { ButtonGroup } from '@mui/material'
 
 interface Props {
   open: boolean
@@ -109,18 +110,25 @@ const AddTaskDrawer = ({ open, toggle }: Props) => {
             }}
           />
         </Box> */}
+        <Box sx={{ mb: 6 }}>
+          <ButtonGroup variant='contained' sx={{ ml: 10 }}>
+            <Button>Users</Button>
+            <Button>Teams</Button>
+            <Button>Roles</Button>
+          </ButtonGroup>
+        </Box>
 
         <Box sx={{ mb: 6 }}>
           <FormControl fullWidth>
             <InputLabel htmlFor='payment-method'>Choose..</InputLabel>
             <Select
-              label='Payment Method'
+              label='Select Group'
               labelId='payment-method'
               id='payment-method-select'
               defaultValue='select-method'
             >
               <MenuItem value='select-method' disabled>
-                Select Payment Method
+                Select Group
               </MenuItem>
               <MenuItem value='Cash'>User1</MenuItem>
               <MenuItem value='Bank Transfer'>Team1</MenuItem>
@@ -131,7 +139,7 @@ const AddTaskDrawer = ({ open, toggle }: Props) => {
           </FormControl>
         </Box>
         <Box sx={{ mb: 6 }}>
-          <TextField rows={6} multiline fullWidth label='Internal Payment Note' placeholder='Internal Payment Note' />
+          <TextField rows={6} multiline fullWidth label='Note' placeholder='Note' />
         </Box>
 
         <div>
