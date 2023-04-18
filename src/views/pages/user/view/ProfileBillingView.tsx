@@ -177,56 +177,26 @@ const ProfileBilling = () => {
   }
 
   return (
-    <Grid container spacing={6}>
+    <Grid container spacing={4}>
       <Grid item xs={12}>
-        <Box sx={{ mt: 1, mb: 2.5, display: 'flex', alignItems: 'center', width: 1, gap: 3 }}>
-          {/* <Card sx={{ width: 1 / 3, mr: 'auto' }}>
-            <CardHeader title='Enrolled Debts'></CardHeader>
-            <CardContent>
-              <Typography variant='body2'>2 of 10</Typography>
-            </CardContent>
-
-          </Card> */}
-          <Card sx={{ width: 1 / 3, mr: 'auto' }}>
-            <CardContent>
-              <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant='body2'>{`Enrolled Debts`}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-                  <Typography variant='h6'>1 of 10 Enrolled</Typography>
-                  {/* <Typography variant='body2' sx={{ color: 'primary.main', textDecoration: 'none' }}>
-                    Edit Role
-                  </Typography> */}
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-          <Card sx={{ width: 1 / 3, mr: 'auto' }}>
-            <CardContent>
-              <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant='body2'>{`Enrolled Debts`}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-                  <Typography variant='h6'>1 of 10 Enrolled</Typography>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-          <Card sx={{ width: 1 / 3, mr: 'auto' }}>
-            <CardContent>
-              <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant='body2'>{`Total Enrolled Balance`}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-                  <Typography variant='h6'>$999,999,999</Typography>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Box>
+        <Grid container spacing={4}>
+          <Grid item xs={6}>
+            <Card>
+              <CardContent>
+                <Typography variant='caption'>Enrolled Debts</Typography>
+                <Typography variant='h4'>5 of 15</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={6}>
+            <Card>
+              <CardContent>
+                <Typography variant='caption'>Total Enrolled Balance</Typography>
+                <Typography variant='h4'>$28,783.00</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
       </Grid>
       <Grid item xs={12}>
         <Card>
