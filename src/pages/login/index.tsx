@@ -1,11 +1,13 @@
 // ** React Imports
-import { useState, ReactNode } from 'react'
+
+import { useState, ReactNode, useEffect } from 'react'
+
 
 // ** Next Imports
-import Link from 'next/link'
+// import Link from 'next/link'
 
 // ** MUI Components
-import Alert from '@mui/material/Alert'
+// import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import Checkbox from '@mui/material/Checkbox'
@@ -30,8 +32,6 @@ import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-// ** Hooks
-import { useAuth } from 'src/hooks/useAuth'
 
 // import useBgColor from 'src/@core/hooks/useBgColor'
 import { useSettings } from 'src/@core/hooks/useSettings'
@@ -43,7 +43,8 @@ import themeConfig from 'src/configs/themeConfig'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 // ** Demo Imports
-import FooterIllustrationsV2 from 'src/views/pages/auth/FooterIllustrationsV2'
+import { useAppDispatch, useAppSelector } from 'src/store/hooks'
+import { selectAuthError, UserAuth } from 'src/store/authSlice'
 
 // ** Styled Components
 const LoginIllustrationWrapper = styled(Box)<BoxProps>(({ theme }) => ({
@@ -83,11 +84,11 @@ const TypographyStyled = styled(Typography)<TypographyProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: { mt: theme.spacing(8) }
 }))
 
-const LinkStyled = styled(Link)(({ theme }) => ({
-  fontSize: '0.875rem',
-  textDecoration: 'none',
-  color: theme.palette.primary.main
-}))
+// const LinkStyled = styled(Link)(({ theme }) => ({
+//   fontSize: '0.875rem',
+//   textDecoration: 'none',
+//   color: theme.palette.primary.main
+// }))
 
 const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(({ theme }) => ({
   '& .MuiFormControlLabel-label': {
@@ -102,22 +103,29 @@ const schema = yup.object().shape({
 })
 
 const defaultValues = {
-  password: 'admin',
-  email: 'admin@materio.com'
+  password: 'Zaq!2wsx',
+  email: 'celine@prime-logix.co'
 }
 
 interface FormData {
   email: string
   password: string
+  rememberMe?: boolean
 }
 
 const LoginPage = () => {
+
+  const error = useAppSelector(selectAuthError)
   const [rememberMe, setRememberMe] = useState<boolean>(true)
   const [showPassword, setShowPassword] = useState<boolean>(false)
 
   // ** Hooks
-  const auth = useAuth()
   const theme = useTheme()
+
+
+  // ** Redux Hooks
+  const dispatch = useAppDispatch()
+
 
   // const bgColors = useBgColor()
   const { settings } = useSettings()
@@ -137,14 +145,23 @@ const LoginPage = () => {
     resolver: yupResolver(schema)
   })
 
-  const onSubmit = (data: FormData) => {
-    const { email, password } = data
-    auth.login({ email, password, rememberMe }, () => {
-      setError('email', {
-        type: 'manual',
-        message: 'Email or Password is invalid'
-      })
+  useEffect(() => {
+    if (error) setError('email', {
+      type: 'manual',
+      message: error
     })
+  }, [error, setError])
+
+  const onSubmit = async (data: FormData) => {
+    const { email, password } = data
+
+    dispatch(UserAuth({
+      email,
+      password,
+      rememberMe,
+    })).unwrap();
+
+
   }
 
   // const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'

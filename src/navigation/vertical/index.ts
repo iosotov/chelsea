@@ -2,11 +2,15 @@
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
 
 const navigation = (): VerticalNavItemsType => {
+  console.log('hello')
+
   return [
     {
       title: 'Dashboard',
       path: '/dashboard',
-      icon: 'mdi:home-outline'
+      icon: 'mdi:home-outline',
+      subject: 'all',
+      action: 'manage'
     },
     {
       sectionTitle: 'Profiles'
@@ -14,17 +18,22 @@ const navigation = (): VerticalNavItemsType => {
     {
       title: 'Contacts',
       icon: 'mdi:account-multiple-outline',
+      subject: ['PROFILE', 'PROFILE:LIST', 'PROFILE:LIST:VIEWALL'],
       children: [
         {
           // disabled: true,
           title: 'Create New Profile',
           icon: 'mdi:account-plus-outline',
-          path: '/contact/create'
+          path: '/contact/create',
+          subject: ['PROFILE', 'PROFILE:CREATE'],
+          action: 'manage'
         },
         {
           title: 'Search Profiles',
           icon: 'mdi:account-search-outline',
-          path: '/contact/list'
+          path: '/contact/list',
+          action: 'manage',
+          subject: ['PROFILE', 'PROFILE:LIST', 'PROFILE:LIST:VIEWALL']
         }
       ]
     },
@@ -35,7 +44,9 @@ const navigation = (): VerticalNavItemsType => {
       // disabled: true,
       title: 'Search Tasks',
       path: '/task',
-      icon: 'mdi:clipboard-search-outline'
+      icon: 'mdi:clipboard-search-outline',
+      action: 'manage',
+      subject: ['TASK', 'TASK:LIST', 'TASK:LIST:VIEWALL']
     },
     {
       sectionTitle: 'Accounting'
@@ -44,7 +55,9 @@ const navigation = (): VerticalNavItemsType => {
       // disabled: true,
       title: 'Search Transactions',
       icon: 'mdi:credit-card-search-outline',
-      path: '/transaction'
+      path: '/transaction',
+      action: 'manage',
+      subject: ['ACCOUNTING, ACCOUNTING:TRANSACTIONS', 'ACCOUNTING:TRANSACTIONS:VIEWALL']
     },
     {
       sectionTitle: 'Setting'
@@ -52,11 +65,23 @@ const navigation = (): VerticalNavItemsType => {
     {
       title: 'Access Management',
       icon: 'mdi:cog',
-      path: '/accessmanagement'
+      path: '/testPage',
+      action: 'manage',
+      subject: [
+        'SETTING',
+        'SETTING:ACCESSMANAGEMENT',
+        'SETTING:ACCESSMANAGEMENT:ROLES',
+        'SETTING:ACCESSMANAGEMENT:TEAMS',
+        'SETTING:ACCESSMANAGEMENT:USERS'
+      ]
+
+      // path: '/accessmanagement'
     },
     {
       title: 'System Config',
       icon: 'mdi:cog',
+      action: 'manage',
+      subject: ['SETTING', 'SETTING:SYSTEMCONFIGURATION'],
       children: [
         {
           disabled: true,

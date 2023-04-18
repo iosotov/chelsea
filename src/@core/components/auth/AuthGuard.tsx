@@ -5,7 +5,8 @@ import { ReactNode, ReactElement, useEffect } from 'react'
 import { useRouter } from 'next/router'
 
 // ** Hooks Import
-import { useAuth } from 'src/hooks/useAuth'
+import { useAppSelector } from 'src/store/hooks'
+import { selectAuthState, selectCurrentToken, selectRefreshInit, } from 'src/store/authSlice'
 
 interface AuthGuardProps {
   children: ReactNode
@@ -14,8 +15,13 @@ interface AuthGuardProps {
 
 const AuthGuard = (props: AuthGuardProps) => {
   const { children, fallback } = props
-  const auth = useAuth()
+
+  // call from global state instead of object
   const router = useRouter()
+  const loading = useAppSelector(selectAuthState);
+  const init = useAppSelector(selectRefreshInit)
+
+  const token = useAppSelector(selectCurrentToken)
 
   useEffect(
     () => {
@@ -23,8 +29,8 @@ const AuthGuard = (props: AuthGuardProps) => {
         return
       }
 
-      if (auth.user === null && !window.localStorage.getItem('userData')) {
-        if (router.asPath !== '/') {
+      if (init && !token && !loading) {
+        if (router.asPath !== '/dashboard/') {
           router.replace({
             pathname: '/login',
             query: { returnUrl: router.asPath }
@@ -34,15 +40,16 @@ const AuthGuard = (props: AuthGuardProps) => {
         }
       }
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [router.route]
+
+    [init, loading, router, router.route, token]
   )
 
-  if (auth.loading || auth.user === null) {
-    return fallback
+  if (init && token) {
+
+    return <>{children}</>
   }
 
-  return <>{children}</>
+  return fallback
 }
 
 export default AuthGuard
