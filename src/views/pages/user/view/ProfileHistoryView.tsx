@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
 
 import HistoryTable from 'src/views/table/custom/HistoryTable'
 
@@ -6,6 +7,7 @@ export default function ProfileHistory() {
   return (
     <>
       <Box sx={{ height: 400, width: '100%' }}>
+        <Typography variant='h5'> History</Typography>
         {/* <DataGrid rows={rows} columns={columns} checkboxSelection /> */}
         <HistoryTable></HistoryTable>
       </Box>

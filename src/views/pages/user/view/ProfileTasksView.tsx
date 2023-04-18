@@ -23,6 +23,7 @@ import IconButton from '@mui/material/IconButton'
 
 import Typography from '@mui/material/Typography'
 import Box, { BoxProps } from '@mui/material/Box'
+import Grid from '@mui/material/Grid'
 
 // ** Third Party Imports
 import DatePicker from 'react-datepicker'
@@ -130,25 +131,30 @@ const ProfileTasks = () => {
 
   return (
     <>
-      <AddTaskDrawer open={show} toggle={() => setShow(false)} />
-      <Box sx={{ height: 50, width: '100%' }}>
-        {' '}
-        <Button
-          size='medium'
-          type='submit'
-          variant='contained'
-          color='secondary'
-          sx={{ mb: 7, position: 'absolute', right: '8%' }}
-          onClick={() => setShow(true)}
-        >
-          Create Task
-        </Button>
-      </Box>
-
-      <br></br>
-      <Box sx={{ height: 400, width: '100%' }}>
-        <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }} />
-      </Box>
+      <Grid container spacing={6}>
+        <Grid item xs={12}>
+          <AddTaskDrawer open={show} toggle={() => setShow(false)} />
+        </Grid>
+        <Grid item xs={12}>
+          {/* <Box sx={{ height: 50, width: '100%' }}> */} <Typography variant='h5'>Tasks</Typography>
+          <Button
+            size='medium'
+            type='submit'
+            variant='contained'
+            color='secondary'
+            sx={{ mb: 7, position: 'absolute', right: '12%' }}
+            onClick={() => setShow(true)}
+          >
+            Create Task
+          </Button>
+          {/* </Box> */}
+        </Grid>
+        <Grid item xs={12}>
+          <Box sx={{ height: 400, width: '100%' }}>
+            <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }} />
+          </Box>
+        </Grid>
+      </Grid>
     </>
   )
 }
