@@ -5,7 +5,8 @@ import { ReactNode, ReactElement, useEffect } from 'react'
 import { useRouter } from 'next/router'
 
 // ** Hooks Import
-import { useAuth } from 'src/hooks/useAuth'
+import { useAppSelector } from 'src/store/hooks'
+import { selectAuthState, selectCurrentToken, selectRefreshInit } from 'src/store/authSlice'
 
 interface GuestGuardProps {
   children: ReactNode
@@ -14,7 +15,17 @@ interface GuestGuardProps {
 
 const GuestGuard = (props: GuestGuardProps) => {
   const { children, fallback } = props
-  const auth = useAuth()
+
+  /*
+  Global State
+
+  loading => are we waiting on API calls
+  init => has refresh-token api been called
+   */
+  const loading = useAppSelector(selectAuthState)
+  const init = useAppSelector(selectRefreshInit)
+  const token = useAppSelector(selectCurrentToken)
+
   const router = useRouter()
 
   useEffect(() => {
@@ -22,17 +33,27 @@ const GuestGuard = (props: GuestGuardProps) => {
       return
     }
 
-    if (window.localStorage.getItem('userData')) {
-      router.replace('/')
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.route])
+    if (token) {
+      if (router) {
+        const returnUrl = router.query.returnUrl
+        const redirectURL = returnUrl && returnUrl !== '/dashboard' ? returnUrl : '/dashboard'
 
-  if (auth.loading || (!auth.loading && auth.user !== null)) {
-    return fallback
+        router.replace(redirectURL as string)
+      }
+    }
+  }, [router, token])
+
+  /*
+
+  if refreshAPI called, all API calls made, and no token
+  render guest page
+
+  */
+  if (init && !loading && !token) {
+    return <>{children}</>
   }
 
-  return <>{children}</>
+  return fallback
 }
 
 export default GuestGuard

@@ -17,11 +17,10 @@ import Typography from '@mui/material/Typography'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
-// ** Context
-import { useAuth } from 'src/hooks/useAuth'
-
 // ** Type Imports
 import { Settings } from 'src/@core/context/settingsContext'
+import { useAppDispatch } from 'src/store/hooks'
+import { Logout } from 'src/store/authSlice'
 
 interface Props {
   settings: Settings
@@ -37,6 +36,7 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
 }))
 
 const UserDropdown = (props: Props) => {
+
   // ** Props
   const { settings } = props
 
@@ -44,8 +44,8 @@ const UserDropdown = (props: Props) => {
   const [anchorEl, setAnchorEl] = useState<Element | null>(null)
 
   // ** Hooks
+  const dispatch = useAppDispatch()
   const router = useRouter()
-  const { logout } = useAuth()
 
   // ** Vars
   const { direction } = settings
@@ -76,8 +76,8 @@ const UserDropdown = (props: Props) => {
     }
   }
 
-  const handleLogout = () => {
-    logout()
+  const handleLogout = async () => {
+    await dispatch(Logout()).unwrap()
     handleDropdownClose()
   }
 
