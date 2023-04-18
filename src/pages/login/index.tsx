@@ -1,5 +1,7 @@
 // ** React Imports
+
 import { useState, ReactNode, useEffect } from 'react'
+
 
 // ** Next Imports
 // import Link from 'next/link'
@@ -30,7 +32,6 @@ import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-// ** Hooks
 
 // import useBgColor from 'src/@core/hooks/useBgColor'
 import { useSettings } from 'src/@core/hooks/useSettings'
@@ -121,8 +122,10 @@ const LoginPage = () => {
   // ** Hooks
   const theme = useTheme()
 
+
   // ** Redux Hooks
   const dispatch = useAppDispatch()
+
 
   // const bgColors = useBgColor()
   const { settings } = useSettings()
