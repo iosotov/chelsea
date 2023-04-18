@@ -34,7 +34,7 @@ export type BlankLayoutWithAppBarProps = {
 export type NavSectionTitle = {
   auth?: boolean
   action?: string
-  subject?: string
+  subject?: string | string[]
   sectionTitle: string
 }
 
@@ -43,7 +43,7 @@ export type NavGroup = {
   title: string
   auth?: boolean
   action?: string
-  subject?: string
+  subject?: string | string[]
   badgeContent?: string
   children?: (NavGroup | NavLink)[]
   badgeColor?: 'default' | 'primary' | 'secondary' | 'success' | 'error' | 'warning' | 'info'
@@ -55,7 +55,7 @@ export type NavLink = {
   title: string
   auth?: boolean
   action?: string
-  subject?: string
+  subject?: string | string[]
   disabled?: boolean
   badgeContent?: string
   externalLink?: boolean

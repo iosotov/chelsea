@@ -147,7 +147,7 @@ const ProfileTasks = () => {
 
       <br></br>
       <Box sx={{ height: 400, width: '100%' }}>
-        <DataGrid rows={rows} columns={columns} checkboxSelection sx={{ mt: 7 }} />
+        <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }} />
       </Box>
     </>
   )
