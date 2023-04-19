@@ -18,6 +18,8 @@ import Step from '@mui/material/Step'
 import TabContext from '@mui/lab/TabContext'
 import TabPanel from '@mui/lab/TabPanel'
 import Tab from '@mui/material/Tab'
+import CircularProgress from '@mui/material/CircularProgress'
+
 // import TabList from '@mui/lab/TabList'
 import { Grid, Table } from '@mui/material'
 import MuiTabList, { TabListProps } from '@mui/lab/TabList'
@@ -72,6 +74,7 @@ export default function ProfileDocuments() {
   const [openUploadDialog, setUploadDialog] = useState<boolean>(false)
   const [openGenerateDrawer, setUploadDrawer] = useState<boolean>(false)
   const [tab, setTab] = useState<string>('esign')
+  const [tabLoading, setTabLoading] = useState<boolean>(false);
 
   //rows for tables
   const [data, setData] = useState([])
@@ -79,6 +82,8 @@ export default function ProfileDocuments() {
   const [generated, setGenerated] = useState([])
   const [uploaded, setUploaded] = useState([])
 
+  
+  // filter out the data
   // useEffect(() => {
   //   if (data.length) {
   //     const eSignEntries = data.filter(e => e.status === 1)
@@ -99,7 +104,11 @@ export default function ProfileDocuments() {
   const toggleDrawer = () => setUploadDrawer(!openGenerateDrawer)
 
   const handleTabChange = (e: SyntheticEvent, newValue: string) => {
+    setTabLoading(true);
     setTab(newValue)
+    setTimeout(() => {
+      setTabLoading(false)
+    }, 0)
   }
 
   return (
@@ -148,15 +157,30 @@ export default function ProfileDocuments() {
                   <Tab value='generated' label={`Generated Docs`} />
                   <Tab value='uploaded' label={`Uploaded Docs`} />
                 </TabList>
-                <TabPanel value='esign'>
-                  <TableColumns rows={esign} />
-                </TabPanel>
-                <TabPanel value='generated'>
-                  <TableColumns rows={generated} />
-                </TabPanel>
-                <TabPanel value='uploaded'>
-                  <TableColumns rows={uploaded} />
-                </TabPanel>
+                <Box sx={{minHeight: 280}}>
+                  {tabLoading
+                    ? (
+                      <Box sx={{ mt: 6, display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+                        <CircularProgress sx={{ mb: 4 }} />
+                        <Typography>Loading...</Typography>
+                      </Box>
+                    )
+                    : (
+                      <>
+                        <TabPanel value='esign'>
+                          <TableColumns rows={esign} />
+                        </TabPanel>
+                        <TabPanel value='generated'>
+                          <TableColumns rows={generated} />
+                        </TabPanel>
+                        <TabPanel value='uploaded'>
+                          <TableColumns rows={uploaded} />
+                        </TabPanel>
+                      </>
+                    )
+                  }
+                </Box>
+                
               </Box>
             </CardContent>
           </Card>

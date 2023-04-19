@@ -13,19 +13,21 @@ type Props = {
 export default function UserProfile({ tab }: Props) {
   const router = useRouter()
   const { profileId } = router.query
-
+  
   // check to see if valid id
   // if valid id, show view
   // else bounce to contacts list
 
   return (
-    <Grid container spacing={4}>
-      <Grid item xs={12} md={5} lg={4}>
-        <UserViewLeft id={profileId} />
+    <>
+      <Grid container spacing={4}>
+        <Grid item xs={12} md={5} lg={4}>
+          <UserViewLeft id={profileId} />
+        </Grid>
+        <Grid item xs={12} md={7} lg={8}>
+          <UserViewRight id={profileId} tab={tab ?? 'credit'} />
+        </Grid>
       </Grid>
-      <Grid item xs={12} md={7} lg={8}>
-        <UserViewRight id={profileId} tab={tab} />
-      </Grid>
-    </Grid>
+    </>
   )
 }

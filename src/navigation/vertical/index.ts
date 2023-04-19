@@ -2,7 +2,6 @@
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
 
 const navigation = (): VerticalNavItemsType => {
-  console.log('hello')
 
   return [
     {
@@ -11,12 +10,12 @@ const navigation = (): VerticalNavItemsType => {
       icon: 'mdi:home-outline',
       subject: 'all',
       action: 'manage'
+    }, 
+    {
+      sectionTitle: 'Contacts'
     },
     {
-      sectionTitle: 'Profiles'
-    },
-    {
-      title: 'Contacts',
+      title: 'Profiles',
       icon: 'mdi:account-multiple-outline',
       subject: ['PROFILE', 'PROFILE:LIST', 'PROFILE:LIST:VIEWALL'],
       children: [
@@ -24,14 +23,14 @@ const navigation = (): VerticalNavItemsType => {
           // disabled: true,
           title: 'Create New Profile',
           icon: 'mdi:account-plus-outline',
-          path: '/contact/create',
+          path: '/profiles/create',
           subject: ['PROFILE', 'PROFILE:CREATE'],
           action: 'manage'
         },
         {
           title: 'Search Profiles',
           icon: 'mdi:account-search-outline',
-          path: '/contact/list',
+          path: '/profiles/list',
           action: 'manage',
           subject: ['PROFILE', 'PROFILE:LIST', 'PROFILE:LIST:VIEWALL']
         }
@@ -41,9 +40,9 @@ const navigation = (): VerticalNavItemsType => {
       sectionTitle: 'Tasks'
     },
     {
-      // disabled: true,
+      disabled: true,
       title: 'Search Tasks',
-      path: '/task',
+      path: '/tasks/list',
       icon: 'mdi:clipboard-search-outline',
       action: 'manage',
       subject: ['TASK', 'TASK:LIST', 'TASK:LIST:VIEWALL']
@@ -55,7 +54,7 @@ const navigation = (): VerticalNavItemsType => {
       // disabled: true,
       title: 'Search Transactions',
       icon: 'mdi:credit-card-search-outline',
-      path: '/transaction',
+      path: '/transactions/list',
       action: 'manage',
       subject: ['ACCOUNTING, ACCOUNTING:TRANSACTIONS', 'ACCOUNTING:TRANSACTIONS:VIEWALL']
     },

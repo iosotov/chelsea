@@ -191,7 +191,7 @@ export default function ProfileCredit() {
                         <TableCell component='th' scope='row'>
                           {row.name}
                         </TableCell>
-                        <TableCell sx={{ overflow: 'scroll' }} align='left'>
+                        <TableCell align='left'>
                           {row.description}
                         </TableCell>
                       </TableRow>
