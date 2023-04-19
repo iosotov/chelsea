@@ -1,6 +1,6 @@
 // import { MouseEvent, SyntheticEvent, useState } from 'react';
 
-import { Ref, useState, forwardRef, ReactElement, ForwardedRef } from 'react'
+import { Ref, useState, useEffect, forwardRef, ReactElement, ForwardedRef } from 'react'
 
 import Button from '@mui/material/Button'
 
@@ -73,6 +73,9 @@ const ProfileTasks = () => {
   // const toggleAddPaymentDrawer = () => setAddPaymentOpen(!addPaymentOpen)
   const [show, setShow] = useState<boolean>(false)
 
+  // const [data, setData] = useState<[]>(initData)
+  const [data, setData] = useState<any>([])
+
   // const {
   //   control,
   //   handleSubmit,
@@ -87,20 +90,44 @@ const ProfileTasks = () => {
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 90 },
     {
-      field: 'type',
-      headerName: 'Type',
+      field: 'taskName',
+      headerName: 'Task Name',
       width: 150,
       editable: true
     },
     {
-      field: 'createdBy',
-      headerName: 'Created By ',
+      field: 'assignedTo',
+      headerName: 'Assigned To ',
       width: 150,
       editable: true
     },
     {
-      field: 'description',
-      headerName: 'Age',
+      field: 'dueDate',
+      headerName: 'Due Date',
+
+      // type: 'text',
+      width: 110,
+      editable: true
+    },
+    {
+      field: 'completedDate',
+      headerName: 'Completed Date',
+
+      // type: 'text',
+      width: 110,
+      editable: true
+    },
+    {
+      field: 'status',
+      headerName: 'Status',
+
+      // type: 'text',
+      width: 110,
+      editable: true
+    },
+    {
+      field: 'note',
+      headerName: 'Note',
 
       // type: 'text',
       width: 110,
@@ -117,24 +144,79 @@ const ProfileTasks = () => {
     // }
   ]
 
-  const rows = [
-    { id: 1, type: 'Snow', createdBy: 'Jon', description: 35 },
-    { id: 2, type: 'Lannister', createdBy: 'Cersei', description: 42 },
-    { id: 3, type: 'Lannister', createdBy: 'Jaime', description: 45 },
-    { id: 4, type: 'Stark', createdBy: 'Arya', description: 16 },
-    { id: 5, type: 'Targaryen', createdBy: 'Daenerys', description: null },
-    { id: 6, type: 'Melisandre', createdBy: null, description: 150 },
-    { id: 7, type: 'Clifford', createdBy: 'Ferrara', description: 44 },
-    { id: 8, type: 'Frances', createdBy: 'Rossini', description: 36 },
-    { id: 9, type: 'Roxie', createdBy: 'Harvey', description: 65 }
+  const rows = []
+
+  // const data = [
+  //   { id: 1, taskName: 'task1', assignedTo: 'Jon', dueDate: 35 },
+  //   { id: 2, taskName: 'task2', assignedTo: 'Cersei', dueDate: 42 },
+  //   { id: 3, taskName: 'task3', assignedTo: 'Jaime', dueDate: 45 },
+  //   { id: 4, taskName: 'Stark', assignedTo: 'Arya', dueDate: 16 },
+  //   { id: 5, taskName: 'Targaryen', assignedTo: 'Daenerys', dueDate: null },
+  //   { id: 6, taskName: 'Melisandre', assignedTo: null, dueDate: 150 },
+  //   { id: 7, taskName: 'Clifford', assignedTo: 'Ferrara', dueDate: 44 },
+  //   { id: 8, taskName: 'Frances', assignedTo: 'Rossini', dueDate: 36 },
+  //   { id: 9, taskName: 'Roxie', assignedTo: 'Harvey', dueDate: 65 }
+  // ]
+  const ex = [
+    { id: 1, taskName: 'task1', assignedTo: 'Jon', dueDate: 35 },
+    { id: 2, taskName: 'task2', assignedTo: 'Cersei', dueDate: 42 },
+    { id: 3, taskName: 'task3', assignedTo: 'Jaime', dueDate: 45 },
+    { id: 4, taskName: 'Stark', assignedTo: 'Arya', dueDate: 16 },
+    { id: 5, taskName: 'Targaryen', assignedTo: 'Daenerys', dueDate: null },
+    { id: 6, taskName: 'Melisandre', assignedTo: null, dueDate: 150 },
+    { id: 7, taskName: 'Clifford', assignedTo: 'Ferrara', dueDate: 44 },
+    { id: 8, taskName: 'Frances', assignedTo: 'Rossini', dueDate: 36 },
+    { id: 9, taskName: 'Roxie', assignedTo: 'Harvey', dueDate: 65 }
   ]
+
+  // const GetTasks = () => {
+  //   //call api to get tasks
+
+  //   return data
+  // }
+
+  const GetMine = () => {
+    //call api to get tasks
+
+    // const my = ex
+
+    // const [data, setData] = useState(ex)
+    setData(ex)
+    console.log(data)
+    console.log(setData)
+
+    // rows = data
+    // console.log(rows)
+  }
+
+  useEffect(() => {
+    GetMine()
+  }, [])
+
+  const updateData = () => {
+    const ex = [
+      { id: 1, taskName: 'taskNew', assignedTo: 'Jon', dueDate: 35 },
+      { id: 2, taskName: 'task2', assignedTo: 'Cersei', dueDate: 42 },
+      { id: 3, taskName: 'task3', assignedTo: 'Jaime', dueDate: 45 },
+      { id: 4, taskName: 'Stark', assignedTo: 'Arya', dueDate: 16 },
+      { id: 5, taskName: 'Targaryen', assignedTo: 'Daenerys', dueDate: null },
+      { id: 6, taskName: 'Melisandre', assignedTo: null, dueDate: 150 },
+      { id: 7, taskName: 'Clifford', assignedTo: 'Ferrara', dueDate: 44 },
+      { id: 8, taskName: 'Frances', assignedTo: 'Rossini', dueDate: 36 },
+      { id: 9, taskName: 'Roxie', assignedTo: 'Harvey', dueDate: 65 }
+    ]
+    setData(ex)
+  }
 
   return (
     <>
+      {/* <GetTasks></GetTasks> */}
+      <Button onClick={updateData}>hi</Button>
       <Grid container spacing={6}>
         <Grid item xs={12}>
           <AddTaskDrawer open={show} toggle={() => setShow(false)} />
         </Grid>
+
         <Grid item xs={12}>
           {/* <Box sx={{ height: 50, width: '100%' }}> */} <Typography variant='h5'>Tasks</Typography>
           <Button
@@ -151,7 +233,7 @@ const ProfileTasks = () => {
         </Grid>
         <Grid item xs={12}>
           <Box sx={{ height: 400, width: '100%' }}>
-            <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }} />
+            <DataGrid rows={data} columns={columns} sx={{ mt: 7 }} />
           </Box>
         </Grid>
       </Grid>
