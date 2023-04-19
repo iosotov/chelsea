@@ -1,7 +1,7 @@
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 
-import HistoryTable from 'src/views/table/custom/HistoryTable'
+import HistoryTable from 'src/views/pages/user/view/components/history/HistoryTable'
 
 export default function ProfileHistory() {
   return (
