@@ -1,18 +1,16 @@
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
-import Alert from '@mui/material/Alert'
-import Table from '@mui/material/Table'
+
 import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
+
 import Select from '@mui/material/Select'
 import Switch from '@mui/material/Switch'
 import Divider from '@mui/material/Divider'
 import MenuItem from '@mui/material/MenuItem'
-import TableRow from '@mui/material/TableRow'
+
 import { styled } from '@mui/material/styles'
-import TableCell from '@mui/material/TableCell'
-import TableBody from '@mui/material/TableBody'
+
 import TextField from '@mui/material/TextField'
 import CardHeader from '@mui/material/CardHeader'
 import Typography from '@mui/material/Typography'
@@ -23,8 +21,8 @@ import CardContent from '@mui/material/CardContent'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
-import BudgetTable from 'src/views/table/custom/BudgetTable'
-import ExpenseTable from 'src/views/table/custom/ExpenseTable'
+import BudgetTable from 'src/views/pages/user/view/components/budget/BudgetTable'
+import ExpenseTable from 'src/views/pages/user/view/components/budget/ExpenseTable'
 
 export default function ProfileBudget() {
   return (
