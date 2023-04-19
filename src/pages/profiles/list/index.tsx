@@ -9,7 +9,7 @@ export default function ContactList() {
   return (
     <>
       <p>Contact List</p>
-      <Link href={`/profiles/${Random()}/credit`}>Random Profile</Link>
+      <Link href={`/profiles/${Random()}/debts`}>Random Profile</Link>
     </>
   )
 }
