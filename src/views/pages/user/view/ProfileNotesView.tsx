@@ -31,7 +31,7 @@ import { useForm, Controller } from 'react-hook-form'
 // ** Styles Import
 import 'react-credit-cards/es/styles-compiled.css'
 
-import NotesTable from 'src/views/table/custom/NotesTable'
+import NotesTable from 'src/views/pages/user/view/components/notes/NotesTable'
 
 const defaultValues = {
   companyName: '',
