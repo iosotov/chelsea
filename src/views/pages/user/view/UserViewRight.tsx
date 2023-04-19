@@ -28,14 +28,23 @@ type Props = {
 }
 
 export default function UserViewLeft({ id, tab }: Props) {
-  const [activeTab, setActiveTab] = useState(tab ?? 'credit')
+  const [activeTab, setActiveTab] = useState(tab)
+  const [isLoading, setLoading] = useState(false)
   const router = useRouter()
 
+  console.log({tab});
+  console.log('rerenderd how many times?')
+
   const handleChange = (e: SyntheticEvent, value: string) => {
+    setLoading(true)
     setActiveTab(value)
-    router.push({
-      pathname: `/contact/${id}/${value.toLowerCase()}`
-    })
+    setTimeout(() => {
+      router
+        .push({
+          pathname: `/profiles/${id}/${value.toLowerCase()}`
+        })
+        .then(() => setLoading(false))
+    },300)
   }
 
   return (
@@ -53,30 +62,41 @@ export default function UserViewLeft({ id, tab }: Props) {
         </Tabs>
       </Box>
       {/* Add tab views here */}
-      <TabPanel value='credit'>
-        <ProfileCredit />
-      </TabPanel>
-      <TabPanel value='payments'>
-        <ProfilePayments />
-      </TabPanel>
-      <TabPanel value='billing'>
-        <ProfileBilling />
-      </TabPanel>
-      <TabPanel value='documents'>
-        <ProfileDocuments />
-      </TabPanel>
-      <TabPanel value='notes'>
-        <ProfileNotes />
-      </TabPanel>
-      <TabPanel value='tasks'>
-        <ProfileTasks />
-      </TabPanel>
-      <TabPanel value='history'>
-        <ProfileHistory />
-      </TabPanel>
-      <TabPanel value='budget'>
-        <ProfileBudget />
-      </TabPanel>
+      <Box sx={{ mt: 4 }}>
+        {isLoading ? (
+          <Box sx={{ mt: 6, display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+            <CircularProgress sx={{ mb: 4 }} />
+            <Typography>Loading...</Typography>
+          </Box>
+        ) : (
+          <>
+            <TabPanel value='credit'>
+              <ProfileCredit />
+            </TabPanel>
+            <TabPanel value='payments'>
+              <ProfilePayments />
+            </TabPanel>
+            <TabPanel value='billing'>
+              <ProfileBilling />
+            </TabPanel>
+            <TabPanel value='documents'>
+              <ProfileDocuments />
+            </TabPanel>
+            <TabPanel value='notes'>
+              <ProfileNotes />
+            </TabPanel>
+            <TabPanel value='tasks'>
+              <ProfileTasks />
+            </TabPanel>
+            <TabPanel value='history'>
+              <ProfileHistory />
+            </TabPanel>
+            <TabPanel value='budget'>
+              <ProfileBudget />
+            </TabPanel>
+          </>
+        )}
+      </Box>
     </TabContext>
   )
 }
