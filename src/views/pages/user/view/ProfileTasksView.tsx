@@ -214,7 +214,7 @@ const ProfileTasks = () => {
       <Button onClick={updateData}>hi</Button>
       <Grid container spacing={6}>
         <Grid item xs={12}>
-          <AddTaskDrawer open={show} toggle={() => setShow(false)} />
+          <AddTaskDrawer open={show} toggle={() => setShow(false)} data={data} />
         </Grid>
 
         <Grid item xs={12}>

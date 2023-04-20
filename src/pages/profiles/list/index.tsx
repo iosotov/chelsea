@@ -32,7 +32,6 @@ import { useDispatch, useSelector } from 'react-redux'
 import CustomChip from 'src/@core/components/mui/chip'
 import CustomAvatar from 'src/@core/components/mui/avatar'
 
-
 // ** Third Party Components
 import axios from 'axios'
 
@@ -77,19 +76,19 @@ const userStatusObj: UserStatusType = {
 }
 
 interface ContactType {
-  profileId: string,
-  createdAt: string,
-  createdCompanyName: string,
-  stageName: string,
-  stageStatusName: string,
-  statusName: string,
-  submittedDate: string,
-  enrolledDate: string,
-  cancelledDate: string,
+  profileId: string
+  createdAt: string
+  createdCompanyName: string
+  stageName: string
+  stageStatusName: string
+  statusName: string
+  submittedDate: string
+  enrolledDate: string
+  cancelledDate: string
 
-  firstName: string,
-  lastName: string,
-  avatar: string,
+  firstName: string
+  lastName: string
+  avatar: string
 }
 
 const LinkStyled = styled(Link)(({ theme }) => ({
@@ -106,17 +105,12 @@ const LinkStyled = styled(Link)(({ theme }) => ({
 // avatar
 // ** renders client column
 const renderClient = (row: Profile) => {
-
-  const avatar = ""
+  const avatar = ''
   if (avatar.length) {
     return <CustomAvatar src={avatar} sx={{ mr: 3, width: 30, height: 30 }} />
   } else {
     return (
-      <CustomAvatar
-        skin='light'
-        color={'primary'}
-        sx={{ mr: 3, width: 30, height: 30, fontSize: '.875rem' }}
-      >
+      <CustomAvatar skin='light' color={'primary'} sx={{ mr: 3, width: 30, height: 30, fontSize: '.875rem' }}>
         {row.firstName[0] + row.lastName[0]}
       </CustomAvatar>
     )
@@ -126,7 +120,7 @@ const renderClient = (row: Profile) => {
 // action column
 const RowOptions = ({ id }: { id: number | string }) => {
   // ** Hooks
-  const dispatch = useAppDispatch();
+  const dispatch = useAppDispatch()
 
   // ** State
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
@@ -195,11 +189,7 @@ const columns = [
     renderCell: ({ row }: CellType) => {
       const { profileId } = row
 
-      return (
-        <Typography sx={{ textTransform: 'capitalize' }}>
-          {profileId}
-        </Typography>
-      )
+      return <Typography sx={{ textTransform: 'capitalize' }}>{profileId}</Typography>
     }
   },
   {
@@ -213,7 +203,7 @@ const columns = [
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {renderClient(row)}
           <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-            <LinkStyled href='/apps/user/view/overview/'>{firstName + " " + lastName}</LinkStyled>
+            <LinkStyled href='/apps/user/view/overview/'>{firstName + ' ' + lastName}</LinkStyled>
           </Box>
         </Box>
       )
@@ -226,11 +216,7 @@ const columns = [
     renderCell: ({ row }: CellType) => {
       const { createdAt } = row
 
-      return (
-        <Typography variant='body2'>
-          {createdAt}
-        </Typography>
-      )
+      return <Typography variant='body2'>{createdAt}</Typography>
     }
   },
   {
@@ -240,11 +226,7 @@ const columns = [
     renderCell: ({ row }: CellType) => {
       const { createdCompanyName } = row
 
-      return (
-        <Typography sx={{ textTransform: 'capitalize' }}>
-          {createdCompanyName}
-        </Typography>
-      )
+      return <Typography sx={{ textTransform: 'capitalize' }}>{createdCompanyName}</Typography>
     }
   },
   {
@@ -252,11 +234,7 @@ const columns = [
     field: 'stageName',
     headerName: 'Stage',
     renderCell: ({ row }: CellType) => {
-      return (
-        <Typography variant='body2'>
-          {row.stageName}
-        </Typography>
-      )
+      return <Typography variant='body2'>{row.stageName}</Typography>
     }
   },
   {
@@ -264,11 +242,7 @@ const columns = [
     field: 'stageStatusName',
     headerName: 'Status',
     renderCell: ({ row }: CellType) => {
-      return (
-        <Typography variant='body2'>
-          {row.stageStatusName}
-        </Typography>
-      )
+      return <Typography variant='body2'>{row.stageStatusName}</Typography>
     }
   },
   {
@@ -292,11 +266,7 @@ const columns = [
     field: 'submittedDate',
     headerName: 'Submitted Date',
     renderCell: ({ row }: CellType) => {
-      return (
-        <Typography variant='body2'>
-          {row.submittedDate}
-        </Typography>
-      )
+      return <Typography variant='body2'>{row.submittedDate}</Typography>
     }
   },
   {
@@ -304,11 +274,7 @@ const columns = [
     field: 'enrolledDate',
     headerName: 'Enrolled Date',
     renderCell: ({ row }: CellType) => {
-      return (
-        <Typography variant='body2'>
-          {row.enrolledDate}
-        </Typography>
-      )
+      return <Typography variant='body2'>{row.enrolledDate}</Typography>
     }
   },
   {
@@ -316,11 +282,7 @@ const columns = [
     field: 'cancelledDate',
     headerName: 'Cancelled Date',
     renderCell: ({ row }: CellType) => {
-      return (
-        <Typography variant='body2'>
-          {row.cancelledDate}
-        </Typography>
-      )
+      return <Typography variant='body2'>{row.cancelledDate}</Typography>
     }
   },
   {
@@ -346,15 +308,13 @@ const ProfileList = () => {
   const [value, setValue] = useState<string>('')
 
   useGetProfilesQuery(data)
-  useGetProfileBudgetsQuery("1327485548")
+  useGetProfileBudgetsQuery('1327485548')
   useGetBudgetsQuery({})
 
   console.log(profileBudgets, budgets)
 
   const [pageSize, setPageSize] = useState<number>(10)
   const [addUserOpen, setAddUserOpen] = useState<boolean>(false)
-
-
 
   const handleFilter = useCallback((val: string) => {
     setValue(val)
@@ -444,7 +404,7 @@ const ProfileList = () => {
             </Grid>
           </CardContent>
           <Divider />
-          <TableHeader value={value} handleFilter={handleFilter} toggle={toggleAddUserDrawer} />
+          {/* <TableHeader value={value} handleFilter={handleFilter} toggle={toggleAddUserDrawer} /> */}
           {/* <Box sx={{ width: '100%' }}> */}
 
           <DataGrid
@@ -461,11 +421,9 @@ const ProfileList = () => {
         </Card>
       </Grid>
 
-      <SidebarAddUser open={addUserOpen} toggle={toggleAddUserDrawer} />
+      {/* <SidebarAddUser open={addUserOpen} toggle={toggleAddUserDrawer} /> */}
     </Grid>
   )
 }
-
-
 
 export default ProfileList
