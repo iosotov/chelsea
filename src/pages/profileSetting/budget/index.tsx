@@ -1,20 +1,59 @@
 // import { MouseEvent, SyntheticEvent, useState } from 'react';
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
+import { useState } from 'react'
 import Button from '@mui/material/Button'
+import CreateBudgetDrawer from './CreateBudgetDrawer'
+
+import { useAppDispatch, useAppSelector } from 'src/store/hooks'
+
+import { useGetBudgetsQuery, useGetProfileBudgetsQuery } from 'src/store/api/profileBudgetApiSlice'
+import { selectAllBudgets, selectAllProfileBudgets } from 'src/store/profileBudgetSlice'
 
 const BudgetSetting = () => {
+  // const [data, setData] = useState<Profile[] | {}>({})
+  // const profiles = useAppSelector(selectAllProfiles)
+
+  const budgets = useAppSelector(selectAllBudgets)
+  const [openBudgetDrawer, setOpenBudgetDrawer] = useState<boolean>(false)
+
+  // const profileBudgets = useAppSelector(selectAllProfileBudgets)
+
+  // val stores state for header filters
+  // const [value, setValue] = useState<string>('')
+
+  // useGetProfilesQuery(data)
+  // useGetProfileBudgetsQuery('1327485548')
+  useGetBudgetsQuery({})
+  const toggleDrawer = () => setOpenBudgetDrawer(!openBudgetDrawer)
+
+  console.log(budgets)
+
+  // useEffect(() => {
+  //   setData(budgets)
+  // }, [])
+
+  console.log('hi')
+  console.log(budgets)
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 90 },
     {
-      field: 'type',
-      headerName: 'Type',
+      field: 'name',
+      headerName: 'Budget Name',
       width: 150,
       editable: true
     },
     {
-      field: 'createdBy',
-      headerName: 'Created By ',
+      field: 'active',
+      headerName: 'Status',
       width: 150,
+      editable: true
+    },
+    {
+      field: 'budgetType',
+      headerName: 'Budget Type',
+
+      // type: 'text',
+      width: 110,
       editable: true
     },
     {
@@ -23,6 +62,14 @@ const BudgetSetting = () => {
 
       // type: 'text',
       width: 110,
+      editable: true
+    },
+    {
+      field: 'budgetId',
+      headerName: 'budgetId',
+
+      // type: 'text',
+      width: 180,
       editable: true
     }
 
@@ -48,6 +95,29 @@ const BudgetSetting = () => {
     { id: 9, type: 'Roxie', createdBy: 'Harvey', description: 65 }
   ]
 
+  // const GetRows = () => {
+  //   const myRows = budgets.map((budget, index)=> {
+  //     return{
+  //       id: index,
+  //       value: budget
+  //     };
+  //   })
+  // }
+  // GetRows()
+
+  const myRows = budgets.map((budget, index) => {
+    return {
+      id: index,
+      budgetId: budget.budgetId,
+      name: budget.name,
+      budgetType: budget.budgetType,
+      description: budget.description,
+      active: budget.active
+    }
+  })
+
+  console.log(myRows)
+
   return (
     <>
       <Button
@@ -56,12 +126,14 @@ const BudgetSetting = () => {
         variant='contained'
         color='secondary'
         sx={{ mb: 7, position: 'absolute', right: '150px' }}
+        onClick={toggleDrawer}
       >
         Create
       </Button>
       <br></br>
 
-      <DataGrid rows={rows} columns={columns} checkboxSelection sx={{ mt: 7 }} />
+      <DataGrid rows={myRows} columns={columns} checkboxSelection sx={{ mt: 7 }} />
+      <CreateBudgetDrawer open={openBudgetDrawer} toggle={toggleDrawer} />
     </>
   )
 }
