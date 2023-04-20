@@ -60,6 +60,12 @@ class SolApi {
 
     return res
   }
+
+  static async GetBudgets() {
+    const res = await this.request('/setting/budgets', {}, 'GET')
+
+    return res
+  }
 }
 
 export default SolApi
