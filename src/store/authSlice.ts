@@ -53,7 +53,7 @@ const initialState: AuthState = {
   permissions: []
 }
 
-function decodeJwt(token: string) {
+export function decodeJwt(token: string) {
   const payloadBase64Url = token.split('.')[1]
   const payloadBase64 = payloadBase64Url.replace('-', '+').replace('_', '/')
   const payloadJson = Buffer.from(payloadBase64, 'base64').toString('utf-8')

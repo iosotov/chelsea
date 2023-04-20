@@ -165,14 +165,14 @@ const LoginPage = () => {
   }
 
   // const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'
-  const imageSource = 'highFive'
+  const imageSource = 'chelsea_app_1'
 
   return (
     <Box className='content-right'>
       {!hidden ? (
         <Box sx={{ flex: 1, display: 'flex', position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
           <LoginIllustrationWrapper>
-            <LoginIllustration alt='login-illustration' src={`/images/pages/${imageSource}.jpg`} />
+            <LoginIllustration alt='login-illustration' src={`/images/pages/${imageSource}.svg`} />
           </LoginIllustrationWrapper>
           {/* <FooterIllustrationsV2 /> */}
         </Box>

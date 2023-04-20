@@ -1,16 +1,8 @@
-import { createApi, fetchBaseQuery, BaseQueryFn } from '@reduxjs/toolkit/query/react'
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { RootState } from 'src/store/store'
 
-// import { setCredentials, logOut } from '../../features/auth/authSlice';
-
-interface QueryArg {
-  url: string
-  method?: string
-  body?: any
-}
-
 const baseQuery = fetchBaseQuery({
-  baseUrl: 'http://monolivia.com/api',
+  baseUrl: 'http://localhost:3001/api',
   credentials: 'include',
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.token
@@ -22,31 +14,9 @@ const baseQuery = fetchBaseQuery({
   }
 })
 
-const baseQueryWithReauth: BaseQueryFn<QueryArg, unknown, any> = async (args, api, extraOptions) => {
-  let result = await baseQuery(args, api, extraOptions)
-
-  if (result?.error?.status === 403) {
-    console.log('sending refresh token')
-
-    const refreshResult = await baseQuery('/user/refresh-token', api, extraOptions)
-    if (refreshResult?.data) {
-      const employeeId = (api.getState() as RootState).auth.employeeId
-      console.log(employeeId)
-
-      // api.dispatch(setCredentials({ ...refreshResult.data, user }));
-
-      result = await baseQuery(args, api, extraOptions)
-    } else {
-      // api.dispatch(logOut());
-    }
-  }
-
-  return result
-}
-
 export const apiSlice = createApi({
-  baseQuery: baseQueryWithReauth,
-  tagTypes: ['ProfileInfo', 'Debt', 'Enrollment', 'Payment', 'Documents'],
+  baseQuery: baseQuery,
+  tagTypes: ['PROFILE', 'PROFILE-BUDGET', 'BUDGET', 'BANKACCOUNT'],
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   endpoints: builder => ({})
