@@ -1,4 +1,5 @@
 import { useState, SyntheticEvent } from 'react'
+import { createContext } from 'react'
 
 import Box from '@mui/material/Box'
 import Tab from '@mui/material/Tab'
@@ -27,9 +28,10 @@ type Props = {
 }
 
 export default function UserViewLeft({ id, tab }: Props) {
+  const router = useRouter()
+  
   const [activeTab, setActiveTab] = useState(tab ?? 'debts')
   const [isLoading, setLoading] = useState(false)
-  const router = useRouter()
 
   const handleChange = (e: SyntheticEvent, value: string) => {
     setLoading(true)
@@ -67,28 +69,28 @@ export default function UserViewLeft({ id, tab }: Props) {
         ) : (
           <>
             <TabPanel value='debts'>
-              <ProfileCredit />
+              <ProfileCredit id={id} />
             </TabPanel>
             <TabPanel value='payments'>
-              <ProfilePayments />
+              <ProfilePayments id={id} />
             </TabPanel>
             <TabPanel value='billing'>
-              <ProfileBilling />
+              <ProfileBilling id={id} />
             </TabPanel>
             <TabPanel value='documents'>
-              <ProfileDocuments />
+              <ProfileDocuments id={id} />
             </TabPanel>
             <TabPanel value='notes'>
-              <ProfileNotes />
+              <ProfileNotes id={id} />
             </TabPanel>
             <TabPanel value='tasks'>
-              <ProfileTasks />
+              <ProfileTasks id={id} />
             </TabPanel>
             <TabPanel value='budget'>
-              <ProfileBudget />
+              <ProfileBudget id={id} />
             </TabPanel>
             <TabPanel value='activity'>
-              <ProfileActivity />
+              <ProfileActivity id={id} />
             </TabPanel>
           </>
         )}

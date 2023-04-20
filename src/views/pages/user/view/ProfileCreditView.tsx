@@ -36,6 +36,10 @@ import Icon from 'src/@core/components/icon'
 
 type Order = 'asc' | 'desc'
 
+type Props = {
+  id?: string | string[]
+}
+
 interface DebtData {
   creditor: string
   accountNumber: string
@@ -104,9 +108,9 @@ const rows = [
   createDebtData('Creditor 13', 'sample', 14234.0, 100, 'False', 'False')
 ]
 
-export default function ProfileCredit() {
+export default function ProfileCredit({ id }: Props) {
   const theme = useTheme()
-
+  console.log(id)
   const options: ApexOptions = {
     chart: {
       sparkline: { enabled: true }
