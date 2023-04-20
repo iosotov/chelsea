@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, forwardRef, ForwardedRef } from 'react'
+import { useState, forwardRef, ForwardedRef, useEffect } from 'react'
 
 // ** MUI Imports
 import Drawer from '@mui/material/Drawer'
@@ -31,6 +31,7 @@ import { ButtonGroup } from '@mui/material'
 interface Props {
   open: boolean
   toggle: () => void
+  data: []
 }
 
 const CustomInput = forwardRef(({ ...props }, ref: ForwardedRef<HTMLElement>) => {
@@ -45,9 +46,20 @@ const Header = styled(Box)<BoxProps>(({ theme }) => ({
   backgroundColor: theme.palette.background.default
 }))
 
-const AddTaskDrawer = ({ open, toggle }: Props) => {
+const AddTaskDrawer = ({ open, toggle, data }: Props) => {
   // ** State
   const [date, setDate] = useState<DateType>(new Date())
+
+  // const data =[];
+
+  const [options, setOptions] = useState<any>(data)
+  const [group, setGroup] = useState<string>('Users')
+
+  console.log(group)
+
+  useEffect(() => {
+    setOptions(data)
+  }, [data])
 
   return (
     <Drawer
@@ -73,11 +85,19 @@ const AddTaskDrawer = ({ open, toggle }: Props) => {
               <MenuItem value='select-method' disabled>
                 Select Task Name
               </MenuItem>
+              {options.map(option => (
+                <MenuItem key={option.taskName} value={option.id}>
+                  {option.taskName}
+                </MenuItem>
+              ))}
+              {/* <MenuItem value='select-method' disabled>
+                Select Task Name
+              </MenuItem>
               <MenuItem value='Cash'>120 Day</MenuItem>
               <MenuItem value='Bank Transfer'>test</MenuItem>
               <MenuItem value='Credit'>Name of Task</MenuItem>
               <MenuItem value='Debit'>Task1</MenuItem>
-              <MenuItem value='Paypal'>Paypal</MenuItem>
+              <MenuItem value='Paypal'>Paypal</MenuItem> */}
             </Select>
           </FormControl>
         </Box>
@@ -112,11 +132,12 @@ const AddTaskDrawer = ({ open, toggle }: Props) => {
         </Box> */}
         <Box sx={{ mb: 6 }}>
           <ButtonGroup variant='contained' sx={{ ml: 10 }}>
-            <Button>Users</Button>
-            <Button>Teams</Button>
-            <Button>Roles</Button>
+            <Button onClick={() => setGroup('Users')}>Users</Button>
+            <Button onClick={() => setGroup('Teams')}>Teams</Button>
+            <Button onClick={() => setGroup('Roles')}>Roles</Button>
           </ButtonGroup>
         </Box>
+        {group}
 
         <Box sx={{ mb: 6 }}>
           <FormControl fullWidth>
@@ -130,6 +151,7 @@ const AddTaskDrawer = ({ open, toggle }: Props) => {
               <MenuItem value='select-method' disabled>
                 Select Group
               </MenuItem>
+              {/* //Load group from user roles teams, calls api depending on useState of group */}
               <MenuItem value='Cash'>User1</MenuItem>
               <MenuItem value='Bank Transfer'>Team1</MenuItem>
               <MenuItem value='Credit'>Credit</MenuItem>
