@@ -12,23 +12,26 @@ import InputLabel from '@mui/material/InputLabel'
 import TextField from '@mui/material/TextField'
 import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
-import DatePicker, {ReactDatePickerProps} from 'react-datepicker'
+import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
 import CustomInput from 'src/views/pages/user/view/components/create/PickersComponent'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
-import Cleave from 'cleave.js/react'
-import 'cleave.js/dist/addons/cleave-phone.us'
 
+import { useForm } from 'react-hook-form'
+
+type FormData = {}
 
 export default function CreateProfile() {
-  const [date, setDate] = useState(null);
+  const [date, setDate] = useState(null)
+
+  FormData
 
   return (
     <Card>
       <CardContent>
         <Typography variant='h5'>Create New Profile</Typography>
-        <Divider sx={{my: 4}}></Divider>
+        <Divider sx={{ my: 4 }}></Divider>
         <form>
-          <Grid container spacing={4} sx={{mb: 6}}>
+          <Grid container spacing={4} sx={{ mb: 6 }}>
             <Grid item xs={12} md={6} lg={4}>
               <FormControl fullWidth>
                 <InputLabel>Campaign</InputLabel>
@@ -42,11 +45,9 @@ export default function CreateProfile() {
                 </Select>
               </FormControl>
             </Grid>
-            <Grid item xs={0} md={6} lg={8}>
-
-            </Grid>
+            <Grid item xs={0} md={6} lg={8}></Grid>
             <Grid item xs={12}>
-            <Typography variant='h6'>Personal Information</Typography>
+              <Typography variant='h6'>Personal Information</Typography>
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
               <FormControl fullWidth>
@@ -122,12 +123,12 @@ export default function CreateProfile() {
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
               <FormControl fullWidth>
-                <TextField label='City'/>
+                <TextField label='City' />
               </FormControl>
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
               <FormControl fullWidth>
-              <InputLabel>State</InputLabel>
+                <InputLabel>State</InputLabel>
                 <Select label='State' defaultValue='default-value'>
                   <MenuItem value='default-value'>Select State</MenuItem>
                   <MenuItem value='CA'>California</MenuItem>
@@ -141,9 +142,7 @@ export default function CreateProfile() {
                 <TextField label='Zipcode' />
               </FormControl>
             </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-
-            </Grid>
+            <Grid item xs={12} md={6} lg={4}></Grid>
             <Grid item xs={12}>
               <Typography variant='h5'>Additional Information</Typography>
             </Grid>
@@ -168,8 +167,10 @@ export default function CreateProfile() {
               </FormControl>
             </Grid>
           </Grid>
-          <Box sx={{display: 'flex', justifyContent: 'flex-end'}}>
-          <Button color='primary' variant='outlined'>Save Profile</Button>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Button type='submit' color='primary' variant='outlined'>
+              Save Profile
+            </Button>
           </Box>
         </form>
       </CardContent>

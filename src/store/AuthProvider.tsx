@@ -11,13 +11,11 @@ import { RefreshToken, selectRefreshInit } from './authSlice'
 import { useAppDispatch, useAppSelector } from './hooks'
 import FallbackSpinner from 'src/@core/components/spinner'
 
-
 type Props = {
   children: ReactNode
 }
 
 const AuthWrapper = ({ children }: Props) => {
-
   // ** Hooks
   const router = useRouter()
   const dispatch = useAppDispatch()
@@ -25,13 +23,13 @@ const AuthWrapper = ({ children }: Props) => {
   // has refresh token api been called
   const init = useAppSelector(selectRefreshInit)
 
-
   useEffect(() => {
     const initAuth = async (): Promise<void> => {
-
       // send request to refresh-token api to check for token
+      console.log('in useEffect')
       const refreshToken = await dispatch(RefreshToken()).unwrap()
       if (!refreshToken) {
+        console.log('not a refresh')
         if (!router.pathname.includes('login')) {
           router.replace('/login')
         }
@@ -42,21 +40,13 @@ const AuthWrapper = ({ children }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-
-  return init ?
-    <>
-      {children}
-    </>
-    : <FallbackSpinner />
+  return init ? <>{children}</> : <FallbackSpinner />
 }
 
 const AuthProvider = ({ children }: Props) => {
-
   return (
     <Provider store={store}>
-      <AuthWrapper>
-        {children}
-      </AuthWrapper>
+      <AuthWrapper>{children}</AuthWrapper>
     </Provider>
   )
 }

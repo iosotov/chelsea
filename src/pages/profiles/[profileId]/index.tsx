@@ -1,5 +1,5 @@
 import Grid from '@mui/material/Grid'
-import {Box, CircularProgress, Typography} from '@mui/material'
+import { Box, CircularProgress, Typography } from '@mui/material'
 
 import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
@@ -67,46 +67,39 @@ const dummyData = {
   stageStatusName: 'New Lead'
 }
 
-
 export default function UserProfile({ tab }: Props) {
   const router = useRouter()
   const { profileId } = router.query
   const [loading, setLoading] = useState(true)
-  const [data, setData] = useState({});
-  
+  const [data, setData] = useState({})
+
   // check to see if valid id (get profile info)
   // if valid id, show view
   // else bounce to contacts list
 
-  console.log(loading);
-
   setTimeout(() => {
     setData(dummyData)
-    setLoading(false);
+    setLoading(false)
   }, 1000)
 
   return (
     <>
-      {
-        loading
-         ? (
-            <Box sx={{ mt: 6, display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-              <CircularProgress sx={{ mb: 4 }} />
-              <Typography>Loading...</Typography>
-            </Box>
-         )
-         : (
-            <Grid container spacing={4}>
-              <Grid item xs={12} md={5} lg={4}>
-                {/* pass profileInfo directly into UserViewLeft */}
-                <UserViewLeft data={data} />
-              </Grid>
-              <Grid item xs={12} md={7} lg={8}>
-                <UserViewRight id={profileId} tab={tab} />
-              </Grid>
-            </Grid>
-         )
-      }  
+      {loading ? (
+        <Box sx={{ mt: 6, display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+          <CircularProgress sx={{ mb: 4 }} />
+          <Typography>Loading...</Typography>
+        </Box>
+      ) : (
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={5} lg={4}>
+            {/* pass profileInfo directly into UserViewLeft */}
+            <UserViewLeft data={data} />
+          </Grid>
+          <Grid item xs={12} md={7} lg={8}>
+            <UserViewRight id={profileId} tab={tab} />
+          </Grid>
+        </Grid>
+      )}
     </>
   )
 }
