@@ -12,15 +12,11 @@ const createData = (incomeType: string, amount: number) => {
   return { incomeType, amount }
 }
 
-const rows = [
-  createData('income1', 100),
-  createData('income2', 10),
-  createData('income3', 30),
-  createData('incomenull', 0)
-]
+const BudgetTable = (data: any) => {
+  console.log(data)
 
-const BudgetTable = () => {
-  // console.log(rows)
+  // var budget
+
   // let i = 0
   // for (i = 0; i < rows.length; i++) {
   //   ;<TableContainer component={Paper}></TableContainer>
@@ -36,9 +32,9 @@ const BudgetTable = () => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map(row => (
+          {data.map(budget => (
             <TableRow
-              key={row.incomeType}
+              key={budget.budgetId}
               sx={{
                 '&:last-of-type td, &:last-of-type th': {
                   border: 0
@@ -46,12 +42,12 @@ const BudgetTable = () => {
               }}
             >
               <TableCell component='th' scope='row'>
-                {row.incomeType}
+                {budget.amount}
               </TableCell>
               <TableCell align='right'>
                 <TextField fullWidth label='Amount' placeholder='Amount'>
                   {' '}
-                  {row.amount}
+                  {budget.amount}
                 </TextField>
               </TableCell>
             </TableRow>
