@@ -97,8 +97,7 @@ const ProfileSetting = () => {
   //   setData(budgets)
   // }, [])
 
-  console.log('hi')
-  console.log(budgets)
+  console.log('profileBudget')
 
   return (
     <TabContext value={value}>

@@ -26,14 +26,10 @@ const BudgetSetting = () => {
   useGetBudgetsQuery({})
   const toggleDrawer = () => setOpenBudgetDrawer(!openBudgetDrawer)
 
-  console.log(budgets)
-
   // useEffect(() => {
   //   setData(budgets)
   // }, [])
 
-  console.log('hi')
-  console.log(budgets)
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 90 },
     {
@@ -83,29 +79,8 @@ const BudgetSetting = () => {
     // }
   ]
 
-  const rows = [
-    { id: 1, type: 'Snow', createdBy: 'Jon', description: 35 },
-    { id: 2, type: 'Lannister', createdBy: 'Cersei', description: 42 },
-    { id: 3, type: 'Lannister', createdBy: 'Jaime', description: 45 },
-    { id: 4, type: 'Stark', createdBy: 'Arya', description: 16 },
-    { id: 5, type: 'Targaryen', createdBy: 'Daenerys', description: null },
-    { id: 6, type: 'Melisandre', createdBy: null, description: 150 },
-    { id: 7, type: 'Clifford', createdBy: 'Ferrara', description: 44 },
-    { id: 8, type: 'Frances', createdBy: 'Rossini', description: 36 },
-    { id: 9, type: 'Roxie', createdBy: 'Harvey', description: 65 }
-  ]
-
-  // const GetRows = () => {
-  //   const myRows = budgets.map((budget, index)=> {
-  //     return{
-  //       id: index,
-  //       value: budget
-  //     };
-  //   })
-  // }
-  // GetRows()
-
-  const myRows = budgets.map((budget, index) => {
+  const mapRows = budgets.map((budget, index) => {
+    //easier way to add index needed for rows prop?
     return {
       id: index,
       budgetId: budget.budgetId,
@@ -116,7 +91,7 @@ const BudgetSetting = () => {
     }
   })
 
-  console.log(myRows)
+  console.log(mapRows)
 
   return (
     <>
@@ -132,7 +107,7 @@ const BudgetSetting = () => {
       </Button>
       <br></br>
 
-      <DataGrid rows={myRows} columns={columns} checkboxSelection sx={{ mt: 7 }} />
+      <DataGrid rows={mapRows} columns={columns} checkboxSelection sx={{ mt: 7 }} />
       <CreateBudgetDrawer open={openBudgetDrawer} toggle={toggleDrawer} />
     </>
   )
