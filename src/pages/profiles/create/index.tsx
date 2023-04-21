@@ -7,23 +7,147 @@ import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
-import FormControl from '@mui/material/FormControl'
-import InputLabel from '@mui/material/InputLabel'
-import TextField from '@mui/material/TextField'
-import Select from '@mui/material/Select'
-import MenuItem from '@mui/material/MenuItem'
-import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
+import ReactInputMask from 'react-input-mask'
+// import FormControl from '@mui/material/FormControl'
+// import InputLabel from '@mui/material/InputLabel'
+// import TextField from '@mui/material/TextField'
+// import Select from '@mui/material/Select'
+// import MenuItem from '@mui/material/MenuItem'
+// import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
+// import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
+
+// custom components
 import CustomInput from 'src/views/pages/user/view/components/create/PickersComponent'
-import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
+import SingleSelect from 'src/views/shared/form-input/single-select'
+import TextInput from 'src/views/shared/form-input/text-input'
 
 import { useForm } from 'react-hook-form'
+import SelectDate from 'src/views/shared/form-input/date-picker'
 
-type FormData = {}
+// const defaultValues = {
+//   campaign: 'default',
+//   firstName: '',
+//   lastName: '',
+//   middleName: '',
+//   birthdate: null,
+//   ssn: '',
+//   gender: 'default',
+//   phoneNumber: '',
+//   phoneNumber2: '',
+//   email: '',
+//   address1: '',
+//   address2: '',
+//   city: '',
+//   state: 'default',
+//   zipCode: '',
+//   authorizedFirstName: '',
+//   authorizedLastName: '',
+//   authorizedPhone: '',
+//   authorizedEmail: ''
+// }
+
+const campaignOptions = [
+  {
+    label: 'Campaign A',
+    value: '1'
+  },
+  {
+    label: 'Campaign B',
+    value: '2'
+  },
+  {
+    label: 'Campaign C',
+    value: '3'
+  },
+  {
+    label: 'Campaign D',
+    value: '4'
+  }
+]
+
+const genderOptions = [
+  {
+    label: 'Male',
+    value: 0
+  },
+  {
+    label: 'Female',
+    value: 1
+  },
+  {
+    label: 'Other',
+    value: 2
+  }
+]
+
+const stateOptions = [
+  { label: 'Alabama', value: 'AL' },
+  { label: 'Alaska', value: 'AK' },
+  { label: 'Arizona', value: 'AZ' },
+  { label: 'Arkansas', value: 'AR' },
+  { label: 'California', value: 'CA' },
+  { label: 'Colorado', value: 'CO' },
+  { label: 'Connecticut', value: 'CT' },
+  { label: 'Delaware', value: 'DE' },
+  { label: 'District Of Columbia', value: 'DC' },
+  { label: 'Florida', value: 'FL' },
+  { label: 'Georgia', value: 'GA' },
+  { label: 'Hawaii', value: 'HI' },
+  { label: 'Idaho', value: 'ID' },
+  { label: 'Illinois', value: 'IL' },
+  { label: 'Indiana', value: 'IN' },
+  { label: 'Iowa', value: 'IA' },
+  { label: 'Kansas', value: 'KS' },
+  { label: 'Kentucky', value: 'KY' },
+  { label: 'Louisiana', value: 'LA' },
+  { label: 'Maine', value: 'ME' },
+  { label: 'Maryland', value: 'MD' },
+  { label: 'Massachusetts', value: 'MA' },
+  { label: 'Michigan', value: 'MI' },
+  { label: 'Minnesota', value: 'MN' },
+  { label: 'Mississippi', value: 'MS' },
+  { label: 'Missouri', value: 'MO' },
+  { label: 'Montana', value: 'MT' },
+  { label: 'Nebraska', value: 'NE' },
+  { label: 'Nevada', value: 'NV' },
+  { label: 'New Hampshire', value: 'NH' },
+  { label: 'New Jersey', value: 'NJ' },
+  { label: 'New Mexico', value: 'NM' },
+  { label: 'New York', value: 'NY' },
+  { label: 'North Carolina', value: 'NC' },
+  { label: 'North Dakota', value: 'ND' },
+  { label: 'Ohio', value: 'OH' },
+  { label: 'Oklahoma', value: 'OK' },
+  { label: 'Oregon', value: 'OR' },
+  { label: 'Pennsylvania', value: 'PA' },
+  { label: 'Rhode Island', value: 'RI' },
+  { label: 'South Carolina', value: 'SC' },
+  { label: 'South Dakota', value: 'SD' },
+  { label: 'Tennessee', value: 'TN' },
+  { label: 'Texas', value: 'TX' },
+  { label: 'Utah', value: 'UT' },
+  { label: 'Vermont', value: 'VT' },
+  { label: 'Virginia', value: 'VA' },
+  { label: 'Washington', value: 'WA' },
+  { label: 'West Virginia', value: 'WV' },
+  { label: 'Wisconsin', value: 'WI' },
+  { label: 'Wyoming', value: 'WY' }
+]
 
 export default function CreateProfile() {
-  const [date, setDate] = useState(null)
+  const profileForm = useForm()
 
-  FormData
+  const {
+    handleSubmit,
+    control,
+    formState: { errors }
+  } = profileForm
+
+  const onSubmit = (data: any) => {
+    console.log(data)
+  }
+
+  console.log('rerendered')
 
   return (
     <Card>
@@ -33,142 +157,108 @@ export default function CreateProfile() {
         <form>
           <Grid container spacing={4} sx={{ mb: 6 }}>
             <Grid item xs={12} md={6} lg={4}>
-              <FormControl fullWidth>
-                <InputLabel>Campaign</InputLabel>
-                <Select label='Campaign' defaultValue='1'>
-                  <MenuItem value='1'>Select One</MenuItem>
-                  <MenuItem value='2'>Test One</MenuItem>
-                  <MenuItem value='3'>Test Two</MenuItem>
-                  <MenuItem value='4'>Test Three</MenuItem>
-                  <MenuItem value='5'>Test Four</MenuItem>
-                  <MenuItem value='6'>Test Five</MenuItem>
-                </Select>
-              </FormControl>
+              <SingleSelect
+                name='campaign'
+                label='Campaign'
+                defaultLabel='Select Campaign'
+                options={campaignOptions}
+                control={control}
+                errors={errors}
+                required
+              />
             </Grid>
             <Grid item xs={0} md={6} lg={8}></Grid>
             <Grid item xs={12}>
               <Typography variant='h6'>Personal Information</Typography>
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <FormControl fullWidth>
-                <TextField label='First Name' />
-              </FormControl>
+              <TextInput label='First Name' name='firstName' control={control} errors={errors} required />
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <FormControl fullWidth>
-                <TextField label='Last Name' />
-              </FormControl>
+              <TextInput label='Last Name' name='lastName' control={control} errors={errors} required />
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <FormControl fullWidth>
-                <TextField label='Middle Name' />
-              </FormControl>
+              <TextInput label='Middle Name' name='middleName' control={control} />
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <FormControl fullWidth>
-                <DatePickerWrapper sx={{ '& .MuiFormControl-root': { width: '100%' } }}>
-                  <DatePicker
-                    selected={date}
-                    id='birthdate'
-                    onChange={(date: Date) => setDate(date)}
-                    isClearable
-                    customInput={<CustomInput label='Birthdate' />}
-                  />
-                </DatePickerWrapper>
-              </FormControl>
+              <SelectDate label='Birthdate' name='birthdate' errors={errors} control={control} required />
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <FormControl fullWidth>
-                <TextField label='SSN' />
-              </FormControl>
+              <TextInput label='SSN' name='ssn' errors={errors} control={control} required />
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <FormControl fullWidth>
-                <InputLabel>Gender</InputLabel>
-                <Select label='Gender' defaultValue='default-value'>
-                  <MenuItem value='default-value'>Select Gender</MenuItem>
-                  <MenuItem value={0}>Male</MenuItem>
-                  <MenuItem value={1}>Female</MenuItem>
-                  <MenuItem value={2}>Other</MenuItem>
-                </Select>
-              </FormControl>
+              <SingleSelect
+                label='Gender'
+                defaultLabel='Select Gender'
+                name='gender'
+                options={genderOptions}
+                control={control}
+                errors={errors}
+                required
+              />
             </Grid>
             <Grid item xs={12}>
               <Typography variant='h6'>Contact Information</Typography>
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <FormControl fullWidth>
-                <TextField label='Primary Phone Number' placeholder='(123) 456-7890' />
-              </FormControl>
+              <TextInput
+                label='Primary Phone Number'
+                name='phoneNumber'
+                control={control}
+                placeholder='(123) 456-7890'
+              />
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <FormControl fullWidth>
-                <TextField label='Secondary Phone Number' placeholder='(123) 456-7890' />
-              </FormControl>
+              <TextInput
+                label='Secondary Phone Number'
+                name='phoneNumber2'
+                control={control}
+                placeholder='(123) 456-7890'
+              />
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <FormControl fullWidth>
-                <TextField label='Email Address' placeholder='example@sample.com' />
-              </FormControl>
+              <TextInput label='Email Address' name='email' control={control} placeholder='example@sample.com' />
             </Grid>
             <Grid item xs={12} lg={6}>
-              <FormControl fullWidth>
-                <TextField label='Address' />
-              </FormControl>
+              <TextInput label='Home Address' name='address1' control={control} />
             </Grid>
             <Grid item xs={12} lg={6}>
-              <FormControl fullWidth>
-                <TextField label='Address 2' />
-              </FormControl>
+              <TextInput label='Address 2' name='address2' control={control} />
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <FormControl fullWidth>
-                <TextField label='City' />
-              </FormControl>
+              <TextInput label='City' name='city' control={control} />
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <FormControl fullWidth>
-                <InputLabel>State</InputLabel>
-                <Select label='State' defaultValue='default-value'>
-                  <MenuItem value='default-value'>Select State</MenuItem>
-                  <MenuItem value='CA'>California</MenuItem>
-                  <MenuItem value='TX'>Texas</MenuItem>
-                  <MenuItem value='FA'>Florida</MenuItem>
-                </Select>
-              </FormControl>
+              <SingleSelect
+                label='State'
+                defaultLabel='Select State'
+                name='state'
+                options={stateOptions}
+                control={control}
+              />
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <FormControl fullWidth>
-                <TextField label='Zipcode' />
-              </FormControl>
+              <TextInput label='Zipcode' name='zipCode' control={control} />
             </Grid>
             <Grid item xs={12} md={6} lg={4}></Grid>
             <Grid item xs={12}>
               <Typography variant='h5'>Additional Information</Typography>
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <FormControl fullWidth>
-                <TextField label='Authorized First Name' />
-              </FormControl>
+              <TextInput label='Authorized First Name' name='authorizedFirstName' control={control} />
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <FormControl fullWidth>
-                <TextField label='Authorized Last Name' />
-              </FormControl>
+              <TextInput label='Authorized Last Name' name='authorizedLastName' control={control} />
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <FormControl fullWidth>
-                <TextField label='Authorized Phone Number' />
-              </FormControl>
+              <TextInput label='Authorized Phone Number' name='authorizedPhoneNumber' control={control} />
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <FormControl fullWidth>
-                <TextField label='Authorized Email' />
-              </FormControl>
+              <TextInput label='Authorized Email' name='authorizedEmail' control={control} />
             </Grid>
           </Grid>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button type='submit' color='primary' variant='outlined'>
+            <Button color='primary' variant='outlined' onClick={handleSubmit(onSubmit)}>
               Save Profile
             </Button>
           </Box>
