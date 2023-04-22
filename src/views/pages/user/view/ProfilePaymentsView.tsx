@@ -1,4 +1,4 @@
-import { ChangeEvent, MouseEvent, useState } from 'react'
+import { ChangeEvent, MouseEvent, useState, useEffect } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -26,6 +26,14 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContentText from '@mui/material/DialogContentText'
+
+import { useForm } from 'react-hook-form'
+
 // ** Third Party Imports
 import { ApexOptions } from 'apexcharts'
 
@@ -33,6 +41,9 @@ import { ApexOptions } from 'apexcharts'
 import CustomChip from 'src/@core/components/mui/chip'
 import OptionsMenu from 'src/@core/components/option-menu'
 import ReactApexcharts from 'src/@core/components/react-apexcharts'
+import SelectDate from 'src/views/shared/form-input/date-picker'
+import SingleSelect from 'src/views/shared/form-input/single-select'
+import TextInput from 'src/views/shared/form-input/text-input'
 
 import Icon from 'src/@core/components/icon'
 
@@ -46,6 +57,12 @@ interface Data {
   status: string
   memo: string
   description: string
+}
+
+type EnrollmentModalProps = {
+  open: boolean
+  handleClose: () => void
+  data?: any
 }
 
 const createData = (
@@ -308,10 +325,25 @@ const EnhancedTable = () => {
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0
 
+  const [data, setData] = useState({})
+  const [enrollmentModal, setEnrollmentModal] = useState<boolean>(false)
+
+  const toggleEnrollment = () => setEnrollmentModal(!enrollmentModal)
+
+  // get payment data from redux
+  // useEffect(() => {
+  //   if (data) {
+  //     setData(data)
+  //   }
+  // }, [data])
+
   return (
     <>
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 4 }}>
+          <Button variant='outlined' size='small' onClick={toggleEnrollment}>
+            {data ? 'Update' : 'Create'} Plan
+          </Button>
           <ButtonGroup size='small'>
             <Button>Add</Button>
             <Button>Remove</Button>
@@ -352,12 +384,12 @@ const EnhancedTable = () => {
                       <TableCell component='th' id={labelId} scope='row' padding='none'>
                         {row.number}
                       </TableCell>
-                      <TableCell>{row.processDate}</TableCell>
-                      <TableCell>{row.amount}</TableCell>
-                      <TableCell>{row.clearedDate}</TableCell>
-                      <TableCell>{row.status}</TableCell>
-                      <TableCell>{row.memo}</TableCell>
-                      <TableCell>{row.description}</TableCell>
+                      <TableCell align='right'>{row.processDate}</TableCell>
+                      <TableCell align='right'>{row.amount}</TableCell>
+                      <TableCell align='right'>{row.clearedDate}</TableCell>
+                      <TableCell align='right'>{row.status}</TableCell>
+                      <TableCell align='right'>{row.memo}</TableCell>
+                      <TableCell align='right'>{row.description}</TableCell>
                     </TableRow>
                   )
                 })}
@@ -383,7 +415,170 @@ const EnhancedTable = () => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </CardContent>
+      <EnrollmentDialog open={enrollmentModal} handleClose={toggleEnrollment} data={data} />
     </>
+  )
+}
+
+const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => {
+  const enrollmentForm = useForm()
+
+  const {
+    handleSubmit,
+    control,
+    formState: { errors }
+  } = enrollmentForm
+
+  const onSubmit = (data: any) => {
+    console.log(data)
+  }
+
+  const paymentOptions = [
+    {
+      label: 'ACH',
+      value: 'ach'
+    },
+    {
+      label: 'Credit',
+      value: 'credit'
+    },
+    {
+      label: 'Debit',
+      value: 'debit'
+    }
+  ]
+
+  const gatewayOptions = [
+    {
+      label: 'Nacha',
+      value: 'nacha'
+    },
+    {
+      label: 'Seamless Chex',
+      value: 'seamless'
+    },
+    {
+      label: 'Stripe',
+      value: 'stripe'
+    },
+    {
+      label: 'Authorize Net',
+      value: 'authorizenet'
+    }
+  ]
+
+  const lengthOptions = [
+    {
+      label: '10 Payments',
+      value: 10
+    },
+    {
+      label: '12 Payments',
+      value: 12
+    },
+    {
+      label: '14 Payments',
+      value: 14
+    },
+    {
+      label: '16 Payments',
+      value: 16
+    },
+    {
+      label: '18 Payments',
+      value: 18
+    }
+  ]
+
+  const serviceOptions = [
+    {
+      label: '35%',
+      value: 35
+    },
+    {
+      label: '36%',
+      value: 36
+    },
+    {
+      label: '37%',
+      value: 37
+    },
+    {
+      label: '38%',
+      value: 38
+    },
+    {
+      label: '39%',
+      value: 39
+    },
+    {
+      label: '40%',
+      value: 40
+    }
+  ]
+
+  return (
+    <Dialog open={open} maxWidth='lg' fullWidth onClose={handleClose} aria-labelledby='form-dialog-title'>
+      <DialogTitle id='form-dialog-title'>{data ? 'Update' : 'Create New'} Enrollment Plan</DialogTitle>
+      <DialogContent>
+        <form>
+          <Grid container sx={{ my: 1 }} spacing={4}>
+            <Grid item xs={12} md={4}>
+              <Grid container spacing={4}>
+                <Grid item xs={12}>
+                  <SingleSelect
+                    label='Payment Method'
+                    name='paymentMethod'
+                    errors={errors}
+                    required
+                    control={control}
+                    options={paymentOptions}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <SingleSelect
+                    label='Gateway'
+                    name='gateway'
+                    errors={errors}
+                    required
+                    control={control}
+                    options={gatewayOptions}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <SingleSelect
+                    label='Plan Length'
+                    name='planLength'
+                    errors={errors}
+                    required
+                    control={control}
+                    options={lengthOptions}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <SingleSelect
+                    label='Service Fee'
+                    name='serviceFee'
+                    errors={errors}
+                    required
+                    control={control}
+                    options={serviceOptions}
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+            {/* Preview Table */}
+            <Grid item xs={12} md={8}></Grid>
+          </Grid>
+        </form>
+      </DialogContent>
+      <DialogActions className='dialog-actions-dense'>
+        <Button onClick={handleClose}>Cancel</Button>
+        <Button variant='outlined' onClick={handleSubmit(onSubmit)}>
+          Save Changes
+        </Button>
+      </DialogActions>
+    </Dialog>
   )
 }
 
