@@ -4,6 +4,7 @@ import auth from './authSlice'
 import profile from './profileSlice'
 import profileBudget from './profileBudgetSlice'
 import bankAccount from './bankAccountSlice'
+import campaign from './campaignSlice'
 
 export const store = configureStore({
   reducer: {
@@ -11,7 +12,8 @@ export const store = configureStore({
     auth,
     profile,
     profileBudget,
-    bankAccount
+    bankAccount,
+    campaign
   },
   middleware: getDefaultMiddleware => getDefaultMiddleware().concat(apiSlice.middleware),
   devTools: true
