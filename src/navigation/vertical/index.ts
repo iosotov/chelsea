@@ -2,7 +2,6 @@
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
 
 const navigation = (): VerticalNavItemsType => {
-
   return [
     {
       title: 'Dashboard',
@@ -10,7 +9,7 @@ const navigation = (): VerticalNavItemsType => {
       icon: 'mdi:home-outline',
       subject: 'all',
       action: 'manage'
-    }, 
+    },
     {
       sectionTitle: 'Contacts'
     },
@@ -111,6 +110,11 @@ const navigation = (): VerticalNavItemsType => {
           path: '/system/ipwhitelist'
         }
       ]
+    },
+    {
+      title: 'test',
+      icon: 'mdi:cog',
+      path: '/tester'
     }
   ]
 }
