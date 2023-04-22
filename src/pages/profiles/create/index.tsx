@@ -8,13 +8,6 @@ import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
 import ReactInputMask from 'react-input-mask'
-// import FormControl from '@mui/material/FormControl'
-// import InputLabel from '@mui/material/InputLabel'
-// import TextField from '@mui/material/TextField'
-// import Select from '@mui/material/Select'
-// import MenuItem from '@mui/material/MenuItem'
-// import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
-// import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 
 // custom components
 import CustomInput from 'src/views/pages/user/view/components/create/PickersComponent'
@@ -23,28 +16,6 @@ import TextInput from 'src/views/shared/form-input/text-input'
 
 import { useForm } from 'react-hook-form'
 import SelectDate from 'src/views/shared/form-input/date-picker'
-
-// const defaultValues = {
-//   campaign: 'default',
-//   firstName: '',
-//   lastName: '',
-//   middleName: '',
-//   birthdate: null,
-//   ssn: '',
-//   gender: 'default',
-//   phoneNumber: '',
-//   phoneNumber2: '',
-//   email: '',
-//   address1: '',
-//   address2: '',
-//   city: '',
-//   state: 'default',
-//   zipCode: '',
-//   authorizedFirstName: '',
-//   authorizedLastName: '',
-//   authorizedPhone: '',
-//   authorizedEmail: ''
-// }
 
 const campaignOptions = [
   {

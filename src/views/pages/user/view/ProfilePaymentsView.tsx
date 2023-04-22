@@ -291,7 +291,6 @@ const EnhancedTable = () => {
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1))
     }
-
     setSelected(newSelected)
   }
 
@@ -334,7 +333,7 @@ const EnhancedTable = () => {
               {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const isItemSelected = isSelected(String(row.number))
+                  const isItemSelected = isSelected(row.number)
                   const labelId = `enhanced-table-checkbox-${index}`
 
                   return (
@@ -345,7 +344,7 @@ const EnhancedTable = () => {
                       role='checkbox'
                       selected={isItemSelected}
                       aria-checked={isItemSelected}
-                      onClick={event => handleClick(event, String(row.number))}
+                      onClick={event => handleClick(event, row.number)}
                     >
                       <TableCell padding='checkbox'>
                         <Checkbox checked={isItemSelected} inputProps={{ 'aria-labelledby': labelId }} />
@@ -353,19 +352,19 @@ const EnhancedTable = () => {
                       <TableCell component='th' id={labelId} scope='row' padding='none'>
                         {row.number}
                       </TableCell>
-                      <TableCell align='right'>{row.processDate}</TableCell>
-                      <TableCell align='right'>{row.amount}</TableCell>
-                      <TableCell align='right'>{row.clearedDate}</TableCell>
-                      <TableCell align='right'>{row.status}</TableCell>
-                      <TableCell align='right'>{row.memo}</TableCell>
-                      <TableCell align='right'>{row.description}</TableCell>
+                      <TableCell>{row.processDate}</TableCell>
+                      <TableCell>{row.amount}</TableCell>
+                      <TableCell>{row.clearedDate}</TableCell>
+                      <TableCell>{row.status}</TableCell>
+                      <TableCell>{row.memo}</TableCell>
+                      <TableCell>{row.description}</TableCell>
                     </TableRow>
                   )
                 })}
               {emptyRows > 0 && (
                 <TableRow
                   sx={{
-                    height: 53 * emptyRows
+                    height: 52 * emptyRows
                   }}
                 >
                   <TableCell colSpan={6} />

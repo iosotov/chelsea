@@ -77,6 +77,8 @@ export default function UserProfile({ tab }: Props) {
   // if valid id, show view
   // else bounce to contacts list
 
+  console.log(profileId)
+
   setTimeout(() => {
     setData(dummyData)
     setLoading(false)

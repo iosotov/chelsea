@@ -34,6 +34,8 @@ import ReactApexcharts from 'src/@core/components/react-apexcharts'
 
 import Icon from 'src/@core/components/icon'
 
+import { useEffect } from 'react'
+
 type Order = 'asc' | 'desc'
 
 type Props = {
@@ -108,9 +110,10 @@ const rows = [
   createDebtData('Creditor 13', 'sample', 14234.0, 100, 'False', 'False')
 ]
 
-export default function ProfileCredit({ id }: Props) {
+//Credit Score + Table Card
+function CreditScore({ id }: Props) {
   const theme = useTheme()
-  console.log(id)
+
   const options: ApexOptions = {
     chart: {
       sparkline: { enabled: true }
@@ -146,103 +149,60 @@ export default function ProfileCredit({ id }: Props) {
       }
     }
   }
-
   return (
-    <Grid container spacing={4}>
-      <Grid item xs={12}>
-        {/* Credit Report */}
-        <Card sx={{ p: 2, mb: 4 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-            <Button>View</Button>
-            <Button>New Report</Button>
-          </Box>
-          <Grid container spacing={4}>
-            <Grid item xs={6}>
-              <CardContent
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  flexDirection: 'column',
-                  mb: 4
-                }}
-              >
-                <ReactApexcharts type='radialBar' height={240} series={[80]} options={options} />
-                <Typography sx={{ mt: 5, mb: 2.5 }} variant='h5'>
-                  VantageScore 3.0
-                </Typography>
-                <Typography variant='caption'>Generated: Unknown</Typography>
-              </CardContent>
-            </Grid>
-            <Grid item xs={6}>
-              <TableContainer sx={{ maxHeight: '250px' }} component={Paper}>
-                <Table aria-label='simple table'>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Code</TableCell>
-                      <TableCell align='left'>Description</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {creditRows.map(row => (
-                      <TableRow
-                        key={row.name}
-                        sx={{
-                          '&:last-of-type td, &:last-of-type th': {
-                            border: 0
-                          }
-                        }}
-                      >
-                        <TableCell component='th' scope='row'>
-                          {row.name}
-                        </TableCell>
-                        <TableCell align='left'>
-                          {row.description}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Grid>
-          </Grid>
-        </Card>
-        {/* Debts Info */}
-        <Grid container sx={{ mb: 4 }} spacing={4}>
-          <Grid item xs={6}>
-            <Card>
-              <CardContent>
-                <Typography variant='caption'>Enrolled Debts</Typography>
-                <Typography variant='h4'>5 of 15</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-          <Grid item xs={6}>
-            <Card>
-              <CardContent>
-                <Typography variant='caption'>Total Enrolled Balance</Typography>
-                <Typography variant='h4'>$28,783.00</Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+    <Card sx={{ p: 2, mb: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+        <Button>View</Button>
+        <Button>New Report</Button>
+      </Box>
+      <Grid container spacing={4}>
+        <Grid item xs={12} lg={6}>
+          <CardContent
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              flexDirection: 'column',
+              mb: 4
+            }}
+          >
+            <ReactApexcharts type='radialBar' height={280} series={[80]} options={options} />
+            <Typography sx={{ mt: 5, mb: 2.5 }} variant='h5'>
+              VantageScore 3.0
+            </Typography>
+            <Typography variant='caption'>Generated: Unknown</Typography>
+          </CardContent>
         </Grid>
-        {/* Debts Table */}
-        <Card>
-          <CardContent>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant='h6'>Debts</Typography>
-              <ButtonGroup size='small'>
-                <Button>Add</Button>
-                <Button>Enroll</Button>
-                <Button>Withdraw</Button>
-              </ButtonGroup>
-            </Box>
-          </CardContent>
-          <CardContent>
-            <EnhancedTable />
-          </CardContent>
-        </Card>
+        <Grid item xs={12} lg={6}>
+          <TableContainer sx={{ maxHeight: '250px' }} component={Paper}>
+            <Table aria-label='simple table'>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Code</TableCell>
+                  <TableCell align='left'>Description</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {creditRows.map(row => (
+                  <TableRow
+                    key={row.name}
+                    sx={{
+                      '&:last-of-type td, &:last-of-type th': {
+                        border: 0
+                      }
+                    }}
+                  >
+                    <TableCell component='th' scope='row'>
+                      {row.name}
+                    </TableCell>
+                    <TableCell align='left'>{row.description}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        </Grid>
       </Grid>
-    </Grid>
+    </Card>
   )
 }
 
@@ -409,6 +369,7 @@ const EnhancedTable = () => {
   const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
       const newSelecteds = rows.map(n => n.creditor)
+      console.log(newSelecteds)
       setSelected(newSelecteds)
 
       return
@@ -475,10 +436,13 @@ const EnhancedTable = () => {
                     role='checkbox'
                     selected={isItemSelected}
                     aria-checked={isItemSelected}
-                    onClick={event => handleClick(event, row.creditor)}
                   >
                     <TableCell padding='checkbox'>
-                      <Checkbox checked={isItemSelected} inputProps={{ 'aria-labelledby': labelId }} />
+                      <Checkbox
+                        checked={isItemSelected}
+                        onClick={event => handleClick(event, row.creditor)}
+                        inputProps={{ 'aria-labelledby': labelId }}
+                      />
                     </TableCell>
                     <TableCell component='th' id={labelId} scope='row' padding='none'>
                       {row.creditor}
@@ -514,5 +478,60 @@ const EnhancedTable = () => {
       />
       <EnhancedTableToolbar numSelected={selected.length} />
     </>
+  )
+}
+
+export default function ProfileCredit({ id }: Props) {
+  const [debts, setDebts] = useState()
+
+  useEffect(() => {
+    if (id) {
+      // use redux api to call debt info,
+      // await result
+      // setDebt(data)
+    }
+  }, [id])
+
+  return (
+    <Grid container spacing={4}>
+      <Grid item xs={12}>
+        <CreditScore id={id} />
+        {/* Debts Info */}
+        <Grid container sx={{ mb: 4 }} spacing={4}>
+          <Grid item xs={6}>
+            <Card>
+              <CardContent>
+                <Typography variant='caption'>Enrolled Debts</Typography>
+                <Typography variant='h4'>5 of 15</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={6}>
+            <Card>
+              <CardContent>
+                <Typography variant='caption'>Total Enrolled Balance</Typography>
+                <Typography variant='h4'>$28,783.00</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+        {/* Debts Table */}
+        <Card>
+          <CardContent>
+            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+              <Typography variant='h6'>Debts</Typography>
+              <ButtonGroup size='small'>
+                <Button>Add</Button>
+                <Button>Enroll</Button>
+                <Button>Withdraw</Button>
+              </ButtonGroup>
+            </Box>
+          </CardContent>
+          <CardContent>
+            <EnhancedTable />
+          </CardContent>
+        </Card>
+      </Grid>
+    </Grid>
   )
 }
