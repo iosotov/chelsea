@@ -1,38 +1,43 @@
 import { useCreateCampaignMutation, useDeleteCampaignMutation, useGetCampaignsQuery, useUpdateCampaignMutation } from "src/store/api/campaignApiSlice"
+import { useCreateCompanyMutation, useDeleteCompanyMutation, useDisableCompanyMutation, useEnableCompanyMutation, useGetCompaniesQuery, useUpdateCompanyMutation } from "src/store/api/companyApiSlice"
 import { selectAllCampaigns } from "src/store/campaignSlice"
+import { selectAllCompanies } from "src/store/companySlice"
 import { useAppSelector } from "src/store/hooks"
 
 
 const testCreate = {
-  campaignName: 'testero',
-  description: 'testero',
-  phone: '2223334444',
-  displayName: 'testeroo',
-  companyId: "920502eb-684b-43db-bb03-0bef5fe00ce0",
-  companyName: 'Luna'
+
+  name: "Testeroo",
+  phone: "777-333-0000"
+
 }
 
 const testUpdate = {
-  campaignName: "Chat 1",
-  description: 'hello',
-  phone: "9999999991",
-  email: "test@prime-logix.co",
-  displayName: "Chat 2",
-  companyId: "920502eb-684b-43db-bb03-0bef5fe00ce0",
-  companyName: 'Luna',
-  campaignId: "52f6c331-85e7-40c3-b189-399bf43de7e5"
+  name: "Testerooop",
+  phone: "000-999-3333",
+  email: "test@prime.com",
+  address1: "ad 1",
+  address2: "ad 2",
+  city: "city",
+  state: "ca",
+  zipcode: "92613",
+  parentCompanyId: "920502eb-684b-43db-bb03-0bef5fe00ce0",
+  parentCompanyName: "Luna",
+  companyId: "4a8f69db-da9a-43c2-b85b-44d7657e7df7"
 }
 
 export default function Tester() {
 
 
-  const campaigns = useAppSelector(selectAllCampaigns)
+  const companies = useAppSelector(selectAllCompanies)
 
-  useGetCampaignsQuery({})
 
-  const [create] = useCreateCampaignMutation()
-  const [update] = useUpdateCampaignMutation()
-  const [remove] = useDeleteCampaignMutation()
+  useGetCompaniesQuery({})
+
+  const [create] = useCreateCompanyMutation()
+  const [update] = useUpdateCompanyMutation()
+  const [enable] = useEnableCompanyMutation()
+  const [disable] = useDisableCompanyMutation()
 
 
 
@@ -47,14 +52,20 @@ export default function Tester() {
 
   }
 
-  function handleDelete() {
-    const id = "52f6c331-85e7-40c3-b189-399bf43de7e5"
-    remove(id)
+  function handleEnable() {
+    const companyId = "4a8f69db-da9a-43c2-b85b-44d7657e7df7"
+    enable(companyId)
+
+  }
+
+  function handleDisable() {
+    const companyId = "4a8f69db-da9a-43c2-b85b-44d7657e7df7"
+    disable(companyId)
 
   }
 
 
-  console.log(campaigns)
+  console.log(companies)
 
 
 
@@ -62,7 +73,8 @@ export default function Tester() {
     <>
       <button onClick={handleCreate}>create</button>
       <button onClick={handleUpdate}>update</button>
-      <button onClick={handleDelete}>delete</button>
+      <button onClick={handleEnable}>delete</button>
+      <button onClick={handleDisable}>delete</button>
     </>
   )
 }
