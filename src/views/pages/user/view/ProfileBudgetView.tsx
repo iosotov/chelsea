@@ -1,3 +1,5 @@
+import { useState, useEffect, MouseEvent, useCallback, SyntheticEvent } from 'react'
+
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
@@ -23,8 +25,58 @@ import Icon from 'src/@core/components/icon'
 
 import BudgetTable from 'src/views/pages/user/view/components/budget/BudgetTable'
 import ExpenseTable from 'src/views/pages/user/view/components/budget/ExpenseTable'
+import BudgetTableGenerator from './components/budget/BudgetTableGenerator'
+
+//api imports
+
+import { useAppDispatch, useAppSelector } from 'src/store/hooks'
+import { Profile, selectAllProfiles, useGetProfilesQuery } from 'src/store/api/profileApiSlice'
+
+import { useGetBudgetsQuery, useGetProfileBudgetsQuery } from 'src/store/api/profileBudgetApiSlice'
+import { selectAllBudgets, selectAllProfileBudgets } from 'src/store/profileBudgetSlice'
 
 export default function ProfileBudget() {
+  //addc isLoading?
+  const [data, setData] = useState<Profile[] | {}>({})
+  const [isLoading, setLoading] = useState(false)
+  const profiles = useAppSelector(selectAllProfiles)
+  const budgets = useAppSelector(selectAllBudgets)
+  const profileBudgets = useAppSelector(selectAllProfileBudgets)
+
+  // val stores state for header filters
+  // const [value, setValue] = useState<string>('')
+
+  // const handleChange = (e: SyntheticEvent, value: string) => {
+  //   setLoading(true)
+  //   setActiveTab(value)
+  //   setTimeout(() => {
+  //     router
+  //       .push({
+  //         pathname: `/profiles/${id}/${value.toLowerCase()}`
+  //       })
+  //       .then(() => setLoading(false))
+  //   },300)
+  // }
+  // useEffect(() => {
+  //   async function fetchData(){
+  //     const result = await useGetProfilesQuery(data)
+  //   }
+  // })
+
+  useGetProfilesQuery(data)
+  useGetProfileBudgetsQuery('1327485548')
+  useGetBudgetsQuery({})
+  console.log(isLoading)
+
+  // setLoading(true)
+
+  // if (isLoading) {
+  //   setLoading(false)
+  // }
+  console.log(isLoading)
+
+  console.log(profileBudgets, budgets, profiles)
+
   return (
     <>
       <Grid container spacing={6}>
@@ -75,11 +127,12 @@ export default function ProfileBudget() {
           </Box>
         </Grid>
         <Grid item xs={12}>
-          <BudgetTable></BudgetTable>
+          {/* <BudgetTable {...profileBudgets}></BudgetTable> */}
+          <BudgetTableGenerator budgetTypes={profileBudgets} budgetList={budgets} type={1}></BudgetTableGenerator>
         </Grid>
-        <Grid item xs={12}>
+        {/* <Grid item xs={12}>
           <ExpenseTable></ExpenseTable>
-        </Grid>
+        </Grid> */}
         <Grid item xs={12} textAlign={'right'}>
           <Button variant='outlined' color='secondary' sx={{ mr: 4 }}>
             Clear Form

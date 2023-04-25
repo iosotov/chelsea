@@ -1,4 +1,4 @@
-import { MouseEvent, SyntheticEvent, useState } from 'react'
+import { MouseEvent, SyntheticEvent, useState, useEffect } from 'react'
 
 // ** MUI Imports
 import Tab from '@mui/material/Tab'
@@ -18,6 +18,12 @@ import AssigneeSetting from './assignees'
 import BudgetSetting from './budget'
 import ContactsSetting from './contacts'
 import LabelSetting from './label'
+
+import { useAppDispatch, useAppSelector } from 'src/store/hooks'
+import { Profile, selectAllProfiles, useGetProfilesQuery } from 'src/store/api/profileApiSlice'
+
+import { useGetBudgetsQuery, useGetProfileBudgetsQuery } from 'src/store/api/profileBudgetApiSlice'
+import { selectAllBudgets, selectAllProfileBudgets } from 'src/store/profileBudgetSlice'
 
 // import Tasks from './tasks'
 
@@ -71,6 +77,27 @@ const ProfileSetting = () => {
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
+
+  const [data, setData] = useState<Profile[] | {}>({})
+  const profiles = useAppSelector(selectAllProfiles)
+
+  const budgets = useAppSelector(selectAllBudgets)
+  const profileBudgets = useAppSelector(selectAllProfileBudgets)
+
+  // val stores state for header filters
+  // const [value, setValue] = useState<string>('')
+
+  useGetProfilesQuery(data)
+  useGetProfileBudgetsQuery('1327485548')
+  useGetBudgetsQuery({})
+
+  console.log(profileBudgets, budgets)
+
+  // useEffect(() => {
+  //   setData(budgets)
+  // }, [])
+
+  console.log('profileBudget')
 
   return (
     <TabContext value={value}>
