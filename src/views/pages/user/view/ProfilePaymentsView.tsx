@@ -421,8 +421,15 @@ const EnhancedTable = () => {
 }
 
 const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => {
-  const enrollmentForm = useForm()
+  const defaultValues = {
+    paymentMethod: 'ach',
+    maintenanceFee: 80,
+    gateway: 'nacha',
+    planLength: 12,
+    serviceFee: 35
+  }
 
+  const enrollmentForm = useForm({ defaultValues }, data)
   const {
     handleSubmit,
     control,
@@ -564,6 +571,9 @@ const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => 
                     control={control}
                     options={serviceOptions}
                   />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextInput label='Maintenance Fee' name='maintenanceFee' errors={errors} control={control} />
                 </Grid>
               </Grid>
             </Grid>
