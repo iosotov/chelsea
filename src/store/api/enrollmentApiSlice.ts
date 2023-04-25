@@ -82,7 +82,7 @@ type EnrollmentListItemModel = {
   paymentTypeName: string
 }
 
-//API GET INFO MODEL
+//API GET INFO MODEL /api/ENrollment/{profileId}/profile
 type EnrollmentInfoModel = {
   enrollmentId: string
   enrolledBalance: string
@@ -113,7 +113,7 @@ type EnrollmentInfoModel = {
   recurringPaymentDate: number
 }
 
-// Enrollment Detail Info Get
+// Enrollment Detail Info Get /api/Enrollment/{profileId}/profile/payments & /api/Enrollment/{profileId}/profile/payments/{paymentId}/info
 type EnrollmentDetailInfoModel = {
   enrollmentDetailId: string
   processedDate: string
@@ -131,7 +131,7 @@ type EnrollmentDetailInfoModel = {
   processor: string
 }
 
-// Enrollment Search
+// Enrollment Search /api/Enrollment/search
 type EnrollmentSearchResultModel = {
   enrollmentId: string
   enrolledBalance: number
