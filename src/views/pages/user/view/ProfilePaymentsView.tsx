@@ -25,6 +25,7 @@ import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
+import TableFooter from '@mui/material/TableFooter'
 
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -33,9 +34,6 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContentText from '@mui/material/DialogContentText'
 
 import { useForm } from 'react-hook-form'
-
-// ** Third Party Imports
-import { ApexOptions } from 'apexcharts'
 
 // ** Custom Components Imports
 import CustomChip from 'src/@core/components/mui/chip'
@@ -46,6 +44,9 @@ import SingleSelect from 'src/views/shared/form-input/single-select'
 import TextInput from 'src/views/shared/form-input/text-input'
 
 import Icon from 'src/@core/components/icon'
+import TableBasic from 'src/views/table/mui/TableBasic'
+import { borderLeftColor, borderRight } from '@mui/system'
+import { addWeeks, addMonths } from 'date-fns'
 
 type Order = 'asc' | 'desc'
 
@@ -423,13 +424,16 @@ const EnhancedTable = () => {
 const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => {
   const defaultValues = {
     paymentMethod: 'ach',
-    maintenanceFee: 80,
+    maintenanceFee: 80.0,
     gateway: 'nacha',
     planLength: 12,
-    serviceFee: 35
+    serviceFee: 35,
+    firstPaymentDate: new Date(),
+    recurringFrequency: 'monthly',
+    recurringDate: addMonths(new Date(), 1)
   }
 
-  const enrollmentForm = useForm({ defaultValues }, data)
+  const enrollmentForm = useForm({ defaultValues, data })
   const {
     handleSubmit,
     control,
@@ -438,6 +442,25 @@ const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => 
 
   const onSubmit = (data: any) => {
     console.log(data)
+  }
+
+  // const onRecurringChange = (select: string) {
+
+  // }
+
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
+
+  // Avoid a layout jump when reaching the last page with empty rows.
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0
+
+  const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+    setPage(newPage)
+  }
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10))
+    setPage(0)
   }
 
   const paymentOptions = [
@@ -524,6 +547,23 @@ const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => 
     }
   ]
 
+  const recurringOptions = [
+    {
+      label: 'Weekly',
+      value: 'weekly'
+    },
+    {
+      label: 'Bi-weekly',
+      value: 'biweekly'
+    },
+    {
+      label: 'Monthly',
+      value: 'monthly'
+    }
+  ]
+
+  // const rows: any[] = new Array(10)
+
   return (
     <Dialog open={open} maxWidth='lg' fullWidth onClose={handleClose} aria-labelledby='form-dialog-title'>
       <DialogTitle id='form-dialog-title'>{data ? 'Update' : 'Create New'} Enrollment Plan</DialogTitle>
@@ -573,12 +613,96 @@ const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => 
                   />
                 </Grid>
                 <Grid item xs={12}>
-                  <TextInput label='Maintenance Fee' name='maintenanceFee' errors={errors} control={control} />
+                  <TextInput
+                    label='Maintenance Fee'
+                    name='maintenanceFee'
+                    errors={errors}
+                    control={control}
+                    InputProps={{ readOnly: true }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <SelectDate
+                    name='firstPaymentDate'
+                    label='First Payment Date'
+                    errors={errors}
+                    control={control}
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <SingleSelect
+                    label='Recurring Payment Frequency'
+                    name='recurringFrequency'
+                    errors={errors}
+                    required
+                    control={control}
+                    options={recurringOptions}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <SelectDate
+                    name='recurringDate'
+                    label='First Recurring Date'
+                    errors={errors}
+                    control={control}
+                    required
+                  />
                 </Grid>
               </Grid>
             </Grid>
             {/* Preview Table */}
-            <Grid item xs={12} md={8}></Grid>
+            <Grid item sx={{ px: 2 }} xs={12} md={8}>
+              <Grid container sx={{ mb: 4 }} xs={12}>
+                <Grid item xs={6}>
+                  <Typography variant='caption'>Total Enrolled Debt</Typography>
+                  <Typography variant='h4'>${'10000'}</Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant='caption'>Total Fees</Typography>
+                  <Typography variant='h4'>${'6066.00'}</Typography>
+                </Grid>
+              </Grid>
+              <Typography variant='h5' sx={{ mb: 2 }}>
+                Enrollment Plan Preview
+              </Typography>
+              <Table stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>#</TableCell>
+                    <TableCell align='left'>Process Date</TableCell>
+                    <TableCell align='left'>Service Fee</TableCell>
+                    <TableCell align='left'>Mainentance Fee</TableCell>
+                    <TableCell align='left'>Total</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: any, i: number) => (
+                    <TableRow>
+                      <TableCell>{i + 1}</TableCell>
+                      <TableCell align='left'>{row.processDate}</TableCell>
+                      <TableCell align='left'>{row.serviceFee}</TableCell>
+                      <TableCell align='left'>{row.maintenanceFee}</TableCell>
+                      <TableCell align='left'>{row.total}</TableCell>
+                    </TableRow>
+                  ))}
+                  {emptyRows > 0 && (
+                    <TableRow style={{ height: 50 * emptyRows }}>
+                      <TableCell colSpan={6} />
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+              <TablePagination
+                page={page}
+                component='div'
+                count={rows.length}
+                rowsPerPage={rowsPerPage}
+                onPageChange={handleChangePage}
+                rowsPerPageOptions={[5, 10, 25]}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </Grid>
           </Grid>
         </form>
       </DialogContent>
