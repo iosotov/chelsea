@@ -17,7 +17,6 @@ import Checkbox from '@mui/material/Checkbox'
 import IconButton from '@mui/material/IconButton'
 import TableSortLabel from '@mui/material/TableSortLabel'
 import TablePagination from '@mui/material/TablePagination'
-import { useTheme } from '@mui/material/styles'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableRow from '@mui/material/TableRow'
@@ -25,7 +24,6 @@ import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
-import TableFooter from '@mui/material/TableFooter'
 
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -36,9 +34,6 @@ import DialogContentText from '@mui/material/DialogContentText'
 import { useForm } from 'react-hook-form'
 
 // ** Custom Components Imports
-import CustomChip from 'src/@core/components/mui/chip'
-import OptionsMenu from 'src/@core/components/option-menu'
-import ReactApexcharts from 'src/@core/components/react-apexcharts'
 import SelectDate from 'src/views/shared/form-input/date-picker'
 import SingleSelect from 'src/views/shared/form-input/single-select'
 import TextInput from 'src/views/shared/form-input/text-input'
@@ -47,6 +42,9 @@ import Icon from 'src/@core/components/icon'
 import { addWeeks, addMonths } from 'date-fns'
 import Alert from '@mui/material/Alert'
 import AlertTitle from '@mui/material/AlertTitle'
+import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress'
+import { styled } from '@mui/material/styles'
+import { CardHeader } from '@mui/material'
 
 type Order = 'asc' | 'desc'
 
@@ -78,6 +76,11 @@ const createData = (
   return { number, processDate, amount, clearedDate, status, memo, description }
 }
 
+const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
+  height: 8,
+  'border-radius': 5
+}))
+
 const rows = [
   createData(1, '5/18/2023', 304.14, '', 'Open', '', ''),
   createData(2, '6/18/2023', 304.14, '', 'Open', '', ''),
@@ -107,7 +110,6 @@ interface HeadCell {
 
 interface EnhancedTableProps {
   numSelected: number
-  onRequestSort: (event: MouseEvent<unknown>, property: keyof Data) => void
   onSelectAllClick: (event: ChangeEvent<HTMLInputElement>) => void
   order: Order
   orderBy: string
@@ -116,6 +118,9 @@ interface EnhancedTableProps {
 
 interface EnhancedTableToolbarProps {
   numSelected: number
+  open: boolean
+  toggle: () => void
+  data?: any
 }
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -155,7 +160,7 @@ function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) 
 const headCells: readonly HeadCell[] = [
   {
     id: 'number',
-    numeric: false,
+    numeric: true,
     disablePadding: true,
     label: '#'
   },
@@ -185,13 +190,13 @@ const headCells: readonly HeadCell[] = [
   },
   {
     id: 'memo',
-    numeric: true,
+    numeric: false,
     disablePadding: false,
     label: 'Memo'
   },
   {
     id: 'description',
-    numeric: true,
+    numeric: false,
     disablePadding: false,
     label: 'Description'
   }
@@ -199,10 +204,7 @@ const headCells: readonly HeadCell[] = [
 
 function EnhancedTableHead(props: EnhancedTableProps) {
   // ** Props
-  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props
-  const createSortHandler = (property: keyof Data) => (event: MouseEvent<unknown>) => {
-    onRequestSort(event, property)
-  }
+  const { onSelectAllClick, order, orderBy, numSelected, rowCount } = props
 
   return (
     <TableHead>
@@ -211,7 +213,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
           <Checkbox
             onChange={onSelectAllClick}
             checked={rowCount > 0 && numSelected === rowCount}
-            inputProps={{ 'aria-label': 'select all debts' }}
+            inputProps={{ 'aria-label': 'select all payments' }}
             indeterminate={numSelected > 0 && numSelected < rowCount}
           />
         </TableCell>
@@ -220,20 +222,13 @@ function EnhancedTableHead(props: EnhancedTableProps) {
             key={headCell.id}
             align={headCell.numeric ? 'right' : 'left'}
             padding={headCell.disablePadding ? 'none' : 'normal'}
-            sortDirection={orderBy === headCell.id ? order : false}
           >
-            <TableSortLabel
-              active={orderBy === headCell.id}
-              onClick={createSortHandler(headCell.id)}
-              direction={orderBy === headCell.id ? order : 'asc'}
-            >
-              {headCell.label}
-              {orderBy === headCell.id ? (
-                <Box component='span' sx={visuallyHidden}>
-                  {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
-                </Box>
-              ) : null}
-            </TableSortLabel>
+            {headCell.label}
+            {orderBy === headCell.id ? (
+              <Box component='span' sx={visuallyHidden}>
+                {order === 'desc' ? 'sorted descending' : 'sorted ascending'}
+              </Box>
+            ) : null}
           </TableCell>
         ))}
       </TableRow>
@@ -243,7 +238,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 
 const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
   // ** Prop
-  const { numSelected } = props
+  const { numSelected, data, toggle } = props
 
   return (
     <Toolbar
@@ -251,22 +246,35 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
         px: theme => `${theme.spacing(5)} !important`,
         ...(numSelected > 0 && {
           bgcolor: theme => alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity)
-        })
+        }),
+        gap: 2
       }}
     >
       {numSelected > 0 ? (
-        <Typography sx={{ flex: '1 1 100%' }} color='inherit' variant='subtitle1' component='div'>
-          {numSelected} selected
-        </Typography>
+        <>
+          <Typography sx={{ flex: '1 1 100%' }} color='inherit' variant='subtitle1' component='div'>
+            {numSelected} selected
+          </Typography>
+          <Button variant='contained' size='small' onClick={toggle}>
+            {data ? 'Update' : 'Create'} Plan
+          </Button>
+        </>
       ) : (
         <Typography variant='h5'>Payments</Typography>
       )}
       {numSelected > 0 ? (
-        <Tooltip title='Delete'>
-          <IconButton sx={{ color: 'text.secondary' }}>
-            <Icon icon='mdi:delete-outline' />
-          </IconButton>
-        </Tooltip>
+        <>
+          <Tooltip title='Add'>
+            <IconButton sx={{ color: 'text.secondary' }}>
+              <Icon icon='material-symbols:add' />
+            </IconButton>
+          </Tooltip>
+          <Tooltip title='Delete'>
+            <IconButton sx={{ color: 'text.secondary' }}>
+              <Icon icon='mdi:delete-outline' />
+            </IconButton>
+          </Tooltip>
+        </>
       ) : null}
     </Toolbar>
   )
@@ -278,13 +286,7 @@ const EnhancedTable = () => {
   const [order, setOrder] = useState<Order>('asc')
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
   const [orderBy, setOrderBy] = useState<keyof Data>('number')
-  const [selected, setSelected] = useState<readonly string[]>([])
-
-  const handleRequestSort = (event: MouseEvent<unknown>, property: keyof Data) => {
-    const isAsc = orderBy === property && order === 'asc'
-    setOrder(isAsc ? 'desc' : 'asc')
-    setOrderBy(property)
-  }
+  const [selected, setSelected] = useState<readonly number[]>([])
 
   const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
@@ -296,9 +298,9 @@ const EnhancedTable = () => {
     setSelected([])
   }
 
-  const handleClick = (event: MouseEvent<unknown>, name: string) => {
+  const handleClick = (event: MouseEvent<unknown>, name: number) => {
     const selectedIndex = selected.indexOf(name)
-    let newSelected: readonly string[] = []
+    let newSelected: readonly number[] = []
 
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selected, name)
@@ -321,7 +323,7 @@ const EnhancedTable = () => {
     setPage(0)
   }
 
-  const isSelected = (name: string) => selected.indexOf(name) !== -1
+  const isSelected = (name: number) => selected.indexOf(name) !== -1
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0
@@ -341,16 +343,12 @@ const EnhancedTable = () => {
   return (
     <>
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 4 }}>
-          <Button variant='outlined' size='small' onClick={toggleEnrollment}>
+        {/* <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 4 }}>
+          <Button variant='contained' size='small' onClick={toggleEnrollment}>
             {data ? 'Update' : 'Create'} Plan
           </Button>
-          <ButtonGroup size='small'>
-            <Button>Add</Button>
-            <Button>Remove</Button>
-          </ButtonGroup>
-        </Box>
-        <EnhancedTableToolbar numSelected={selected.length} />
+        </Box> */}
+        <EnhancedTableToolbar numSelected={selected.length} open={enrollmentModal} toggle={toggleEnrollment} />
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 750 }} aria-labelledby='tableTitle'>
             <EnhancedTableHead
@@ -358,17 +356,14 @@ const EnhancedTable = () => {
               orderBy={orderBy}
               rowCount={rows.length}
               numSelected={selected.length}
-              onRequestSort={handleRequestSort}
               onSelectAllClick={handleSelectAllClick}
             />
             <TableBody>
-              {/* if you don't need to support IE11, you can replace the `stableSort` call with: rows.slice().sort(getComparator(order, orderBy)) */}
               {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
                   const isItemSelected = isSelected(row.number)
                   const labelId = `enhanced-table-checkbox-${index}`
-
                   return (
                     <TableRow
                       hover
@@ -382,7 +377,7 @@ const EnhancedTable = () => {
                       <TableCell padding='checkbox'>
                         <Checkbox checked={isItemSelected} inputProps={{ 'aria-labelledby': labelId }} />
                       </TableCell>
-                      <TableCell component='th' id={labelId} scope='row' padding='none'>
+                      <TableCell component='th' align='right' id={labelId} scope='row' padding='none'>
                         {row.number}
                       </TableCell>
                       <TableCell align='right'>{row.processDate}</TableCell>
@@ -397,7 +392,7 @@ const EnhancedTable = () => {
               {emptyRows > 0 && (
                 <TableRow
                   sx={{
-                    height: 52 * emptyRows
+                    height: 50 * emptyRows
                   }}
                 >
                   <TableCell colSpan={6} />
@@ -717,63 +712,114 @@ const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => 
 }
 
 function Overview() {
+  const [alert, setAlert] = useState<boolean>(true)
+
+  const AlertType = 'Paused'
   return (
     <>
       <Grid item xs={12}>
         <Card>
           <CardContent>
-            <Typography variant='h6'>Overview</Typography>
-            <Grid container spacing={4}>
+            <Typography variant='h6' mb={4}>
+              Overview
+            </Typography>
+            <Grid container spacing={4} mb={2}>
               <Grid item xs={12} md={6}>
-                <Grid container spacing={4}>
-                  <Grid item xs={12}>
-                    <Typography variant='caption'>Enrollment Fee</Typography>
-                    <Typography variant='h5'>40.00%</Typography>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography variant='caption'>Total Paid</Typography>
-                    <Typography variant='h5'>$0.00</Typography>
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Typography variant='caption'>Payments Made</Typography>
-                    <Typography variant='h5'>0 of 24</Typography>
-                  </Grid>
-                </Grid>
+                <Typography mb={2} variant='body2'>
+                  Current enrollment fee:{' '}
+                  <Typography component='span' sx={{ fontWeight: 600 }}>
+                    {'40.00%' ?? 'N/A'}
+                  </Typography>
+                  <Typography variant='body2'>
+                    Enrollment Plan Duration:{' '}
+                    <Typography component='span' sx={{ fontWeight: 600 }}>
+                      {24 ?? 'N/A'} months
+                    </Typography>
+                  </Typography>
+                </Typography>
+                <Typography mb={2} variant='body2'>
+                  Number of Enrolled Debts:{' '}
+                  <Typography component='span' sx={{ fontWeight: 600 }}>
+                    {5 ?? 'N/A'}
+                  </Typography>
+                  <Typography variant='body2'>
+                    Total Enrolled Balance:{' '}
+                    <Typography component='span' sx={{ fontWeight: 600 }}>
+                      {'$' + 28000.0 ?? 'N/A'}
+                    </Typography>
+                  </Typography>
+                </Typography>
+                <Typography mb={2} variant='body2'>
+                  Next Payment Date:{' '}
+                  <Typography component='span' sx={{ fontWeight: 600 }}>
+                    {'March 23, 2024' ?? 'N/A'}
+                  </Typography>
+                  <Typography variant='body2'>
+                    Next Payment Amount:{' '}
+                    <Typography component='span' sx={{ fontWeight: 600 }}>
+                      {'$' + 304.14 ?? 'N/A'}
+                    </Typography>
+                  </Typography>
+                </Typography>
+                {/* <Typography variant='body1' sx={{ color: 'text.primary', fontWeight: 600 }}>
+                  <Typography variant='body2'>Next Payment Date: </Typography>
+                  March 23, 2024
+                </Typography>
+                <Typography variant='body1' sx={{ color: 'text.primary', fontWeight: 600 }}>
+                  <Typography variant='body2'>Next Payment Amount: </Typography>
+                  $304.14
+                </Typography> */}
               </Grid>
               <Grid item xs={12} md={6}>
-                <Alert icon={false} severity='warning' sx={{ mb: 4 }}>
-                  <AlertTitle>Ruh Roh</AlertTitle>
-                </Alert>
+                {alert ? (
+                  <Alert icon={false} severity='warning' sx={{ mb: 4 }}>
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <AlertTitle>Attention!</AlertTitle>
+                    </Box>
+                    Payment is currently{' '}
+                    <Typography component='span' sx={{ fontSize: 'inherit', color: 'inherit', fontWeight: 600 }}>
+                      {AlertType}
+                    </Typography>
+                  </Alert>
+                ) : null}
+                <Box>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                    <Typography sx={{ fontWeight: 600, color: 'text.primary' }} variant='body2'>
+                      Payments
+                    </Typography>
+                    <Typography sx={{ fontWeight: 600, color: 'text.primary' }} variant='body2'>
+                      {7 ?? 0} of {24 ?? 0}
+                    </Typography>
+                  </Box>
+                  <BorderLinearProgress variant='determinate' value={(7 / 24) * 100 ?? 0} />
+                </Box>
               </Grid>
             </Grid>
           </CardContent>
         </Card>
       </Grid>
-      {/* <Grid item xs={4}>
-        <Card>
-          <CardContent>
-            <Typography variant='caption'>Enrollment Fee</Typography>
-            <Typography variant='h4'>40.00%</Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={4}>
-        <Card>
-          <CardContent>
-            <Typography variant='caption'>Total Paid</Typography>
-            <Typography variant='h4'>$0.00</Typography>
-          </CardContent>
-        </Card>
-      </Grid>
-      <Grid item xs={4}>
-        <Card>
-          <CardContent>
-            <Typography variant='caption'>Payments Made</Typography>
-            <Typography variant='h4'>0 of 24</Typography>
-          </CardContent>
-        </Card>
-      </Grid> */}
     </>
+  )
+}
+
+function PaymentMethod() {
+  const addPayment = () => console.log('added')
+
+  return (
+    <Grid item xs={12}>
+      <Card>
+        <CardHeader
+          title='Payment Methods'
+          action={
+            <Button variant='contained' onClick={addPayment} sx={{ '& svg': { mr: 1 } }}>
+              <Icon icon='mdi:plus' fontSize='1.125rem' />
+              Add Payment
+            </Button>
+          }
+        />
+        <CardContent></CardContent>
+      </Card>
+    </Grid>
   )
 }
 
@@ -782,6 +828,7 @@ export default function ProfilePayments() {
     <>
       <Grid container spacing={4}>
         {<Overview />}
+        {<PaymentMethod />}
         <Grid item xs={12}>
           <Card>
             <EnhancedTable />
