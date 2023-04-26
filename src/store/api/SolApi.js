@@ -66,6 +66,28 @@ class SolApi {
 
     return res
   }
+
+  static async GetProfile(profileId) {
+    const res = await this.request(`/profile/${profileId}/basic`, {}, 'GET')
+
+    return res
+  }
+
+  static async GetProfileStatusSummary(profileId) {
+    const res = await this.request(`/profile/${profileId}/status-summary`, {}, 'GET')
+
+    return res
+  }
+
+  static async TestAuth() {
+    const testCred = {
+      username: 'sam@prime.co',
+      password: 'pass123'
+    }
+    const res = await this.request(`/user/auth`, testCred, 'POST')
+
+    return res
+  }
 }
 
 export default SolApi

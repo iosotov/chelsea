@@ -1,23 +1,53 @@
-import { createSlice, EntityState } from '@reduxjs/toolkit'
-import { Profile } from './api/profileApiSlice'
+import { createEntityAdapter, createSlice } from '@reduxjs/toolkit'
+import { ProfileInfoType, ProfileStatusType } from './api/profileApiSlice'
+import { RootState } from './store'
 
-const initialState: EntityState<Profile> = {
-  ids: [],
-  entities: {}
-}
+export const profileAdapter = createEntityAdapter<ProfileInfoType>({
+  selectId: profile => profile.profileId
+})
+
+const initialState = profileAdapter.getInitialState()
 
 const profileSlice = createSlice({
   name: 'profile',
   initialState,
   reducers: {
-    updateProfileState: (state, action) => {
-      const { ids, entities } = action.payload
-      state.ids = ids
-      state.entities = entities
+    updateProfiles: (state, action) => {
+      profileAdapter.upsertMany(state, action.payload)
+    },
+    addProfile: (state, action) => {
+      profileAdapter.addOne(state, action.payload)
+    },
+    deleteProfile: (state, action) => {
+      profileAdapter.removeOne(state, action.payload)
     }
   }
 })
 
-export const { updateProfileState } = profileSlice.actions
+export const profileStatusAdapter = createEntityAdapter<ProfileStatusType>({
+  selectId: profile => profile.profileId
+})
+
+const initialStatusState = profileStatusAdapter.getInitialState()
+
+export const profileStatusSlice = createSlice({
+  name: 'profileStatus',
+  initialState: initialStatusState,
+  reducers: {
+    updateStatus: (state, action) => {
+      profileStatusAdapter.upsertMany(state, action.payload)
+    }
+  }
+})
+
+export const { updateProfiles, addProfile, deleteProfile } = profileSlice.actions
+
+export const { updateStatus } = profileStatusSlice.actions
+
+export const {
+  selectAll: selectAllProfiles,
+  selectById: selectProfileById,
+  selectIds: selectProfileIds
+} = profileAdapter.getSelectors((state: RootState) => state.profile)
 
 export default profileSlice.reducer
