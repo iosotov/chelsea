@@ -1,6 +1,6 @@
 // import { MouseEvent, SyntheticEvent, useState } from 'react';
 
-import { Ref, useState, forwardRef, ReactElement } from 'react'
+import { Ref, useState, forwardRef, ReactElement, ChangeEvent } from 'react'
 
 import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
@@ -47,6 +47,13 @@ const ProfileNotes = () => {
   // })
 
   // ** Hooks
+
+  const [noteTemplate, setNoteTemplate] = useState<string>('')
+  const [noteType, setNoteType] = useState<string>('')
+  const [notifyUsers, setNotifyUsers] = useState<string>('')
+  const [noteEmails, setNoteEmails] = useState<string>('')
+  const [message, setMessage] = useState<string>('')
+
   const {
     control,
     handleSubmit,
@@ -60,7 +67,7 @@ const ProfileNotes = () => {
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 90 },
     {
-      field: 'type',
+      field: 'typeName',
       headerName: 'Type',
       width: 150,
       editable: true
@@ -102,6 +109,63 @@ const ProfileNotes = () => {
     { id: 9, type: 'Roxie', createdBy: 'Harvey', description: 65 }
   ]
 
+  // const handleChange = event => {
+  //   setNoteType(event.target.value)
+  //   setNoteTemplate(event.target.value)
+  //   console.log(noteType)
+  // }
+
+  const handleChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
+    console.log(target.name)
+    if (target.name === 'notes-template') {
+      // target.value = formatCreditCardNumber(target.value, Payment)
+      console.log('same name target')
+      setNoteTemplate(target.value)
+    } else if (target.name === 'notes-type') {
+      // target.value = formatExpirationDate(target.value)
+      setNoteType(target.value)
+      console.log('same name note')
+    } else if (target.name === 'notes-email') {
+      // target.value = formatExpirationDate(target.value)
+      setNoteEmails(target.value)
+      console.log('same email')
+    } else if (target.name === 'notes-users') {
+      // target.value = formatExpirationDate(target.value)
+      setNotifyUsers(target.value)
+      console.log('same users')
+    } else if (target.name === 'notes-message') {
+      // target.value = formatExpirationDate(target.value)
+      setMessage(target.value)
+      console.log('same users')
+
+      // else if (target.name === 'task-paymentDate') {
+
+      //   setPaymentDate(target.value)
+      // }
+    }
+  }
+
+  const resetForm = () => {
+    setNoteTemplate('')
+    setNoteType('')
+    setNoteEmails('')
+    setNotifyUsers('')
+    setMessage('')
+    console.log(noteTemplate)
+    console.log(noteType)
+  }
+
+  //api calls\
+  //need to send id
+  // const getNotes = () => {
+
+  // }
+  const createNote = props => {
+    console.log(props.message, props.notifyUsers, props.noteType, props.noteTemplate, props.noteEmails)
+    const payload = props
+    console.log(payload)
+  }
+
   return (
     <>
       <form onSubmit={handleSubmit(onSubmit)}>
@@ -110,16 +174,20 @@ const ProfileNotes = () => {
             <FormControl fullWidth>
               <InputLabel htmlFor='payment-method'>Choose..</InputLabel>
               <Select
+                name='notes-template'
                 label='Select Template'
-                labelId='payment-method'
-                id='payment-method-select'
+                labelId='notes-template'
+                id='notes-template-select'
+                value={noteTemplate}
                 defaultValue='select-method'
+                onChange={handleChange}
               >
+                {/* Load templates into dropdown */}
                 <MenuItem value='select-method' disabled>
                   Select Template
                 </MenuItem>
-                <MenuItem value='Cash'>Credit Card Template</MenuItem>
-                <MenuItem value='Bank Transfer'>Test Template</MenuItem>
+                <MenuItem value='cc'>Credit Card Template</MenuItem>
+                <MenuItem value='test'>Test Template</MenuItem>
                 <MenuItem value='Credit'>Test 2</MenuItem>
                 <MenuItem value='Debit'>Debit</MenuItem>
                 <MenuItem value='Paypal'>Paypal</MenuItem>
@@ -128,18 +196,37 @@ const ProfileNotes = () => {
           </Grid>
           <Grid item xs={12} sm={6}>
             <FormControl fullWidth>
-              <InputLabel>Type</InputLabel>
-              <Select label='Type' defaultValue='General'>
-                <MenuItem value='australia'>General</MenuItem>
-                <MenuItem value='canada'>New</MenuItem>
-                <MenuItem value='france'>France</MenuItem>
+              <InputLabel>Template Type</InputLabel>
+              <Select
+                name='notes-type'
+                label='noteType'
+                value={noteType}
+                defaultValue='select-method'
+                onChange={handleChange}
+              >
+                {/* map through notes list and append to drop down */}
+                <MenuItem value='select-method' disabled>
+                  Select Template
+                </MenuItem>
+                {/* <MenuItem value={noteType}>{noteType}</MenuItem> */}
+                <MenuItem value='ccTemplate'>CreditCard</MenuItem>
+                <MenuItem value='addressTemplate'>Address Temmp</MenuItem>
               </Select>
             </FormControl>
           </Grid>
           <Grid item xs={12} sm={6}>
             <FormControl fullWidth>
               <InputLabel>Notify to Users</InputLabel>
-              <Select label='Notify to Users' defaultValue='User1'>
+              <Select
+                name='notes-users'
+                value={notifyUsers}
+                label='Notify to Users'
+                defaultValue='select-method'
+                onChange={handleChange}
+              >
+                <MenuItem value='select-method' disabled>
+                  Select User
+                </MenuItem>
                 <MenuItem value='australia'>User1</MenuItem>
                 <MenuItem value='canada'>Joe TEst</MenuItem>
                 <MenuItem value='france'>Admin</MenuItem>
@@ -150,36 +237,44 @@ const ProfileNotes = () => {
           </Grid>
 
           <Grid item xs={12} sm={6}>
-            <TextField fullWidth label='CC Emails' placeholder='Emails' />
+            <TextField
+              fullWidth
+              name='notes-email'
+              label='CC Emails'
+              value={noteEmails}
+              placeholder='Emails'
+              onChange={handleChange}
+            />
           </Grid>
 
           <Grid item xs={12} sm={12}>
-            <TextField rows={6} multiline fullWidth label='Note' placeholder='Note' />
+            <TextField
+              rows={6}
+              multiline
+              fullWidth
+              name='notes-message'
+              value={message}
+              label='Message'
+              placeholder='Message'
+              onChange={handleChange}
+            />
           </Grid>
 
           <Grid item xs={12} textAlign={'right'}>
-            <Button type='submit' variant='contained' sx={{ mr: 4 }}>
+            <Button
+              type='submit'
+              variant='contained'
+              sx={{ mr: 4 }}
+              onClick={() => createNote({ message, notifyUsers, noteType, noteTemplate, noteEmails })}
+            >
               Create Note
             </Button>
-            <Button variant='outlined' color='secondary'>
+            <Button variant='outlined' color='secondary' onClick={() => resetForm()}>
               Clear Form
             </Button>
           </Grid>
         </Grid>
       </form>
-
-      {/* <Box sx={{ height: 50, width: '100%' }}>
-        {' '}
-        <Button
-          size='medium'
-          type='submit'
-          variant='contained'
-          color='secondary'
-          sx={{ mb: 7, position: 'absolute', right: '8%' }}
-        >
-          Create Task
-        </Button>
-      </Box> */}
 
       <br></br>
       <Box sx={{ height: 400, width: '100%' }}>
