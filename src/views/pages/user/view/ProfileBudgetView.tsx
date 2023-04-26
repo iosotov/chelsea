@@ -63,7 +63,7 @@ export default function ProfileBudget() {
   //   }
   // })
 
-  useGetProfilesQuery(data)
+  console.log(useGetProfilesQuery(data))
   useGetProfileBudgetsQuery('1327485548')
   useGetBudgetsQuery({})
   console.log(isLoading)
@@ -75,7 +75,7 @@ export default function ProfileBudget() {
   // }
   console.log(isLoading)
 
-  // console.log(profileBudgets, budgets, profiles)
+
 
   return (
     <>
@@ -88,7 +88,7 @@ export default function ProfileBudget() {
             <Card sx={{ width: 1 / 3, mr: 'auto' }}>
               <CardContent>
                 <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography variant='body2'>{`Enrolled Debts`}</Typography>
+                  <Typography variant='body2'>{`Cash Funds Available`}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
@@ -103,11 +103,12 @@ export default function ProfileBudget() {
             <Card sx={{ width: 1 / 3, mr: 'auto' }}>
               <CardContent>
                 <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography variant='body2'>{`Enrolled Debts`}</Typography>
+                  <Typography variant='body2'>{`Total Balance`}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-                    <Typography variant='h6'>1 of 10 Enrolled</Typography>
+                    <Typography variant='h6'>$1,000,000</Typography>
+                    {/* <Typography variant='h6'>{profiles[0].enrolledBalance}</Typography> */}
                   </Box>
                 </Box>
               </CardContent>
@@ -115,7 +116,7 @@ export default function ProfileBudget() {
             <Card sx={{ width: 1 / 3, mr: 'auto' }}>
               <CardContent>
                 <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography variant='body2'>{`Total Enrolled Balance`}</Typography>
+                  <Typography variant='body2'>{`Cash Flow`}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
