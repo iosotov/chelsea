@@ -212,6 +212,8 @@ const ProfileNotes = () => {
     const payload = props
     console.log(payload)
   }
+
+  //init data load, call get request for data set
   loadData()
 
   return (
@@ -234,6 +236,8 @@ const ProfileNotes = () => {
                 <MenuItem value='select-method' disabled>
                   Select Template
                 </MenuItem>
+
+                {/* //data load for dropdown map */}
                 {templateDrop.map(temp => (
                   <MenuItem key={temp.key} value={temp.value}>
                     {temp.value}
