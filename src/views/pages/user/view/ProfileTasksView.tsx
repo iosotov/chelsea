@@ -68,7 +68,7 @@ const Header = styled(Box)<BoxProps>(({ theme }) => ({
   backgroundColor: theme.palette.background.default
 }))
 
-const CustomInput = forwardRef(({ ...props }, ref: ForwardedRef<HTMLElement>) => {
+const CustomPaymentInput = forwardRef(({ ...props }, ref: ForwardedRef<HTMLElement>) => {
   return <TextField inputRef={ref} label='Payment Date' {...props} />
 })
 
@@ -83,9 +83,7 @@ const ProfileTasks = () => {
   // })
 
   // ** Hooks
-  // const [date, setDate] = useState<DateType>(new Date())
-  // const [addPaymentOpen, setAddPaymentOpen] = useState<boolean>(false)
-  // const toggleAddPaymentDrawer = () => setAddPaymentOpen(!addPaymentOpen)
+
   const [drawerTitle, setDrawerTitle] = useState<string>('Add')
   const [group, setGroup] = useState<string>('Users')
   const [taskName, setTaskName] = useState<string>('')
@@ -101,6 +99,7 @@ const ProfileTasks = () => {
 
   // const [data, setData] = useState<[]>(initData)
   // const [data, setData] = useState<TaskType>()
+  //fake data, set up TaskType data structure
   const ex = [
     { id: 1, taskName: 'task1', assignedTo: 'Jon', dueDate: new Date('01/01/2020'), note: 'hi', status: 'open' },
     { id: 2, taskName: 'task2', assignedTo: 'Cersei', dueDate: new Date('01/01/2020'), note: 'hi', status: 'open' },
@@ -191,9 +190,17 @@ const ProfileTasks = () => {
   }
 
   //API calls
+  // const getTasks = () =>{
+  //   useEffect(() => {
+  //     async function fetchData() {
+  //       const result = await fetchAPI('https://api.example.com/data');
+  //       setData(result);
+  //     })
+  // }
+
   const addTask = query => {
     setOpenAddTask(false)
-    console.log(query)
+    console.log('payload', query)
   }
 
   // const getTask =() =>{
@@ -264,50 +271,10 @@ const ProfileTasks = () => {
   const rows = []
   console.log(new Date())
 
-  // const data = [
-  //   { id: 1, taskName: 'task1', assignedTo: 'Jon', dueDate: 35 },
-  //   { id: 2, taskName: 'task2', assignedTo: 'Cersei', dueDate: 42 },
-  //   { id: 3, taskName: 'task3', assignedTo: 'Jaime', dueDate: 45 },
-  //   { id: 4, taskName: 'Stark', assignedTo: 'Arya', dueDate: 16 },
-  //   { id: 5, taskName: 'Targaryen', assignedTo: 'Daenerys', dueDate: null },
-  //   { id: 6, taskName: 'Melisandre', assignedTo: null, dueDate: 150 },
-  //   { id: 7, taskName: 'Clifford', assignedTo: 'Ferrara', dueDate: 44 },
-  //   { id: 8, taskName: 'Frances', assignedTo: 'Rossini', dueDate: 36 },
-  //   { id: 9, taskName: 'Roxie', assignedTo: 'Harvey', dueDate: 65 }
-  // ]
-
-  // const ex = [
-  //   { id: 1, taskName: 'task1', assignedTo: 'Jon', dueDate: 35 },
-  //   { id: 2, taskName: 'task2', assignedTo: 'Cersei', dueDate: 42 },
-  //   { id: 3, taskName: 'task3', assignedTo: 'Jaime', dueDate: 45 },
-  //   { id: 4, taskName: 'Stark', assignedTo: 'Arya', dueDate: 16 },
-  //   { id: 5, taskName: 'Targaryen', assignedTo: 'Daenerys', dueDate: null },
-  //   { id: 6, taskName: 'Melisandre', assignedTo: null, dueDate: 150 },
-  //   { id: 7, taskName: 'Clifford', assignedTo: 'Ferrara', dueDate: 44 },
-  //   { id: 8, taskName: 'Frances', assignedTo: 'Rossini', dueDate: 36 },
-  //   { id: 9, taskName: 'Roxie', assignedTo: 'Harvey', dueDate: 65 }
-  // ]
-
-  // setData(ex)
-
   // const GetTasks = () => {
   //   //call api to get tasks
 
   //   return data
-  // }
-
-  // const GetMine = () => {
-  //   //call api to get tasks
-
-  //   // const my = ex
-
-  //   // const [data, setData] = useState(ex)
-  //   setData(ex)
-  //   console.log(data)
-  //   console.log(setData)
-
-  //   // rows = data
-  //   // console.log(rows)
   // }
 
   // useEffect(() => {
@@ -343,8 +310,6 @@ const ProfileTasks = () => {
 
   return (
     <>
-      {/* <GetTasks></GetTasks> */}
-      {/* <Button onClick={handleAddTask}>hi</Button> */}
       <Grid container spacing={6}>
         <Grid item xs={12}>
           {/* <Box sx={{ height: 50, width: '100%' }}> */} <Typography variant='h5'>Tasks</Typography>
@@ -434,7 +399,7 @@ const ProfileTasks = () => {
                     selected={paymentDate}
                     name='task-paymentDate'
                     id='task-paymentDate'
-                    customInput={<CustomInput />}
+                    customInput={<CustomPaymentInput />}
                     onChange={(paymentDate: Date) => setPaymentDate(paymentDate)}
                   />
                 </DatePickerWrapper>
