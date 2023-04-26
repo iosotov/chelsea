@@ -44,9 +44,9 @@ import SingleSelect from 'src/views/shared/form-input/single-select'
 import TextInput from 'src/views/shared/form-input/text-input'
 
 import Icon from 'src/@core/components/icon'
-import TableBasic from 'src/views/table/mui/TableBasic'
-import { borderLeftColor, borderRight } from '@mui/system'
 import { addWeeks, addMonths } from 'date-fns'
+import Alert from '@mui/material/Alert'
+import AlertTitle from '@mui/material/AlertTitle'
 
 type Order = 'asc' | 'desc'
 
@@ -716,35 +716,72 @@ const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => 
   )
 }
 
+function Overview() {
+  return (
+    <>
+      <Grid item xs={12}>
+        <Card>
+          <CardContent>
+            <Typography variant='h6'>Overview</Typography>
+            <Grid container spacing={4}>
+              <Grid item xs={12} md={6}>
+                <Grid container spacing={4}>
+                  <Grid item xs={12}>
+                    <Typography variant='caption'>Enrollment Fee</Typography>
+                    <Typography variant='h5'>40.00%</Typography>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant='caption'>Total Paid</Typography>
+                    <Typography variant='h5'>$0.00</Typography>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant='caption'>Payments Made</Typography>
+                    <Typography variant='h5'>0 of 24</Typography>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Alert icon={false} severity='warning' sx={{ mb: 4 }}>
+                  <AlertTitle>Ruh Roh</AlertTitle>
+                </Alert>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+      </Grid>
+      {/* <Grid item xs={4}>
+        <Card>
+          <CardContent>
+            <Typography variant='caption'>Enrollment Fee</Typography>
+            <Typography variant='h4'>40.00%</Typography>
+          </CardContent>
+        </Card>
+      </Grid>
+      <Grid item xs={4}>
+        <Card>
+          <CardContent>
+            <Typography variant='caption'>Total Paid</Typography>
+            <Typography variant='h4'>$0.00</Typography>
+          </CardContent>
+        </Card>
+      </Grid>
+      <Grid item xs={4}>
+        <Card>
+          <CardContent>
+            <Typography variant='caption'>Payments Made</Typography>
+            <Typography variant='h4'>0 of 24</Typography>
+          </CardContent>
+        </Card>
+      </Grid> */}
+    </>
+  )
+}
+
 export default function ProfilePayments() {
   return (
     <>
-      {/* // payment quick info */}
       <Grid container spacing={4}>
-        <Grid item xs={4}>
-          <Card>
-            <CardContent>
-              <Typography variant='caption'>Enrollment Fee</Typography>
-              <Typography variant='h4'>40.00%</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={4}>
-          <Card>
-            <CardContent>
-              <Typography variant='caption'>Total Paid</Typography>
-              <Typography variant='h4'>$0.00</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={4}>
-          <Card>
-            <CardContent>
-              <Typography variant='caption'>Payments Made</Typography>
-              <Typography variant='h4'>0 of 24</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+        {<Overview />}
         <Grid item xs={12}>
           <Card>
             <EnhancedTable />
