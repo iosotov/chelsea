@@ -1,7 +1,8 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { apiSlice } from './api/apiSlice'
+
 import auth from './authSlice'
-import profile from './profileSlice'
+import profile, { profileStatusSlice } from './profileSlice'
 import profileBudget from './profileBudgetSlice'
 import bankAccount from './bankAccountSlice'
 import campaign from './campaignSlice'
@@ -10,6 +11,7 @@ import company from './companySlice'
 export const store = configureStore({
   reducer: {
     [apiSlice.reducerPath]: apiSlice.reducer,
+    profileStatus: profileStatusSlice.reducer,
     auth,
     profile,
     profileBudget,

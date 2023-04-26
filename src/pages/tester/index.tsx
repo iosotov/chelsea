@@ -3,6 +3,7 @@ import { useCreateCompanyMutation, useDeleteCompanyMutation, useDisableCompanyMu
 import { selectAllCampaigns } from "src/store/campaignSlice"
 import { selectAllCompanies } from "src/store/companySlice"
 import { useAppSelector } from "src/store/hooks"
+import { selectProfileById } from "src/store/profileSlice"
 
 
 const testCreate = {
@@ -28,8 +29,17 @@ const testUpdate = {
 
 export default function Tester() {
 
+  const id = "1327485548"
 
-  const companies = useAppSelector(selectAllCompanies)
+
+  const profile = useAppSelector((state) => selectProfileById(state, id))
+
+
+  // GET REQUESTS
+
+  const { data: profileInfo } = useGet
+
+
 
 
   useGetCompaniesQuery({})
@@ -78,3 +88,56 @@ export default function Tester() {
     </>
   )
 }
+
+// export default function Tester() {
+
+
+//   const companies = useAppSelector(selectAllCompanies)
+
+
+//   useGetCompaniesQuery({})
+
+//   const [create] = useCreateCompanyMutation()
+//   const [update] = useUpdateCompanyMutation()
+//   const [enable] = useEnableCompanyMutation()
+//   const [disable] = useDisableCompanyMutation()
+
+
+
+
+//   function handleCreate() {
+//     create(testCreate)
+
+//   }
+
+//   function handleUpdate() {
+//     update(testUpdate)
+
+//   }
+
+//   function handleEnable() {
+//     const companyId = "4a8f69db-da9a-43c2-b85b-44d7657e7df7"
+//     enable(companyId)
+
+//   }
+
+//   function handleDisable() {
+//     const companyId = "4a8f69db-da9a-43c2-b85b-44d7657e7df7"
+//     disable(companyId)
+
+//   }
+
+
+//   console.log(companies)
+
+
+
+//   return (
+//     <>
+//       <button onClick={handleCreate}>create</button>
+//       <button onClick={handleUpdate}>update</button>
+//       <button onClick={handleEnable}>delete</button>
+//       <button onClick={handleDisable}>delete</button>
+//     </>
+//   )
+// }
