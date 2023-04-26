@@ -3,9 +3,11 @@ import { RootState } from 'src/store/store'
 
 const baseQuery = fetchBaseQuery({
   baseUrl: 'http://localhost:3001/api',
-  credentials: 'include',
+
+  // credentials: 'include',
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.token
+    console.log(token)
     if (token) {
       headers.set('Authorization', `Bearer ${token}`)
     }
@@ -15,9 +17,10 @@ const baseQuery = fetchBaseQuery({
 })
 
 export const apiSlice = createApi({
-  baseQuery: baseQuery,
+  baseQuery,
   tagTypes: [
     'PROFILE',
+    'PROFILE-STATUS',
     'PROFILE-BUDGET',
     'BUDGET',
     'BANKACCOUNT',

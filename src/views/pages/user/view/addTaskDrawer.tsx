@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, forwardRef, ForwardedRef, useEffect } from 'react'
+import { useState, forwardRef, ForwardedRef, useEffect, ChangeEvent } from 'react'
 
 // ** MUI Imports
 import Drawer from '@mui/material/Drawer'
@@ -30,7 +30,7 @@ import { ButtonGroup } from '@mui/material'
 
 interface Props {
   open: boolean
-  toggle: () => void
+  close: boolean
   data: []
 }
 
@@ -46,33 +46,74 @@ const Header = styled(Box)<BoxProps>(({ theme }) => ({
   backgroundColor: theme.palette.background.default
 }))
 
-const AddTaskDrawer = ({ open, toggle, data }: Props) => {
+const AddTaskDrawer = ({ open, data, close }: Props) => {
   // ** State
   const [date, setDate] = useState<DateType>(new Date())
+  console.log(data)
+  console.log(open)
+  console.log(close)
 
   // const data =[];
 
-  const [options, setOptions] = useState<any>(data)
+  //Form Values
+  // const [options, setOptions] = useState<any>(data)
+  const [drawerTitle, setDrawerTitle] = useState<string>('Add')
   const [group, setGroup] = useState<string>('Users')
+  const [taskName, setTaskName] = useState<string>('')
+  const [paymentDate, setPaymentDate] = useState<number>()
+  const [status, setStatus] = useState<string>('')
 
-  console.log(group)
+  const [selectedGroup, setSelectedGroup] = useState<string>('')
+  const [note, setNote] = useState<string>('')
 
-  useEffect(() => {
-    setOptions(data)
-  }, [data])
+  const [openAddTask, setOpenAddTask] = useState<boolean>(false)
+  const [openEditTask, setOpenEditTask] = useState<boolean>(false)
+
+  // console.log(data)
+
+  // useEffect(() => {
+  //   setOptions(data)
+  // }, [data])
+
+  // function handleSubmit(event) {
+  //   event.preventDefault()
+  //   console.log({ taskName, paymentDate, group, selectedGroup, note })
+
+  //   onSubmit({ taskName, paymentDate, group, selectedGroup, note })
+  // }
+
+  // const handleInputChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
+  //   if (target.name === 'group') {
+  //     // target.value = formatCreditCardNumber(target.value, Payment)
+  //     setGroup(target.value)
+  //   } else if (target.name === 'taskName') {
+  //     // target.value = formatExpirationDate(target.value)
+
+  //     setTaskName(target.value)
+  //   } else if (target.name === 'note') {
+  //     // target.value = formatCVC(target.value, cardNumber, Payment)
+  //     setNote(target.value)
+  //   }
+  // }
+  const handleEditTaskClose = () => {
+    const props = [drawerTitle, group, taskName, paymentDate, status, selectedGroup, note]
+    console.log(props)
+    open = false
+    console.log(open)
+  }
 
   return (
     <Drawer
       open={open}
+      onClose={() => handleEditTaskClose}
       anchor='right'
-      onClose={toggle}
       variant='temporary'
       ModalProps={{ keepMounted: true }}
       sx={{ '& .MuiDrawer-paper': { width: [300, 400] } }}
     >
       <Header>
         <Typography variant='h6'>Add Task</Typography>
-        <IconButton size='small' onClick={toggle} sx={{ color: 'text.primary' }}>
+        <IconButton size='small' sx={{ color: 'text.primary' }}>
           <Icon icon='mdi:close' fontSize={20} />
         </IconButton>
       </Header>
@@ -81,15 +122,23 @@ const AddTaskDrawer = ({ open, toggle, data }: Props) => {
         <Box sx={{ mb: 6 }}>
           <FormControl fullWidth>
             <InputLabel htmlFor='payment-method'>Task Name</InputLabel>
-            <Select label='Task Name' labelId='payment-method' id='payment-method-select' defaultValue='select-method'>
+            <Select
+              label='Task Name'
+              labelId='payment-method'
+              id='payment-method-select'
+              defaultValue='select-method'
+
+              // onChange={handleInputChange}
+            >
               <MenuItem value='select-method' disabled>
                 Select Task Name
+                {/* {taskName} */}
               </MenuItem>
-              {options.map(option => (
+              {/* {options.map(option => (
                 <MenuItem key={option.taskName} value={option.id}>
                   {option.taskName}
                 </MenuItem>
-              ))}
+              ))} */}
               {/* <MenuItem value='select-method' disabled>
                 Select Task Name
               </MenuItem>
@@ -132,12 +181,12 @@ const AddTaskDrawer = ({ open, toggle, data }: Props) => {
         </Box> */}
         <Box sx={{ mb: 6 }}>
           <ButtonGroup variant='contained' sx={{ ml: 10 }}>
-            <Button onClick={() => setGroup('Users')}>Users</Button>
+            {/* <Button onClick={() => setGroup('Users')}>Users</Button>
             <Button onClick={() => setGroup('Teams')}>Teams</Button>
-            <Button onClick={() => setGroup('Roles')}>Roles</Button>
+            <Button onClick={() => setGroup('Roles')}>Roles</Button> */}
           </ButtonGroup>
         </Box>
-        {group}
+        {/* {group} */}
 
         <Box sx={{ mb: 6 }}>
           <FormControl fullWidth>
@@ -165,10 +214,10 @@ const AddTaskDrawer = ({ open, toggle, data }: Props) => {
         </Box>
 
         <div>
-          <Button size='large' variant='contained' onClick={toggle} sx={{ mr: 4 }}>
+          <Button type='submit' size='large' variant='contained' sx={{ mr: 4 }}>
             Send
           </Button>
-          <Button size='large' variant='outlined' color='secondary' onClick={toggle}>
+          <Button size='large' variant='outlined' color='secondary'>
             Cancel
           </Button>
         </div>
