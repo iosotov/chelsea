@@ -1,4 +1,5 @@
 import { useState, SyntheticEvent } from 'react'
+import { createContext } from 'react'
 
 import Box from '@mui/material/Box'
 import Tab from '@mui/material/Tab'
@@ -8,9 +9,8 @@ import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import MuiTabList, { TabListProps } from '@mui/lab/TabList'
 import CircularProgress from '@mui/material/CircularProgress'
-import TabList from '@mui/lab/TabList/TabList'
+import TabList from '@mui/lab/TabList'
 import { useRouter } from 'next/router'
-import { Tabs } from '@mui/material'
 
 // Profile View Imports
 import ProfileCredit from './ProfileCreditView'
@@ -19,7 +19,7 @@ import ProfileBilling from './ProfileBillingView'
 import ProfileDocuments from './ProfileDocumentsView'
 import ProfileNotes from './ProfileNotesView'
 import ProfileTasks from './ProfileTasksView'
-import ProfileHistory from './ProfileHistoryView'
+import ProfileActivity from './ProfileActivityView'
 import ProfileBudget from './ProfileBudgetView'
 
 type Props = {
@@ -28,12 +28,10 @@ type Props = {
 }
 
 export default function UserViewLeft({ id, tab }: Props) {
-  const [activeTab, setActiveTab] = useState(tab)
-  const [isLoading, setLoading] = useState(false)
   const router = useRouter()
-
-  console.log({tab});
-  console.log('rerenderd how many times?')
+  
+  const [activeTab, setActiveTab] = useState(tab ?? 'debts')
+  const [isLoading, setLoading] = useState(false)
 
   const handleChange = (e: SyntheticEvent, value: string) => {
     setLoading(true)
@@ -50,16 +48,16 @@ export default function UserViewLeft({ id, tab }: Props) {
   return (
     <TabContext value={activeTab}>
       <Box>
-        <Tabs value={activeTab} variant='scrollable' scrollButtons='auto' onChange={handleChange}>
-          <Tab label='Credit & Debts' value='credit' />
+        <TabList value={activeTab} variant='scrollable' scrollButtons='auto' onChange={handleChange}>
+          <Tab label='Debts' value='debts' />
           <Tab label='Payments' value='payments' />
           <Tab label='Billing' value='billing' />
           <Tab label='Documents' value='documents' />
           <Tab label='Notes' value='notes' />
           <Tab label='Tasks' value='tasks' />
-          <Tab label='History' value='history' />
           <Tab label='Budget' value='budget' />
-        </Tabs>
+          <Tab label='Activity' value='activity' />
+        </TabList>
       </Box>
       {/* Add tab views here */}
       <Box sx={{ mt: 4 }}>
@@ -70,29 +68,29 @@ export default function UserViewLeft({ id, tab }: Props) {
           </Box>
         ) : (
           <>
-            <TabPanel value='credit'>
-              <ProfileCredit />
+            <TabPanel value='debts'>
+              <ProfileCredit id={id} />
             </TabPanel>
             <TabPanel value='payments'>
-              <ProfilePayments />
+              <ProfilePayments id={id} />
             </TabPanel>
             <TabPanel value='billing'>
-              <ProfileBilling />
+              <ProfileBilling id={id} />
             </TabPanel>
             <TabPanel value='documents'>
-              <ProfileDocuments />
+              <ProfileDocuments id={id} />
             </TabPanel>
             <TabPanel value='notes'>
-              <ProfileNotes />
+              <ProfileNotes id={id} />
             </TabPanel>
             <TabPanel value='tasks'>
-              <ProfileTasks />
-            </TabPanel>
-            <TabPanel value='history'>
-              <ProfileHistory />
+              <ProfileTasks id={id} />
             </TabPanel>
             <TabPanel value='budget'>
-              <ProfileBudget />
+              <ProfileBudget id={id} />
+            </TabPanel>
+            <TabPanel value='activity'>
+              <ProfileActivity id={id} />
             </TabPanel>
           </>
         )}

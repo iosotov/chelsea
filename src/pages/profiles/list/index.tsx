@@ -43,8 +43,8 @@ import { CardStatsHorizontalProps } from 'src/@core/components/card-statistics/t
 // ** Custom Table Components Imports
 import { useAppDispatch, useAppSelector } from 'src/store/hooks'
 import { Profile, selectAllProfiles, useGetProfilesQuery } from 'src/store/api/profileApiSlice'
-import SidebarAddUser from 'src/views/pages/user/list/AddUserDrawer'
-import TableHeader from 'src/views/pages/user/list/TableHeader'
+// import SidebarAddUser from 'src/views/pages/user/list/AddUserDrawer'
+// import TableHeader from 'src/views/pages/user/list/TableHeader'
 import { useGetBudgetsQuery, useGetProfileBudgetsQuery } from 'src/store/api/profileBudgetApiSlice'
 import { selectAllBudgets, selectAllProfileBudgets } from 'src/store/profileBudgetSlice'
 
@@ -197,13 +197,13 @@ const columns = [
     field: 'firstName',
     headerName: 'User',
     renderCell: ({ row }: CellType) => {
-      const { firstName, lastName } = row
+      const { firstName, lastName, profileId } = row
 
       return (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {renderClient(row)}
           <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-            <LinkStyled href='/apps/user/view/overview/'>{firstName + ' ' + lastName}</LinkStyled>
+            <LinkStyled href={`/profiles/${profileId}/debts`}>{firstName + ' ' + lastName}</LinkStyled>
           </Box>
         </Box>
       )

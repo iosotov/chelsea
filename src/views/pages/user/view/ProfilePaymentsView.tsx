@@ -1,4 +1,4 @@
-import { ChangeEvent, MouseEvent, useState } from 'react'
+import { ChangeEvent, MouseEvent, useState, useEffect } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -25,16 +25,28 @@ import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
+import TableFooter from '@mui/material/TableFooter'
 
-// ** Third Party Imports
-import { ApexOptions } from 'apexcharts'
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
+import DialogContentText from '@mui/material/DialogContentText'
+
+import { useForm } from 'react-hook-form'
 
 // ** Custom Components Imports
 import CustomChip from 'src/@core/components/mui/chip'
 import OptionsMenu from 'src/@core/components/option-menu'
 import ReactApexcharts from 'src/@core/components/react-apexcharts'
+import SelectDate from 'src/views/shared/form-input/date-picker'
+import SingleSelect from 'src/views/shared/form-input/single-select'
+import TextInput from 'src/views/shared/form-input/text-input'
 
 import Icon from 'src/@core/components/icon'
+import { addWeeks, addMonths } from 'date-fns'
+import Alert from '@mui/material/Alert'
+import AlertTitle from '@mui/material/AlertTitle'
 
 type Order = 'asc' | 'desc'
 
@@ -46,6 +58,12 @@ interface Data {
   status: string
   memo: string
   description: string
+}
+
+type EnrollmentModalProps = {
+  open: boolean
+  handleClose: () => void
+  data?: any
 }
 
 const createData = (
@@ -291,7 +309,6 @@ const EnhancedTable = () => {
     } else if (selectedIndex > 0) {
       newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1))
     }
-
     setSelected(newSelected)
   }
 
@@ -309,10 +326,25 @@ const EnhancedTable = () => {
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0
 
+  const [data, setData] = useState({})
+  const [enrollmentModal, setEnrollmentModal] = useState<boolean>(false)
+
+  const toggleEnrollment = () => setEnrollmentModal(!enrollmentModal)
+
+  // get payment data from redux
+  // useEffect(() => {
+  //   if (data) {
+  //     setData(data)
+  //   }
+  // }, [data])
+
   return (
     <>
       <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 4 }}>
+          <Button variant='outlined' size='small' onClick={toggleEnrollment}>
+            {data ? 'Update' : 'Create'} Plan
+          </Button>
           <ButtonGroup size='small'>
             <Button>Add</Button>
             <Button>Remove</Button>
@@ -334,7 +366,7 @@ const EnhancedTable = () => {
               {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, index) => {
-                  const isItemSelected = isSelected(String(row.number))
+                  const isItemSelected = isSelected(row.number)
                   const labelId = `enhanced-table-checkbox-${index}`
 
                   return (
@@ -345,7 +377,7 @@ const EnhancedTable = () => {
                       role='checkbox'
                       selected={isItemSelected}
                       aria-checked={isItemSelected}
-                      onClick={event => handleClick(event, String(row.number))}
+                      onClick={event => handleClick(event, row.number)}
                     >
                       <TableCell padding='checkbox'>
                         <Checkbox checked={isItemSelected} inputProps={{ 'aria-labelledby': labelId }} />
@@ -365,7 +397,7 @@ const EnhancedTable = () => {
               {emptyRows > 0 && (
                 <TableRow
                   sx={{
-                    height: 53 * emptyRows
+                    height: 52 * emptyRows
                   }}
                 >
                   <TableCell colSpan={6} />
@@ -384,6 +416,363 @@ const EnhancedTable = () => {
           onRowsPerPageChange={handleChangeRowsPerPage}
         />
       </CardContent>
+      <EnrollmentDialog open={enrollmentModal} handleClose={toggleEnrollment} data={data} />
+    </>
+  )
+}
+
+const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => {
+  const defaultValues = {
+    paymentMethod: 'ach',
+    maintenanceFee: 80.0,
+    gateway: 'nacha',
+    planLength: 12,
+    serviceFee: 35,
+    firstPaymentDate: new Date(),
+    recurringFrequency: 'monthly',
+    recurringDate: addMonths(new Date(), 1)
+  }
+
+  const enrollmentForm = useForm({ defaultValues, data })
+  const {
+    handleSubmit,
+    control,
+    formState: { errors }
+  } = enrollmentForm
+
+  const onSubmit = (data: any) => {
+    console.log(data)
+  }
+
+  // const onRecurringChange = (select: string) {
+
+  // }
+
+  const [page, setPage] = useState(0)
+  const [rowsPerPage, setRowsPerPage] = useState(10)
+
+  // Avoid a layout jump when reaching the last page with empty rows.
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0
+
+  const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+    setPage(newPage)
+  }
+
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setRowsPerPage(parseInt(event.target.value, 10))
+    setPage(0)
+  }
+
+  const paymentOptions = [
+    {
+      label: 'ACH',
+      value: 'ach'
+    },
+    {
+      label: 'Credit',
+      value: 'credit'
+    },
+    {
+      label: 'Debit',
+      value: 'debit'
+    }
+  ]
+
+  const gatewayOptions = [
+    {
+      label: 'Nacha',
+      value: 'nacha'
+    },
+    {
+      label: 'Seamless Chex',
+      value: 'seamless'
+    },
+    {
+      label: 'Stripe',
+      value: 'stripe'
+    },
+    {
+      label: 'Authorize Net',
+      value: 'authorizenet'
+    }
+  ]
+
+  const lengthOptions = [
+    {
+      label: '10 Payments',
+      value: 10
+    },
+    {
+      label: '12 Payments',
+      value: 12
+    },
+    {
+      label: '14 Payments',
+      value: 14
+    },
+    {
+      label: '16 Payments',
+      value: 16
+    },
+    {
+      label: '18 Payments',
+      value: 18
+    }
+  ]
+
+  const serviceOptions = [
+    {
+      label: '35%',
+      value: 35
+    },
+    {
+      label: '36%',
+      value: 36
+    },
+    {
+      label: '37%',
+      value: 37
+    },
+    {
+      label: '38%',
+      value: 38
+    },
+    {
+      label: '39%',
+      value: 39
+    },
+    {
+      label: '40%',
+      value: 40
+    }
+  ]
+
+  const recurringOptions = [
+    {
+      label: 'Weekly',
+      value: 'weekly'
+    },
+    {
+      label: 'Bi-weekly',
+      value: 'biweekly'
+    },
+    {
+      label: 'Monthly',
+      value: 'monthly'
+    }
+  ]
+
+  // const rows: any[] = new Array(10)
+
+  return (
+    <Dialog open={open} maxWidth='lg' fullWidth onClose={handleClose} aria-labelledby='form-dialog-title'>
+      <DialogTitle id='form-dialog-title'>{data ? 'Update' : 'Create New'} Enrollment Plan</DialogTitle>
+      <DialogContent>
+        <form>
+          <Grid container sx={{ my: 1 }} spacing={4}>
+            <Grid item xs={12} md={4}>
+              <Grid container spacing={4}>
+                <Grid item xs={12}>
+                  <SingleSelect
+                    label='Payment Method'
+                    name='paymentMethod'
+                    errors={errors}
+                    required
+                    control={control}
+                    options={paymentOptions}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <SingleSelect
+                    label='Gateway'
+                    name='gateway'
+                    errors={errors}
+                    required
+                    control={control}
+                    options={gatewayOptions}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <SingleSelect
+                    label='Plan Length'
+                    name='planLength'
+                    errors={errors}
+                    required
+                    control={control}
+                    options={lengthOptions}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <SingleSelect
+                    label='Service Fee'
+                    name='serviceFee'
+                    errors={errors}
+                    required
+                    control={control}
+                    options={serviceOptions}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextInput
+                    label='Maintenance Fee'
+                    name='maintenanceFee'
+                    errors={errors}
+                    control={control}
+                    InputProps={{ readOnly: true }}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <SelectDate
+                    name='firstPaymentDate'
+                    label='First Payment Date'
+                    errors={errors}
+                    control={control}
+                    required
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <SingleSelect
+                    label='Recurring Payment Frequency'
+                    name='recurringFrequency'
+                    errors={errors}
+                    required
+                    control={control}
+                    options={recurringOptions}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <SelectDate
+                    name='recurringDate'
+                    label='First Recurring Date'
+                    errors={errors}
+                    control={control}
+                    required
+                  />
+                </Grid>
+              </Grid>
+            </Grid>
+            {/* Preview Table */}
+            <Grid item sx={{ px: 2 }} xs={12} md={8}>
+              <Grid container sx={{ mb: 4 }} xs={12}>
+                <Grid item xs={6}>
+                  <Typography variant='caption'>Total Enrolled Debt</Typography>
+                  <Typography variant='h4'>${'10000'}</Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant='caption'>Total Fees</Typography>
+                  <Typography variant='h4'>${'6066.00'}</Typography>
+                </Grid>
+              </Grid>
+              <Typography variant='h5' sx={{ mb: 2 }}>
+                Enrollment Plan Preview
+              </Typography>
+              <Table stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>#</TableCell>
+                    <TableCell align='left'>Process Date</TableCell>
+                    <TableCell align='left'>Service Fee</TableCell>
+                    <TableCell align='left'>Mainentance Fee</TableCell>
+                    <TableCell align='left'>Total</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: any, i: number) => (
+                    <TableRow>
+                      <TableCell>{i + 1}</TableCell>
+                      <TableCell align='left'>{row.processDate}</TableCell>
+                      <TableCell align='left'>{row.serviceFee}</TableCell>
+                      <TableCell align='left'>{row.maintenanceFee}</TableCell>
+                      <TableCell align='left'>{row.total}</TableCell>
+                    </TableRow>
+                  ))}
+                  {emptyRows > 0 && (
+                    <TableRow style={{ height: 50 * emptyRows }}>
+                      <TableCell colSpan={6} />
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+              <TablePagination
+                page={page}
+                component='div'
+                count={rows.length}
+                rowsPerPage={rowsPerPage}
+                onPageChange={handleChangePage}
+                rowsPerPageOptions={[5, 10, 25]}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </Grid>
+          </Grid>
+        </form>
+      </DialogContent>
+      <DialogActions className='dialog-actions-dense'>
+        <Button onClick={handleClose}>Cancel</Button>
+        <Button variant='outlined' onClick={handleSubmit(onSubmit)}>
+          Save Changes
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
+}
+
+function Overview() {
+  return (
+    <>
+      <Grid item xs={12}>
+        <Card>
+          <CardContent>
+            <Typography variant='h6'>Overview</Typography>
+            <Grid container spacing={4}>
+              <Grid item xs={12} md={6}>
+                <Grid container spacing={4}>
+                  <Grid item xs={12}>
+                    <Typography variant='caption'>Enrollment Fee</Typography>
+                    <Typography variant='h5'>40.00%</Typography>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant='caption'>Total Paid</Typography>
+                    <Typography variant='h5'>$0.00</Typography>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Typography variant='caption'>Payments Made</Typography>
+                    <Typography variant='h5'>0 of 24</Typography>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item xs={12} md={6}>
+                <Alert icon={false} severity='warning' sx={{ mb: 4 }}>
+                  <AlertTitle>Ruh Roh</AlertTitle>
+                </Alert>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+      </Grid>
+      {/* <Grid item xs={4}>
+        <Card>
+          <CardContent>
+            <Typography variant='caption'>Enrollment Fee</Typography>
+            <Typography variant='h4'>40.00%</Typography>
+          </CardContent>
+        </Card>
+      </Grid>
+      <Grid item xs={4}>
+        <Card>
+          <CardContent>
+            <Typography variant='caption'>Total Paid</Typography>
+            <Typography variant='h4'>$0.00</Typography>
+          </CardContent>
+        </Card>
+      </Grid>
+      <Grid item xs={4}>
+        <Card>
+          <CardContent>
+            <Typography variant='caption'>Payments Made</Typography>
+            <Typography variant='h4'>0 of 24</Typography>
+          </CardContent>
+        </Card>
+      </Grid> */}
     </>
   )
 }
@@ -391,32 +780,8 @@ const EnhancedTable = () => {
 export default function ProfilePayments() {
   return (
     <>
-      {/* // payment quick info */}
       <Grid container spacing={4}>
-        <Grid item xs={4}>
-          <Card>
-            <CardContent>
-              <Typography variant='caption'>Enrollment Fee</Typography>
-              <Typography variant='h4'>40.00%</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={4}>
-          <Card>
-            <CardContent>
-              <Typography variant='caption'>Total Paid</Typography>
-              <Typography variant='h4'>$0.00</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-        <Grid item xs={4}>
-          <Card>
-            <CardContent>
-              <Typography variant='caption'>Payments Made</Typography>
-              <Typography variant='h4'>0 of 24</Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+        {<Overview />}
         <Grid item xs={12}>
           <Card>
             <EnhancedTable />

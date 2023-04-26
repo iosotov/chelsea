@@ -20,6 +20,8 @@ class SolApi {
     const params = method === 'get' ? data : {}
     const headers = { Authorization: `Bearer ${SolApi.token}` }
 
+    console.log({ url, params, headers })
+
     try {
       const response = await SolApi.axiosInstance({
         url,
