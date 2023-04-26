@@ -46,13 +46,51 @@ const ProfileNotes = () => {
   //   return <Fade ref={ref} {...props} />
   // })
 
+  //mock Data
+  // const myTemplates = [
+  //   {
+  //     key:'cc', value: 'Credit Card'
+  //   },
+  //   {
+  //     key:'tt', value: 'Test'
+  //   },
+  //   {
+  //     key:'gg', value: 'guest'
+  //   },
+
+  // ]
+  const myNotes = [
+    {
+      key: 'cc',
+      value: 'CreditCard'
+    },
+    {
+      key: 'tt',
+      value: 'TT'
+    },
+    {
+      key: 'gg',
+      value: 'GasdfG'
+    },
+    {
+      key: 'hh',
+      value: 'HfasdfH'
+    }
+  ]
+
   // ** Hooks
 
+  //Form init
   const [noteTemplate, setNoteTemplate] = useState<string>('')
   const [noteType, setNoteType] = useState<string>('')
   const [notifyUsers, setNotifyUsers] = useState<string>('')
   const [noteEmails, setNoteEmails] = useState<string>('')
   const [message, setMessage] = useState<string>('')
+
+  //hooks for loading dropdown lists
+  const [templateDrop, setTemplateDrop] = useState<any>(myNotes)
+
+  // console.log(templateDrop)
 
   const {
     control,
@@ -114,6 +152,14 @@ const ProfileNotes = () => {
   //   setNoteTemplate(event.target.value)
   //   console.log(noteType)
   // }
+  //LOAD DATA
+  const loadData = () => {
+    console.log(templateDrop)
+
+    // setTemplateDrop(myNotes)
+
+    // return <div>{templateDrop}</div>
+  }
 
   const handleChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
     console.log(target.name)
@@ -151,6 +197,7 @@ const ProfileNotes = () => {
     setNoteEmails('')
     setNotifyUsers('')
     setMessage('')
+
     console.log(noteTemplate)
     console.log(noteType)
   }
@@ -165,6 +212,7 @@ const ProfileNotes = () => {
     const payload = props
     console.log(payload)
   }
+  loadData()
 
   return (
     <>
@@ -186,11 +234,16 @@ const ProfileNotes = () => {
                 <MenuItem value='select-method' disabled>
                   Select Template
                 </MenuItem>
-                <MenuItem value='cc'>Credit Card Template</MenuItem>
+                {templateDrop.map(temp => (
+                  <MenuItem key={temp.key} value={temp.value}>
+                    {temp.value}
+                  </MenuItem>
+                ))}
+                {/* <MenuItem value='cc'>Credit Card Template</MenuItem>
                 <MenuItem value='test'>Test Template</MenuItem>
                 <MenuItem value='Credit'>Test 2</MenuItem>
                 <MenuItem value='Debit'>Debit</MenuItem>
-                <MenuItem value='Paypal'>Paypal</MenuItem>
+                <MenuItem value='Paypal'>Paypal</MenuItem> */}
               </Select>
             </FormControl>
           </Grid>
@@ -244,6 +297,8 @@ const ProfileNotes = () => {
               value={noteEmails}
               placeholder='Emails'
               onChange={handleChange}
+
+              // required={true}
             />
           </Grid>
 
@@ -266,6 +321,8 @@ const ProfileNotes = () => {
               variant='contained'
               sx={{ mr: 4 }}
               onClick={() => createNote({ message, notifyUsers, noteType, noteTemplate, noteEmails })}
+
+              //remove payload,
             >
               Create Note
             </Button>
