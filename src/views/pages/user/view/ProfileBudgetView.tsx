@@ -75,7 +75,7 @@ export default function ProfileBudget() {
   // }
   console.log(isLoading)
 
-  console.log(profiles)
+
 
   return (
     <>

@@ -16,7 +16,17 @@ const baseQuery = fetchBaseQuery({
 
 export const apiSlice = createApi({
   baseQuery: baseQuery,
-  tagTypes: ['PROFILE', 'PROFILE-BUDGET', 'BUDGET', 'BANKACCOUNT'],
+  tagTypes: [
+    'PROFILE',
+    'PROFILE-BUDGET',
+    'BUDGET',
+    'BANKACCOUNT',
+    'CAMPAIGN',
+    'COMPANY',
+    'COMPANY-SETTING-CREDITREPORT',
+    'COMPANY-SETTING-ESIGN',
+    'COMPANY-SETTING-STORAGE'
+  ],
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   endpoints: builder => ({})

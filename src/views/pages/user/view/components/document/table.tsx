@@ -99,6 +99,8 @@ const columns: GridColumns = [
     field: 'actions',
     headerName: '',
     sortable: false,
+    filterable: false,
+    disableColumnMenu: true,
     renderCell: (params: GridRenderCellParams) => <></>
   }
 ]
