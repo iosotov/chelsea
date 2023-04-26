@@ -508,7 +508,7 @@ const ProfileTasks = () => {
                   size='large'
                   variant='contained'
                   sx={{ mr: 4 }}
-                  onClick={() => addTask({ taskName, note, paymentDate, group })}
+                  onClick={() => addTask({ taskName, note, paymentDate, group, selectedGroup })}
                 >
                   Send
                 </Button>
