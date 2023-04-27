@@ -37,7 +37,7 @@ const Accordion = styled(MuiAccordion)<AccordionProps>(({ theme }) => ({
   transition: 'outline-color 150ms cubic-bezier(0.4, 0, 0.2, 1)',
   outline: '2px solid transparent',
   '&.Mui-expanded': {
-    'outline-color': `${theme.palette.primary.main}`
+    outlineColor: `${theme.palette.primary.main}`
   }
 }))
 

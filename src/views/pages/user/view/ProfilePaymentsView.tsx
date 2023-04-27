@@ -46,6 +46,12 @@ import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgr
 import { styled } from '@mui/material/styles'
 import { CardHeader } from '@mui/material'
 
+import { ThemeColor } from 'src/@core/layouts/types'
+
+import CustomChip from 'src/@core/components/mui/chip'
+
+import { CardContentProps } from '@mui/material/CardContent'
+
 type Order = 'asc' | 'desc'
 
 interface Data {
@@ -76,9 +82,21 @@ const createData = (
   return { number, processDate, amount, clearedDate, status, memo, description }
 }
 
+//styled components
+
 const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   height: 8,
-  'border-radius': 5
+  borderRadius: 5
+}))
+
+const CardContainer = styled(CardContent)<CardContentProps>(({ theme }) => ({
+  minWidth: 300,
+  borderRight: `1px solid ${theme.palette.divider}`,
+  [theme.breakpoints.down('md')]: {
+    borderRight: 0,
+    borderBottom: `1px solid ${theme.palette.divider}`,
+    marginBottom: '24px'
+  }
 }))
 
 const rows = [
@@ -118,9 +136,6 @@ interface EnhancedTableProps {
 
 interface EnhancedTableToolbarProps {
   numSelected: number
-  open: boolean
-  toggle: () => void
-  data?: any
 }
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -238,7 +253,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 
 const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
   // ** Prop
-  const { numSelected, data, toggle } = props
+  const { numSelected } = props
 
   return (
     <Toolbar
@@ -251,16 +266,16 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
       }}
     >
       {numSelected > 0 ? (
-        <>
-          <Typography sx={{ flex: '1 1 100%' }} color='inherit' variant='subtitle1' component='div'>
-            {numSelected} selected
-          </Typography>
-          <Button variant='contained' size='small' onClick={toggle}>
-            {data ? 'Update' : 'Create'} Plan
-          </Button>
-        </>
+        <Typography sx={{ flex: '1 1 100%' }} color='inherit' variant='subtitle1' component='div'>
+          {numSelected} selected
+        </Typography>
       ) : (
-        <Typography variant='h5'>Payments</Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+          <Typography variant='h5'>Payments</Typography>
+          <Button variant='contained' size='small'>
+            New Payment
+          </Button>
+        </Box>
       )}
       {numSelected > 0 ? (
         <>
@@ -280,7 +295,7 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
   )
 }
 
-const EnhancedTable = () => {
+const EnhancedTable = ({ data }) => {
   // ** States
   const [page, setPage] = useState<number>(0)
   const [order, setOrder] = useState<Order>('asc')
@@ -328,91 +343,75 @@ const EnhancedTable = () => {
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0
 
-  const [data, setData] = useState({})
-  const [enrollmentModal, setEnrollmentModal] = useState<boolean>(false)
-
-  const toggleEnrollment = () => setEnrollmentModal(!enrollmentModal)
-
-  // get payment data from redux
-  // useEffect(() => {
-  //   if (data) {
-  //     setData(data)
-  //   }
-  // }, [data])
-
   return (
-    <>
-      <CardContent>
-        {/* <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2, gap: 4 }}>
-          <Button variant='contained' size='small' onClick={toggleEnrollment}>
-            {data ? 'Update' : 'Create'} Plan
-          </Button>
-        </Box> */}
-        <EnhancedTableToolbar numSelected={selected.length} open={enrollmentModal} toggle={toggleEnrollment} />
-        <TableContainer component={Paper}>
-          <Table sx={{ minWidth: 750 }} aria-labelledby='tableTitle'>
-            <EnhancedTableHead
-              order={order}
-              orderBy={orderBy}
-              rowCount={rows.length}
-              numSelected={selected.length}
-              onSelectAllClick={handleSelectAllClick}
-            />
-            <TableBody>
-              {stableSort(rows, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, index) => {
-                  const isItemSelected = isSelected(row.number)
-                  const labelId = `enhanced-table-checkbox-${index}`
-                  return (
-                    <TableRow
-                      hover
-                      tabIndex={-1}
-                      key={row.number}
-                      role='checkbox'
-                      selected={isItemSelected}
-                      aria-checked={isItemSelected}
-                      onClick={event => handleClick(event, row.number)}
-                    >
-                      <TableCell padding='checkbox'>
-                        <Checkbox checked={isItemSelected} inputProps={{ 'aria-labelledby': labelId }} />
-                      </TableCell>
-                      <TableCell component='th' align='right' id={labelId} scope='row' padding='none'>
-                        {row.number}
-                      </TableCell>
-                      <TableCell align='right'>{row.processDate}</TableCell>
-                      <TableCell align='right'>{row.amount}</TableCell>
-                      <TableCell align='right'>{row.clearedDate}</TableCell>
-                      <TableCell align='right'>{row.status}</TableCell>
-                      <TableCell align='right'>{row.memo}</TableCell>
-                      <TableCell align='right'>{row.description}</TableCell>
-                    </TableRow>
-                  )
-                })}
-              {emptyRows > 0 && (
-                <TableRow
-                  sx={{
-                    height: 50 * emptyRows
-                  }}
-                >
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        <TablePagination
-          page={page}
-          component='div'
-          count={rows.length}
-          rowsPerPage={rowsPerPage}
-          onPageChange={handleChangePage}
-          rowsPerPageOptions={[5, 10, 25]}
-          onRowsPerPageChange={handleChangeRowsPerPage}
-        />
-      </CardContent>
-      <EnrollmentDialog open={enrollmentModal} handleClose={toggleEnrollment} data={data} />
-    </>
+    <Grid item xs={12}>
+      <Card>
+        <CardContent>
+          <EnhancedTableToolbar numSelected={selected.length} />
+          <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 750 }} aria-labelledby='tableTitle'>
+              <EnhancedTableHead
+                order={order}
+                orderBy={orderBy}
+                rowCount={rows.length}
+                numSelected={selected.length}
+                onSelectAllClick={handleSelectAllClick}
+              />
+              <TableBody>
+                {stableSort(rows, getComparator(order, orderBy))
+                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, index) => {
+                    const isItemSelected = isSelected(row.number)
+                    const labelId = `enhanced-table-checkbox-${index}`
+                    return (
+                      <TableRow
+                        hover
+                        tabIndex={-1}
+                        key={row.number}
+                        role='checkbox'
+                        selected={isItemSelected}
+                        aria-checked={isItemSelected}
+                        onClick={event => handleClick(event, row.number)}
+                      >
+                        <TableCell padding='checkbox'>
+                          <Checkbox checked={isItemSelected} inputProps={{ 'aria-labelledby': labelId }} />
+                        </TableCell>
+                        <TableCell component='th' align='right' id={labelId} scope='row' padding='none'>
+                          {row.number}
+                        </TableCell>
+                        <TableCell align='right'>{row.processDate}</TableCell>
+                        <TableCell align='right'>{row.amount}</TableCell>
+                        <TableCell align='right'>{row.clearedDate}</TableCell>
+                        <TableCell align='right'>{row.status}</TableCell>
+                        <TableCell align='right'>{row.memo}</TableCell>
+                        <TableCell align='right'>{row.description}</TableCell>
+                      </TableRow>
+                    )
+                  })}
+                {emptyRows > 0 && (
+                  <TableRow
+                    sx={{
+                      height: 50 * emptyRows
+                    }}
+                  >
+                    <TableCell colSpan={6} />
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          <TablePagination
+            page={page}
+            component='div'
+            count={rows.length}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handleChangePage}
+            rowsPerPageOptions={[5, 10, 25]}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </CardContent>
+      </Card>
+    </Grid>
   )
 }
 
@@ -560,10 +559,143 @@ const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => 
   // const rows: any[] = new Array(10)
 
   return (
-    <Dialog open={open} maxWidth='lg' fullWidth onClose={handleClose} aria-labelledby='form-dialog-title'>
+    <Dialog open={open} maxWidth='xl' fullWidth onClose={handleClose} aria-labelledby='form-dialog-title'>
       <DialogTitle id='form-dialog-title'>{data ? 'Update' : 'Create New'} Enrollment Plan</DialogTitle>
-      <DialogContent>
-        <form>
+      <DialogContent sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
+        <CardContainer>
+          <form>
+            <Box mb={4}>
+              <SingleSelect
+                label='Payment Method'
+                name='paymentMethod'
+                errors={errors}
+                required
+                control={control}
+                options={paymentOptions}
+              />
+            </Box>
+            <Box mb={4}>
+              <SingleSelect
+                label='Gateway'
+                name='gateway'
+                errors={errors}
+                required
+                control={control}
+                options={gatewayOptions}
+              />
+            </Box>
+            <Box mb={4}>
+              <SingleSelect
+                label='Plan Length'
+                name='planLength'
+                errors={errors}
+                required
+                control={control}
+                options={lengthOptions}
+              />
+            </Box>
+            <Box mb={4}>
+              <SingleSelect
+                label='Service Fee'
+                name='serviceFee'
+                errors={errors}
+                required
+                control={control}
+                options={serviceOptions}
+              />
+            </Box>
+            <Box mb={4}>
+              <TextInput
+                label='Maintenance Fee'
+                name='maintenanceFee'
+                errors={errors}
+                control={control}
+                InputProps={{ readOnly: true }}
+              />
+            </Box>
+            <Box mb={4}>
+              <SelectDate
+                name='firstPaymentDate'
+                label='First Payment Date'
+                errors={errors}
+                control={control}
+                required
+              />
+            </Box>
+            <Box mb={4}>
+              {' '}
+              <SingleSelect
+                label='Recurring Payment Frequency'
+                name='recurringFrequency'
+                errors={errors}
+                required
+                control={control}
+                options={recurringOptions}
+              />
+            </Box>
+            <Box mb={4}>
+              <SelectDate
+                name='recurringDate'
+                label='First Recurring Date'
+                errors={errors}
+                control={control}
+                required
+              />
+            </Box>
+          </form>
+        </CardContainer>
+        <Box sx={{ width: '100%', px: { xs: '16px', md: '24px' } }}>
+          <Grid container sx={{ mb: 4 }}>
+            <Grid item xs={6}>
+              <Typography variant='caption'>Total Enrolled Debt</Typography>
+              <Typography variant='h4'>${'10000'}</Typography>
+            </Grid>
+            <Grid item xs={6}>
+              <Typography variant='caption'>Total Fees</Typography>
+              <Typography variant='h4'>${'6066.00'}</Typography>
+            </Grid>
+          </Grid>
+          <Typography variant='h5' sx={{ mb: 2 }}>
+            Enrollment Plan Preview
+          </Typography>
+          <Table sx={{ maxHeight: '500px' }} stickyHeader>
+            <TableHead>
+              <TableRow>
+                <TableCell>#</TableCell>
+                <TableCell align='left'>Process Date</TableCell>
+                <TableCell align='left'>Service Fee</TableCell>
+                <TableCell align='left'>Mainentance Fee</TableCell>
+                <TableCell align='left'>Total</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: any, i: number) => (
+                <TableRow key={i}>
+                  <TableCell>{i + 1}</TableCell>
+                  <TableCell align='left'>{row.processDate}</TableCell>
+                  <TableCell align='left'>{row.serviceFee}</TableCell>
+                  <TableCell align='left'>{row.maintenanceFee}</TableCell>
+                  <TableCell align='left'>{row.total}</TableCell>
+                </TableRow>
+              ))}
+              {emptyRows > 0 && (
+                <TableRow style={{ height: 50 * emptyRows }}>
+                  <TableCell colSpan={6} />
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+          <TablePagination
+            page={page}
+            component='div'
+            count={rows.length}
+            rowsPerPage={rowsPerPage}
+            onPageChange={handleChangePage}
+            rowsPerPageOptions={[5, 10, 25]}
+            onRowsPerPageChange={handleChangeRowsPerPage}
+          />
+        </Box>
+        {/* <form>
           <Grid container sx={{ my: 1 }} spacing={4}>
             <Grid item xs={12} md={4}>
               <Grid container spacing={4}>
@@ -646,9 +778,8 @@ const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => 
                 </Grid>
               </Grid>
             </Grid>
-            {/* Preview Table */}
             <Grid item sx={{ px: 2 }} xs={12} md={8}>
-              <Grid container sx={{ mb: 4 }} xs={12}>
+              <Grid container sx={{ mb: 4 }}>
                 <Grid item xs={6}>
                   <Typography variant='caption'>Total Enrolled Debt</Typography>
                   <Typography variant='h4'>${'10000'}</Typography>
@@ -699,7 +830,7 @@ const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => 
               />
             </Grid>
           </Grid>
-        </form>
+        </form> */}
       </DialogContent>
       <DialogActions className='dialog-actions-dense'>
         <Button onClick={handleClose}>Cancel</Button>
@@ -711,7 +842,7 @@ const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => 
   )
 }
 
-function Overview() {
+function Overview({ handleClose, data }: any) {
   const [alert, setAlert] = useState<boolean>(true)
 
   const AlertType = 'Paused'
@@ -719,10 +850,15 @@ function Overview() {
     <>
       <Grid item xs={12}>
         <Card>
+          <CardHeader
+            title='Overview'
+            action={
+              <Button variant='contained' onClick={handleClose} size='small' sx={{ '& svg': { mr: 1 } }}>
+                {data ? 'Update' : 'Create'} Plan
+              </Button>
+            }
+          />
           <CardContent>
-            <Typography variant='h6' mb={4}>
-              Overview
-            </Typography>
             <Grid container spacing={4} mb={2}>
               <Grid item xs={12} md={6}>
                 <Typography mb={2} variant='body2'>
@@ -805,36 +941,136 @@ function Overview() {
 function PaymentMethod() {
   const addPayment = () => console.log('added')
 
+  interface PaymentDataType {
+    name: string
+    cardCvc: string
+    expiryDate: string
+    cardNumber: string
+    cardStatus?: string
+    badgeColor?: ThemeColor
+  }
+  // const paymentData = ''
+  const paymentData: PaymentDataType[] = [
+    {
+      cardCvc: '587',
+      name: 'Tom McBride',
+      expiryDate: '12/24',
+      badgeColor: 'primary',
+      cardStatus: 'Primary',
+      cardNumber: '5577 0000 5577 9865'
+    },
+    {
+      cardCvc: '681',
+      expiryDate: '02/24',
+      name: 'Mildred Wagner',
+      cardNumber: '4532 3616 2070 5678'
+    }
+  ]
+
   return (
     <Grid item xs={12}>
       <Card>
         <CardHeader
           title='Payment Methods'
           action={
-            <Button variant='contained' onClick={addPayment} sx={{ '& svg': { mr: 1 } }}>
+            <Button variant='contained' size='small' onClick={addPayment} sx={{ '& svg': { mr: 1 } }}>
               <Icon icon='mdi:plus' fontSize='1.125rem' />
               Add Payment
             </Button>
           }
         />
-        <CardContent></CardContent>
+        <CardContent>
+          {paymentData ? (
+            paymentData.map((item: PaymentDataType, index: number) => (
+              <Box
+                key={index}
+                sx={{
+                  p: 5,
+                  display: 'flex',
+                  borderRadius: 1,
+                  flexDirection: ['column', 'row'],
+                  justifyContent: ['space-between'],
+                  alignItems: ['flex-start', 'center'],
+                  mb: index !== paymentData.length - 1 ? 4 : undefined,
+                  border: theme => `1px solid ${theme.palette.divider}`
+                }}
+              >
+                <div>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Icon icon='material-symbols:credit-card-outline' />
+                    <Typography component='h6'>Card</Typography>
+                  </Box>
+                  <Box sx={{ mt: 1, mb: 2.5, display: 'flex', alignItems: 'center' }}>
+                    <Typography sx={{ fontWeight: 600 }}>{item.name}</Typography>
+                    {item.cardStatus ? (
+                      <CustomChip
+                        skin='light'
+                        size='small'
+                        sx={{ ml: 4 }}
+                        label={item.cardStatus}
+                        color={item.badgeColor}
+                      />
+                    ) : null}
+                  </Box>
+                  <Typography variant='body2'>
+                    **** **** **** {item.cardNumber.substring(item.cardNumber.length - 4)}
+                  </Typography>
+                </div>
+
+                <Box sx={{ mt: [3, 0], textAlign: ['start', 'end'] }}>
+                  <Button variant='outlined' sx={{ mr: 4 }} onClick={() => handleEditCardClickOpen(index)}>
+                    Edit
+                  </Button>
+                  <Button variant='outlined' color='secondary'>
+                    Delete
+                  </Button>
+                  <Typography variant='caption' sx={{ mt: 4, display: 'block' }}>
+                    Card expires at {item.expiryDate}
+                  </Typography>
+                </Box>
+              </Box>
+            ))
+          ) : (
+            <Box
+              sx={{
+                py: 10,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}
+            >
+              <Typography variant='caption'>It's empty in here...</Typography>
+              <Typography variant='body1'>Add a payment to start!</Typography>
+            </Box>
+          )}
+        </CardContent>
       </Card>
     </Grid>
   )
 }
 
 export default function ProfilePayments() {
+  const [data, setData] = useState({})
+  const [enrollmentModal, setEnrollmentModal] = useState<boolean>(false)
+
+  const toggleEnrollment = () => setEnrollmentModal(!enrollmentModal)
+
+  // get payment data from redux
+  // useEffect(() => {
+  //   if (data) {
+  //     setData(data)
+  //   }
+  // }, [data])
+
   return (
     <>
       <Grid container spacing={4}>
-        {<Overview />}
-        {<PaymentMethod />}
-        <Grid item xs={12}>
-          <Card>
-            <EnhancedTable />
-          </Card>
-        </Grid>
+        <Overview handleClose={toggleEnrollment} data={data} />
+        <PaymentMethod />
+        <EnhancedTable data={data} />
       </Grid>
+      <EnrollmentDialog open={enrollmentModal} handleClose={toggleEnrollment} data={data} />
     </>
   )
 }
