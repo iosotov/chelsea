@@ -26,10 +26,8 @@ const AuthWrapper = ({ children }: Props) => {
   useEffect(() => {
     const initAuth = async (): Promise<void> => {
       // send request to refresh-token api to check for token
-      console.log('in useEffect')
       const refreshToken = await dispatch(RefreshToken()).unwrap()
       if (!refreshToken) {
-        console.log('not a refresh')
         if (!router.pathname.includes('login')) {
           router.replace('/login')
         }
