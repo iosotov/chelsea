@@ -41,19 +41,6 @@ import GenerateSidebar from './components/document/generateSidebar'
 import { SyntheticEvent } from 'react-draft-wysiwyg'
 import TableColumns from './components/document/table'
 
-const steps = [
-  {
-    title: 'Upload',
-    icon: 'mdi:tag-outline',
-    subtitle: 'Upload and Preview'
-  },
-  {
-    title: 'Upload Details',
-    subtitle: 'Provide upload details',
-    icon: 'mdi:clipboard-text-outline'
-  }
-]
-
 const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
   '& .MuiTabs-indicator': {
     display: 'none'
@@ -74,7 +61,7 @@ export default function ProfileDocuments() {
   const [openUploadDialog, setUploadDialog] = useState<boolean>(false)
   const [openGenerateDrawer, setUploadDrawer] = useState<boolean>(false)
   const [tab, setTab] = useState<string>('esign')
-  const [tabLoading, setTabLoading] = useState<boolean>(false);
+  const [tabLoading, setTabLoading] = useState<boolean>(false)
 
   //rows for tables
   const [data, setData] = useState([])
@@ -82,7 +69,6 @@ export default function ProfileDocuments() {
   const [generated, setGenerated] = useState([])
   const [uploaded, setUploaded] = useState([])
 
-  
   // filter out the data
   // useEffect(() => {
   //   if (data.length) {
@@ -104,7 +90,7 @@ export default function ProfileDocuments() {
   const toggleDrawer = () => setUploadDrawer(!openGenerateDrawer)
 
   const handleTabChange = (e: SyntheticEvent, newValue: string) => {
-    setTabLoading(true);
+    setTabLoading(true)
     setTab(newValue)
     setTimeout(() => {
       setTabLoading(false)
@@ -157,30 +143,26 @@ export default function ProfileDocuments() {
                   <Tab value='generated' label={`Generated Docs`} />
                   <Tab value='uploaded' label={`Uploaded Docs`} />
                 </TabList>
-                <Box sx={{minHeight: 280}}>
-                  {tabLoading
-                    ? (
-                      <Box sx={{ mt: 6, display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
-                        <CircularProgress sx={{ mb: 4 }} />
-                        <Typography>Loading...</Typography>
-                      </Box>
-                    )
-                    : (
-                      <>
-                        <TabPanel value='esign'>
-                          <TableColumns rows={esign} />
-                        </TabPanel>
-                        <TabPanel value='generated'>
-                          <TableColumns rows={generated} />
-                        </TabPanel>
-                        <TabPanel value='uploaded'>
-                          <TableColumns rows={uploaded} />
-                        </TabPanel>
-                      </>
-                    )
-                  }
+                <Box sx={{ minHeight: 280 }}>
+                  {tabLoading ? (
+                    <Box sx={{ mt: 6, display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
+                      <CircularProgress sx={{ mb: 4 }} />
+                      <Typography>Loading...</Typography>
+                    </Box>
+                  ) : (
+                    <>
+                      <TabPanel value='esign'>
+                        <TableColumns rows={esign} />
+                      </TabPanel>
+                      <TabPanel value='generated'>
+                        <TableColumns rows={generated} />
+                      </TabPanel>
+                      <TabPanel value='uploaded'>
+                        <TableColumns rows={uploaded} />
+                      </TabPanel>
+                    </>
+                  )}
                 </Box>
-                
               </Box>
             </CardContent>
           </Card>
@@ -201,6 +183,19 @@ type DialogProps = {
 
 const UploadDialog = ({ open, toggle }: DialogProps) => {
   const [activeStep, setActiveStep] = useState<number>(0)
+
+  const steps = [
+    {
+      title: 'Upload',
+      icon: 'mdi:tag-outline',
+      subtitle: 'Upload and Preview'
+    },
+    {
+      title: 'Upload Details',
+      subtitle: 'Provide upload details',
+      icon: 'mdi:clipboard-text-outline'
+    }
+  ]
 
   const handleNext = () => {
     setActiveStep(activeStep + 1)

@@ -91,11 +91,11 @@ export default function UserProfile({ tab }: Props) {
         </Box>
       ) : (
         <Grid container spacing={4}>
-          <Grid item xs={12} md={5} lg={4}>
+          <Grid item xs={12} md={4} lg={4}>
             {/* pass profileInfo directly into UserViewLeft */}
             <UserViewLeft data={data} />
           </Grid>
-          <Grid item xs={12} md={7} lg={8}>
+          <Grid item xs={12} md={8} lg={8}>
             <UserViewRight id={profileId} tab={tab} />
           </Grid>
         </Grid>
