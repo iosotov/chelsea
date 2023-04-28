@@ -1,9 +1,9 @@
-import ProfileBudget from 'src/views/pages/user/view/ProfileBudgetView'
 import { setBudget, setProfileBudget } from '../profileBudgetSlice'
 import { apiSlice } from './apiSlice'
 import SolApi from './SolApi'
 
 export type ProfileBudget = {
+  profileId?: string
   budgetId: string
   amount: number
 }
@@ -11,6 +11,11 @@ export type ProfileBudget = {
 export type ProfileBudgetObj = {
   profile: ProfileBudget[] | []
   budget: Budget[] | []
+}
+
+export type ProfileBudgeUpdateType = {
+  profileId: string
+  budgets: ProfileBudget[]
 }
 
 export type Budget = {
@@ -28,22 +33,24 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
         url: `/profile/${id}/budget`,
         method: 'GET'
       }),
-      transformResponse: async (res: any) => {
-        const profile: ProfileBudget[] = res.data
-        try {
-          const result = await SolApi.GetBudgets()
-          const budget: Budget[] = result.data
-          const returnResult: ProfileBudgetObj = { budget, profile }
+      transformResponse: async (res: any, meta, arg) => {
+        if (!res.success) throw new Error('There was an error fetching profile budgets')
 
-          console.log(returnResult)
+        const result = await SolApi.GetBudgets()
+        const budget: Budget[] = result.data
+        const profile: ProfileBudget[] = budget.map(budget => {
+          const profileBudget = res.data.find((pb: ProfileBudget) => pb.budgetId === budget.budgetId)
+          let resp = { profileId: arg, budgetId: budget.budgetId, amount: 0 }
+          if (profileBudget) resp = { ...resp, amount: profileBudget.amount }
 
-          return returnResult
-        } catch (e) {
-          // SET UP ERROR HANDLING
-          console.log(e)
-        }
+          return resp
+        })
 
-        return { profile, budget: {} } as ProfileBudgetObj
+        const returnResult: ProfileBudgetObj = { budget, profile }
+
+        console.log(returnResult)
+
+        return returnResult
       },
       async onQueryStarted(searchParams, { dispatch, queryFulfilled }) {
         try {
@@ -57,25 +64,38 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      providesTags: result => {
-        return [
-          { type: 'PROFILE-BUDGET', id: 'LIST' },
-          ...((result &&
-            result.profile.map((profileBudget: ProfileBudget) => ({
-              type: 'PROFILE-BUDGET' as const,
-              id: profileBudget.budgetId
-            }))) ||
-            []),
-          { type: 'BUDGET', id: 'LIST' },
-          ...((result &&
-            result.budget.map((budget: Budget) => ({
-              type: 'BUDGET' as const,
-              id: budget.budgetId
-            }))) ||
-            [])
-        ]
+      providesTags: (result, error, arg) => {
+        return result ? [{ type: 'PROFILE-BUDGET', id: arg }] : []
       }
     }),
+    postProfileBudgets: builder.mutation<string, ProfileBudgeUpdateType>({
+      query: params => {
+        const { profileId, ...body } = params
+
+        return {
+          url: `/profile/${profileId}/budget`,
+          method: 'PUT',
+          body
+        }
+      },
+      transformResponse: async (res: Record<string, any>, meta, arg) => {
+        if (!res.success) throw new Error('There was an error fetching profile budgets')
+
+        return arg.profileId
+      },
+      async onQueryStarted(params, { queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+
+          console.log(err)
+        }
+      },
+      invalidatesTags: res => (res ? [{ type: 'PROFILE-BUDGET', id: res }] : [])
+    }),
+
     getBudgets: builder.query<Budget[], Record<string, any>>({
       query: () => ({
         url: `/setting/budgets`,
