@@ -29,7 +29,7 @@ type Props = {
 
 export default function UserViewLeft({ id, tab }: Props) {
   const router = useRouter()
-  
+
   const [activeTab, setActiveTab] = useState(tab ?? 'debts')
   const [isLoading, setLoading] = useState(false)
 
@@ -42,7 +42,7 @@ export default function UserViewLeft({ id, tab }: Props) {
           pathname: `/profiles/${id}/${value.toLowerCase()}`
         })
         .then(() => setLoading(false))
-    },300)
+    }, 300)
   }
 
   return (

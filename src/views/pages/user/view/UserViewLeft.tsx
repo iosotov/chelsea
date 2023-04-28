@@ -147,27 +147,39 @@ export default function UserViewRight({ data }: Props) {
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Data Point:</Typography>
-                <Typography variant='body2'>{createdCompanyName}</Typography>
+                <Typography variant='body2' align='right'>
+                  {createdCompanyName}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Campaign:</Typography>
-                <Typography variant='body2'>{campaignName}</Typography>
+                <Typography variant='body2' align='right'>
+                  {campaignName}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Account Manager:</Typography>
-                <Typography variant='body2'>{'Unassigned'}</Typography>
+                <Typography variant='body2' align='right'>
+                  {'Unassigned'}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Servicing Company:</Typography>
-                <Typography variant='body2'>{campaignName}</Typography>
+                <Typography variant='body2' align='right'>
+                  {campaignName}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Marketing Agent:</Typography>
-                <Typography variant='body2'>{createdByName}</Typography>
+                <Typography variant='body2' align='right'>
+                  {createdByName}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Marketing Company:</Typography>
-                <Typography variant='body2'>{createdCompanyName}</Typography>
+                <Typography variant='body2' align='right'>
+                  {createdCompanyName}
+                </Typography>
               </Box>
             </Box>
           </CardContent>
@@ -238,43 +250,63 @@ export default function UserViewRight({ data }: Props) {
             <Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Total Enrolled Balance:</Typography>
-                <Typography variant='body2'>{'$10000'}</Typography>
+                <Typography variant='body2' align='right'>
+                  {'$10000'}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Enrolled Debts:</Typography>
-                <Typography variant='body2'>{'$10000'}</Typography>
+                <Typography variant='body2' align='right'>
+                  {'$10000'}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>% of Enrolled Debt:</Typography>
-                <Typography variant='body2'>{'40%'}</Typography>
+                <Typography variant='body2' align='right'>
+                  {'40%'}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>First Payment Date:</Typography>
-                <Typography variant='body2'>{'12/1/2023'}</Typography>
+                <Typography variant='body2' align='right'>
+                  {'12/1/2023'}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>First Payment Amount:</Typography>
-                <Typography variant='body2'>{'$350'}</Typography>
+                <Typography variant='body2' align='right'>
+                  {'$350'}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Last Payment Date:</Typography>
-                <Typography variant='body2'>{'N/A'}</Typography>
+                <Typography variant='body2' align='right'>
+                  {'N/A'}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Last Payment Amount:</Typography>
-                <Typography variant='body2'>{'N/A'}</Typography>
+                <Typography variant='body2' align='right'>
+                  {'N/A'}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Last Payment Status:</Typography>
-                <Typography variant='body2'>{'N/A'}</Typography>
+                <Typography variant='body2' align='right'>
+                  {'N/A'}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Next Payment Date:</Typography>
-                <Typography variant='body2'>{'12/1/2023'}</Typography>
+                <Typography variant='body2' align='right'>
+                  {'12/1/2023'}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Next Payment Amount:</Typography>
-                <Typography variant='body2'>{'$350'}</Typography>
+                <Typography variant='body2' align='right'>
+                  {'$350'}
+                </Typography>
               </Box>
             </Box>
           </AccordionDetails>
@@ -296,19 +328,27 @@ export default function UserViewRight({ data }: Props) {
             <Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Authorized First Name:</Typography>
-                <Typography variant='body2'>{'John'}</Typography>
+                <Typography variant='body2' align='right'>
+                  {'John'}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Authorized Last Name:</Typography>
-                <Typography variant='body2'>{'Doe'}</Typography>
+                <Typography variant='body2' align='right'>
+                  {'Doe'}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Authorized Email:</Typography>
-                <Typography variant='body2'>{'N/A'}</Typography>
+                <Typography variant='body2' align='right'>
+                  {'N/A'}
+                </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Authroized Phone Number:</Typography>
-                <Typography variant='body2'>{'N/A'}</Typography>
+                <Typography variant='body2' align='right'>
+                  {'N/A'}
+                </Typography>
               </Box>
             </Box>
           </AccordionDetails>
