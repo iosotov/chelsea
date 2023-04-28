@@ -1,13 +1,14 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { RootState } from 'src/store/store'
 
+export const baseUrl = 'http://localhost:3001/api'
+
 const baseQuery = fetchBaseQuery({
-  baseUrl: 'http://localhost:3001/api',
+  baseUrl,
 
   // credentials: 'include',
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.token
-    console.log(token)
     if (token) {
       headers.set('Authorization', `Bearer ${token}`)
     }
@@ -22,6 +23,7 @@ export const apiSlice = createApi({
     'PROFILE',
     'PROFILE-STATUS',
     'PROFILE-BUDGET',
+    'PROFILE-LABEL',
     'BUDGET',
     'BANKACCOUNT',
     'CAMPAIGN',
