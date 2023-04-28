@@ -18,6 +18,9 @@ app.use(
   '/api',
   createProxyMiddleware({
     target: 'https://monolivia.com',
+
+    // target: 'http://localhost:5295',
+
     changeOrigin: true,
     onProxyRes: (proxyRes, req, res) => {
       // Set the Access-Control-Allow-Origin header
