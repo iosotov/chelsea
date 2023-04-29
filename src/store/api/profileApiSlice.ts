@@ -1,8 +1,6 @@
-import { FetchBaseQueryError } from '@reduxjs/toolkit/dist/query'
 import { addProfile, deleteProfile, updateProfiles, updateStatus } from '../profileSlice'
 import SolApi from './SolApi'
-import { apiSlice, baseUrl } from './apiSlice'
-import { RootState } from '../store'
+import { apiSlice } from './apiSlice'
 
 export type ProfileInfoType = {
   profileId: string
@@ -580,7 +578,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           // ************************
           // NEED TO CREATE ERROR HANDLING
 
-          console.log(err.error)
+          console.log(err)
         }
       }
     }),
@@ -721,7 +719,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           // ************************
           // NEED TO CREATE ERROR HANDLING
 
-          console.log(err.error)
+          console.log(err)
         }
       },
       providesTags: (res, meta, arg) => (res ? [{ type: 'PROFILE-LABEL', id: arg }] : [])
@@ -750,7 +748,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           // ************************
           // NEED TO CREATE ERROR HANDLING
 
-          console.log(err.error)
+          console.log(err)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'PROFILE-LABEL', id: arg.profileId }] : [])

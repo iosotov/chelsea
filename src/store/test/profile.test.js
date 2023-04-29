@@ -14,56 +14,12 @@ import auth, { setCredentials } from '../authSlice'
 import SolApi from '../api/SolApi'
 import { useEffect, useRef } from 'react'
 import { profileBudgetApiSlice } from '../api/profileBudgetApiSlice'
-import profileBudget, {
-  selectAllProfileBudgets,
-  selectProfileBudgetsByBudgetId,
-  selectProfileBudgetsById
-} from '../profileBudgetSlice'
+import profileBudget, { selectProfileBudgetsByBudgetId } from '../profileBudgetSlice'
+import { delay } from './helper'
+
+// import { waitForApiCall } from './helper'
 
 let _profileId
-let deleted = false
-
-const waitForApiCall = async () => {
-  try {
-    await waitFor(() => expect(getByText('isFetching')).toBeInTheDocument(), { timeout: 2000 })
-
-    return true
-  } catch (error) {
-    // Timeout error
-    return false
-  }
-}
-
-function parseCSV(csvString) {
-  const lines = csvString.trim().split('\n')
-  const headers = lines[0].split(',')
-  const data = []
-
-  for (let i = 1; i < lines.length; i++) {
-    const row = lines[i].split(',')
-    const rowData = {}
-
-    for (let j = 0; j < headers.length; j++) {
-      rowData[headers[j]] = row[j]
-    }
-
-    data.push(rowData)
-  }
-
-  return data
-}
-
-const delay = (ms, callback) =>
-  new Promise(resolve => {
-    const interval = setInterval(() => {
-      callback()
-    }, 100)
-
-    setTimeout(() => {
-      clearInterval(interval)
-      resolve()
-    }, ms)
-  })
 
 const store = configureStore({
   reducer: {
@@ -191,6 +147,7 @@ describe('ProileApiSlice', () => {
       )
     })
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { getByText, unmount } = render(<Wrapper profileId={_profileId} />)
     expect(getByText('isLoading')).toBeInTheDocument()
 
@@ -244,6 +201,7 @@ describe('ProileApiSlice', () => {
       )
     })
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { getByText, unmount } = render(<Wrapper profileId={_profileId} />)
     expect(getByText('isLoading')).toBeInTheDocument()
 
@@ -562,15 +520,11 @@ describe('ProileApiSlice', () => {
 
       // called to check if trigger invalidates LIST and updates with new profile
       const { isLoading, isSuccess, isFetching } = useGetProfileInfoQuery(profileId)
-      const {
-        isLoading: statusLoading,
-        isSuccess: statusSuccess,
-        isFetching: statusFetching
-      } = useGetProfileStatusQuery(profileId)
+      useGetProfileStatusQuery(profileId)
 
       // trigger is called to create user, and new user is saved to global variable _newProfile
       async function handleClick() {
-        const data = await trigger(profileId).unwrap()
+        await trigger(profileId).unwrap()
       }
 
       return (
@@ -638,7 +592,7 @@ describe('ProileApiSlice', () => {
           labelIds: ['ec8afd3b-af30-4abb-a3db-ef197fbbbfc2']
         }
 
-        const data = await trigger(testData).unwrap()
+        await trigger(testData).unwrap()
       }
 
       return (
@@ -688,15 +642,11 @@ describe('ProileApiSlice', () => {
 
       // called to check if trigger invalidates LIST and updates with new profile
       const { isLoading, isSuccess, isFetching } = useGetProfileInfoQuery(profileId)
-      const {
-        isLoading: statusLoading,
-        isSuccess: statusSuccess,
-        isFetching: statusFetching
-      } = useGetProfileStatusQuery(profileId)
+      useGetProfileStatusQuery(profileId)
 
       // trigger is called to create user, and new user is saved to global variable _newProfile
       async function handleClick() {
-        const data = await trigger(profileId).unwrap()
+        await trigger(profileId).unwrap()
       }
 
       return (
@@ -754,16 +704,12 @@ describe('ProileApiSlice', () => {
 
       // called to check if trigger invalidates LIST and updates with new profile
       const { isLoading, isSuccess, isFetching } = useGetProfileInfoQuery(profileId)
-      const {
-        isLoading: statusLoading,
-        isSuccess: statusSuccess,
-        isFetching: statusFetching
-      } = useGetProfileStatusQuery(profileId)
+      useGetProfileStatusQuery(profileId)
 
       // trigger is called to create user, and new user is saved to global variable _newProfile
       async function handleClick() {
         const testData = { profileId, password: '123' }
-        const data = await trigger(testData).unwrap()
+        await trigger(testData).unwrap()
       }
 
       return (
@@ -900,11 +846,7 @@ describe('ProileApiSlice', () => {
 
       // called to check if trigger invalidates LIST and updates with new profile
       const { isLoading, isSuccess, isFetching } = useGetProfileInfoQuery(profileId)
-      const {
-        isLoading: statusLoading,
-        isSuccess: statusSuccess,
-        isFetching: statusFetching
-      } = useGetProfileStatusQuery(profileId)
+      useGetProfileStatusQuery(profileId)
 
       // trigger is called to create user, and new user is saved to global variable _newProfile
       async function handleClick() {
@@ -913,7 +855,7 @@ describe('ProileApiSlice', () => {
           stage: '9212ea41-12fb-48cc-9867-58731eef71dd',
           stageStatus: 'ed43ba86-e670-4310-b5ed-e831812a8c9e'
         }
-        const data = await trigger(testData).unwrap()
+        await trigger(testData).unwrap()
       }
 
       return (
@@ -976,11 +918,7 @@ describe('ProileApiSlice', () => {
 
       // called to check if trigger invalidates LIST and updates with new profile
       const { isLoading, isSuccess, isFetching } = useGetProfileInfoQuery(profileId)
-      const {
-        isLoading: statusLoading,
-        isSuccess: statusSuccess,
-        isFetching: statusFetching
-      } = useGetProfileStatusQuery(profileId)
+      useGetProfileStatusQuery(profileId)
 
       // trigger is called to create user, and new user is saved to global variable _newProfile
       async function handleClick() {
@@ -990,7 +928,7 @@ describe('ProileApiSlice', () => {
           lastName: 'Testing456',
           campaignId: 'bf58cf1e-e03f-4097-b2bc-a410564bd933'
         }
-        const data = await trigger(testData).unwrap()
+        await trigger(testData).unwrap()
       }
 
       return (
@@ -1043,7 +981,7 @@ describe('ProileApiSlice', () => {
     let componentData
     const Wrapper = storeWrapper(({ profileId }) => {
       // use mock function to track number of times it is called
-      const [trigger, { data, isSuccess, isLoading }] = usePostExportProfilesMutationMock()
+      const [trigger, { isSuccess, isLoading }] = usePostExportProfilesMutationMock()
 
       // trigger is called to create user, and new user is saved to global variable _newProfile
       async function handleClick() {
@@ -1114,7 +1052,7 @@ describe('ProileApiSlice', () => {
             ]
           }
 
-          const data = await trigger(testData).unwrap()
+          await trigger(testData).unwrap()
         }
 
         return (
@@ -1136,7 +1074,11 @@ describe('ProileApiSlice', () => {
 
       await waitFor(() => expect(getByText('isSuccess')).toBeInTheDocument())
 
-      const budgetsBefore = selectProfileBudgetsByBudgetId(store.getState(), _profileId)
+      const budgetsBefore = selectProfileBudgetsByBudgetId(store.getState(), _profileId).filter(
+        budget => budget.amount !== 0
+      )
+
+      expect(budgetsBefore.length).toBe(0)
 
       // fire button
       const button = getByText('postBudgets')
@@ -1149,8 +1091,11 @@ describe('ProileApiSlice', () => {
         await delay(300, () => true)
       })
 
-      const budgetsAfter = selectProfileBudgetsByBudgetId(store.getState(), _profileId)
-      const allBudgets = selectAllProfileBudgets(store.getState())
+      const budgetsAfter = selectProfileBudgetsByBudgetId(store.getState(), _profileId).filter(
+        budget => budget.amount !== 0
+      )
+
+      expect(budgetsAfter.length).toBe(2)
     })
 
   test('putDeleteProfile updates profileSlice', async () => {
@@ -1161,11 +1106,7 @@ describe('ProileApiSlice', () => {
 
       // called to check if trigger invalidates LIST and updates with new profile
       const { isLoading, isSuccess, isFetching } = useGetProfileInfoQuery(profileId)
-      const {
-        isLoading: statusLoading,
-        isSuccess: statusSuccess,
-        isFetching: statusFetching
-      } = useGetProfileStatusQuery(profileId)
+      useGetProfileStatusQuery(profileId)
 
       // trigger is called to create user, and new user is saved to global variable _newProfile
       async function handleClick() {
@@ -1278,10 +1219,7 @@ describe('ProileApiSlice', () => {
 /*
 waiting to update:
 
-- profile status summary => only returning empty lists
-- profile approve
-- profile submit
-- profile enroll
+- profile status summary
 - profile disable auth
 - profile put stage
 - profile get labels
