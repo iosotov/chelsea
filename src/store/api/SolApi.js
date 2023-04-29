@@ -106,6 +106,16 @@ class SolApi {
           state: faker.address.stateAbbr(),
           zipCode: faker.address.zipCode('#####')
         }
+      ],
+      profileContacts: [
+        {
+          contactId: '5f2421ec-6016-4355-92aa-67dd5f2c8abc',
+          value: faker.phone.number('###-###-####')
+        },
+        {
+          contactId: 'c7713ff2-1bea-4f69-84c0-404e0e5fb0bd',
+          value: faker.internet.email()
+        }
       ]
     }
 

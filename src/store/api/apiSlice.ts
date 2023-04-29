@@ -30,7 +30,10 @@ export const apiSlice = createApi({
     'COMPANY',
     'COMPANY-SETTING-CREDITREPORT',
     'COMPANY-SETTING-ESIGN',
-    'COMPANY-SETTING-STORAGE'
+    'COMPANY-SETTING-STORAGE',
+    'DOCUMENT',
+    'DOCUMENT-LIABILITY',
+    'DOCUMENT-PREVIEW'
   ],
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
