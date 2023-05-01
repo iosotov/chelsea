@@ -1,19 +1,5 @@
-import { addCompany, setCompanies, updateCompany } from '../companySlice'
+import { setCompanies, updateCompanies } from '../companySlice'
 import { apiSlice } from './apiSlice'
-
-const DefaultComany: CompanyType = {
-  companyId: '3fa85f64-5717-4562-b3fc-2c963f66afa6',
-  name: '',
-  phone: '',
-  email: null,
-  address1: null,
-  address2: null,
-  city: null,
-  state: null,
-  zipcode: null,
-  parentCompanyId: null,
-  parentCompanyName: null
-}
 
 export type UpdateCompanyType = {
   companyId?: string
@@ -56,11 +42,11 @@ export const companyApiSlice = apiSlice.injectEndpoints({
 
         return res.data
       },
-      async onQueryStarted(searchParams, { dispatch, queryFulfilled }) {
+      async onQueryStarted(companyId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
 
-          dispatch(setCompanies([data]))
+          dispatch(updateCompanies([data]))
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
@@ -84,7 +70,7 @@ export const companyApiSlice = apiSlice.injectEndpoints({
 
         return res.data.data
       },
-      async onQueryStarted(searchParams, { dispatch, queryFulfilled }) {
+      async onQueryStarted(body, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
 
@@ -121,23 +107,17 @@ export const companyApiSlice = apiSlice.injectEndpoints({
 
         return res.data
       },
-      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+      async onQueryStarted(body, { queryFulfilled }) {
         try {
-          const { data: companyId } = await queryFulfilled
-          const newCompany: CompanyType = {
-            ...DefaultComany,
-            ...params,
-            companyId
-          }
-
-          dispatch(addCompany(newCompany))
+          await queryFulfilled
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
 
           console.log(err)
         }
-      }
+      },
+      invalidatesTags: res => (res ? [{ type: 'COMPANY', id: 'LIST' }] : [])
     }),
     updateCompany: builder.mutation<boolean, UpdateCompanyType>({
       query: params => {
@@ -152,21 +132,21 @@ export const companyApiSlice = apiSlice.injectEndpoints({
         }
       },
       transformResponse: (res: Record<string, any>) => {
-        if (!res.success) throw new Error('There was an error updating bank account information')
+        if (!res.success) throw new Error('There was an error updating company')
 
         return res.success
       },
-      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+      async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-          dispatch(updateCompany(params))
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
 
           console.log(err)
         }
-      }
+      },
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'COMPANY', id: arg.companyId }] : [])
     }),
     enableCompany: builder.mutation<string, string>({
       query: companyId => {
@@ -176,24 +156,22 @@ export const companyApiSlice = apiSlice.injectEndpoints({
           method: 'PUT'
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: Record<string, any>, meta, arg) => {
         if (!res.success) throw new Error('There was an error enabling company')
 
-        return res.data
+        return arg
       },
-      async onQueryStarted(companyId, { dispatch, queryFulfilled }) {
+      async onQueryStarted(companyId, { queryFulfilled }) {
         try {
           await queryFulfilled
-          const data = { companyId, active: true }
-
-          dispatch(updateCompany(data))
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
 
           console.log(err)
         }
-      }
+      },
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'COMPANY', id: arg }] : [])
     }),
     disableCompany: builder.mutation<string, string>({
       query: companyId => {
@@ -203,24 +181,22 @@ export const companyApiSlice = apiSlice.injectEndpoints({
           method: 'PUT'
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: Record<string, any>, meta, arg) => {
         if (!res.success) throw new Error('There was an error disabling company')
 
-        return res.data
+        return arg
       },
-      async onQueryStarted(companyId, { dispatch, queryFulfilled }) {
+      async onQueryStarted(companyId, { queryFulfilled }) {
         try {
           await queryFulfilled
-          const data = { companyId, active: false }
-
-          dispatch(updateCompany(data))
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
 
           console.log(err)
         }
-      }
+      },
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'COMPANY', id: arg }] : [])
     })
   })
 })
