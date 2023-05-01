@@ -18,6 +18,8 @@ type Props = {
   defaultLabel?: string
   required?: boolean
   errors?: any
+  disabled?: boolean
+  // onChange?: Function
 }
 
 export default function SingleSelect({
@@ -29,6 +31,7 @@ export default function SingleSelect({
   required,
   defaultValue,
   errors,
+  // onChange,
   ...props
 }: Props) {
   const generateOptions = () => {

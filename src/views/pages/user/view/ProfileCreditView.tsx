@@ -458,7 +458,7 @@ const EnhancedTable = () => {
             {emptyRows > 0 && (
               <TableRow
                 sx={{
-                  height: 53 * emptyRows
+                  height: 50 * emptyRows
                 }}
               >
                 <TableCell colSpan={6} />

@@ -42,7 +42,9 @@ import { CardStatsHorizontalProps } from 'src/@core/components/card-statistics/t
 
 // ** Custom Table Components Imports
 import { useAppDispatch, useAppSelector } from 'src/store/hooks'
-import { Profile, selectAllProfiles, useGetProfilesQuery } from 'src/store/api/profileApiSlice'
+import { useGetProfilesQuery } from 'src/store/api/profileApiSlice'
+import { ProfileInfoType } from 'src/store/api/profileApiSlice'
+import { selectAllProfiles } from 'src/store/profileSlice'
 // import SidebarAddUser from 'src/views/pages/user/list/AddUserDrawer'
 // import TableHeader from 'src/views/pages/user/list/TableHeader'
 import { useGetBudgetsQuery, useGetProfileBudgetsQuery } from 'src/store/api/profileBudgetApiSlice'
@@ -104,7 +106,7 @@ const LinkStyled = styled(Link)(({ theme }) => ({
 
 // avatar
 // ** renders client column
-const renderClient = (row: Profile) => {
+const renderClient = (row: ProfileInfoType) => {
   const avatar = ''
   if (avatar.length) {
     return <CustomAvatar src={avatar} sx={{ mr: 3, width: 30, height: 30 }} />
@@ -299,7 +301,7 @@ const ProfileList = () => {
   const [role, setRole] = useState<string>('')
   const [plan, setPlan] = useState<string>('')
   const [status, setStatus] = useState<string>('')
-  const [data, setData] = useState<Profile[] | {}>({})
+  const [data, setData] = useState<ProfileInfoType[] | {}>({})
   const profiles = useAppSelector(selectAllProfiles)
   const budgets = useAppSelector(selectAllBudgets)
   const profileBudgets = useAppSelector(selectAllProfileBudgets)
