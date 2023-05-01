@@ -1,25 +1,5 @@
-import { addBankAccount, deleteBankAccount, setBankAccounts, updateBankAccount } from '../bankAccountSlice'
+import { setBankAccounts } from '../bankAccountSlice'
 import { apiSlice } from './apiSlice'
-
-const DefaultBankAccount: BankAccountType = {
-  bankAccountId: '',
-  bankRoutingNumber: '',
-  bankName: '',
-  bankAccountNumber: '',
-  phoneNumber: null,
-  bankAccountType: 0,
-  bankAccountTypeName: 'Checking Account',
-  address: null,
-  address2: null,
-  city: null,
-  zipcode: null,
-  state: null,
-  accountName: null,
-  createdAt: null,
-  profileId: null,
-  firstName: null,
-  lastName: null
-}
 
 export type UpdateBankAccountType = {
   bankAccountId: string
@@ -86,7 +66,7 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
 
         return res.data
       },
-      async onQueryStarted(searchParams, { dispatch, queryFulfilled }) {
+      async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
 
@@ -98,9 +78,9 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      providesTags: result => {
+      providesTags: (result, error, arg) => {
         return [
-          { type: 'BANKACCOUNT', id: 'LIST' },
+          { type: 'BANKACCOUNT', id: arg },
           ...((result &&
             result.map(bankaccount => ({ type: 'BANKACCOUNT' as const, id: bankaccount.bankAccountId }))) ||
             [])
@@ -110,7 +90,7 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
     createBankAccount: builder.mutation<string, NewBankAccountType>({
       query: params => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { profileId, firstName, lastName, ...body } = params
+        const { profileId, ...body } = params
 
         console.log(body)
 
@@ -126,27 +106,19 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
 
         return res.data
       },
-      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+      async onQueryStarted(params, { queryFulfilled }) {
         try {
-          const { data: bankAccountId } = await queryFulfilled
-          const bankAccountTypeName: string = params.bankAccountType > 0 ? 'Savings Account' : 'Checking Account'
-          const newBank: BankAccountType = {
-            ...DefaultBankAccount,
-            ...params,
-            bankAccountId,
-            bankAccountTypeName
-          }
-
-          dispatch(addBankAccount(newBank))
+          await queryFulfilled
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
 
           console.log(err)
         }
-      }
+      },
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'BANKACCOUNT', id: arg.profileId }] : [])
     }),
-    updateBankAccount: builder.mutation<boolean, UpdateBankAccountType>({
+    updateBankAccount: builder.mutation<string, UpdateBankAccountType>({
       query: params => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { bankAccountId, ...body } = params
@@ -158,24 +130,24 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: Record<string, any>, meta, arg) => {
         if (!res.success) throw new Error('There was an error updating bank account information')
 
-        return res.success
+        console.log(arg.bankAccountId)
+
+        return arg.bankAccountId
       },
-      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+      async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-          const bankAccountTypeName: string = params.bankAccountType > 0 ? 'Checking Account' : 'Saving Account'
-          const updatedBank = { ...params, bankAccountTypeName }
-          dispatch(updateBankAccount(updatedBank))
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
 
           console.log(err)
         }
-      }
+      },
+      invalidatesTags: res => (res ? [{ type: 'BANKACCOUNT', id: res }] : [])
     }),
     deleteBankAccount: builder.mutation<string, string>({
       query: bankAccountId => {
@@ -185,22 +157,22 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
           method: 'DELETE'
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: Record<string, any>, meta, arg) => {
         if (!res.success) throw new Error('There was an error updating bank account information')
 
-        return res.data
+        return arg
       },
-      async onQueryStarted(bankAccountId, { dispatch, queryFulfilled }) {
+      async onQueryStarted(bankAccountId, { queryFulfilled }) {
         try {
           await queryFulfilled
-          dispatch(deleteBankAccount(bankAccountId))
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
 
           console.log(err)
         }
-      }
+      },
+      invalidatesTags: res => (res ? [{ type: 'BANKACCOUNT', id: res }] : [])
     })
   })
 })

@@ -1,6 +1,4 @@
-import { updateLiabilities } from '../liabilitySlice'
-import { store } from '../store'
-import { selectAllTasks, selectTaskEntities, setTasks, updateTasks } from '../taskSlice'
+import { setTasks, updateTasks } from '../taskSlice'
 import { apiSlice } from './apiSlice'
 
 export type TaskType = {
