@@ -1,10 +1,9 @@
 import { ReactElement } from 'react'
 import SingleSelect from 'src/views/shared/form-input/single-select'
 import TextInput from 'src/views/shared/form-input/text-input'
+import CreditCard from 'src/views/shared/form-input/credit-card'
 
 import { Typography, Grid } from '@mui/material'
-
-import { formatCVC, formatExpirationDate, formatCreditCardNumber } from 'src/@core/utils/format'
 
 type Props = {
   control: any
@@ -87,32 +86,35 @@ export default function PaymentFormInformation({ control, errors, type }: Props)
             />
           </Grid>
           <Grid item xs={12}>
-            <TextInput
+            <CreditCard
               name='cardNumber'
               label='Card Number'
               placeholder='0000 0000 0000 0000'
               errors={errors}
               control={control}
+              type='number'
               required
             />
           </Grid>
           <Grid item xs={6}>
-            <TextInput
-              name='expiration'
+            <CreditCard
+              name='expirationDate'
               label='Expiration Date'
               placeholder='MM/YYYY'
               errors={errors}
               control={control}
+              type='expiry'
               required
             />
           </Grid>
           <Grid item xs={6}>
-            <TextInput
+            <CreditCard
               name='securityCode'
               label='CVC/CVV'
               placeholder='000'
               errors={errors}
               control={control}
+              type='cvc'
               required
             />
           </Grid>

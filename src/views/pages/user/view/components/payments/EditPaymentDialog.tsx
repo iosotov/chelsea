@@ -10,6 +10,7 @@ import { useForm } from 'react-hook-form'
 import TextInput from 'src/views/shared/form-input/text-input'
 import SingleSelect from 'src/views/shared/form-input/single-select'
 import ToggleSwitch from 'src/views/shared/form-input/toggle-switch'
+import CreditCard from 'src/views/shared/form-input/credit-card'
 import Button from '@mui/material/Button'
 
 type EditPaymentDialogProps = {
@@ -202,42 +203,35 @@ export default function EditPaymentDialog({ data, open, handleClose }: EditPayme
                 <SingleSelect name='type' label='Card Type' options={cardOptions} control={control} errors={errors} />
               </Grid>
               <Grid item xs={12}>
-                <TextInput
+                <CreditCard
                   name='cardNumber'
                   label='Card Number'
                   placeholder='0000 0000 0000 0000'
-                  control={control}
                   errors={errors}
+                  control={control}
+                  type='number'
                   required
                 />
               </Grid>
               <Grid item xs={6}>
-                <TextInput
-                  name='expiryDate'
+                <CreditCard
+                  name='expirationDate'
                   label='Expiration Date'
                   placeholder='MM/YYYY'
-                  control={control}
                   errors={errors}
+                  control={control}
+                  type='expiry'
                   required
                 />
               </Grid>
               <Grid item xs={6}>
-                <TextInput
+                <CreditCard
                   name='securityCode'
                   label='CVC/CVV'
                   placeholder='000'
-                  control={control}
                   errors={errors}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextInput
-                  name='name'
-                  label='Cardholder Name'
-                  placeholder='ex: John Smith'
                   control={control}
-                  errors={errors}
+                  type='cvc'
                   required
                 />
               </Grid>

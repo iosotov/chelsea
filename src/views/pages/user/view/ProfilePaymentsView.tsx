@@ -545,7 +545,7 @@ function PaymentMethod({ data }: { data: any }) {
     name: string
     type: number
     securityCode: string
-    expiryDate: string
+    expirationDate: string
     cardNumber: string
     status?: string
     badgeColor?: ThemeColor
@@ -577,10 +577,10 @@ function PaymentMethod({ data }: { data: any }) {
       securityCode: '587',
       name: 'Tom McBride',
       type: 0,
-      expiryDate: '12/2024',
+      expirationDate: '12/2024',
       badgeColor: 'primary',
       status: 'Primary',
-      cardNumber: '5577000055779865',
+      cardNumber: '1234 5679 1234 5678',
       paymentType: 'card',
       address: '123 Test Street',
       city: 'Test City',
@@ -713,7 +713,12 @@ function PaymentMethod({ data }: { data: any }) {
   )
 }
 
-export default function ProfilePayments() {
+type ProfileProps = {
+  id: string
+}
+
+export default function ProfilePayments({ id }: ProfileProps) {
+  console.log(id)
   //Enrollment Data
   const [enrollmentData, setEnrollmentData] = useState({})
   //Payment Data

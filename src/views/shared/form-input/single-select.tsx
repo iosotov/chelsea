@@ -19,7 +19,6 @@ type Props = {
   required?: boolean
   errors?: any
   disabled?: boolean
-  // onChange?: Function
 }
 
 export default function SingleSelect({
