@@ -1,18 +1,14 @@
-import { ReactElement, memo, useState } from 'react'
+import { ReactElement, useState } from 'react'
 
 import { useForm } from 'react-hook-form'
 
 //Mui Components
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import Grid from '@mui/material/Grid'
 import CardContent from '@mui/material/CardContent'
 import Step from '@mui/material/Step'
 import Stepper from '@mui/material/Stepper'
 import StepLabel from '@mui/material/StepLabel'
-import Tab from '@mui/material/Tab'
-import TabContext from '@mui/lab/TabContext'
-import TabPanel from '@mui/lab/TabPanel'
 import Typography from '@mui/material/Typography'
 
 //Dialog Components
@@ -44,7 +40,7 @@ type PaymentDialogProps = {
 
 //Custom Styling
 const StepperHeaderContainer = styled(CardContent)<CardContentProps>(({ theme }) => ({
-  minWidth: 250,
+  minWidth: 300,
   borderRight: `1px solid ${theme.palette.divider}`,
   [theme.breakpoints.down('md')]: {
     borderRight: 0,
@@ -91,9 +87,23 @@ const PaymentDialog = ({ open, handleClose, data }: PaymentDialogProps): ReactEl
     formState: { errors: billErrors }
   } = paymentBill
 
+  const paymentSubmit = useForm()
+
   const onSubmit = () => {
-    console.log('yosh')
-    handleClose()
+    const type = paymentType.getValues()
+    const info = paymentInfo.getValues()
+    const bill = paymentBill.getValues()
+    const primary = paymentSubmit.getValues()
+
+    const data = {
+      ...type,
+      ...info,
+      ...bill,
+      ...primary
+    }
+
+    console.log(data)
+    onDialogClose()
   }
 
   const handleNext = () => {
@@ -103,6 +113,16 @@ const PaymentDialog = ({ open, handleClose, data }: PaymentDialogProps): ReactEl
     if (activeStep !== 0) {
       setActiveStep(activeStep - 1)
     }
+  }
+
+  const onDialogClose = () => {
+    console.log('closed')
+    handleClose()
+    paymentType.reset()
+    paymentInfo.reset()
+    paymentBill.reset()
+    paymentSubmit.reset()
+    setActiveStep(0)
   }
 
   const renderContent = () => {
@@ -122,15 +142,15 @@ const PaymentDialog = ({ open, handleClose, data }: PaymentDialogProps): ReactEl
           />
         )
       case 2:
-        return (
-          <PaymentFormBilling
-            type={paymentType.getValues('paymentType')}
-            control={paymentBill.control}
-            errors={billErrors}
-          />
-        )
+        return <PaymentFormBilling control={paymentBill.control} errors={billErrors} />
       case 3:
-        return <PaymentFormSubmit type={paymentType.getValues('paymentType')} />
+        const type = paymentType.getValues()
+        const info = paymentInfo.getValues()
+        const bill = paymentBill.getValues()
+
+        const data = { ...type, ...info, ...bill }
+
+        return <PaymentFormSubmit type={paymentType.getValues('paymentType')} form={paymentSubmit} data={data} />
       default:
         return null
     }
@@ -140,7 +160,7 @@ const PaymentDialog = ({ open, handleClose, data }: PaymentDialogProps): ReactEl
     const stepCondition = activeStep === steps.length - 1
 
     const handleTrigger = async () => {
-      const forms = [paymentType, paymentInfo, paymentBill]
+      const forms = [paymentType, paymentInfo, paymentBill, paymentSubmit]
 
       const result = await forms[activeStep].trigger()
 
@@ -173,8 +193,8 @@ const PaymentDialog = ({ open, handleClose, data }: PaymentDialogProps): ReactEl
   return (
     <Dialog
       open={open}
-      onClose={handleClose}
-      maxWidth='lg'
+      onClose={onDialogClose}
+      maxWidth='md'
       fullWidth
       aria-labelledby='user-view-payment-card'
       aria-describedby='user-view-payment-card-description'
@@ -185,7 +205,7 @@ const PaymentDialog = ({ open, handleClose, data }: PaymentDialogProps): ReactEl
           fontSize: '1.5rem !important'
         }}
       >
-        {data === null ? 'Create New ' : 'Edit Existing '} Payment Method
+        Add New Payment Method
       </DialogTitle>
       <DialogContent sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
         <StepperHeaderContainer>
@@ -198,7 +218,7 @@ const PaymentDialog = ({ open, handleClose, data }: PaymentDialogProps): ReactEl
                     // onClick={() => setActiveStep(index)}
                     sx={{ '&.Mui-completed + svg': { color: 'primary.main' } }}
                   >
-                    <StepLabel StepIconComponent={StepperCustomDot}>
+                    <StepLabel>
                       <div className='step-label'>
                         <div>
                           <Typography className='step-title'>{step.title}</Typography>

@@ -28,6 +28,7 @@ import TableContainer from '@mui/material/TableContainer'
 
 import PaymentDialog from 'src/views/pages/user/view/components/payments/PaymentDialog'
 import EnrollmentDialog from './components/payments/EnrollmentDialog'
+import EditPaymentDialog from './components/payments/EditPaymentDialog'
 
 import Icon from 'src/@core/components/icon'
 import Alert from '@mui/material/Alert'
@@ -496,9 +497,8 @@ function Overview({ data }: any) {
 }
 
 function PaymentMethod({ data }: { data: any }) {
-  const addPayment = () => console.log('added')
-
   const [paymentModal, setPaymentModal] = useState<boolean>(false)
+  const [editModal, setEditModal] = useState<boolean>(false)
   const [dialogData, setDialogData] = useState(data)
 
   type Bank = {
@@ -544,58 +544,77 @@ function PaymentMethod({ data }: { data: any }) {
   interface CardDataType {
     name: string
     type: number
-    cardCvc: string
+    securityCode: string
     expiryDate: string
     cardNumber: string
     status?: string
     badgeColor?: ThemeColor
-    paymentType: 0
+    paymentType: 'card'
+    address: string
+    address2?: string
+    city: string
+    state: string
+    zipCode: string
   }
   interface BankDataType {
     bankAccountNumber: string
     bankName: string
     bankRoutingNumber: string
-    accountName: string
+    bankAccountName: string
     bankAccountType: number
     status?: string
     badgeColor?: ThemeColor
-    paymentType: 1
+    paymentType: 'ach'
+    address: string
+    address2?: string
+    city: string
+    state: string
+    zipCode: string
   }
   // const paymentData = ''
   const paymentData: (CardDataType | BankDataType)[] = [
     {
-      cardCvc: '587',
+      securityCode: '587',
       name: 'Tom McBride',
       type: 0,
-      expiryDate: '12/24',
+      expiryDate: '12/2024',
       badgeColor: 'primary',
       status: 'Primary',
-      cardNumber: '5577 0000 5577 9865',
-      paymentType: 0
+      cardNumber: '5577000055779865',
+      paymentType: 'card',
+      address: '123 Test Street',
+      city: 'Test City',
+      state: 'CA',
+      zipCode: '12345'
     },
     {
       bankAccountNumber: '1234567890',
       bankName: 'Chase Bank',
       bankRoutingNumber: '12959102',
-      accountName: 'Mildred Wagner',
+      bankAccountName: 'Mildred Wagner',
       bankAccountType: 1,
-      paymentType: 1,
+      paymentType: 'ach',
       status: 'Secondary',
-      badgeColor: 'secondary'
+      badgeColor: 'secondary',
+      address: '234 Test Way',
+      city: 'Blue City',
+      state: 'WA',
+      zipCode: '56789'
     }
   ]
 
   const togglePayment = () => setPaymentModal(!paymentModal)
 
+  const toggleEdit = () => setEditModal(!editModal)
+
   const handleAdd = () => {
-    setDialogData(null)
+    //set data to data recevied back from bank/card api calls
     togglePayment()
   }
 
   const handleEdit = (index: number) => {
-    // setDialogData(data[index])
     setDialogData(paymentData[index])
-    togglePayment()
+    toggleEdit()
   }
 
   return (
@@ -630,17 +649,17 @@ function PaymentMethod({ data }: { data: any }) {
                   <Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                       <Icon
-                        icon={item.paymentType === 0 ? 'material-symbols:credit-card-outline' : 'mdi:bank-outline'}
+                        icon={item.paymentType === 'card' ? 'material-symbols:credit-card-outline' : 'mdi:bank-outline'}
                       />
                       <Typography component='h6'>
-                        {item.paymentType === 0
+                        {item.paymentType === 'card'
                           ? 'Card'
                           : `Bank - ${item.bankAccountType ? 'Checking' : 'Savings'} Account`}
                       </Typography>
                     </Box>
                     <Box sx={{ mt: 1, mb: 2.5, display: 'flex', alignItems: 'center' }}>
                       <Typography sx={{ fontWeight: 600 }}>
-                        {item.paymentType === 0 ? item.name : item.accountName}
+                        {item.paymentType === 'card' ? item.name : item.accountName}
                       </Typography>
                       {item.status ? (
                         <CustomChip
@@ -653,7 +672,7 @@ function PaymentMethod({ data }: { data: any }) {
                       ) : null}
                     </Box>
                     <Typography variant='body2'>
-                      {item.paymentType === 0
+                      {item.paymentType === 'card'
                         ? '**** **** **** ' + item.cardNumber.substring(item.cardNumber.length - 4)
                         : '*********' + item.bankAccountNumber.substring(item.bankAccountNumber.length - 4)}
                     </Typography>
@@ -666,7 +685,7 @@ function PaymentMethod({ data }: { data: any }) {
                       Delete
                     </Button>
                     <Typography variant='caption' sx={{ mt: 4, display: 'block' }}>
-                      {item.paymentType === 0 ? `Card expires at ${item.expiryDate}` : null}
+                      {item.paymentType === 'card' ? `Card expires at ${item.expiryDate}` : null}
                     </Typography>
                   </Box>
                 </Box>
@@ -688,7 +707,8 @@ function PaymentMethod({ data }: { data: any }) {
           </CardContent>
         </Card>
       </Grid>
-      <PaymentDialog open={paymentModal} handleClose={togglePayment} data={dialogData} />
+      <PaymentDialog open={paymentModal} handleClose={togglePayment} data={null} />
+      <EditPaymentDialog open={editModal} handleClose={toggleEdit} data={dialogData} />
     </>
   )
 }
@@ -698,13 +718,6 @@ export default function ProfilePayments() {
   const [enrollmentData, setEnrollmentData] = useState({})
   //Payment Data
   const [paymentData, setPaymentData] = useState({})
-
-  // get payment data from redux
-  // useEffect(() => {
-  //   if (data) {
-  //     setData(data)
-  //   }
-  // }, [data])
 
   return (
     <>

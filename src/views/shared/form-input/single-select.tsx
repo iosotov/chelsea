@@ -18,6 +18,7 @@ type Props = {
   defaultLabel?: string
   required?: boolean
   errors?: any
+  disabled?: boolean
   // onChange?: Function
 }
 
