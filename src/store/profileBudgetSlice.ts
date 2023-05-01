@@ -50,7 +50,7 @@ export const {
   selectIds: selectProfileBudgetIds
 } = profileBudgetAdapter.getSelectors((state: RootState) => state.profileBudget.profileBudget)
 
-export const selectProfileBudgetsByBudgetId = createSelector(
+export const selectProfileBudgetsByProfileId = createSelector(
   selectAllProfileBudgets,
   (_: RootState, profileId: string) => profileId,
   (profileBudgets, profileId) => {
