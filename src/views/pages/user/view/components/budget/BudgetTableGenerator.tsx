@@ -42,14 +42,72 @@ const BudgetTableGenerator = (data: []) => {
   // const [isLoading, setLoading] = useState(false)
   // const [myAmount, setAmount] = useState(0)
   console.log(data)
-  const [myData, setmyData] = useState(null)
-  const [allBudgets, setAllBudgets] = useState([])
-  const [budgetTypes, setBudgetTypes] = useState([])
-  const budgets = useAppSelector(selectAllBudgets)
-  const profileBudgets = useAppSelector(selectAllProfileBudgets)
-  useGetProfileBudgetsQuery('1327485548')
-  useGetBudgetsQuery({})
-  console.log(budgets, profileBudgets)
+
+  // const {source: data} = this.data
+  const [myData, setmyData] = useState<any>(null)
+  const [isLoading, setisLoading] = useState<boolean>(false)
+  console.log(myData)
+
+  useEffect(() => {
+    console.log(isLoading)
+    if (myData) {
+      console.log(data)
+      console.log(isLoading)
+      console.log(myData)
+
+      // if ()
+      let arr: any = []
+
+      if (myData != undefined) {
+        console.log(myData.budgetList, myData.budgetTypes)
+        if (myData.budgetList != undefined) {
+          arr = myData.budgetList
+          console.log(arr)
+
+          // setAllBudgets(arr)
+        }
+
+        // if (myData.budgetTypes != undefined) {
+        //   budgeType = newProfile.budget
+        //   console.log(budgeType)
+
+        // }
+
+        // if (newProfile.profile.length > 0) {
+        //   newProfile.profile.forEach((e: any) => {
+        //     arr.push(newProfile.profile[e])
+        //   })
+        // }
+        // newProfile.profile.forEach((i: any) => {
+        //   console.log(newProfile.profile[i])
+        //   arr.push(newProfile.profile[i])
+        // })
+
+        // arr = newProfile.profile
+        // console.log(arr)
+
+        // arr = newProfile.profile
+      }
+
+      setTimeout(() => {
+        setmyData(arr)
+        setisLoading(true)
+      }, 1500)
+
+      console.log(arr)
+      console.log(myData)
+    } else {
+      console.log('No Data')
+    }
+  }, [myData, isLoading])
+
+  // const [allBudgets, setAllBudgets] = useState([])
+  // const [budgetTypes, setBudgetTypes] = useState([])
+  // const budgets = useAppSelector(selectAllBudgets)
+  // const profileBudgets = useAppSelector(selectAllProfileBudgets)
+  // useGetProfileBudgetsQuery('1327485548')
+  // useGetBudgetsQuery({})
+  // console.log(budgets, profileBudgets)
 
   // setAllBudgets(profileBudgets)
   // setBudgetTypes(budgets)
@@ -64,23 +122,18 @@ const BudgetTableGenerator = (data: []) => {
 
   // setAllBudgets(data.budgetList)
   // setBudgetTypes(data.budgetTypes)
-  console.log(allBudgets)
-  console.log(budgetTypes)
+  // console.log(allBudgets)
+  // console.log(budgetTypes)
 
-  const incomeList = []
-  const expenseList = []
-
-  // useEffect(() => {
-  //   async function fetchData() {
-  //     const response = await myData
-  //     console.log(response), setmyData(response)
-  //   }
-  //   fetchData()
-  // }, [])
+  // const incomeList = []
+  // const expenseList = []
+  const incomeList = data.incomeList
+  const expenseList = data.expenseList
 
   // const [budgetType, setBudgetType] = useState(data.type)
   console.log(data)
-  console.log(data.budgetTypes)
+
+  // console.log(data.budgetTypes)
 
   const myBudgetList = data.budgetList
   let i = 0
@@ -94,8 +147,9 @@ const BudgetTableGenerator = (data: []) => {
       }
     }
   }
-  console.log(incomeList)
-  console.log(expenseList)
+
+  // console.log(incomeList)
+  // console.log(expenseList)
 
   // forceUpdate()
 

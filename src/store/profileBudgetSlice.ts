@@ -1,4 +1,4 @@
-import { createEntityAdapter, createSlice, EntityState } from '@reduxjs/toolkit'
+import { createEntityAdapter, createSelector, createSlice, EntityState } from '@reduxjs/toolkit'
 
 import { Budget, ProfileBudget } from './api/profileBudgetApiSlice'
 import { RootState } from './store'
@@ -11,17 +11,9 @@ const budgetAdapter = createEntityAdapter({
   selectId: (budget: Budget) => budget.budgetId
 })
 
-const profileBudgetInit = profileBudgetAdapter.getInitialState()
-const budgetInit = budgetAdapter.getInitialState()
-
-interface ProfileBudgetState {
-  budget: EntityState<Budget>
-  profileBudget: EntityState<ProfileBudget>
-}
-
-const initialState: ProfileBudgetState = {
-  budget: budgetInit,
-  profileBudget: profileBudgetInit
+const initialState = {
+  budget: budgetAdapter.getInitialState(),
+  profileBudget: profileBudgetAdapter.getInitialState()
 }
 
 const profileBudgetSlice = createSlice({
@@ -31,22 +23,7 @@ const profileBudgetSlice = createSlice({
     setProfileBudget: (state, action) => {
       const { profile, budget } = action.payload
 
-      const profileBudgets = budget.map((budget: Budget) => {
-        const profileBudget = profile.filter(
-          (profileBudget: ProfileBudget) => profileBudget.budgetId === budget.budgetId
-        )
-
-        return profileBudget.length
-          ? {
-              budgetId: budget.budgetId,
-              amount: profileBudget[0].amount
-            }
-          : {
-              budgetId: budget.budgetId,
-              amount: 0
-            }
-      })
-      profileBudgetAdapter.setAll(state.profileBudget, profileBudgets)
+      profileBudgetAdapter.setAll(state.profileBudget, profile)
       budgetAdapter.setAll(state.budget, budget)
     },
     setBudget: (state, action) => {
@@ -72,3 +49,11 @@ export const {
   selectById: selectProfileBudgetById,
   selectIds: selectProfileBudgetIds
 } = profileBudgetAdapter.getSelectors((state: RootState) => state.profileBudget.profileBudget)
+
+export const selectProfileBudgetsByProfileId = createSelector(
+  selectAllProfileBudgets,
+  (_: RootState, profileId: string) => profileId,
+  (profileBudgets, profileId) => {
+    return profileBudgets.filter(profileBudget => profileBudget.profileId === profileId)
+  }
+)

@@ -33,7 +33,11 @@
   "npm.packageManager": "yarn",
   // Extension: cSpell
   "cSpell.words": [
-    "Customizer"
+    "bankaccount",
+    "bankaccounts",
+    "Customizer",
+    "esign",
+    "esigning"
   ],
   "search-node-modules.path": "node_modules",
   "markdown.extension.toc.updateOnSave": false

@@ -64,6 +64,11 @@ export type ProfileContactCreateType = {
   value: string
 }
 
+export type ProfileLabelCreateType = {
+  profileId: string
+  labelIds: string[]
+}
+
 export type ProfileAddressCreateType = {
   addressId: string
   address1: string
@@ -148,6 +153,12 @@ export type ProfileAddressType = {
   zipCode: string
 }
 
+export type ProfileLabelType = {
+  profileId: string
+  labelId: string
+  value: string
+}
+
 export type ProfileContactType = {
   profileId: string
   contactId: string
@@ -197,8 +208,6 @@ export const profileApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: Record<string, any>) => {
         if (!res.success) throw new Error('There was an error fetching profiles')
 
-        console.log(res.data)
-
         return res.data.data
       },
       async onQueryStarted(searchParams, { dispatch, queryFulfilled }) {
@@ -213,12 +222,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         }
       },
       providesTags: result => {
-        return [
-          { type: 'PROFILE', id: 'LIST' },
-          ...((result &&
-            result.map((profile: ProfileInfoType) => ({ type: 'PROFILE' as const, id: profile.profileId }))) ||
-            [])
-        ]
+        return result ? [{ type: 'PROFILE', id: 'LIST' }] : []
       }
     }),
 
@@ -230,8 +234,6 @@ export const profileApiSlice = apiSlice.injectEndpoints({
       }),
       transformResponse: async (res: Record<string, any>) => {
         if (!res.success) throw new Error('There was an error fetching profile')
-
-        console.log(res.data)
 
         return res.data
       },
@@ -260,8 +262,6 @@ export const profileApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: Record<string, any>) => {
         if (!res.success) throw new Error('There was an error fetching profile')
 
-        console.log(res.data)
-
         return res.data
       },
       async onQueryStarted(searchParams, { dispatch, queryFulfilled }) {
@@ -274,9 +274,6 @@ export const profileApiSlice = apiSlice.injectEndpoints({
 
           console.log(err)
         }
-      },
-      providesTags: result => {
-        return result ? [{ type: 'PROFILE', id: result.profileId }] : []
       }
     }),
 
@@ -286,18 +283,20 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         url: `/profile/${profileId}/status-summary`,
         method: 'GET'
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: Record<string, any>, meta, arg) => {
         if (!res.success) throw new Error('There was an error fetching profile')
 
-        console.log(res.data)
+        const newStatus = { ...res.data, profileId: arg }
 
-        return res.data
+        console.log(res, newStatus)
+
+        return newStatus
       },
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          const newStatus = { ...data, profileId }
-          dispatch(updateStatus([newStatus]))
+          dispatch(updateStatus([data]))
+          dispatch(updateProfiles([data]))
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
@@ -314,12 +313,10 @@ export const profileApiSlice = apiSlice.injectEndpoints({
     profileQuickSearch: builder.query<ProfileStatusType[], string>({
       query: keyword => ({
         url: `/profile/quicksearch/${keyword}`,
-        method: 'POST'
+        method: 'GET'
       }),
       transformResponse: (res: Record<string, any>) => {
         if (!res.success) throw new Error('There was an error fetching profileS')
-
-        console.log(res.data)
 
         return res.data
       }
@@ -350,11 +347,14 @@ export const profileApiSlice = apiSlice.injectEndpoints({
 
           console.log(err)
         }
+      },
+      invalidatesTags: res => {
+        return res ? [{ type: 'PROFILE', id: 'LIST' }] : []
       }
     }),
 
     // POST ASSIGN PROFILE
-    assignProfile: builder.mutation<string, ProfileAssigneeCreateType>({
+    assignProfile: builder.mutation<ProfileAssigneeCreateType, ProfileAssigneeCreateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -364,10 +364,10 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: async (res: Record<string, any>) => {
+      transformResponse: async (res: Record<string, any>, meta, arg) => {
         if (!res.success) throw new Error('There was an error assigning profile')
 
-        return res.data
+        return arg
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
@@ -379,24 +379,24 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: result => [{ type: 'PROFILE', id: result }]
+      invalidatesTags: (result, error, arg) => (result ? [{ type: 'PROFILE', id: arg.profileId }] : [])
     }),
 
     // POST PROFILE CUSTOM FIELD
-    createProfileCustomField: builder.mutation<string, ProfileAssigneeCreateType>({
+    createProfileCustomField: builder.mutation<ProfileCustomFieldCreateType, ProfileCustomFieldCreateType>({
       query: params => {
-        const { profileId, ...body } = params
+        const { profileId, ...customFields } = params
 
         return {
           url: `/profile/${profileId}/customField`,
           method: 'POST',
-          body
+          body: customFields
         }
       },
-      transformResponse: async (res: Record<string, any>) => {
+      transformResponse: async (res: Record<string, any>, meta, arg) => {
         if (!res.success) throw new Error('There was an error adding custom field to profile')
 
-        return res.data
+        return arg
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
@@ -408,7 +408,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: result => [{ type: 'PROFILE', id: result }]
+      invalidatesTags: (result, error, arg) => (result ? [{ type: 'PROFILE', id: arg.profileId }] : [])
     }),
 
     // POST PROFILE SUBMIT
@@ -434,7 +434,13 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: (result, err, arg) => [{ type: 'PROFILE-STATUS', id: arg }]
+      invalidatesTags: (result, err, arg) =>
+        result
+          ? [
+              { type: 'PROFILE-STATUS', id: arg },
+              { type: 'PROFILE', id: arg }
+            ]
+          : []
     }),
 
     // POST PROFILE APPROVE
@@ -486,7 +492,13 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: (result, err, arg) => [{ type: 'PROFILE-STATUS', id: arg }]
+      invalidatesTags: (result, err, arg) =>
+        result
+          ? [
+              { type: 'PROFILE-STATUS', id: arg },
+              { type: 'PROFILE', id: arg }
+            ]
+          : []
     }),
 
     // POST PROFILE ENROLL
@@ -531,9 +543,11 @@ export const profileApiSlice = apiSlice.injectEndpoints({
 
         return res.success
       },
-      async onQueryStarted(body, { queryFulfilled }) {
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        const { profileId } = params
         try {
           await queryFulfilled
+          dispatch(updateProfiles([{ profileId, hasAuthentication: true }]))
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
@@ -556,9 +570,10 @@ export const profileApiSlice = apiSlice.injectEndpoints({
 
         return res.success
       },
-      async onQueryStarted(body, { queryFulfilled }) {
+      async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled
+          dispatch(updateProfiles([{ profileId, hasAuthentication: true }]))
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
@@ -570,10 +585,13 @@ export const profileApiSlice = apiSlice.injectEndpoints({
 
     // PUT UPDATE PROFILE STAGE/STATUS
     putUpdateProfileStatus: builder.mutation<boolean, ProfileStatusUpdateType>({
-      query: profileId => {
+      query: params => {
+        const { profileId, ...body } = params
+
         return {
           url: `/profile/${profileId}/stage`,
-          method: 'PUT'
+          method: 'PUT',
+          body
         }
       },
       transformResponse: async (res: Record<string, any>) => {
@@ -592,7 +610,12 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         }
       },
       invalidatesTags: (result, error, arg) => {
-        return [{ type: 'PROFILE-STATUS', id: arg.profileId }]
+        return result
+          ? [
+              { type: 'PROFILE-STATUS', id: arg.profileId },
+              { type: 'PROFILE', id: arg.profileId }
+            ]
+          : []
       }
     }),
 
@@ -623,7 +646,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         }
       },
       invalidatesTags: (result, error, arg) => {
-        return [{ type: 'PROFILE', id: arg.profileId }]
+        return result ? [{ type: 'PROFILE', id: arg.profileId }] : []
       }
     }),
 
@@ -643,7 +666,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled
-          dispatch(deleteProfile)
+          dispatch(deleteProfile(profileId))
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
@@ -654,35 +677,81 @@ export const profileApiSlice = apiSlice.injectEndpoints({
     }),
 
     // POST EXPORT PROFILE
-    postExportProfiles: builder.mutation<boolean, Record<string, any>>({
+    postExportProfiles: builder.mutation<Promise<Blob>, Record<string, any>>({
       query: body => {
         return {
           url: `/profile/export`,
-          method: 'PUT',
+          method: 'POST',
+          body,
+          responseHandler: res => res.blob()
+        }
+      },
+      transformResponse: (res: Promise<Blob>) => {
+        return res
+      }
+    }),
+
+    // GET PROFILE LABELS
+    getProfileLabels: builder.query<ProfileLabelType[], string>({
+      query: profileId => {
+        return {
+          url: `/profile/${profileId}/labels`,
+          method: 'GET'
+        }
+      },
+      transformResponse: (res: Record<string, any>) => {
+        if (!res.success) throw new Error('There was an error fetching profile labels')
+
+        return res.data
+      },
+      async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          const newLabels = {
+            profileId,
+            profileLabels: data
+          }
+
+          console.log(newLabels)
+
+          dispatch(updateProfiles([newLabels]))
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+
+          console.log(err)
+        }
+      },
+      providesTags: (res, meta, arg) => (res ? [{ type: 'PROFILE-LABEL', id: arg }] : [])
+    }),
+
+    // POST CREATE PROFILE LABELS
+    postProfileLabels: builder.mutation<boolean, ProfileLabelCreateType>({
+      query: params => {
+        const { profileId, ...body } = params
+
+        return {
+          url: `/profile/${profileId}/labels`,
+          method: 'POST',
           body
         }
-      }
+      },
+      transformResponse: (res: Record<string, any>) => {
+        if (!res.success) throw new Error('There was an error fetching profile labels')
+
+        return res.success
+      },
+      async onQueryStarted(profileId, { queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+
+          console.log(err)
+        }
+      },
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'PROFILE-LABEL', id: arg.profileId }] : [])
     })
   })
 })
-
-export const {
-  useGetProfilesQuery,
-  useGetProfileInfoQuery,
-  useGetProfileBasicQuery,
-  useGetProfileStatusQuery,
-  useAssignProfileMutation,
-  useCreateProfileCustomFieldMutation,
-  useCreateProfileMutation,
-  usePostExportProfilesMutation,
-  usePostProfileApproveMutation,
-  usePostProfileEnrollMutation,
-  usePostProfileRejectMutation,
-  usePostProfileSubmitMutation,
-  useProfileDisableAuthMutation,
-  usePutUpdateProfileStatusMutation,
-  useProfileGrantAuthMutation,
-  useProfileQuickSearchQuery,
-  usePutDeleteProfileMutation,
-  usePutUpdateProfileMutation
-} = profileApiSlice

@@ -1,4 +1,6 @@
-import { string } from 'yup'
+import { updateEnrollments } from '../enrollmentSlice'
+import { updatePayments } from '../paymentSlice'
+import { apiSlice } from './apiSlice'
 
 export enum EnrollmentPaymentMethod {
   'ach',
@@ -59,7 +61,8 @@ export type ProfileAssigneeListItemModel = {
   companyName: string
 }
 
-type EnrollmentListItemModel = {
+export type EnrollmentListItemModel = {
+  // eslint-disable-next-line lines-around-comment
   // base EnrollmentListModel
   firstName: string
   lastName: string
@@ -83,14 +86,14 @@ type EnrollmentListItemModel = {
 }
 
 //API GET INFO MODEL /api/ENrollment/{profileId}/profile
-type EnrollmentInfoModel = {
+export type EnrollmentInfoModel = {
   enrollmentId: string
   enrolledBalance: string
   paymentMethod: EnrollmentPaymentMethod
   profileId: string
   basePlan: string
-  enrollmentFee: Number
-  programLength: Number
+  enrollmentFee: number
+  programLength: number
   firstPaymentDate: string
   firstPaymentAmount: number
   firstPaymentClearedDate: string
@@ -114,7 +117,8 @@ type EnrollmentInfoModel = {
 }
 
 // Enrollment Detail Info Get /api/Enrollment/{profileId}/profile/payments & /api/Enrollment/{profileId}/profile/payments/{paymentId}/info
-type EnrollmentDetailInfoModel = {
+export type PaymentDetailInfoModel = {
+  profileId: string
   enrollmentDetailId: string
   processedDate: string
   amount: number
@@ -132,7 +136,7 @@ type EnrollmentDetailInfoModel = {
 }
 
 // Enrollment Search /api/Enrollment/search
-type EnrollmentSearchResultModel = {
+export type EnrollmentSearchResultModel = {
   enrollmentId: string
   enrolledBalance: number
   paymentMethod: EnrollmentPaymentMethod
@@ -148,6 +152,7 @@ type EnrollmentSearchResultModel = {
   nextPaymentAmount: number
   initialFeeAmount: number
   lastPaymentStatus: EnrollmentDetailStatus
+
   // no lastpaymentstatusname?
   lastPaymentDate: string
   lastPaymentAmount: number
@@ -184,7 +189,352 @@ type EnrollmentSearchResultModel = {
   dayToProcess: string
 }
 
+export type PaymentInfoParams = {
+  profileId: string
+  paymentId: string
+}
+
+export type PaymentCreateType = {
+  paymentId?: string
+  profileId: string
+  processedDate?: string
+  clearedDate?: string
+  amount?: number
+  memo?: string
+  processor: string
+  paymentName?: string
+  description?: string
+  paymentType?: PaymentType
+}
+
+export type EnrollmentCreateType = {
+  profileId: string
+  paymentMethod: EnrollmentPaymentMethod
+  basePlan: string
+  serviceFeeType: FeeType
+  recurringType?: RecurringType
+  enrollmentFee: number
+  programLength: number
+  gateway: string
+  firstPaymentDate: string
+  recurringPaymentDate?: string
+  initialFeeAmount?: number
+  additionalFees?: [
+    {
+      feeName: string
+      feeType: FeeType
+      amount: number
+      feeStart: number
+      feeEnd: number
+    }
+  ]
+}
+
 // Enrollment Cancel api/Enrollment/{profileId}/profile/cancel
-type EnrollmentCancelModel = {
+export type EnrollmentCancelModel = {
   cancelDisposition: string
 }
+
+export const enrollmentApiSlice = apiSlice.injectEndpoints({
+  endpoints: builder => ({
+    getEnrollment: builder.query<EnrollmentInfoModel, string>({
+      query: profileId => ({
+        url: `/enrollment/${profileId}/profile`,
+        method: 'GET'
+      }),
+      transformResponse: (res: Record<string, any>) => {
+        if (!res.success) throw new Error('There was an error fetching enrollment details')
+
+        return res.data
+      },
+      async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          console.log(data)
+
+          dispatch(updateEnrollments([data]))
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+
+          console.log(err)
+        }
+      },
+      providesTags: (result, error, arg) => {
+        return result ? [{ type: 'ENROLLMENT', id: arg }] : []
+      }
+    }),
+    postCreateEnrollment: builder.mutation<string, EnrollmentCreateType>({
+      query: params => {
+        const { profileId, ...body } = params
+
+        return {
+          url: `/enrollment/${profileId}/profile`,
+          method: 'POST',
+          body
+        }
+      },
+      transformResponse: (res: Record<string, any>) => {
+        if (!res.success) throw new Error('There was an error creating enrollment')
+
+        console.log(res.data)
+
+        return res.data
+      },
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          console.log(data)
+
+          dispatch(updateEnrollments([data]))
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+
+          console.log(err)
+        }
+      },
+      invalidatesTags: res => (res ? [{ type: 'ENROLLMENT', id: res }] : [])
+    }),
+    putUpdateEnrollment: builder.mutation<string, EnrollmentCreateType>({
+      query: params => {
+        const { profileId, ...body } = params
+
+        return {
+          url: `/enrollment/${profileId}/profile`,
+          method: 'POST',
+          body
+        }
+      },
+      transformResponse: (res: Record<string, any>) => {
+        if (!res.success) throw new Error('There was an error updating enrollment')
+
+        return res.data
+      },
+      async onQueryStarted(params, { queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          console.log(data)
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+
+          console.log(err)
+        }
+      },
+      invalidatesTags: res => (res ? [{ type: 'ENROLLMENT', id: res }] : [])
+    }),
+    getProfilePayments: builder.query<PaymentDetailInfoModel[], string>({
+      query: profileId => {
+        return {
+          url: `/enrollment/${profileId}/profile/payments`,
+          method: 'GET'
+        }
+      },
+      transformResponse: (res: Record<string, any>) => {
+        if (!res.success) throw new Error('There was an error updating enrollment')
+
+        return res.data
+      },
+      async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          console.log(data)
+
+          dispatch(updatePayments(data))
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+
+          console.log(err)
+        }
+      },
+      providesTags: (res, error, arg) => (res ? [{ type: 'ENROLLMENT-PAYMENT', id: arg }] : [])
+    }),
+    getProfilePaymentInfo: builder.query<PaymentDetailInfoModel, PaymentInfoParams>({
+      query: params => {
+        const { profileId, paymentId } = params
+
+        return {
+          url: `/enrollment/${profileId}/profile/payments/${paymentId}/info`,
+          method: 'GET'
+        }
+      },
+      transformResponse: (res: Record<string, any>) => {
+        if (!res.success) throw new Error('There was an error updating enrollment')
+
+        return res.data
+      },
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          console.log(data)
+
+          dispatch(updatePayments([data]))
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+
+          console.log(err)
+        }
+      },
+      providesTags: (res, error, arg) => (res ? [{ type: 'ENROLLMENT-PAYMENT', id: arg.paymentId }] : [])
+    }),
+    postCreatePayment: builder.mutation<boolean, PaymentCreateType>({
+      query: params => {
+        const { profileId, ...body } = params
+
+        return {
+          url: `/enrollment/${profileId}/profile/payments`,
+          method: 'POST',
+          body
+        }
+      },
+      transformResponse: (res: Record<string, any>) => {
+        if (!res.success) throw new Error('There was an error creating payment')
+
+        return res.success
+      },
+      async onQueryStarted(params, { queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          console.log(data)
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+
+          console.log(err)
+        }
+      },
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'ENROLLMENT', id: arg.profileId }] : [])
+    }),
+    putUpdatePayment: builder.mutation<boolean, PaymentCreateType>({
+      query: params => {
+        const { profileId, paymentId, ...body } = params
+
+        return {
+          url: `/enrollment/${profileId}/profile/${paymentId}/payment`,
+          method: 'PUT',
+          body
+        }
+      },
+      transformResponse: (res: Record<string, any>) => {
+        if (!res.success) throw new Error('There was an error creating payment')
+
+        return res.success
+      },
+      async onQueryStarted(params, { queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          console.log(data)
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+
+          console.log(err)
+        }
+      },
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'ENROLLMENT', id: arg.profileId }] : [])
+    }),
+    postSearchEnrollment: builder.query<EnrollmentSearchResultModel[], Record<string, any>>({
+      query: body => {
+        return {
+          url: `/enrollment/search`,
+          method: 'POST',
+          body
+        }
+      },
+      transformResponse: (res: Record<string, any>) => {
+        if (!res.success) throw new Error('There was an error searching enrollment')
+
+        return res.data
+      },
+      async onQueryStarted(body, { queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          console.log(data)
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+
+          console.log(err)
+        }
+      }
+    }),
+    postPauseEnrollment: builder.mutation<boolean, string>({
+      query: profileId => {
+        return {
+          url: `/enrollment/${[profileId]}/profile/pause`,
+          method: 'POST'
+        }
+      },
+      transformResponse: (res: Record<string, any>) => {
+        if (!res.success) throw new Error('There was an error pausing enrollment')
+
+        return res.data
+      },
+      async onQueryStarted(profileId, { queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          console.log(data)
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+
+          console.log(err)
+        }
+      },
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'ENROLLMENT', id: arg }] : [])
+    }),
+    postResumeEnrollment: builder.mutation<boolean, string>({
+      query: profileId => {
+        return {
+          url: `/enrollment/${[profileId]}/profile/resume`,
+          method: 'POST'
+        }
+      },
+      transformResponse: (res: Record<string, any>) => {
+        if (!res.success) throw new Error('There was an error resuming enrollment')
+
+        return res.data
+      },
+      async onQueryStarted(profileId, { queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          console.log(data)
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+
+          console.log(err)
+        }
+      },
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'ENROLLMENT', id: arg }] : [])
+    }),
+    postCancelEnrollment: builder.mutation<boolean, string>({
+      query: profileId => {
+        return {
+          url: `/enrollment/${[profileId]}/profile/cancel`,
+          method: 'POST'
+        }
+      },
+      transformResponse: (res: Record<string, any>) => {
+        if (!res.success) throw new Error('There was an error cancelling enrollment')
+
+        return res.data
+      },
+      async onQueryStarted(profileId, { queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          console.log(data)
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+
+          console.log(err)
+        }
+      },
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'ENROLLMENT', id: arg }] : [])
+    })
+  })
+})

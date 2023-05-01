@@ -14,7 +14,7 @@ const bankAccountSlice = createSlice({
   initialState,
   reducers: {
     setBankAccounts: (state, action) => {
-      bankAccountAdapter.upsertMany(state, action.payload)
+      bankAccountAdapter.setAll(state, action.payload)
     },
     addBankAccount: (state, action) => {
       bankAccountAdapter.addOne(state, action.payload)
@@ -33,15 +33,15 @@ export const { setBankAccounts, addBankAccount, updateBankAccount, deleteBankAcc
 export default bankAccountSlice.reducer
 
 export const {
-  selectAll: selectAllBackAccounts,
-  selectById: selectBackAccountById,
-  selectIds: selectBackAccountIds
+  selectAll: selectAllBankAccounts,
+  selectById: selectBankAccountById,
+  selectIds: selectBankAccountIds
 } = bankAccountAdapter.getSelectors((state: RootState) => state.bankAccount)
 
-export const selectBankAccountsByProfileId = (profileId: string) =>
-  createSelector(
-    selectAllBackAccounts, // Assuming this selector returns all bank accounts
-    (bankAccounts: BankAccountType[]) => {
-      return bankAccounts.filter(bankAccount => bankAccount.profileId === profileId)
-    }
-  )
+export const selectBankAccountsByProfileId = createSelector(
+  selectAllBankAccounts,
+  (_: RootState, profileId: string) => profileId,
+  (bankaccounts, profileId) => {
+    return bankaccounts.filter(bank => bank.profileId === profileId)
+  }
+)

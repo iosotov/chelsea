@@ -187,11 +187,3 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
     })
   })
 })
-
-export const {
-  useGetCampaignQuery,
-  useGetCampaignsQuery,
-  useCreateCampaignMutation,
-  useUpdateCampaignMutation,
-  useDeleteCampaignMutation
-} = campaignApiSlice

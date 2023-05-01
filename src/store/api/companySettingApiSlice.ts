@@ -232,12 +232,3 @@ export const companySettingApiSlice = apiSlice.injectEndpoints({
     })
   })
 })
-
-export const {
-  useGetCompanySettingCreditReportQuery,
-  useCreateCompanySettingCreditReportMutation,
-  useGetCompanySettingEsignQuery,
-  useCreateCompanySettingEsignMutation,
-  useGetCompanySettingStorageQuery,
-  useCreateCompanySettingStorageMutation
-} = companySettingApiSlice
