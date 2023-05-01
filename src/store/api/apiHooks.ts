@@ -9,6 +9,8 @@ import { profileApiSlice } from './profileApiSlice'
 import { profileBudgetApiSlice } from './profileBudgetApiSlice'
 import { taskApiSlice } from './taskApiSlice'
 
+// SOL REDUX API POINTS
+
 // BANK ACCOUNT
 export const {
   // GET bankaccount/profileId/profile
