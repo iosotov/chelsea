@@ -131,5 +131,3 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
     })
   })
 })
-
-export const { useGetProfileBudgetsQuery, useGetBudgetsQuery } = profileBudgetApiSlice

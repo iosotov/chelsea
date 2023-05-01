@@ -8,6 +8,10 @@ import bankAccount from './bankAccountSlice'
 import campaign from './campaignSlice'
 import company from './companySlice'
 import document from './documentSlice'
+import enrollment from './enrollmentSlice'
+import liability from './liabilitySlice'
+import payment from './paymentSlice'
+import task from './taskSlice'
 
 export const store = configureStore({
   reducer: {
@@ -19,7 +23,11 @@ export const store = configureStore({
     bankAccount,
     campaign,
     company,
-    document
+    document,
+    enrollment,
+    liability,
+    payment,
+    task
   },
   middleware: getDefaultMiddleware => getDefaultMiddleware().concat(apiSlice.middleware),
   devTools: true

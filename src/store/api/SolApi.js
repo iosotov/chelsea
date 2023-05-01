@@ -132,6 +132,12 @@ class SolApi {
 
     return res
   }
+
+  static async GetEnrollmentPayments(profileId) {
+    const res = await this.request(`/enrollment/${profileId}/profile/payments`, {}, 'GET')
+
+    return res
+  }
 }
 
 export default SolApi
