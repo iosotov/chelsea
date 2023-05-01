@@ -21,6 +21,7 @@ import TextField from '@mui/material/TextField'
 
 const ExpenseTable = (data: any) => {
   const expense = data.expense
+  const dataSource = data.expense
 
   // console.log(rows)
   // let i = 0
@@ -34,14 +35,12 @@ const ExpenseTable = (data: any) => {
     console.log(choice)
     if (data) {
       console.log(data)
-      const budgetAmount = data.budgetList.find(element => element.budgetId == choice)
-      if (budgetAmount) {
-        return budgetAmount.amount
+      const budgetName = data.budgetTypes.find(element => element.budgetId == choice)
+      if (budgetName) {
+        return budgetName.name
       } else {
-        return 0
+        console.log('no Name')
       }
-
-      console.log(budgetAmount)
 
       // console.log(budgetAmount.amount)
 
@@ -59,9 +58,9 @@ const ExpenseTable = (data: any) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {expense.map(budge => (
+          {expense.map(budget => (
             <TableRow
-              key={budge.budgeId}
+              key={budget.budgetId}
               sx={{
                 '&:last-of-type td, &:last-of-type th': {
                   border: 0
@@ -69,15 +68,10 @@ const ExpenseTable = (data: any) => {
               }}
             >
               <TableCell component='th' scope='row'>
-                {budge.name}
+                {getBudgetById(budget.budgetId)}
               </TableCell>
               <TableCell align='right'>
-                <TextField
-                  fullWidth
-                  label='Amount'
-                  defaultValue={getBudgetById(budge.budgetId)}
-                  placeholder='Amount'
-                ></TextField>
+                <TextField fullWidth label='Amount' defaultValue={budget.amount} placeholder='Amount'></TextField>
               </TableCell>
             </TableRow>
           ))}

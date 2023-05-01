@@ -30,11 +30,11 @@ const IncomeTable = (data: any) => {
     console.log(choice)
     if (data) {
       console.log(data)
-      const budgetAmount = data.budgetList.find(element => element.budgetId == choice)
-      if (budgetAmount) {
-        return budgetAmount.amount
+      const budgetName = data.budgetTypes.find(element => element.budgetId == choice)
+      if (budgetName) {
+        return budgetName.name
       } else {
-        return 0
+        console.log('no Name')
       }
 
       console.log(budgetAmount)
@@ -67,11 +67,14 @@ const IncomeTable = (data: any) => {
               }}
             >
               <TableCell component='th' scope='row'>
-                {budget.name}
+                {getBudgetById(budget.budgetId)}
               </TableCell>
               <TableCell align='right'>
                 {/* sets to load default value */}
-                <TextField fullWidth label='Amount' defaultValue={getBudgetById(budget.budgetId)} placeholder='Amount'>
+                {/* <TextField fullWidth label='Amount' defaultValue={getBudgetById(budget.budgetId)} placeholder='Amount'>
+                  {' '}
+                </TextField> */}
+                <TextField fullWidth label='Amount' defaultValue={budget.amount} placeholder='Amount'>
                   {' '}
                 </TextField>
               </TableCell>

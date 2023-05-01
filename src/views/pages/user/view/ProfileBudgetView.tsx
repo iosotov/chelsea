@@ -67,108 +67,206 @@ export default function ProfileBudget({ id }: any) {
 
   //useeffect data init
   useEffect(() => {
-    console.log(newProfile)
     if (newProfile) {
       console.log(newProfile)
-      let arr: any = []
-      let budgeType: any = []
+      setBudgetTypes(newProfile.budget)
+      dataSplitter()
+    }
+  }, [newProfile, budgetTypes])
+  useEffect(() => {
+    if (newProfile) {
+      console.log(newProfile)
+      setAllBudgets(newProfile.profile)
+      dataSplitter()
+    }
+  }, [newProfile, allBudgets])
+
+  const dataSplitter = () => {
+    if (budgetTypes && allBudgets) {
+      console.log(budgetTypes)
+      console.log(allBudgets)
+      const budgetArr: any = []
+      const typeArr: any = []
       const incomeList: any = []
       const expenseList: any = []
-      console.log(newProfile)
-      if (newProfile != undefined) {
-        console.log(newProfile.profile, newProfile.budget)
-        if (newProfile.profile != undefined) {
-          arr = newProfile.profile
-          console.log(arr)
+      let i = 0
+      for (i = 0; i < budgetTypes.length; i++) {
+        console.log(budgetTypes[i])
+        if (budgetTypes[i].active) {
+          if (budgetTypes[i].budgetType == 0) {
+            const choiceId = budgetTypes[i].budgetId
+            const filteredIncome = allBudgets.find(filteredIncome => filteredIncome.budgetId == choiceId)
+            if (filteredIncome) {
+              console.log(filteredIncome)
+              incomeList.push(filteredIncome)
+            } else {
+              const notFound = { budgetId: choiceId, amount: 0 }
 
-          // setAllBudgets(arr)
-        }
-        if (newProfile.budget != undefined) {
-          budgeType = newProfile.budget
-          console.log(budgeType.length)
-
-          //separting income and expense
-          let i = 0
-          for (i = 0; i < budgeType.length; i++) {
-            console.log(budgeType[i])
-            if (budgeType[i].active) {
-              if (budgeType[i].budgetType == 0) {
-                const choiceId = budgeType[i].budgetId
-
-                // console.log(choiceId)
-                console.log(newProfile.profile)
-                console.log(newProfile.budget)
-
-                //do check outside,
-                const filteredIncome = newProfile.budget.find(filteredIncome => filteredIncome.budgetId == choiceId)
-                console.log(filteredIncome)
-                if (filteredIncome) {
-                  console.log(filteredIncome)
-                  incomeList.push(filteredIncome)
-                }
-
-                // incomeList.push(filteredChoice)
-                // console.log(incomeList)
-              } else {
-                const choiceId = budgeType[i].budgetId
-                console.log(choiceId)
-                const filteredExpense = newProfile.budget.find(filteredExpense => filteredExpense.budgetId == choiceId)
-                if (filteredExpense) {
-                  console.log(filteredExpense)
-                  expenseList.push(filteredExpense)
-                }
-
-                // expenseList.push(budgeType[i])
-              }
+              //                 console.log(notFound)
+              //                 incomeList.push(notFound)
+              incomeList.push(notFound)
             }
+            setIncome(incomeList)
+          } else {
+            const choiceId = budgetTypes[i].budgetId
+            const filteredExpense = allBudgets.find(filteredExpense => filteredExpense.budgetId == choiceId)
+            if (filteredExpense) {
+              console.log(filteredExpense)
+              expenseList.push(filteredExpense)
+            } else {
+              const notFound = { budgetId: choiceId, amount: 0 }
+
+              //                 console.log(notFound)
+              //                 incomeList.push(notFound)
+              expenseList.push(notFound)
+            }
+            setExpense(expenseList)
           }
-
-          //separate income and outcome
-
-          console.log(budgeType)
-
-          // setAllBudgets(arr)
         }
-
-        // if (newProfile.profile.length > 0) {
-        //   newProfile.profile.forEach((e: any) => {
-        //     arr.push(newProfile.profile[e])
-        //   })
-        // }
-        // newProfile.profile.forEach((i: any) => {
-        //   console.log(newProfile.profile[i])
-        //   arr.push(newProfile.profile[i])
-        // })
-
-        // arr = newProfile.profile
-        // console.log(arr)
-
-        // arr = newProfile.profile
       }
-
-      setTimeout(() => {
-        setAllBudgets(arr)
-        setBudgetTypes(budgeType)
-        setIncome(incomeList)
-        setExpense(expenseList)
-      }, 1500)
-
-      console.log(arr)
-      console.log(allBudgets)
       console.log(incomeList, expenseList)
-    } else {
-      console.log('No Data')
+
+      // setIncome(incomeList)
+      // setExpense(expenseList)
     }
-  }, [newProfile, allBudgets, budgetTypes])
+  }
+
+  // useEffect(() => {
+  //   console.log(newProfile)
+  //   console.log(data)
+  //   if (newProfile) {
+  //     console.log(newProfile)
+  //     let arr: any = []
+  //     let budgeType: any = []
+  //     const incomeList: any = []
+  //     const expenseList: any = []
+  //     console.log(newProfile)
+  //     if (newProfile != undefined) {
+  //       console.log(newProfile.profile, newProfile.budget)
+  //       if (newProfile.profile != undefined) {
+  //         arr = newProfile.profile
+  //         console.log(arr)
+
+  //         // setAllBudgets(arr)
+  //       }
+  //       if (newProfile.budget != undefined) {
+  //         budgeType = newProfile.budget
+  //         console.log(budgeType)
+
+  //         //separting income and expense
+  //         let i = 0
+  //         for (i = 0; i < budgeType.length; i++) {
+  //           console.log(budgeType[i])
+  //           if (budgeType[i].active) {
+  //             if (budgeType[i].budgetType == 0) {
+  //               const choiceId = budgeType[i].budgetId
+
+  //               // console.log(choiceId)
+  //               console.log(newProfile.profile)
+  //               console.log(newProfile.budget)
+
+  //               //do check outside,
+  //               // const filteredIncome = newProfile.budget.find(filteredIncome => filteredIncome.budgetId == choiceId)
+  //               const filteredIncome = newProfile.profile.find(filteredIncome => filteredIncome.budgetId == choiceId)
+
+  //               // const findAmount = newProfile.profile.find(findAmount => findAmount.budgetId == choiceId)
+  //               // console.log(findAmount)
+  //               console.log(filteredIncome)
+  //               if (filteredIncome) {
+  //                 console.log(filteredIncome)
+  //                 incomeList.push(filteredIncome)
+  //               } else {
+  //                 const notFound = { budgetId: choiceId, amount: 0 }
+
+  //                 console.log(notFound)
+  //                 incomeList.push(notFound)
+
+  //                 // arr.push(notFound)
+  //                 // arr = [...arr, notFound]
+  //                 // console.log(arr)
+  //               }
+
+  //               // if (findAmount == undefined) {
+  //               //   console.log('not found')
+  //               //   const notFound = { budgetId: choiceId, amount: 0 }
+
+  //               //   console.log(notFound)
+
+  //               //   arr.push(notFound)
+  //               // }
+
+  //               // incomeList.push(filteredChoice)
+  //               // console.log(incomeList)
+  //             } else {
+  //               const choiceId = budgeType[i].budgetId
+  //               console.log(choiceId)
+
+  //               // const filteredExpense = newProfile.budget.find(filteredExpense => filteredExpense.budgetId == choiceId)
+  //               const filteredExpense = newProfile.profile.find(filteredExpense => filteredExpense.budgetId == choiceId)
+
+  //               if (filteredExpense) {
+  //                 console.log(filteredExpense)
+  //                 expenseList.push(filteredExpense)
+  //               } else {
+  //                 const notFound = { budgetId: choiceId, amount: 0 }
+  //                 expenseList.push(notFound)
+
+  //                 // arr.push(notFound)
+  //               }
+
+  //               // expenseList.push(budgeType[i])
+  //             }
+  //           }
+  //         }
+
+  //         //separate income and outcome
+  //         console.log(arr)
+  //         console.log(incomeList)
+  //         console.log(expenseList)
+  //         console.log(budgeType)
+
+  //         // setAllBudgets(arr)
+  //       }
+
+  //       // if (newProfile.profile.length > 0) {
+  //       //   newProfile.profile.forEach((e: any) => {
+  //       //     arr.push(newProfile.profile[e])
+  //       //   })
+  //       // }
+  //       // newProfile.profile.forEach((i: any) => {
+  //       //   console.log(newProfile.profile[i])
+  //       //   arr.push(newProfile.profile[i])
+  //       // })
+
+  //       // arr = newProfile.profile
+  //       // console.log(arr)
+
+  //       // arr = newProfile.profile
+  //     }
+  //     const joined = incomeList.concat(expenseList)
+  //     console.log(joined)
+
+  //     setTimeout(() => {
+  //       // setAllBudgets(arr)
+
+  //       //setAllBudgets(joined)
+  //       //setBudgetTypes(budgeType)
+
+  //       setIncome(incomeList)
+  //       setExpense(expenseList)
+  //     }, 1500)
+
+  //     console.log(arr)
+  //     console.log(allBudgets)
+  //     console.log(incomeList, expenseList)
+  //   } else {
+  //     console.log('No Data')
+  //   }
+  // }, [newProfile, allBudgets, budgetTypes])
 
   console.log(allBudgets, budgetTypes)
 
   console.log(income, expense)
-
-  // console.log
-
-  // const [allBudgets, setAllBudgets] = useState<any>(profileBudgets)
-  // const [budgetTypes, setBudgetTypes] = useState<any>(budgets)
 
   console.log(allBudgets)
   console.log(budgetTypes)
@@ -242,39 +340,9 @@ export default function ProfileBudget({ id }: any) {
     }
   }
 
-  // console.log(budgetTypes)
-  // console.log(allBudgets)
-
-  // setLoading(true)
-
-  // if (isLoading) {
-  //   setLoading(false)
-  // }
-
-  // const budgetSeparator = () => {
-  //   console.log(allBudgets, budgetTypes)
-  //   const response = await allBudgets
-  // }
-  // useEffect(() => {
-  //   async function fetchBudgets() {
-  //     const response = await allBudgets
-  //     console.log(response)
-  //     const budge = await response
-  //     console.log(budge)
-  //     setIncome(budge)
-  //   }
-  //   fetchBudgets()
-  // })
-
   const resetForm = () => {
     console.log(data)
     console.log(budgets, profileBudgets, profiles)
-
-    // for (let i = 0; i < profileBudgets.length; i++) {
-    //   profileBudgets[i].amount = 10
-    //   const temp
-    // }
-    // console.log(profileBudgets)
 
     const formReset = profileBudgets.map(item => {
       if (item.amount != 0) {
@@ -298,6 +366,13 @@ export default function ProfileBudget({ id }: any) {
     console.log(budgetTypes)
     console.log(income)
     console.log(expense)
+
+    //combine income and expense for payload
+
+    const payload = income.concat(expense)
+
+    // console.log(joined)
+    console.log(payload)
   }
 
   console.log(allBudgets)
