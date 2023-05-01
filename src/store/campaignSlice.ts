@@ -14,6 +14,9 @@ const campaignSlice = createSlice({
   initialState,
   reducers: {
     setCampaigns: (state, action) => {
+      campaignAdapter.setAll(state, action.payload)
+    },
+    updateCampaigns: (state, action) => {
       campaignAdapter.upsertMany(state, action.payload)
     },
     addCampaign: (state, action) => {
@@ -28,7 +31,7 @@ const campaignSlice = createSlice({
   }
 })
 
-export const { setCampaigns, addCampaign, updateCampaign, deleteCampaign } = campaignSlice.actions
+export const { setCampaigns, updateCampaigns, addCampaign, updateCampaign, deleteCampaign } = campaignSlice.actions
 
 export default campaignSlice.reducer
 

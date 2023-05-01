@@ -1,16 +1,5 @@
-import { addCampaign, deleteCampaign, setCampaigns, updateCampaign } from '../campaignSlice'
+import { setCampaigns, updateCampaigns } from '../campaignSlice'
 import { apiSlice } from './apiSlice'
-
-const DefaultCampaign: CampaignType = {
-  campaignId: '',
-  campaignName: '',
-  description: '',
-  phone: '',
-  email: '',
-  displayName: '',
-  companyId: '',
-  companyName: ''
-}
 
 export type UpdateCampaignType = {
   campaignId?: string
@@ -42,16 +31,16 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
         method: 'GET'
       }),
       transformResponse: (res: Record<string, any>) => {
-        if (!res.success) throw new Error('There was an error fetching bank accounts')
+        if (!res.success) throw new Error('There was an error fetching campaign')
         console.log(res.data)
 
         return res.data
       },
-      async onQueryStarted(searchParams, { dispatch, queryFulfilled }) {
+      async onQueryStarted(campaignId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
 
-          dispatch(setCampaigns([data]))
+          dispatch(updateCampaigns([data]))
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
@@ -70,12 +59,12 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
         body
       }),
       transformResponse: (res: Record<string, any>) => {
-        if (!res.success) throw new Error('There was an error fetching bank accounts')
+        if (!res.success) throw new Error('There was an error fetching campaigns')
         console.log(res.data)
 
         return res.data.data
       },
-      async onQueryStarted(searchParams, { dispatch, queryFulfilled }) {
+      async onQueryStarted(body, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
 
@@ -107,28 +96,22 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
         }
       },
       transformResponse: (res: Record<string, any>) => {
-        if (!res.success) throw new Error('There was an error creating bank account')
+        if (!res.success) throw new Error('There was an error creating campaign')
         console.log(res.data)
 
         return res.data
       },
-      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+      async onQueryStarted(body, { queryFulfilled }) {
         try {
-          const { data: campaignId } = await queryFulfilled
-          const newCampaign: CampaignType = {
-            ...DefaultCampaign,
-            ...params,
-            campaignId
-          }
-
-          dispatch(addCampaign(newCampaign))
+          await queryFulfilled
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
 
           console.log(err)
         }
-      }
+      },
+      invalidatesTags: res => (res ? [{ type: 'CAMPAIGN', id: 'LIST' }] : [])
     }),
     updateCampaign: builder.mutation<boolean, UpdateCampaignType>({
       query: params => {
@@ -143,21 +126,21 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
         }
       },
       transformResponse: (res: Record<string, any>) => {
-        if (!res.success) throw new Error('There was an error updating bank account information')
+        if (!res.success) throw new Error('There was an error updating campaign')
 
         return res.success
       },
-      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+      async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-          dispatch(updateCampaign(params))
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
 
           console.log(err)
         }
-      }
+      },
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'CAMPAIGN', id: arg.campaignId }] : [])
     }),
     deleteCampaign: builder.mutation<string, string>({
       query: campaignId => {
@@ -167,23 +150,22 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
           method: 'DELETE'
         }
       },
-      transformResponse: (res: Record<string, any>) => {
-        if (!res.success) throw new Error('There was an error updating bank account information')
+      transformResponse: (res: Record<string, any>, meta, arg) => {
+        if (!res.success) throw new Error('There was an error deleting campaign')
 
-        return res.data
+        return arg
       },
-      async onQueryStarted(campaignId, { dispatch, queryFulfilled }) {
+      async onQueryStarted(campaignId, { queryFulfilled }) {
         try {
           await queryFulfilled
-
-          dispatch(deleteCampaign(campaignId))
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
 
           console.log(err)
         }
-      }
+      },
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'CAMPAIGN', id: arg }] : [])
     })
   })
 })
