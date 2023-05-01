@@ -47,18 +47,7 @@ const ProfileNotes = () => {
   // })
 
   //mock Data
-  // const myTemplates = [
-  //   {
-  //     key:'cc', value: 'Credit Card'
-  //   },
-  //   {
-  //     key:'tt', value: 'Test'
-  //   },
-  //   {
-  //     key:'gg', value: 'guest'
-  //   },
 
-  // ]
   const myNotes = [
     {
       key: 'cc',
