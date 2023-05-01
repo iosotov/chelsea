@@ -7,6 +7,7 @@ import { enrollmentApiSlice } from './enrollmentApiSlice'
 import { liabilityApiSlice } from './liabilityApiSlice'
 import { profileApiSlice } from './profileApiSlice'
 import { profileBudgetApiSlice } from './profileBudgetApiSlice'
+import { taskApiSlice } from './taskApiSlice'
 
 // BANK ACCOUNT
 export const {
@@ -172,6 +173,7 @@ export const {
   usePutWithdrawLiabilitiesMutation
 } = liabilityApiSlice
 
+// PROFILE
 export const {
   // GET profile/profileId/info
   useGetProfileInfoQuery,
@@ -234,6 +236,7 @@ export const {
   usePutDeleteProfileMutation
 } = profileApiSlice
 
+// PROFILE BUDGET
 export const {
   // GET profile/profileId/budget
   useGetProfileBudgetsQuery,
@@ -244,3 +247,24 @@ export const {
   // PUT profile/profileId/budget
   usePostProfileBudgetsMutation
 } = profileBudgetApiSlice
+
+// TASKS
+export const {
+  // GET task/taskId/info
+  useGetTaskQuery,
+
+  // GET task/profileId/profile
+  useGetProfileTasksQuery,
+
+  // PUT task/profileId/profile
+  usePutUpdateTaskMutation,
+
+  // PUT task/bulk-update
+  usePutBulkUpdateTasksMutation,
+
+  // POST task/profileId/profile
+  usePostCreateTaskMutation,
+
+  // POST task/search
+  usePostSearchTaskQuery
+} = taskApiSlice
