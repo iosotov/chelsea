@@ -8,29 +8,24 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TextField from '@mui/material/TextField'
 
-// const createData = (expenseType: string, amount: number) => {
-//   return { expenseType, amount }
+// const createData = (incomeType: string, amount: number) => {
+//   return { incomeType, amount }
 // }
 
-// const rows = [
-//   createData('expense1', 100),
-//   createData('expense2', 10),
-//   createData('expense3', 30),
-//   createData('expensenull', 0)
-// ]
+const IncomeTable = (data: any) => {
+  console.log(data)
+  const dataSource = data.income
+  console.log(dataSource)
+  console.log(data.budgetList)
 
-const ExpenseTable = (data: any) => {
-  const expense = data.expense
-  const dataSource = data.expense
+  //being dfed data object, taht has budget, profile props list
+  // var budget
 
-  // console.log(rows)
   // let i = 0
   // for (i = 0; i < rows.length; i++) {
   //   ;<TableContainer component={Paper}></TableContainer>
   // }
-  // const getBudgetbyId = () => {
 
-  // }
   const getBudgetById = choice => {
     console.log(choice)
     if (data) {
@@ -42,23 +37,27 @@ const ExpenseTable = (data: any) => {
         console.log('no Name')
       }
 
+      console.log(budgetAmount)
+
       // console.log(budgetAmount.amount)
 
       // return budgetAmount.amount
     }
   }
 
+  // getBudgetById('cf8c14ca-9375-4c87-94d9-6a8e30fb85d4')
+
   return (
     <TableContainer>
       <Table sx={{ minWidth: 650 }} aria-label='simple table'>
         <TableHead>
           <TableRow>
-            <TableCell>Expense Type</TableCell>
+            <TableCell>Income Name</TableCell>
             <TableCell>Amount</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {expense.map(budget => (
+          {dataSource.map(budget => (
             <TableRow
               key={budget.budgetId}
               sx={{
@@ -71,7 +70,13 @@ const ExpenseTable = (data: any) => {
                 {getBudgetById(budget.budgetId)}
               </TableCell>
               <TableCell align='right'>
-                <TextField fullWidth label='Amount' defaultValue={budget.amount} placeholder='Amount'></TextField>
+                {/* sets to load default value */}
+                {/* <TextField fullWidth label='Amount' defaultValue={getBudgetById(budget.budgetId)} placeholder='Amount'>
+                  {' '}
+                </TextField> */}
+                <TextField fullWidth label='Amount' defaultValue={budget.amount} placeholder='Amount'>
+                  {' '}
+                </TextField>
               </TableCell>
             </TableRow>
           ))}
@@ -81,4 +86,4 @@ const ExpenseTable = (data: any) => {
   )
 }
 
-export default ExpenseTable
+export default IncomeTable
