@@ -8,13 +8,17 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TextField from '@mui/material/TextField'
 
-const createData = (incomeType: string, amount: number) => {
-  return { incomeType, amount }
-}
+// const createData = (incomeType: string, amount: number) => {
+//   return { incomeType, amount }
+// }
 
-const BudgetTable = (data: any) => {
+const IncomeTable = (data: any) => {
   console.log(data)
+  const dataSource = data.income
+  console.log(dataSource)
+  console.log(data.budgetList)
 
+  //being dfed data object, taht has budget, profile props list
   // var budget
 
   // let i = 0
@@ -22,17 +26,38 @@ const BudgetTable = (data: any) => {
   //   ;<TableContainer component={Paper}></TableContainer>
   // }
 
+  const getBudgetById = choice => {
+    console.log(choice)
+    if (data) {
+      console.log(data)
+      const budgetAmount = data.budgetList.find(element => element.budgetId == choice)
+      if (budgetAmount) {
+        return budgetAmount.amount
+      } else {
+        return 0
+      }
+
+      console.log(budgetAmount)
+
+      // console.log(budgetAmount.amount)
+
+      // return budgetAmount.amount
+    }
+  }
+
+  // getBudgetById('cf8c14ca-9375-4c87-94d9-6a8e30fb85d4')
+
   return (
     <TableContainer>
       <Table sx={{ minWidth: 650 }} aria-label='simple table'>
         <TableHead>
           <TableRow>
-            <TableCell>Income Type</TableCell>
-            <TableCell>Created By</TableCell>
+            <TableCell>Income Name</TableCell>
+            <TableCell>Amount</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map(budget => (
+          {dataSource.map(budget => (
             <TableRow
               key={budget.budgetId}
               sx={{
@@ -42,12 +67,12 @@ const BudgetTable = (data: any) => {
               }}
             >
               <TableCell component='th' scope='row'>
-                {budget.amount}
+                {budget.name}
               </TableCell>
               <TableCell align='right'>
-                <TextField fullWidth label='Amount' placeholder='Amount'>
+                {/* sets to load default value */}
+                <TextField fullWidth label='Amount' defaultValue={getBudgetById(budget.budgetId)} placeholder='Amount'>
                   {' '}
-                  {budget.amount}
                 </TextField>
               </TableCell>
             </TableRow>
@@ -58,4 +83,4 @@ const BudgetTable = (data: any) => {
   )
 }
 
-export default BudgetTable
+export default IncomeTable

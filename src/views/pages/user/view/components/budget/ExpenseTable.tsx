@@ -8,23 +8,46 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TextField from '@mui/material/TextField'
 
-const createData = (expenseType: string, amount: number) => {
-  return { expenseType, amount }
-}
+// const createData = (expenseType: string, amount: number) => {
+//   return { expenseType, amount }
+// }
 
-const rows = [
-  createData('expense1', 100),
-  createData('expense2', 10),
-  createData('expense3', 30),
-  createData('expensenull', 0)
-]
+// const rows = [
+//   createData('expense1', 100),
+//   createData('expense2', 10),
+//   createData('expense3', 30),
+//   createData('expensenull', 0)
+// ]
 
-const ExpenseTable = () => {
+const ExpenseTable = (data: any) => {
+  const expense = data.expense
+
   // console.log(rows)
   // let i = 0
   // for (i = 0; i < rows.length; i++) {
   //   ;<TableContainer component={Paper}></TableContainer>
   // }
+  // const getBudgetbyId = () => {
+
+  // }
+  const getBudgetById = choice => {
+    console.log(choice)
+    if (data) {
+      console.log(data)
+      const budgetAmount = data.budgetList.find(element => element.budgetId == choice)
+      if (budgetAmount) {
+        return budgetAmount.amount
+      } else {
+        return 0
+      }
+
+      console.log(budgetAmount)
+
+      // console.log(budgetAmount.amount)
+
+      // return budgetAmount.amount
+    }
+  }
 
   return (
     <TableContainer>
@@ -32,13 +55,13 @@ const ExpenseTable = () => {
         <TableHead>
           <TableRow>
             <TableCell>Expense Type</TableCell>
-            <TableCell>Created By</TableCell>
+            <TableCell>Amount</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {rows.map(row => (
+          {expense.map(budge => (
             <TableRow
-              key={row.expenseType}
+              key={budge.budgeId}
               sx={{
                 '&:last-of-type td, &:last-of-type th': {
                   border: 0
@@ -46,13 +69,15 @@ const ExpenseTable = () => {
               }}
             >
               <TableCell component='th' scope='row'>
-                {row.expenseType}
+                {budge.name}
               </TableCell>
               <TableCell align='right'>
-                <TextField fullWidth label='Amount' placeholder='Amount'>
-                  {' '}
-                  {row.amount}
-                </TextField>
+                <TextField
+                  fullWidth
+                  label='Amount'
+                  defaultValue={getBudgetById(budge.budgetId)}
+                  placeholder='Amount'
+                ></TextField>
               </TableCell>
             </TableRow>
           ))}
