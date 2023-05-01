@@ -33,10 +33,11 @@ import ExpenseTable from 'src/views/pages/user/view/components/budget/ExpenseTab
 import { useAppDispatch, useAppSelector } from 'src/store/hooks'
 import { Profile, selectAllProfiles, useGetProfilesQuery } from 'src/store/api/profileApiSlice'
 
-import { useGetBudgetsQuery, useGetProfileBudgetsQuery } from 'src/store/api/profileBudgetApiSlice'
+// import { useGetBudgetsQuery, useGetProfileBudgetsQuery,  } from 'src/store/api/profileBudgetApiSlice'
 import { selectAllBudgets, selectAllProfileBudgets } from 'src/store/profileBudgetSlice'
 import { left } from '@popperjs/core'
 import { ValidationError } from 'yup'
+import { useGetProfileBudgetsQuery, useGetBudgetsQuery, usePostProfileBudgetsMutation } from 'src/store/api/apiHooks'
 
 export default function ProfileBudget({ id }: any) {
   //add isLoading?
@@ -52,18 +53,42 @@ export default function ProfileBudget({ id }: any) {
   const [income, setIncome] = useState<any>([])
   const [expense, setExpense] = useState<any>([])
 
-  const profiles = useAppSelector(selectAllProfiles)
-  const budgets = useAppSelector(selectAllBudgets)
-  const profileBudgets = useAppSelector(selectAllProfileBudgets)
+  // const profiles = useAppSelector(selectAllProfiles)
+  // const budgets = useAppSelector(selectAllBudgets)
+  // const profileBudgets = useAppSelector(selectAllProfileBudgets)
 
-  console.log(budgets)
+  // const a = useGetProfileBudgetsQueryMock(profileId)
+
+  // console.log(budgets)
 
   // //api mock
-  const { data: newProfile } = useGetProfileBudgetsQuery('1327485548')
+  const [trigger, { isSuccess: triggerSuccess }] = usePostProfileBudgetsMutation()
+  const { data: newProfile } = useGetProfileBudgetsQuery(id)
+  const profileId = id
+  async function handleClick() {
+    const testData = {
+      profileId,
+      budgets: [
+        {
+          budgetId: '9da97f8e-6e71-4091-b590-ed22be4cddb2',
+          amount: 10
+        },
+        {
+          budgetId: 'a7028bfb-c866-4938-90c0-f245c5909683',
+          amount: 20
+        }
+      ]
+    }
+    console.log('LMAOOOo')
+    console.log(testData)
+    await trigger(testData).unwrap()
+  }
+
+  // const { data: newProfile } = useGetProfileBudgetsQuery('1327485548')
 
   // const { data: newProfile } = useGetProfileBudgetsQuery(id)
-  useGetBudgetsQuery({})
-  console.log(newProfile)
+  // useGetBudgetsQuery({})
+  // console.log(newProfile)
 
   //useeffect data init
   useEffect(() => {
@@ -368,11 +393,11 @@ export default function ProfileBudget({ id }: any) {
     console.log(expense)
 
     //combine income and expense for payload
+    //send profile Id?
 
     const payload = income.concat(expense)
 
     // console.log(joined)
-    console.log(payload)
   }
 
   console.log(allBudgets)
@@ -450,7 +475,7 @@ export default function ProfileBudget({ id }: any) {
             Clear Form
           </Button>
 
-          <Button type='submit' variant='contained' onClick={createBudget}>
+          <Button type='submit' variant='contained' onClick={handleClick}>
             Submit Budget
           </Button>
         </Grid>
