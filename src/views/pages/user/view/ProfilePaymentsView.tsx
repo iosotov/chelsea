@@ -40,6 +40,7 @@ import { CardHeader } from '@mui/material'
 import { ThemeColor } from 'src/@core/layouts/types'
 
 import CustomChip from 'src/@core/components/mui/chip'
+import TransactionDialog from './components/payments/TransactionDialog'
 
 type Order = 'asc' | 'desc'
 
@@ -71,6 +72,8 @@ interface EnhancedTableProps {
 
 interface EnhancedTableToolbarProps {
   numSelected: number
+  handleAdd: () => void
+  handleEdit: () => void
 }
 
 //styled components
@@ -233,7 +236,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 
 const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
   // ** Prop
-  const { numSelected } = props
+  const { numSelected, handleAdd, handleEdit } = props
 
   return (
     <Toolbar
@@ -252,18 +255,20 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
       ) : (
         <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
           <Typography variant='h5'>Payments</Typography>
-          <Button variant='contained' size='small'>
+          <Button variant='contained' size='small' onClick={handleAdd}>
             New Payment
           </Button>
         </Box>
       )}
       {numSelected > 0 ? (
         <>
-          <Tooltip title='Edit'>
-            <IconButton sx={{ color: 'text.secondary' }}>
-              <Icon icon='mdi:pencil-outline' />
-            </IconButton>
-          </Tooltip>
+          {numSelected > 1 ? null : (
+            <Tooltip title='Edit'>
+              <IconButton onClick={handleEdit} sx={{ color: 'text.secondary' }}>
+                <Icon icon='mdi:pencil-outline' />
+              </IconButton>
+            </Tooltip>
+          )}
           <Tooltip title='Delete'>
             <IconButton sx={{ color: 'text.secondary' }}>
               <Icon icon='mdi:delete-outline' />
@@ -275,13 +280,31 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
   )
 }
 
-const EnhancedTable = ({ data }) => {
+const EnhancedTable = ({ data }: any) => {
   // ** States
   const [page, setPage] = useState<number>(0)
   const [order, setOrder] = useState<Order>('asc')
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
   const [orderBy, setOrderBy] = useState<keyof Data>('number')
   const [selected, setSelected] = useState<readonly number[]>([])
+  const [transData, setTransData] = useState(null)
+
+  const [transDialog, setTransDialog] = useState<boolean>(false)
+
+  const toggleDialog = () => setTransDialog(!transDialog)
+
+  const handleAdd = () => {
+    console.log(transDialog)
+    setTransData(null)
+    toggleDialog()
+  }
+
+  const handleEdit = () => {
+    console.log('handle edit')
+    setTransData({})
+    // setTransData(data[index])
+    toggleDialog()
+  }
 
   const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
@@ -324,75 +347,78 @@ const EnhancedTable = ({ data }) => {
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0
 
   return (
-    <Grid item xs={12}>
-      <Card>
-        <CardContent>
-          <EnhancedTableToolbar numSelected={selected.length} />
-          <TableContainer component={Paper}>
-            <Table sx={{ minWidth: 750 }} aria-labelledby='tableTitle'>
-              <EnhancedTableHead
-                order={order}
-                orderBy={orderBy}
-                rowCount={rows.length}
-                numSelected={selected.length}
-                onSelectAllClick={handleSelectAllClick}
-              />
-              <TableBody>
-                {stableSort(rows, getComparator(order, orderBy))
-                  .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                  .map((row, index) => {
-                    const isItemSelected = isSelected(row.number)
-                    const labelId = `enhanced-table-checkbox-${index}`
-                    return (
-                      <TableRow
-                        hover
-                        tabIndex={-1}
-                        key={row.number}
-                        role='checkbox'
-                        selected={isItemSelected}
-                        aria-checked={isItemSelected}
-                        onClick={event => handleClick(event, row.number)}
-                      >
-                        <TableCell padding='checkbox'>
-                          <Checkbox checked={isItemSelected} inputProps={{ 'aria-labelledby': labelId }} />
-                        </TableCell>
-                        <TableCell component='th' align='center' id={labelId} scope='row' padding='none'>
-                          {row.number}
-                        </TableCell>
-                        <TableCell align='right'>{row.processDate}</TableCell>
-                        <TableCell align='right'>{row.amount}</TableCell>
-                        <TableCell align='right'>{row.clearedDate}</TableCell>
-                        <TableCell align='center'>{row.status}</TableCell>
-                        <TableCell align='center'>{row.memo}</TableCell>
-                        <TableCell align='center'>{row.description}</TableCell>
-                        <TableCell align='center'>{row.paymentMethod}</TableCell>
-                      </TableRow>
-                    )
-                  })}
-                {emptyRows > 0 && (
-                  <TableRow
-                    sx={{
-                      height: 50 * emptyRows
-                    }}
-                  >
-                    <TableCell colSpan={6} />
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            page={page}
-            component='div'
-            count={rows.length}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            rowsPerPageOptions={[5, 10, 25]}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
-        </CardContent>
-      </Card>
-    </Grid>
+    <>
+      <Grid item xs={12}>
+        <Card>
+          <CardContent>
+            <EnhancedTableToolbar numSelected={selected.length} handleAdd={handleAdd} handleEdit={handleEdit} />
+            <TableContainer component={Paper}>
+              <Table sx={{ minWidth: 750 }} aria-labelledby='tableTitle'>
+                <EnhancedTableHead
+                  order={order}
+                  orderBy={orderBy}
+                  rowCount={rows.length}
+                  numSelected={selected.length}
+                  onSelectAllClick={handleSelectAllClick}
+                />
+                <TableBody>
+                  {stableSort(rows, getComparator(order, orderBy))
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((row, index) => {
+                      const isItemSelected = isSelected(row.number)
+                      const labelId = `enhanced-table-checkbox-${index}`
+                      return (
+                        <TableRow
+                          hover
+                          tabIndex={-1}
+                          key={row.number}
+                          role='checkbox'
+                          selected={isItemSelected}
+                          aria-checked={isItemSelected}
+                          onClick={event => handleClick(event, row.number)}
+                        >
+                          <TableCell padding='checkbox'>
+                            <Checkbox checked={isItemSelected} inputProps={{ 'aria-labelledby': labelId }} />
+                          </TableCell>
+                          <TableCell component='th' align='center' id={labelId} scope='row' padding='none'>
+                            {row.number}
+                          </TableCell>
+                          <TableCell align='right'>{row.processDate}</TableCell>
+                          <TableCell align='right'>{row.amount}</TableCell>
+                          <TableCell align='right'>{row.clearedDate}</TableCell>
+                          <TableCell align='center'>{row.status}</TableCell>
+                          <TableCell align='center'>{row.memo}</TableCell>
+                          <TableCell align='center'>{row.description}</TableCell>
+                          <TableCell align='center'>{row.paymentMethod}</TableCell>
+                        </TableRow>
+                      )
+                    })}
+                  {emptyRows > 0 && (
+                    <TableRow
+                      sx={{
+                        height: 50 * emptyRows
+                      }}
+                    >
+                      <TableCell colSpan={6} />
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            <TablePagination
+              page={page}
+              component='div'
+              count={rows.length}
+              rowsPerPage={rowsPerPage}
+              onPageChange={handleChangePage}
+              rowsPerPageOptions={[5, 10, 25]}
+              onRowsPerPageChange={handleChangeRowsPerPage}
+            />
+          </CardContent>
+        </Card>
+      </Grid>
+      <TransactionDialog open={transDialog} toggle={toggleDialog} data={transData} />
+    </>
   )
 }
 
@@ -626,7 +652,7 @@ function PaymentMethod({ data }: { data: any }) {
             action={
               <Button variant='contained' size='small' onClick={handleAdd} sx={{ '& svg': { mr: 1 } }}>
                 <Icon icon='mdi:plus' fontSize='1.125rem' />
-                Add Payment
+                Add Payment Method
               </Button>
             }
           />
@@ -659,7 +685,7 @@ function PaymentMethod({ data }: { data: any }) {
                     </Box>
                     <Box sx={{ mt: 1, mb: 2.5, display: 'flex', alignItems: 'center' }}>
                       <Typography sx={{ fontWeight: 600 }}>
-                        {item.paymentType === 'card' ? item.name : item.accountName}
+                        {item.paymentType === 'card' ? item.name : item.bankAccountName}
                       </Typography>
                       {item.status ? (
                         <CustomChip

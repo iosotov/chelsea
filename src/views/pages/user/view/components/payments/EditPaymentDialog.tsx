@@ -131,7 +131,7 @@ export default function EditPaymentDialog({ data, open, handleClose }: EditPayme
 
   return (
     <Dialog open={open} maxWidth='md' fullWidth onClose={onClose} aria-labelledby='form-dialog-title'>
-      <DialogTitle id='form-dialog-title'>{data ? 'Update' : 'Create New'} Enrollment Plan</DialogTitle>
+      <DialogTitle id='form-dialog-title'>{data ? 'Update' : 'Create New'} Payment Method</DialogTitle>
       <DialogContent>
         <Grid container spacing={4}>
           <Grid item xs={12}>
