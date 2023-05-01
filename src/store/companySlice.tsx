@@ -14,6 +14,9 @@ const companySlice = createSlice({
   initialState,
   reducers: {
     setCompanies: (state, action) => {
+      companyAdapter.setAll(state, action.payload)
+    },
+    updateCompanies: (state, action) => {
       companyAdapter.upsertMany(state, action.payload)
     },
     addCompany: (state, action) => {
@@ -25,7 +28,7 @@ const companySlice = createSlice({
   }
 })
 
-export const { setCompanies, addCompany, updateCompany } = companySlice.actions
+export const { setCompanies, updateCompanies, addCompany, updateCompany } = companySlice.actions
 
 export default companySlice.reducer
 

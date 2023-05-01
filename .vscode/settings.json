@@ -37,7 +37,8 @@
     "bankaccounts",
     "Customizer",
     "esign",
-    "esigning"
+    "esigning",
+    "upsert"
   ],
   "search-node-modules.path": "node_modules",
   "markdown.extension.toc.updateOnSave": false
