@@ -33,7 +33,11 @@ export const apiSlice = createApi({
     'COMPANY-SETTING-STORAGE',
     'DOCUMENT',
     'DOCUMENT-LIABILITY',
-    'DOCUMENT-PREVIEW'
+    'DOCUMENT-PREVIEW',
+    'ENROLLMENT',
+    'ENROLLMENT-PAYMENT',
+    'LIABILITY',
+    'TASK'
   ],
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

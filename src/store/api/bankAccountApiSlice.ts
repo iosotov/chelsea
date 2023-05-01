@@ -204,10 +204,3 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
     })
   })
 })
-
-export const {
-  useGetBankAccountsQuery,
-  useDeleteBankAccountMutation,
-  useCreateBankAccountMutation,
-  useUpdateBankAccountMutation
-} = bankAccountApiSlice

@@ -224,12 +224,3 @@ export const companyApiSlice = apiSlice.injectEndpoints({
     })
   })
 })
-
-export const {
-  useGetCompaniesQuery,
-  useGetCompanyQuery,
-  useCreateCompanyMutation,
-  useUpdateCompanyMutation,
-  useEnableCompanyMutation,
-  useDisableCompanyMutation
-} = companyApiSlice

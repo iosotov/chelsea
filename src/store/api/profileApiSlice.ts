@@ -755,24 +755,3 @@ export const profileApiSlice = apiSlice.injectEndpoints({
     })
   })
 })
-
-export const {
-  useGetProfilesQuery,
-  useGetProfileInfoQuery,
-  useGetProfileBasicQuery,
-  useGetProfileStatusQuery,
-  useAssignProfileMutation,
-  useCreateProfileCustomFieldMutation,
-  useCreateProfileMutation,
-  usePostExportProfilesMutation,
-  usePostProfileApproveMutation,
-  usePostProfileEnrollMutation,
-  usePostProfileRejectMutation,
-  usePostProfileSubmitMutation,
-  useProfileDisableAuthMutation,
-  usePutUpdateProfileStatusMutation,
-  useProfileGrantAuthMutation,
-  useProfileQuickSearchQuery,
-  usePutDeleteProfileMutation,
-  usePutUpdateProfileMutation
-} = profileApiSlice

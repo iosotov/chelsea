@@ -1,26 +1,6 @@
 import { setDocuments } from '../documentSlice'
 import { apiSlice } from './apiSlice'
 
-// const DefaultBankAccount: BankAccountType = {
-//   bankAccountId: '',
-//   bankRoutingNumber: '',
-//   bankName: '',
-//   bankAccountNumber: '',
-//   phoneNumber: null,
-//   bankAccountType: 0,
-//   bankAccountTypeName: 'Checking Account',
-//   address: null,
-//   address2: null,
-//   city: null,
-//   zipcode: null,
-//   state: null,
-//   accountName: null,
-//   createdAt: null,
-//   profileId: null,
-//   firstName: null,
-//   lastName: null
-// }
-
 export type DocumentLiabilityParamsType = {
   profileId: string
   liabilityId: string
@@ -325,15 +305,3 @@ export const documentApiSlice = apiSlice.injectEndpoints({
     })
   })
 })
-
-export const {
-  useGetDocumentByLiabilityQuery,
-  useGetDocumentPreviewQuery,
-  useGetDocumentsQuery,
-  usePostEsignDocumentMutation,
-  usePostEsignLiabilityDocumentMutation,
-  usePostGenerateDocumentMutation,
-  usePostGenerateLiabilityDocumentMutation,
-  usePostUploadDocumentMutation,
-  usePostUploadLiabilityDocumentMutation
-} = documentApiSlice
