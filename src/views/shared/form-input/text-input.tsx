@@ -11,6 +11,7 @@ type Props = {
   defaultValue?: string | number
   required?: boolean
   errors?: any
+  disabled?: any
 }
 
 export default function TextInput({

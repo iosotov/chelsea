@@ -4,6 +4,8 @@ import TextInput from 'src/views/shared/form-input/text-input'
 
 import { Typography, Grid } from '@mui/material'
 
+import { formatCVC, formatExpirationDate, formatCreditCardNumber } from 'src/@core/utils/format'
+
 type Props = {
   control: any
   errors: any
@@ -31,11 +33,11 @@ export default function PaymentFormInformation({ control, errors, type }: Props)
   return (
     <Grid container spacing={4}>
       <Grid item xs={12}>
-        <Typography variant='h6'>{type === 'ach' ? 'Bank' : 'Debit Card'} Information</Typography>
+        <Typography variant='h6'>{type === 'ach' ? 'Bank' : 'Card'} Information</Typography>
       </Grid>
       {type === 'ach' ? (
         <>
-          <Grid item xs={12} md={8} lg={6}>
+          <Grid item xs={12} lg={6}>
             <SingleSelect
               name='bankAccountType'
               label='Bank Account Type'
@@ -45,8 +47,17 @@ export default function PaymentFormInformation({ control, errors, type }: Props)
               required
             />
           </Grid>
-          <Grid item xs={0} lg={6}></Grid>
-          <Grid item xs={12} lg={6}>
+          <Grid item xs={12}>
+            <TextInput
+              name='bankName'
+              label='Bank Name'
+              placeholder='ex: Chase'
+              errors={errors}
+              control={control}
+              required
+            />
+          </Grid>
+          <Grid item xs={12}>
             <TextInput
               name='bankAccountName'
               label='Account Holder'
@@ -56,26 +67,16 @@ export default function PaymentFormInformation({ control, errors, type }: Props)
               required
             />
           </Grid>
-          <Grid item xs={12} lg={6}>
-            <TextInput
-              name='bankName'
-              label='Bank Name'
-              placeholder='ex: Chase'
-              errors={errors}
-              control={control}
-              required
-            />
-          </Grid>
-          <Grid item xs={12} lg={6}>
+          <Grid item xs={6}>
             <TextInput name='accountNumber' label='Account Number' errors={errors} control={control} required />
           </Grid>
-          <Grid item xs={12} lg={6}>
+          <Grid item xs={6}>
             <TextInput name='routingNumber' label='Routing Number' errors={errors} control={control} required />
           </Grid>
         </>
       ) : (
         <>
-          <Grid item xs={12} md={8} lg={6}>
+          <Grid item xs={12} lg={6}>
             <SingleSelect
               name='type'
               label='Card Type'
@@ -85,18 +86,7 @@ export default function PaymentFormInformation({ control, errors, type }: Props)
               required
             />
           </Grid>
-          <Grid item xs={0} lg={6}></Grid>
-          <Grid item xs={12} lg={6}>
-            <TextInput
-              name='bankName'
-              label='Bank Name'
-              placeholder='ex: Chase'
-              errors={errors}
-              control={control}
-              required
-            />
-          </Grid>
-          <Grid item xs={12} lg={6}>
+          <Grid item xs={12}>
             <TextInput
               name='cardNumber'
               label='Card Number'
@@ -106,10 +96,27 @@ export default function PaymentFormInformation({ control, errors, type }: Props)
               required
             />
           </Grid>
-          <Grid item xs={12} lg={6}>
-            <TextInput name='routingNumber' label='Routing Number' errors={errors} control={control} required />
+          <Grid item xs={6}>
+            <TextInput
+              name='expiration'
+              label='Expiration Date'
+              placeholder='MM/YYYY'
+              errors={errors}
+              control={control}
+              required
+            />
           </Grid>
-          <Grid item xs={12} lg={6}>
+          <Grid item xs={6}>
+            <TextInput
+              name='securityCode'
+              label='CVC/CVV'
+              placeholder='000'
+              errors={errors}
+              control={control}
+              required
+            />
+          </Grid>
+          <Grid item xs={12}>
             <TextInput
               name='name'
               label='Cardholder Name'

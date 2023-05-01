@@ -14,7 +14,7 @@ const options = [
     value: 'ach'
   },
   {
-    label: 'Card',
+    label: 'Debit Card',
     value: 'card'
   }
 ]
