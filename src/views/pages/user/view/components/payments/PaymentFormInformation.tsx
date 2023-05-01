@@ -100,7 +100,7 @@ export default function PaymentFormInformation({ control, errors, type }: Props)
             <CreditCard
               name='expirationDate'
               label='Expiration Date'
-              placeholder='MM/YYYY'
+              placeholder='MM/YY'
               errors={errors}
               control={control}
               type='expiry'

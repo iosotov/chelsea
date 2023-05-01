@@ -577,7 +577,7 @@ function PaymentMethod({ data }: { data: any }) {
       securityCode: '587',
       name: 'Tom McBride',
       type: 0,
-      expirationDate: '12/2024',
+      expirationDate: '12/24',
       badgeColor: 'primary',
       status: 'Primary',
       cardNumber: '1234 5679 1234 5678',
@@ -685,7 +685,7 @@ function PaymentMethod({ data }: { data: any }) {
                       Delete
                     </Button>
                     <Typography variant='caption' sx={{ mt: 4, display: 'block' }}>
-                      {item.paymentType === 'card' ? `Card expires at ${item.expiryDate}` : null}
+                      {item.paymentType === 'card' ? `Card expires at ${item.expirationDate}` : null}
                     </Typography>
                   </Box>
                 </Box>

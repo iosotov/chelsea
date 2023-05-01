@@ -86,7 +86,7 @@ export const formatExpirationDate = (value: string) => {
     .replace(/[^\d\/]|^[\/]*$/g, '')
     .replace(/\/\//g, '/') // Prevent entering more than 1 `/`
 
-  return finalValue
+  return finalValue.slice(0, 5)
 }
 
 // Format CVC in any credit card
