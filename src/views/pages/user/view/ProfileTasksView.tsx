@@ -64,9 +64,8 @@ interface TaskType {
   id: number
   taskName?: string
 
-  dueDate: DateType
-
-  // dueDate: number
+  // dueDate: DateType
+  dueDate: string
   assignedTo?: string
   note: string
   status?: string
@@ -97,34 +96,33 @@ const ProfileTasks = ({ id }: any) => {
 
   // ** Hooks
   const profileId = id
+
+  //data set remove this and useEffect and use global
   const [data, setData] = useState<any>([])
+
+  //Drawer Form variables
   const [drawerTitle, setDrawerTitle] = useState<string>('Add')
   const [group, setGroup] = useState<string>('Users')
   const [taskName, setTaskName] = useState<string>('')
-  const [paymentDate, setPaymentDate] = useState<DateType>()
-  const [rows, setRows] = useState<any>([])
-
-  //edit
-  //set type to taskType
-  const [selectedTask, setSelectedTask] = useState<any>({})
-
   const profileTask = useAppSelector(state => selectTaskByProfileId(state, profileId))
-
-  // const [paymentDate, setPaymentDate] = useState<DateType>(new Date())
   const [status, setStatus] = useState<string>('')
-  const [focus, setFocus] = useState<Focused>()
-
+  const [paymentDate, setPaymentDate] = useState<string>('')
   const [selectedGroup, setSelectedGroup] = useState<string>('')
   const [note, setNote] = useState<string>('')
 
+  // const [paymentDate, setPaymentDate] = useState<DateType>()
+  const [rows, setRows] = useState<any>([])
+
+  //State Management
+  //set selectedTask type to taskType
+  const [selectedTask, setSelectedTask] = useState<any>({})
+  const [focus, setFocus] = useState<Focused>()
   const [openAddTask, setOpenAddTask] = useState<boolean>(false)
   const [openEditTask, setOpenEditTask] = useState<boolean>(false)
-  const [trigger, { isSuccess: triggerSuccess }] = usePostCreateTaskMutation()
 
-  // const [data, setData] = useState<[]>(initData)
-  // const [data, setData] = useState<TaskType>()
-  //fake data, set up TaskType data structure
-  // const myData = useGetTaskQuery(profileId)
+  //Api Calls
+  const [triggerCreate, { isSuccess: triggerSuccess }] = usePostCreateTaskMutation()
+  const [triggerUpdate, { isSuccess: editApiSuccess }] = usePutUpdateTaskMutation()
 
   const { isLoading, isSuccess, isError, error } = useGetProfileTasksQuery(profileId)
 
@@ -137,17 +135,17 @@ const ProfileTasks = ({ id }: any) => {
   //   </>
   // )
   //use isLoading state to conditionally render data
+  //use global
   console.log(profileTask)
   console.log(isLoading, isSuccess, isError, error)
   const tasksData = profileTask
 
-  // const ex = [
-
+  //Global localstate useEffect, need to remove and use global global
   useEffect(() => {
     if (tasksData) {
       console.log(tasksData)
 
-      //adds index to data needed for dataGrid display
+      //adds index to data needed for dataGrid display can move to a function
       const dataWithIndex = tasksData.map((obj, index) => {
         return { ...obj, id: index }
       })
@@ -175,11 +173,13 @@ const ProfileTasks = ({ id }: any) => {
     // handleEditTaskOpen()
   }
 
-  function handleEditClick(choice) {
+  function handleGetTaskById(choice) {
     setSelectedTask(choice.row)
     setOpenAddTask(true)
   }
-  async function handleClick() {
+
+  //actual create request
+  async function handleCreateClick() {
     const testData = {
       profileId,
       taskName: taskName,
@@ -188,8 +188,27 @@ const ProfileTasks = ({ id }: any) => {
       assignType: 2,
       notes: note
     }
-    const mine = await trigger(testData).unwrap()
-    console.log(mine)
+    const postResponse = await triggerCreate(testData).unwrap()
+    console.log(postResponse)
+  }
+
+  async function handleEditClick() {
+    const testEditData = {
+      taskId: selectedTask.taskId,
+      taskName: taskName,
+
+      dueDate: paymentDate,
+
+      // dueDate: '2023-03-09',
+      assignedTo: 'b12557c2-3a35-4ce6-9e52-959c07e13ce5',
+      assignType: 2,
+      notes: note,
+      status: 1
+    }
+    console.log(testEditData)
+
+    const putResponse = await triggerUpdate(testEditData).unwrap()
+    console.log(putResponse)
   }
 
   // s
@@ -198,17 +217,13 @@ const ProfileTasks = ({ id }: any) => {
   // const [props, setProps] = useState < any > [{ group, taskName, paymentDate, status, selectedGroup, note }]
 
   const handleEditTaskOpen = () => {
-    console.log('HANLING')
-
-    console.log(selectedTask)
     setDrawerTitle('Edit')
 
-    // setTaskName(taskName ?? '')
     setTaskName(selectedTask.taskName ?? '')
     setSelectedGroup('')
 
     // setPaymentDate(new Date(selectedTask.dueDate ?? ''))
-    // console.log(paymentDate)
+    setPaymentDate(selectedTask.dueDate)
 
     // setPaymentDate('')
     setStatus('')
@@ -216,18 +231,15 @@ const ProfileTasks = ({ id }: any) => {
   }
 
   const handleAddTaskOpen = () => {
-    console.log(drawerTitle, taskName, selectedGroup, paymentDate, status, note)
-    console.log('HANLING')
     setDrawerTitle('Add')
     setTaskName('')
     setSelectedGroup('')
-
-    // setPaymentDate(new Date('01/01/2020'))
     setPaymentDate('')
+
+    // setPaymentDate(new Date(''))
     setStatus('')
     setNote('')
     setOpenAddTask(true)
-    console.log(drawerTitle, taskName, selectedGroup, paymentDate, status, note)
   }
 
   const handleEditTaskClose = () => {
@@ -248,6 +260,7 @@ const ProfileTasks = ({ id }: any) => {
   const handleBlur = () => setFocus(undefined)
 
   const handleInputChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
+    //can do formatting here
     if (target.name === 'task-name') {
       // target.value = formatCreditCardNumber(target.value, Payment)
       console.log('same name target')
@@ -256,22 +269,10 @@ const ProfileTasks = ({ id }: any) => {
       // target.value = formatExpirationDate(target.value)
       setNote(target.value)
       console.log('same name note')
-
-      // else if (target.name === 'task-paymentDate') {
-
-      //   setPaymentDate(target.value)
-      // }
+    } else if (target.name === 'task-paymentDate') {
+      setPaymentDate(target.value)
     }
   }
-
-  //API calls
-  // const getTasks = () =>{
-  //   useEffect(() => {
-  //     async function fetchData() {
-  //       const result = await fetchAPI('https://api.example.com/data');
-  //       setData(result);
-  //     })
-  // }
 
   const addTask = query => {
     setOpenAddTask(false)
@@ -314,9 +315,8 @@ const ProfileTasks = ({ id }: any) => {
     // setSelectedTask(selected)
   }
 
-  //fixing and checking for missing values
+  //fixing and checking for missing values using valueGetter in columns
   const getCompletedDate = (params: GridValueGetterParams) => {
-    console.log(`${params.row.completedDate}`)
     if (`${params.row.completedDate}`) {
       return 'Incomplete'
     } else {
@@ -355,10 +355,10 @@ const ProfileTasks = ({ id }: any) => {
         <IconButton
           sx={{ color: '#497ce2' }}
           onClick={() => {
-            handleEditClick(params)
+            handleGetTaskById(params)
           }}
         >
-          {params.row.taskId}
+          {/* {params.row.taskId} */}
           <Icon icon='mdi:edit' />
         </IconButton>
       </strong>
@@ -423,18 +423,8 @@ const ProfileTasks = ({ id }: any) => {
     // }
   ]
 
-  // const GetTasks = () => {
-  //   //call api to get tasks
-
-  //   return data
-  // }
-
-  // useEffect(() => {
-  //   GetMine()
-  // }, [])
-
   const resetForm = () => {
-    console.log('resetting')
+    console.log('Resetting Drawer')
     setDrawerTitle('Add')
     setTaskName('')
     setSelectedGroup('')
@@ -443,7 +433,6 @@ const ProfileTasks = ({ id }: any) => {
     setNote('')
 
     // setOpenEditTask(false)
-    console.log(drawerTitle, taskName, selectedGroup, paymentDate, status, note)
   }
 
   //handle null values
@@ -479,9 +468,10 @@ const ProfileTasks = ({ id }: any) => {
             variant='contained'
             color='secondary'
             sx={{ mb: 7, position: 'absolute', right: '12%' }}
-            onClick={handleEditTaskOpen}
+
+            // onClick={}
           >
-            Edit Task
+            Bulk Update Task
           </Button>
         </Grid> */}
         <Grid item xs={12}>
@@ -554,7 +544,8 @@ const ProfileTasks = ({ id }: any) => {
           />
         </Box> */}
               <Box sx={{ mb: 6 }}>
-                <DatePickerWrapper sx={{ '& .MuiFormControl-root': { width: '100%' } }}>
+                {/* commented out datepicker and config type */}
+                {/* <DatePickerWrapper sx={{ '& .MuiFormControl-root': { width: '100%' } }}>
                   <DatePicker
                     selected={paymentDate}
                     value={paymentDate}
@@ -563,7 +554,19 @@ const ProfileTasks = ({ id }: any) => {
                     customInput={<CustomPaymentInput />}
                     onChange={(paymentDate: Date) => setPaymentDate(paymentDate)}
                   />
-                </DatePickerWrapper>
+                </DatePickerWrapper> */}
+                <TextField
+                  fullWidth
+                  name='task-paymentDate'
+                  label='Task Payment Date'
+                  value={paymentDate}
+                  // defaultValue='hi'
+                  onBlur={handleBlur}
+                  placeholder='Task Name'
+                  onChange={handleInputChange}
+                  inputProps={{ maxLength: 100 }}
+                  onFocus={e => setFocus(e.target.name as Focused)}
+                />
               </Box>
               {/* <Box sx={{ mb: 6 }}>
           <TextField
@@ -631,10 +634,18 @@ const ProfileTasks = ({ id }: any) => {
               </Box>
 
               <div>
-                <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleClick()}>
-                  {/* addTask({ taskName, note, paymentDate, selectedGroup }) */}
-                  Send
-                </Button>
+                {/* conditional rendering button */}
+                {drawerTitle === 'Add' && (
+                  <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleCreateClick()}>
+                    Create
+                  </Button>
+                )}
+                {drawerTitle === 'Edit' && (
+                  <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleEditClick()}>
+                    Update
+                  </Button>
+                )}
+
                 <Button size='large' variant='outlined' color='secondary' onClick={() => setOpenAddTask(false)}>
                   Cancel
                 </Button>
