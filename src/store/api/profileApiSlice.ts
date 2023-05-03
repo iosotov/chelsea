@@ -40,7 +40,7 @@ export type ProfileInfoType = {
   profileContacts: ProfileContactType[]
   profileAddresses: ProfileAddressType[]
   profileAssignees: ProfileAssigneeType[]
-  profileCustomField: ProfileCustomFieldType[]
+  profileCustomFields: ProfileCustomFieldType[]
   profileLabels: ProfileLabelsType[]
 
   lastStageStatusModifiedDate: string
@@ -164,19 +164,22 @@ export type ProfileContactType = {
   contactId: string
   contactName: string
   order: number
-  contactType: string
+  contactType: number
   contactTypeName: string
   value: string
 }
 
 export type ProfileCustomFieldType = {
   profileId: string
-  contactId: string
-  contactName: string
-  order: number
-  contactType: string
-  contactTypeName: string
+  customFieldId: string
   value: string
+  order: number
+  fieldName: string
+  fieldType: number
+  label: string
+  defaultValue: string
+  isVisible: boolean
+  dataSources: string
 }
 
 export type ProfileBasicType = {

@@ -21,9 +21,14 @@ import Icon from 'src/@core/components/icon'
 //Imported Types
 import { ProfileInfoType } from 'src/store/api/profileApiSlice'
 import { ProfileContactType } from 'src/store/api/profileApiSlice'
+import { ProfileCustomFieldType } from 'src/store/api/profileApiSlice'
 
 //Utils
 import { format } from 'date-fns'
+
+//API Calls
+import { useAppSelector } from 'src/store/hooks'
+import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
 
 type Props = {
   data: ProfileInfoType
@@ -66,10 +71,11 @@ export default function UserViewRight({ data }: Props) {
     profileAddresses,
     profileAssignees,
     profileContacts,
-    profileLabels
+    profileLabels,
+    profileCustomFields
   } = data
 
-  console.log(data)
+  // const enrollmentData = useAppSelector(selectEnrollmentByProfileId(profileId))
 
   //status dictionary
   const statusDictionary = [
@@ -113,6 +119,81 @@ export default function UserViewRight({ data }: Props) {
     if (panel === 'additional') {
       setAdditional(!additional)
     }
+  }
+
+  //Phone = 0, email = 1, fax = 2
+  const generatePhone = () => {
+    const contacts: ProfileContactType[] = profileContacts.filter(
+      (contact: ProfileContactType) => contact.contactType === 0
+    )
+
+    if (contacts.length === 0) {
+      return (
+        <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+          <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Phone:</Typography>
+          <Typography variant='body2'>N/A</Typography>
+        </Box>
+      )
+    }
+
+    const contactElement = contacts.map((contact: ProfileContactType, index: number) => {
+      return (
+        <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+          <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>
+            Phone{contacts.length === 1 ? null : ` ${index + 1}`}:
+          </Typography>
+          <Typography variant='body2'>{contact.value ?? 'N/A'}</Typography>
+        </Box>
+      )
+    })
+
+    return contactElement
+  }
+
+  const generateEmail = () => {
+    const contacts: ProfileContactType[] = profileContacts.filter(
+      (contact: ProfileContactType) => contact.contactType === 1
+    )
+
+    if (contacts.length === 0) {
+      return (
+        <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+          <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Email:</Typography>
+          <Typography variant='body2'>N/A</Typography>
+        </Box>
+      )
+    }
+
+    const contactElement = contacts.map((contact: ProfileContactType, index: number) => {
+      return (
+        <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+          <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>
+            Email{contacts.length === 1 ? null : ` ${index + 1}`}:
+          </Typography>
+          <Typography variant='body2'>{contact.value ?? 'N/A'}</Typography>
+        </Box>
+      )
+    })
+
+    return contactElement
+  }
+  const generateFax = () => {
+    const contacts: ProfileContactType[] = profileContacts.filter(
+      (contact: ProfileContactType) => contact.contactType === 0
+    )
+
+    const contactElement = contacts.map((contact: ProfileContactType, index: number) => {
+      return (
+        <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+          <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>
+            Fax{contacts.length === 1 ? null : ` ${index + 1}`}:
+          </Typography>
+          <Typography variant='body2'>{contact.value ?? 'N/A'}</Typography>
+        </Box>
+      )
+    })
+
+    return contactElement
   }
 
   return (
@@ -225,15 +306,9 @@ export default function UserViewRight({ data }: Props) {
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Gender:</Typography>
                 <Typography variant='body2'>{genderName ?? 'N/A'}</Typography>
               </Box>
-              {generateContacts()}
-              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Primary Phone:</Typography>
-                <Typography variant='body2'>{'' ?? 'N/A'}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Email Address:</Typography>
-                <Typography variant='body2'>{'' ?? 'N/A'}</Typography>
-              </Box>
+              {generatePhone()}
+              {generateEmail()}
+              {generateFax()}
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Mailing Address:</Typography>
                 <Box sx={{ textAlign: 'right' }}>
@@ -329,48 +404,36 @@ export default function UserViewRight({ data }: Props) {
         </Accordion>
       </Grid>
       {/* Additional Info Accordion */}
-      <Grid item xs={12}>
-        <Accordion expanded={additional} onChange={toggleAccordion('additional')}>
-          <AccordionSummary
-            id='controlled-panel-header-1'
-            aria-controls='controlled-panel-content-1'
-            expandIcon={<Icon icon='mdi:chevron-down' />}
-          >
-            <Typography sx={{ py: 2 }} variant='h6'>
-              Additional Information
-            </Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Divider sx={{ mb: 4 }} />
-            <Box>
-              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Authorized First Name:</Typography>
-                <Typography variant='body2' align='right'>
-                  {'John'}
-                </Typography>
+      {profileCustomFields.length > 0 ? (
+        <Grid item xs={12}>
+          <Accordion expanded={additional} onChange={toggleAccordion('additional')}>
+            <AccordionSummary
+              id='controlled-panel-header-1'
+              aria-controls='controlled-panel-content-1'
+              expandIcon={<Icon icon='mdi:chevron-down' />}
+            >
+              <Typography sx={{ py: 2 }} variant='h6'>
+                Additional Information
+              </Typography>
+            </AccordionSummary>
+            <AccordionDetails>
+              <Divider sx={{ mb: 4 }} />
+              <Box>
+                {profileCustomFields.map((field: ProfileCustomFieldType) => {
+                  return (
+                    <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                      <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>{field.fieldName}</Typography>
+                      <Typography variant='body2' align='right'>
+                        {field.value}
+                      </Typography>
+                    </Box>
+                  )
+                })}
               </Box>
-              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Authorized Last Name:</Typography>
-                <Typography variant='body2' align='right'>
-                  {'Doe'}
-                </Typography>
-              </Box>
-              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Authorized Email:</Typography>
-                <Typography variant='body2' align='right'>
-                  {'N/A'}
-                </Typography>
-              </Box>
-              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Authroized Phone Number:</Typography>
-                <Typography variant='body2' align='right'>
-                  {'N/A'}
-                </Typography>
-              </Box>
-            </Box>
-          </AccordionDetails>
-        </Accordion>
-      </Grid>
+            </AccordionDetails>
+          </Accordion>
+        </Grid>
+      ) : null}
     </Grid>
   )
 }

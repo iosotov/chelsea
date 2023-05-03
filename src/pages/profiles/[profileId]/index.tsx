@@ -16,8 +16,6 @@ import { useGetProfileInfoQuery } from 'src/store/api/apiHooks'
 
 //Imported Types
 import { ProfileInfoType } from 'src/store/api/profileApiSlice'
-import { useAppSelector } from 'src/store/hooks'
-import { selectProfileById } from 'src/store/profileSlice'
 
 type Props = {
   tab: string
@@ -34,7 +32,7 @@ export default function UserProfile({ tab }: Props) {
   })
 
   useEffect(() => {
-    if (profile) {
+    if (profile !== undefined) {
       setTimeout(() => {
         setLoading(false)
         setData(profile)
