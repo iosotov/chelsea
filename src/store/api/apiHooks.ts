@@ -148,7 +148,10 @@ export const {
   usePostPauseEnrollmentMutation,
 
   // POST enrollment/profileId/profile/resume
-  usePostResumeEnrollmentMutation
+  usePostResumeEnrollmentMutation,
+
+  // POST enrollment/profileId/preview
+  useGetEnrollmentPreviewMutation
 } = enrollmentApiSlice
 
 // LIABILITY
@@ -246,8 +249,23 @@ export const {
   // GET setting/budgets
   useGetBudgetsQuery,
 
+  // GET setting/budgets/budgetId/info
+  useGetBudgetInfoQuery,
+
   // PUT profile/profileId/budget
-  usePostProfileBudgetsMutation
+  usePostProfileBudgetsMutation,
+
+  // POST setting/budgets
+  usePostBudgetsMutation,
+
+  // POST setting/budgets/budgetId/disable
+  usePutDisableBudgetMutation,
+
+  // POST setting/budgets/budgetId/enable
+  usePutEnableBudgetMutation,
+
+  // POST setting/budgets/budgetId
+  usePutUpdateBudgetMutation
 } = profileBudgetApiSlice
 
 // TASKS

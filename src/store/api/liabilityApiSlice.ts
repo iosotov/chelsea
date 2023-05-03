@@ -93,7 +93,7 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
 
         return res.data
       },
-      async onQueryStarted(searchParams, { dispatch, queryFulfilled }) {
+      async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
           console.log(data)
@@ -107,7 +107,7 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
         }
       },
       providesTags: (result, error, arg) => {
-        return result ? [{ type: 'ENROLLMENT', id: arg }] : []
+        return result ? [{ type: 'LIABILITY', id: arg }] : []
       }
     }),
     getProfileLiabilities: builder.query<LiabilityType[], string>({
@@ -120,7 +120,7 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
 
         return res.data
       },
-      async onQueryStarted(searchParams, { dispatch, queryFulfilled }) {
+      async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
           console.log(data)
@@ -136,16 +136,21 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
       providesTags: (res, error, arg) => (res ? [{ type: 'LIABILITY', id: arg }] : [])
     }),
     postCreateLiability: builder.mutation<string, LiabilityCreateType>({
-      query: body => ({
-        url: `/liability/${body.profileId}/profile`,
-        method: 'POST'
-      }),
+      query: params => {
+        const { profileId, ...body } = params
+
+        return {
+          url: `/liability/${profileId}/profile`,
+          method: 'POST',
+          body
+        }
+      },
       transformResponse: (res: Record<string, any>) => {
         if (!res.success) throw new Error('There was an error creating liability')
 
         return res.data
       },
-      async onQueryStarted(searchParams, { queryFulfilled }) {
+      async onQueryStarted(params, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
           console.log(data)
@@ -168,9 +173,8 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
       },
       transformResponse: (res: Record<string, any>) => {
         if (!res.success) throw new Error('There was an error searching liability')
-        console.log(res.data)
 
-        return res.data
+        return res.data.data
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
@@ -184,7 +188,7 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
       },
       providesTags: res => (res ? res.map(liability => ({ type: 'LIABILITY', id: liability.liabilityId })) : [])
     }),
-    putUpdateLiability: builder.mutation<string, LiabilityCreateType>({
+    putUpdateLiability: builder.mutation<boolean, LiabilityCreateType>({
       query: params => {
         const { liabilityId, ...body } = params
 
@@ -198,7 +202,7 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
         if (!res.success) throw new Error('There was an error updating liability')
         console.log(res.data)
 
-        return res.data
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
@@ -210,9 +214,15 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: (res, error, arg) => (res ? [{ type: 'LIABILITY', id: arg.profileId }] : [])
+      invalidatesTags: (res, error, arg) =>
+        res
+          ? [
+              { type: 'LIABILITY', id: arg.profileId },
+              { type: 'LIABILITY', id: arg.liabilityId }
+            ]
+          : []
     }),
-    putWithdrawLiabilities: builder.mutation<string, LiabilityEnrollType>({
+    putWithdrawLiabilities: builder.mutation<boolean, LiabilityEnrollType>({
       query: params => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { profileId, ...body } = params
@@ -226,7 +236,7 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: Record<string, any>) => {
         if (!res.success) throw new Error('There was an error withdrawing liability')
 
-        return res.data
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
@@ -238,9 +248,12 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: (res, error, arg) => (res ? [{ type: 'LIABILITY', id: arg.profileId }] : [])
+      invalidatesTags: (res, error, arg) =>
+        res
+          ? [{ type: 'LIABILITY', id: arg.profileId }, ...arg.ids.map(id => ({ type: 'LIABILITY' as const, id }))]
+          : []
     }),
-    putEnrollLiabilities: builder.mutation<string, LiabilityEnrollType>({
+    putEnrollLiabilities: builder.mutation<boolean, LiabilityEnrollType>({
       query: params => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { profileId, ...body } = params
@@ -254,7 +267,7 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: Record<string, any>) => {
         if (!res.success) throw new Error('There was an error enrolling liability')
 
-        return res.data
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
@@ -266,7 +279,10 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: (res, error, arg) => (res ? [{ type: 'LIABILITY', id: arg.profileId }] : [])
+      invalidatesTags: (res, error, arg) =>
+        res
+          ? [{ type: 'LIABILITY', id: arg.profileId }, ...arg.ids.map(id => ({ type: 'LIABILITY' as const, id }))]
+          : []
     })
   })
 })

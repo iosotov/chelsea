@@ -1,5 +1,5 @@
 import { updateEnrollments } from '../enrollmentSlice'
-import { updatePayments } from '../paymentSlice'
+import { setPayments, updatePayments } from '../paymentSlice'
 import { apiSlice } from './apiSlice'
 
 export enum EnrollmentPaymentMethod {
@@ -194,6 +194,23 @@ export type PaymentInfoParams = {
   paymentId: string
 }
 
+export type EnrollmentScheduleInfoType = {
+  processedDate: string
+  amount: number
+  memo: string | null
+  type: number
+  typeString: string
+}
+
+export type EnrollmentPreviewType = {
+  enrollmentScheduleInfoModels: EnrollmentScheduleInfoType[]
+  totalEnrolledDebt: number
+  serviceFee: number
+  totalServiceFee: number
+  totalAdditionalFee: number
+  totalFee: number
+}
+
 export type PaymentCreateType = {
   paymentId?: string
   profileId: string
@@ -232,6 +249,7 @@ export type EnrollmentCreateType = {
 
 // Enrollment Cancel api/Enrollment/{profileId}/profile/cancel
 export type EnrollmentCancelModel = {
+  profileId: string
   cancelDisposition: string
 }
 
@@ -294,7 +312,13 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: res => (res ? [{ type: 'ENROLLMENT', id: res }] : [])
+      invalidatesTags: res =>
+        res
+          ? [
+              { type: 'ENROLLMENT', id: res },
+              { type: 'ENROLLMENT-PAYMENT', id: res }
+            ]
+          : []
     }),
     putUpdateEnrollment: builder.mutation<string, EnrollmentCreateType>({
       query: params => {
@@ -302,14 +326,14 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
 
         return {
           url: `/enrollment/${profileId}/profile`,
-          method: 'POST',
+          method: 'PUT',
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: Record<string, any>, meta, arg) => {
         if (!res.success) throw new Error('There was an error updating enrollment')
 
-        return res.data
+        return arg.profileId
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
@@ -322,7 +346,13 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: res => (res ? [{ type: 'ENROLLMENT', id: res }] : [])
+      invalidatesTags: res =>
+        res
+          ? [
+              { type: 'ENROLLMENT', id: res },
+              { type: 'ENROLLMENT-PAYMENT', id: res }
+            ]
+          : []
     }),
     getProfilePayments: builder.query<PaymentDetailInfoModel[], string>({
       query: profileId => {
@@ -331,17 +361,18 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           method: 'GET'
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: Record<string, any>, meta, arg) => {
         if (!res.success) throw new Error('There was an error updating enrollment')
+        const newPayments = res.data.map((payment: PaymentDetailInfoModel) => ({ ...payment, profileId: arg }))
 
-        return res.data
+        return newPayments
       },
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
           console.log(data)
 
-          dispatch(updatePayments(data))
+          dispatch(setPayments(data))
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
@@ -351,6 +382,36 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
       },
       providesTags: (res, error, arg) => (res ? [{ type: 'ENROLLMENT-PAYMENT', id: arg }] : [])
     }),
+
+    getEnrollmentPreview: builder.mutation<EnrollmentPreviewType, EnrollmentCreateType>({
+      query: params => {
+        const { profileId, ...body } = params
+
+        return {
+          url: `/enrollment/${profileId}/preview`,
+          method: 'POST',
+          body
+        }
+      },
+      transformResponse: (res: Record<string, any>) => {
+        if (!res.success) throw new Error('There was an error fetching enrollment info')
+
+        return res.data
+      },
+      async onQueryStarted(params, { queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          console.log(data)
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+
+          throw err
+        }
+      }
+    }),
+
+    // NOT IMPLEMENTED IN LUNA
     getProfilePaymentInfo: builder.query<PaymentDetailInfoModel, PaymentInfoParams>({
       query: params => {
         const { profileId, paymentId } = params
@@ -385,7 +446,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
         const { profileId, ...body } = params
 
         return {
-          url: `/enrollment/${profileId}/profile/payments`,
+          url: `/enrollment/${profileId}/profile/payment`,
           method: 'POST',
           body
         }
@@ -406,7 +467,13 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: (res, error, arg) => (res ? [{ type: 'ENROLLMENT', id: arg.profileId }] : [])
+      invalidatesTags: (res, error, arg) =>
+        res
+          ? [
+              { type: 'ENROLLMENT', id: arg.profileId },
+              { type: 'ENROLLMENT-PAYMENT', id: arg.profileId }
+            ]
+          : []
     }),
     putUpdatePayment: builder.mutation<boolean, PaymentCreateType>({
       query: params => {
@@ -434,8 +501,16 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: (res, error, arg) => (res ? [{ type: 'ENROLLMENT', id: arg.profileId }] : [])
+      invalidatesTags: (res, error, arg) =>
+        res
+          ? [
+              { type: 'ENROLLMENT', id: arg.profileId },
+              { type: 'ENROLLMENT-PAYMENT', id: arg.profileId }
+            ]
+          : []
     }),
+
+    // NOT IMPLEMENTED IN LUNA
     postSearchEnrollment: builder.query<EnrollmentSearchResultModel[], Record<string, any>>({
       query: body => {
         return {
@@ -464,14 +539,14 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
     postPauseEnrollment: builder.mutation<boolean, string>({
       query: profileId => {
         return {
-          url: `/enrollment/${[profileId]}/profile/pause`,
+          url: `/enrollment/${profileId}/profile/pause`,
           method: 'POST'
         }
       },
       transformResponse: (res: Record<string, any>) => {
         if (!res.success) throw new Error('There was an error pausing enrollment')
 
-        return res.data
+        return res.success
       },
       async onQueryStarted(profileId, { queryFulfilled }) {
         try {
@@ -484,7 +559,13 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: (res, error, arg) => (res ? [{ type: 'ENROLLMENT', id: arg }] : [])
+      invalidatesTags: (res, error, arg) =>
+        res
+          ? [
+              { type: 'ENROLLMENT', id: arg },
+              { type: 'ENROLLMENT-PAYMENT', id: arg }
+            ]
+          : []
     }),
     postResumeEnrollment: builder.mutation<boolean, string>({
       query: profileId => {
@@ -496,7 +577,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: Record<string, any>) => {
         if (!res.success) throw new Error('There was an error resuming enrollment')
 
-        return res.data
+        return res.success
       },
       async onQueryStarted(profileId, { queryFulfilled }) {
         try {
@@ -509,21 +590,30 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: (res, error, arg) => (res ? [{ type: 'ENROLLMENT', id: arg }] : [])
+      invalidatesTags: (res, error, arg) =>
+        res
+          ? [
+              { type: 'ENROLLMENT', id: arg },
+              { type: 'ENROLLMENT-PAYMENT', id: arg }
+            ]
+          : []
     }),
-    postCancelEnrollment: builder.mutation<boolean, string>({
-      query: profileId => {
+    postCancelEnrollment: builder.mutation<boolean, EnrollmentCancelModel>({
+      query: params => {
+        const { profileId, ...body } = params
+
         return {
           url: `/enrollment/${[profileId]}/profile/cancel`,
-          method: 'POST'
+          method: 'POST',
+          body
         }
       },
       transformResponse: (res: Record<string, any>) => {
         if (!res.success) throw new Error('There was an error cancelling enrollment')
 
-        return res.data
+        return res.success
       },
-      async onQueryStarted(profileId, { queryFulfilled }) {
+      async onQueryStarted(params, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
           console.log(data)
@@ -534,7 +624,13 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: (res, error, arg) => (res ? [{ type: 'ENROLLMENT', id: arg }] : [])
+      invalidatesTags: (res, error, arg) =>
+        res
+          ? [
+              { type: 'ENROLLMENT', id: arg.profileId },
+              { type: 'ENROLLMENT-PAYMENT', id: arg.profileId }
+            ]
+          : []
     })
   })
 })

@@ -103,7 +103,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
         const { profileId, ...body } = params
 
         return {
-          url: `/liability/${profileId}/profile/`,
+          url: `/task/${profileId}/profile/`,
           method: 'POST',
           body
         }

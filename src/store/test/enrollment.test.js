@@ -1,32 +1,35 @@
 import { Provider } from 'react-redux'
-import { act, cleanup, fireEvent, render, waitFor } from '@testing-library/react'
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { act, cleanup, fireEvent, render, screen, waitFor, waitForElementToBeRemoved } from '@testing-library/react'
 import { configureStore } from '@reduxjs/toolkit'
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import profile, { selectProfileById } from '../profileSlice'
 import { JSDOM } from 'jsdom'
-import { useGetProfileInfoQuery } from '../api/profileApiSlice'
 import { apiSlice } from '../api/apiSlice'
-import document, { selectDocumentById, selectDocumentsByProfileId } from '../documentSlice'
 import auth, { setCredentials } from '../authSlice'
+import enrollment from '../enrollmentSlice'
+import payment from '../paymentSlice'
+
 import SolApi from '../api/SolApi'
-import { delay } from './helper'
-import { documentApiSlice } from '../api/documentApiSlice'
-import testFile from './testFile'
-import enrollment, { selectEnrollmentByProfileId } from '../enrollmentSlice'
 import { enrollmentApiSlice } from '../api/enrollmentApiSlice'
+import { selectPaymentByProfileId } from '../paymentSlice'
+import { selectEnrollmentByProfileId } from '../enrollmentSlice'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { delay } from './helper'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { profileApiSlice } from '../api/profileApiSlice'
 
 // import { waitForApiCall } from './helper'
-
-let _profileId
-let _enrollment
 
 const store = configureStore({
   reducer: {
     [apiSlice.reducerPath]: apiSlice.reducer,
-    profile,
     enrollment,
-    auth
+    payment,
+    auth,
+    profile
   },
   middleware: getDefaultMiddleware => getDefaultMiddleware().concat(apiSlice.middleware)
 })
@@ -39,31 +42,7 @@ const storeWrapper = Component => {
   )
 }
 
-// beforeAll(async () => {
-//   // Set up a fake DOM environment with jsdom
-//   const { window } = new JSDOM('<!doctype html><html><body></body></html>')
-//   global.window = window
-//   global.document = window.document
-
-//   try {
-//     // const res = await SolApi.TestAuth() // Call the TestAuth API
-
-//     const authData = {
-//       employeeId: 'test',
-//       token:
-//         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIwN2UxMjUwMS1lODI3LTRkYTctYTQyNy0xN2YzYzNmYmExYzciLCJVc2VySWQiOiI2NDQxNGIyMC0xN2EwLTRlNDEtODYwNi05M2U2ZTliN2MwMmIiLCJQaG9uZU51bWJlciI6IjExMTExMTExMjAiLCJOYW1lIjoiTG9uZyAgTHVuYSIsIkVtYWlsIjoibG9uZ0BsdW5hcHBzLmNvIiwiQWxpYXMiOiIxMTExMTExMTIwIiwibmJmIjoxNjgyNjQ2MDUwLCJleHAiOjE2ODI2ODIwNTAsImlhdCI6MTY4MjY0NjA1MH0.IlHOJyEbnWpvV1XmLPBcPnqLV2e_5MBk9Bz91Q9sfTQ',
-//       permissions: []
-//     }
-//     ;(SolApi.token =
-//       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJuYW1laWQiOiIwN2UxMjUwMS1lODI3LTRkYTctYTQyNy0xN2YzYzNmYmExYzciLCJVc2VySWQiOiI2NDQxNGIyMC0xN2EwLTRlNDEtODYwNi05M2U2ZTliN2MwMmIiLCJQaG9uZU51bWJlciI6IjExMTExMTExMjAiLCJOYW1lIjoiTG9uZyAgTHVuYSIsIkVtYWlsIjoibG9uZ0BsdW5hcHBzLmNvIiwiQWxpYXMiOiIxMTExMTExMTIwIiwibmJmIjoxNjgyNjQ2MDUwLCJleHAiOjE2ODI2ODIwNTAsImlhdCI6MTY4MjY0NjA1MH0.IlHOJyEbnWpvV1XmLPBcPnqLV2e_5MBk9Bz91Q9sfTQ'),
-//       store.dispatch(setCredentials(authData)) // Dispatch the setCredential action with the token
-
-//     const { data } = await SolApi.TestCreateProfile()
-//     _profileId = data
-//   } catch (error) {
-//     console.error('Error fetching test token:', error[0].data)
-//   }
-// })
+let _profileId = '1326323286'
 
 beforeAll(async () => {
   // Set up a fake DOM environment with jsdom
@@ -81,9 +60,6 @@ beforeAll(async () => {
     }
     SolApi.token = res.data.token
     store.dispatch(setCredentials(authData)) // Dispatch the setCredential action with the token
-
-    const { data } = await SolApi.TestCreateProfile()
-    _profileId = data
   } catch (error) {
     console.error('Error fetching test token:', error[0].data)
   }
@@ -91,387 +67,805 @@ beforeAll(async () => {
 
 afterAll(async () => {
   cleanup()
-
-  await SolApi.TestDeleteProfile(_profileId)
-
   store.dispatch(apiSlice.util.resetApiState())
 
   delete global.window
   delete global.document
 })
 
-describe('EnrollmentApiSlice', () => {
-  test('getEnrollment return empty array', async () => {
-    const useGetEnrollmentQueryMock = jest.spyOn(enrollmentApiSlice, 'useGetEnrollmentQuery')
-    const Wrapper = storeWrapper(({ profileId }) => {
-      const { isLoading, isSuccess } = useGetEnrollmentQueryMock(profileId)
-
-      return (
-        <>
-          {/* Query is currently loading for the first time. No data yet. */}
-          {isLoading && 'isLoading'}
-
-          {/* Query has data from a successful load. */}
-          {isSuccess && 'isSuccess'}
-        </>
-      )
-    })
-
-    console.log(store.getState()[apiSlice.reducerPath].provided.ENROLLMENT)
-
-    const { getByText } = render(<Wrapper profileId={_profileId} />)
-    await waitFor(() => expect(getByText('isLoading')).toBeInTheDocument(), { timeout: 5000 })
-    await waitFor(() => expect(getByText('isSuccess')).toBeInTheDocument(), { timeout: 5000 })
-    const state = store.getState()
-
-    // access tags used for cache management
-    const cacheTagIds = state[apiSlice.reducerPath].provided.ENROLLMENT
-
-    // access all profiles in global state
-    const profileEnrollment = selectEnrollmentByProfileId(store.getState(), _profileId)
-    expect(cacheTagIds).toBeUndefined()
-    expect(profileEnrollment).toBeUndefined()
-
-    console.log(profileEnrollment)
-  })
-  test('getEnrollment callled after postEnrollment', async () => {
-    const useGetEnrollmentQueryMock = jest.spyOn(enrollmentApiSlice, 'useGetEnrollmentQuery')
-    const usePostCreateEnrollmentMutationMock = jest.spyOn(enrollmentApiSlice, 'usePostCreateEnrollmentMutation')
-    const Wrapper = storeWrapper(({ profileId }) => {
-      const { isLoading, isSuccess } = useGetEnrollmentQueryMock(profileId)
-
-      const [trigger, { isLoading: triggerLoading, isSuccess: triggerSuccess }] = usePostCreateEnrollmentMutationMock()
-
-      async function handleClick() {
-        const testData = {
-          profileId,
-          paymentMethod: 0,
-          basePlan: 'settingservice_paymentprocessor_nacha',
-          serviceFeeType: 1,
-          enrollmentFee: 0.5,
-          programLength: 15,
-          firstPaymentDate: '2022-03-01',
-          recurringPaymentDate: '2022-08-03',
-          gateway: 'settingservice_paymentprocessor_nacha',
-          initialFeeAmount: 0,
-          additionalFees: [
-            {
-              feeName: 'maintenance',
-              feeType: 0,
-              amount: 10.75,
-              feeStart: 2,
-              FeeEnd: 5
-            },
-            {
-              feeName: 'service fee',
-              feeType: 1,
-              amount: 0.02,
-              feeStart: 4,
-              FeeEnd: 6
-            }
-          ]
-        }
-
-        const { data } = await trigger(testData)
-        console.log(data)
+test('enrollment api', async () => {
+  const _createTestData = {
+    paymentMethod: 0,
+    basePlan: 'settingservice_paymentprocessor_nacha',
+    serviceFeeType: 1,
+    enrollmentFee: 0.5,
+    programLength: 15,
+    firstPaymentDate: '2022-03-01',
+    recurringPaymentDate: '2022-08-03',
+    gateway: 'settingservice_paymentprocessor_nacha',
+    initialFeeAmount: 0,
+    additionalFees: [
+      {
+        feeName: 'maintenance',
+        feeType: 0,
+        amount: 10.75,
+        feeStart: 2,
+        FeeEnd: 5
+      },
+      {
+        feeName: 'service fee',
+        feeType: 1,
+        amount: 0.02,
+        feeStart: 4,
+        FeeEnd: 6
       }
+    ]
+  }
 
-      return (
-        <>
-          <div>{isLoading && 'isLoading'}</div>
+  const _updateEnrollmentData = {
+    profileId: _profileId,
+    paymentMethod: 0,
+    basePlan: 'settingservice_paymentprocessor_nacha',
+    serviceFeeType: 1,
+    enrollmentFee: 0.5,
+    programLength: 10,
+    firstPaymentDate: '2023-02-06',
+    recurringPaymentDate: '2023-03-01',
+    gateway: 'settingservice_paymentprocessor_nacha',
+    initialFeeAmount: 0,
+    additionalFees: [
+      {
+        feeName: 'maintenance',
+        feeType: 0,
+        amount: 10.75,
+        feeStart: 2,
+        FeeEnd: 2
+      },
+      {
+        feeName: 'service fee',
+        feeType: 1,
+        amount: 0.02,
+        feeStart: 1,
+        FeeEnd: 2
+      }
+    ]
+  }
 
-          <div>{isSuccess && 'isSuccess'}</div>
+  const useGetEnrollmentPreviewMutationMock = jest.spyOn(enrollmentApiSlice, 'useGetEnrollmentPreviewMutation')
+  const useGetEnrollmentQueryMock = jest.spyOn(enrollmentApiSlice, 'useGetEnrollmentQuery')
+  const useGetProfilePaymentsQueryMock = jest.spyOn(enrollmentApiSlice, 'useGetProfilePaymentsQuery')
+  const usePostCreateEnrollmentMutationMock = jest.spyOn(enrollmentApiSlice, 'usePostCreateEnrollmentMutation')
+  const usePutUpdateEnrollmentMutationMock = jest.spyOn(enrollmentApiSlice, 'usePutUpdateEnrollmentMutation')
+  const usePutUpdatePaymentMutationMock = jest.spyOn(enrollmentApiSlice, 'usePutUpdatePaymentMutation')
 
-          <div>{triggerLoading && 'triggerLoading'}</div>
+  let componentData
+  const Wrapper = storeWrapper(({ profileId }) => {
+    console.log(profileId)
 
-          <div>{triggerSuccess && 'triggerSuccess'}</div>
+    const {
+      isLoading: enrollmentIsLoading,
+      isFetching: enrollmentIsFetching,
+      isSuccess: enrollmentIsSuccess
+    } = useGetEnrollmentQueryMock(profileId)
+    const {
+      isLoading: paymentsIsLoading,
+      isFetching: paymentsIsFetching,
+      isSuccess: paymentsIsSuccess
+    } = useGetProfilePaymentsQueryMock(profileId)
 
-          <button onClick={handleClick}>enroll</button>
-        </>
-      )
-    })
+    const [updateEnrollment, { isLoading: updateEnrollmentLoading, isSuccess: updateEnrollmentSuccess }] =
+      usePutUpdateEnrollmentMutationMock()
+    const [updatePayment, { isLoading: updatePaymentLoading, isSuccess: updatePaymentSuccess }] =
+      usePutUpdatePaymentMutationMock()
+    const [createEnrollment, { isLoading: createEnrollmentLoading, isSuccess: createEnrollmentSuccess }] =
+      usePostCreateEnrollmentMutationMock()
+    const [preview, { isLoading: previewEnrollmentLoading, isSuccess: previewEnrollmentSuccess }] =
+      useGetEnrollmentPreviewMutationMock()
 
-    const { getByText } = render(<Wrapper profileId={_profileId} />)
+    async function handleUpdateEnrollment() {
+      const data = await updateEnrollment(_updateEnrollmentData).unwrap()
+      console.log(data)
+    }
 
-    // because we still have not received enrollment it will call again
-    await waitFor(() => expect(getByText('isSuccess')).toBeInTheDocument(), { timeout: 4000 })
+    async function handleUpdatePayment() {
+      const { data } = await updatePayment().unwrap()
+      console.log(data)
+    }
 
-    // await waitFor(() => expect(getByText('isLoading')).toBeInTheDocument(), { timeout: 2000 })
-    // await waitFor(() => expect(getByText('isSuccess')).toBeInTheDocument(), { timeout: 2000 })
-    let state = store.getState()
+    async function handleCreateEnrollment() {
+      const { data } = await createEnrollment(_createTestData).unwrap()
+      console.log(data)
+    }
 
-    // access tags used for cache management
-    let cacheTagIds = state[apiSlice.reducerPath].provided.ENROLLMENT
+    async function handlePreviewEnrollment() {
+      const newData = { ..._createTestData, profileId }
+      componentData = await preview(newData).unwrap()
+      console.log(componentData)
+    }
 
-    // access all profiles in global state
-    let profileEnrollment = selectEnrollmentByProfileId(store.getState(), _profileId)
-    expect(cacheTagIds).toBeUndefined()
-    expect(profileEnrollment).toBeUndefined()
+    return (
+      <>
+        {/* ////////////////////////////////////////////////// */}
+        <div>{enrollmentIsLoading && 'enrollmentIsLoading'}</div>
 
-    const button = getByText('enroll')
-    fireEvent.click(button)
+        <div>{enrollmentIsFetching && 'enrollmentIsFetching'}</div>
 
-    await waitFor(() => expect(getByText('triggerLoading')).toBeInTheDocument(), { timeout: 2000 })
-    await waitFor(() => expect(getByText('triggerSuccess')).toBeInTheDocument(), { timeout: 2000 })
+        <div>
+          {enrollmentIsFetching && 'enrollmentIsFetching'}
+          {enrollmentIsSuccess && 'enrollmentIsSuccess'}
+        </div>
 
-    state = store.getState()
+        {/* ////////////////////////////////////////////////// */}
+        <div>{paymentsIsLoading && 'paymentsIsLoading'}</div>
 
-    // access tags used for cache management
-    cacheTagIds = state[apiSlice.reducerPath].provided.ENROLLMENT
+        <div>{paymentsIsFetching && 'paymentsIsFetching'}</div>
 
-    // access all profiles in global state
-    profileEnrollment = selectEnrollmentByProfileId(store.getState(), _profileId)
-    expect(cacheTagIds).toBeUndefined()
-    expect(profileEnrollment).toBeUndefined()
+        <div>
+          {paymentsIsFetching && 'paymentsIsFetching'}
+          {paymentsIsSuccess && 'paymentsIsSuccess'}
+        </div>
 
-    console.log(profileEnrollment)
+        {/* ////////////////////////////////////////////////// */}
+
+        <div>{updateEnrollmentLoading && 'updateEnrollmentLoading'}</div>
+
+        <div>{updateEnrollmentSuccess && 'updateEnrollmentSuccess'}</div>
+
+        {/* ////////////////////////////////////////////////// */}
+
+        <div>{updatePaymentLoading && 'updatePaymentLoading'}</div>
+
+        <div>{updatePaymentSuccess && 'updatePaymentSuccess'}</div>
+
+        {/* ////////////////////////////////////////////////// */}
+
+        <div>{createEnrollmentLoading && 'createEnrollmentLoading'}</div>
+
+        <div>{createEnrollmentSuccess && 'createEnrollmentSuccess'}</div>
+
+        {/* ////////////////////////////////////////////////// */}
+
+        <div>{previewEnrollmentLoading && 'previewEnrollmentLoading'}</div>
+
+        <div>{previewEnrollmentSuccess && 'previewEnrollmentSuccess'}</div>
+
+        {/* ////////////////////////////////////////////////// */}
+
+        <button onClick={handleUpdatePayment}>updatePayment</button>
+
+        <button onClick={handleUpdateEnrollment}>updateEnrollment</button>
+
+        <button onClick={handleCreateEnrollment}>createEnrollment</button>
+
+        <button onClick={handlePreviewEnrollment}>previewEnrollment</button>
+      </>
+    )
   })
 
-  // test('getDocuments calls on its own after postUploadDocument', async () => {
-  //   const useGetDocumentsQueryMock = jest.spyOn(documentApiSlice, 'useGetDocumentsQuery')
-  //   const usePostUploadDocumentMutationMock = jest.spyOn(documentApiSlice, 'usePostUploadDocumentMutation')
-  //   const Wrapper = storeWrapper(({ profileId }) => {
-  //     const { isLoading, isSuccess, isFetching } = useGetDocumentsQueryMock(profileId)
+  const { getByText } = render(<Wrapper profileId={_profileId} />)
 
-  //     const [trigger, { isSuccess: triggerSuccess, isLoading: triggerLoading }] = usePostUploadDocumentMutationMock()
+  await waitFor(() => expect(getByText('enrollmentIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+  await waitFor(() => expect(getByText('paymentsIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+  await waitFor(() => expect(getByText('enrollmentIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+  await waitFor(() => expect(getByText('paymentsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
 
-  //     async function handleClick() {
-  //       const formData = new FormData()
+  let state = store.getState()
 
-  //       // Append the key-value pairs to the FormData object
-  //       formData.append('file', testFile)
-  //       formData.append('title', 'Redux test doc')
-  //       formData.append('description', 'Redux description')
-  //       formData.append('category', 'uploaded')
+  // access tags used for cache management
+  let cacheETagIds = state[apiSlice.reducerPath].provided.ENROLLMENT
+  let cachePTagIds = state[apiSlice.reducerPath].provided['ENROLLMENT-PAYMENT']
 
-  //       const testData = {
-  //         profileId,
-  //         data: formData
-  //       }
+  // access all profiles in global state
+  let payments = selectPaymentByProfileId(state, _profileId)
+  let enrollment = selectEnrollmentByProfileId(state, _profileId)
+  console.log(cachePTagIds)
+  console.log(cacheETagIds)
 
-  //       await trigger(testData)
-  //     }
+  let button = getByText('previewEnrollment')
+  fireEvent.click(button)
 
-  //     return (
-  //       <>
-  //         {/* Query is currently loading for the first time. No data yet. */}
-  //         <div>{isLoading && 'isLoading'}</div>
+  await waitFor(() => expect(getByText('previewEnrollmentLoading')).toBeInTheDocument(), { timeout: 3000 })
+  await waitFor(() => expect(getByText('previewEnrollmentSuccess')).toBeInTheDocument(), { timeout: 3000 })
 
-  //         {/* Query has data from a successful load. */}
-  //         <div>{isSuccess && 'isSuccess'}</div>
+  console.log(componentData)
 
-  //         <div>{isFetching && 'isFetching'}</div>
+  // await waitFor(() => expect(getByText('enrollmentIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+  // await waitFor(() => expect(getByText('paymentsIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+  // await waitFor(() => expect(getByText('enrollmentIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+  // await waitFor(() => expect(getByText('paymentsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
 
-  //         <div>{triggerSuccess && 'triggerSuccess'}</div>
+  state = store.getState()
 
-  //         <div>{triggerLoading && 'triggerLoading'}</div>
+  // access tags used for cache management
+  cacheETagIds = state[apiSlice.reducerPath].provided.ENROLLMENT
+  cachePTagIds = state[apiSlice.reducerPath].provided['ENROLLMENT-PAYMENT']
 
-  //         <button onClick={handleClick}>upload</button>
-  //       </>
-  //     )
-  //   })
+  // access all profiles in global state
+  payments = selectPaymentByProfileId(state, _profileId)
+  enrollment = selectEnrollmentByProfileId(state, _profileId)
+  console.log(cachePTagIds)
+  console.log(cacheETagIds)
+  console.log(payments)
+  console.log(enrollment)
+}, 10000)
 
-  //   const { getByText } = render(<Wrapper profileId={_profileId} />)
+// test('payment info', async () => {
+//   let _paymentId = '2f38e1f1-7c73-4d51-c4b5-08db4ab3a752'
 
-  //   // isSuccess should be true since getDocuments has already been called for this profileId
-  //   expect(getByText('isSuccess')).toBeInTheDocument()
+//   const _createTestData = {
+//     profileId: _profileId,
+//     processedDate: '2023-04-07',
+//     amount: 10.5,
+//     memo: 'test pot payment',
+//     processor: 'settingservice_paymentprocessor_nacha',
+//     paymentType: 0
+//   }
 
-  //   // fire button
-  //   const button = getByText('upload')
-  //   fireEvent.click(button)
-  //   await waitFor(() => expect(getByText('triggerLoading')).toBeInTheDocument(), { timeout: 300 })
-  //   await waitFor(() => expect(getByText('triggerSuccess')).toBeInTheDocument(), { timeout: 300 })
-  //   await waitFor(() => expect(getByText('isFetching')).toBeInTheDocument(), { timeout: 300 })
-  //   await waitFor(() => expect(getByText('isSuccess')).toBeInTheDocument(), { timeout: 300 })
+//   const _updatePaymentData = {
+//     profileId: _profileId,
+//     paymentId: _paymentId,
+//     processedDate: '2023-06-30',
+//     clearedDate: '2023-07-01',
+//     amount: 1500,
+//     memo: 'test post',
+//     processor: 'test',
+//     paymentType: 1,
+//     Description: 'test',
+//     status: 1
+//   }
 
-  //   await act(async () => {
-  //     await delay(300, () => true)
-  //   })
+//   const useGetEnrollmentPreviewQueryMock = jest.spyOn(enrollmentApiSlice, 'useGetEnrollmentPreviewQuery')
+//   const useGetProfilePaymentsQueryMock = jest.spyOn(enrollmentApiSlice, 'useGetProfilePaymentsQuery')
+//   const usePostCreatePaymentMutationMock = jest.spyOn(enrollmentApiSlice, 'usePostCreatePaymentMutation')
+//   const usePutUpdatePaymentMutationMock = jest.spyOn(enrollmentApiSlice, 'usePutUpdatePaymentMutation')
 
-  //   const state = store.getState()
+//   const Wrapper = storeWrapper(({ profileId }) => {
+//     const {
+//       isLoading: enrollmentIsLoading,
+//       isFetching: enrollmentIsFetching,
+//       isSuccess: enrollmentIsSuccess
+//     } = useGetEnrollmentPreviewQueryMock(profileId)
+//     const {
+//       isLoading: paymentsIsLoading,
+//       isFetching: paymentsIsFetching,
+//       isSuccess: paymentsIsSuccess
+//     } = useGetProfilePaymentsQueryMock(profileId)
 
-  //   // access all profiles in global state
-  //   const profileDocs = selectDocumentsByProfileId(state, _profileId)
-  //   expect(profileDocs.length).toBe(1)
-  //   _document = profileDocs[0]
-  // }),
-  // test('getPreview calls API ', async () => {
-  //   const useGetDocumentPreviewQueryMock = jest.spyOn(documentApiSlice, 'useGetDocumentPreviewQuery')
+//     const [updatePayment, { isLoading: updatePaymentLoading, isSuccess: updatePaymentSuccess }] =
+//       usePutUpdatePaymentMutationMock()
+//     const [createPayment, { isLoading: createPaymentLoading, isSuccess: createPaymentSuccess }] =
+//       usePostCreatePaymentMutationMock()
 
-  //   let componentData
-  //   const Wrapper = storeWrapper(({ documentId }) => {
-  //     const { data, isLoading, isSuccess, isFetching } = useGetDocumentPreviewQueryMock(documentId)
+//     async function handleUpdatePayment() {
+//       const { data } = await updatePayment(_updatePaymentData).unwrap()
+//       console.log(data)
+//     }
 
-  //     componentData = data
+//     async function handleCreatePayment() {
+//       const { data } = await createPayment(_createTestData).unwrap()
+//       console.log(data)
+//     }
 
-  //     return (
-  //       <>
-  //         {/* Query is currently loading for the first time. No data yet. */}
-  //         <div>{isLoading && 'isLoading'}</div>
+//     return (
+//       <>
+//         {/* ////////////////////////////////////////////////// */}
+//         <div>{enrollmentIsLoading && 'enrollmentIsLoading'}</div>
 
-  //         {/* Query has data from a successful load. */}
-  //         <div>{isSuccess && 'isSuccess'}</div>
+//         <div>{enrollmentIsFetching && 'enrollmentIsFetching'}</div>
 
-  //         <div>{isFetching && 'isFetching'}</div>
-  //       </>
-  //     )
-  //   })
+//         <div>
+//           {enrollmentIsFetching && 'enrollmentIsFetching'}
+//           {enrollmentIsSuccess && 'enrollmentIsSuccess'}
+//         </div>
 
-  //   const { getByText, unmount } = render(<Wrapper documentId={_document.documentId} />)
+//         {/* ////////////////////////////////////////////////// */}
+//         <div>{paymentsIsLoading && 'paymentsIsLoading'}</div>
 
-  //   await waitFor(() => expect(getByText('isLoading')).toBeInTheDocument(), { timeout: 300 })
-  //   await waitFor(() => expect(getByText('isSuccess')).toBeInTheDocument(), { timeout: 300 })
+//         <div>{paymentsIsFetching && 'paymentsIsFetching'}</div>
 
-  //   await act(async () => {
-  //     await delay(300, () => true)
-  //   })
-  //   const state = store.getState()
+//         <div>
+//           {paymentsIsFetching && 'paymentsIsFetching'}
+//           {paymentsIsSuccess && 'paymentsIsSuccess'}
+//         </div>
 
-  //   // access all profiles in global state
-  //   const profileDoc = selectDocumentById(state, _document.documentId)
-  //   expect(componentData.documentId).toBe(profileDoc.documentId)
-  //   expect(componentData.fileExtension).toBe(profileDoc.fileExtension)
-  //   expect(componentData.title).toBe(profileDoc.title)
+//         {/* ////////////////////////////////////////////////// */}
 
-  //   unmount(<Wrapper documentId={_document.documentId} />)
-  //   render(<Wrapper documentId={_document.documentId} />)
+//         <div>{updatePaymentLoading && 'updatePaymentLoading'}</div>
 
-  //   expect(getByText('isSuccess')).toBeInTheDocument()
-  // }),
-  // test('generateDocument calls API', async () => {
-  //   const usePostGenerateDocumentMutationMock = jest.spyOn(documentApiSlice, 'usePostGenerateDocumentMutation')
-  //   const useGetDocumentsQueryMock = jest.spyOn(documentApiSlice, 'useGetDocumentsQuery')
-  //   const Wrapper = storeWrapper(({ profileId }) => {
-  //     const [trigger, { isSuccess: triggerSuccess, isLoading: triggerLoading }] =
-  //       usePostGenerateDocumentMutationMock()
-  //     const { isLoading, isSuccess, isFetching } = useGetDocumentsQueryMock(profileId)
-  //     useGetProfileInfoQuery(profileId)
+//         <div>{updatePaymentSuccess && 'updatePaymentSuccess'}</div>
 
-  //     async function handleClick() {
-  //       const testData = {
-  //         profileId,
-  //         templateId: '1a226365-28d5-4a4c-acf8-419faf1bbb8c',
-  //         title: 'Client agreement'
-  //       }
+//         {/* ////////////////////////////////////////////////// */}
 
-  //       _document = await trigger(testData)
-  //     }
+//         <div>{createPaymentLoading && 'createPaymentLoading'}</div>
 
-  //     return (
-  //       <>
-  //         {/* Query is currently loading for the first time. No data yet. */}
-  //         <div>{isLoading && 'isLoading'}</div>
+//         <div>{createPaymentSuccess && 'createPaymentSuccess'}</div>
 
-  //         {/* Query has data from a successful load. */}
-  //         <div>{isSuccess && 'isSuccess'}</div>
+//         {/* ////////////////////////////////////////////////// */}
 
-  //         <div>{isFetching && 'isFetching'}</div>
+//         <button onClick={handleUpdatePayment}>updatePayment</button>
 
-  //         <div>{triggerSuccess && 'triggerSuccess'}</div>
+//         <button onClick={handleCreatePayment}>createPayment</button>
+//       </>
+//     )
+//   })
 
-  //         <div>{triggerLoading && 'triggerLoading'}</div>
+//   const { getByText } = render(<Wrapper profileId={_profileId} paymentId={_paymentId} />)
 
-  //         <button onClick={handleClick}>upload</button>
-  //       </>
-  //     )
-  //   })
+//   await waitFor(() => expect(getByText('enrollmentIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(getByText('paymentsIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(getByText('enrollmentIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(getByText('paymentsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
 
-  //   const { getByText } = render(<Wrapper profileId={_profileId} />)
+//   let state = store.getState()
 
-  //   // isSuccess should be true since getDocuments has already been called for this profileId
-  //   expect(getByText('isSuccess')).toBeInTheDocument()
+//   // access tags used for cache management
+//   let cacheETagIds = state[apiSlice.reducerPath].provided.ENROLLMENT
+//   let cachePTagIds = state[apiSlice.reducerPath].provided['ENROLLMENT-PAYMENT']
 
-  //   // fire button
-  //   const button = getByText('upload')
-  //   fireEvent.click(button)
-  //   await waitFor(() => expect(getByText('triggerLoading')).toBeInTheDocument(), { timeout: 2000 })
-  //   await waitFor(() => expect(getByText('triggerSuccess')).toBeInTheDocument(), { timeout: 2000 })
-  //   await waitFor(() => expect(getByText('isFetching')).toBeInTheDocument(), { timeout: 2000 })
-  //   await waitFor(() => expect(getByText('isSuccess')).toBeInTheDocument(), { timeout: 2000 })
+//   let payments = selectPaymentByProfileId(state, _profileId)
+//   let enrollment = selectEnrollmentByProfileId(state, _profileId)
+//   console.log(cachePTagIds)
+//   console.log(cacheETagIds)
 
-  //   await act(async () => {
-  //     await delay(300, () => true)
-  //   })
-  //   const state = store.getState()
+//   // console.log(payments)
+//   console.log(enrollment)
 
-  //   // access all profiles in global state
-  //   const profileDocs = selectDocumentsByProfileId(state, _profileId)
-  //   expect(profileDocs.length).toBe(2)
-  // })
+//   let button = getByText('createPayment')
+//   fireEvent.click(button)
 
-  // test('esign document doc', async () => {
-  //   const usePostEsignDocumentMutationMock = jest.spyOn(documentApiSlice, 'usePostEsignDocumentMutation')
-  //   const useGetDocumentsQueryMock = jest.spyOn(documentApiSlice, 'useGetDocumentsQuery')
+//   await waitFor(() => expect(getByText('createPaymentLoading')).toBeInTheDocument(), { timeout: 3000 })
+//   await waitFor(() => expect(getByText('createPaymentSuccess')).toBeInTheDocument(), { timeout: 3000 })
+//   await waitFor(() => expect(getByText('enrollmentIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(getByText('paymentsIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(getByText('enrollmentIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(getByText('paymentsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
 
-  //   const currProfile = selectProfileById(store.getState(), _profileId)
-  //   const contactEmail = currProfile.profileContacts.filter(contact => contact.contactType == 1)
-  //   const contactPhone = currProfile.profileContacts.filter(contact => contact.contactType == 0)
-  //   let componentData
-  //   const Wrapper = storeWrapper(({ profileId }) => {
-  //     const [trigger, { isSuccess: triggerSuccess, isLoading: triggerLoading }] = usePostEsignDocumentMutationMock()
-  //     const { isLoading, isSuccess, isFetching } = useGetDocumentsQueryMock(profileId)
+//   state = store.getState()
 
-  //     async function handleClick() {
-  //       const testData = {
-  //         profileId,
-  //         TargetPhoneNumber: contactPhone[0].value,
-  //         TargetEmail: contactEmail[0].value,
-  //         sendingMethod: 0,
-  //         DocumentId: _document.data
-  //       }
+//   // access tags used for cache management
+//   cacheETagIds = state[apiSlice.reducerPath].provided.ENROLLMENT
+//   cachePTagIds = state[apiSlice.reducerPath].provided['ENROLLMENT-PAYMENT']
 
-  //       const data = await trigger(testData)
-  //       componentData = data
-  //     }
+//   // access all profiles in global state
+//   payments = selectPaymentByProfileId(state, _profileId)
+//   enrollment = selectEnrollmentByProfileId(state, _profileId)
+//   console.log(cachePTagIds)
+//   console.log(cacheETagIds)
+//   console.log(payments)
+//   console.log(enrollment)
 
-  //     return (
-  //       <>
-  //         {/* Query is currently loading for the first time. No data yet. */}
-  //         <div>{isLoading && 'isLoading'}</div>
+// }, 10000)
 
-  //         {/* Query has data from a successful load. */}
-  //         <div>{isSuccess && 'isSuccess'}</div>
+// test('payment info', async () => {
+//   const useGetEnrollmentQueryMock = jest.spyOn(enrollmentApiSlice, 'useGetEnrollmentQuery')
+//   const useGetProfilePaymentsQueryMock = jest.spyOn(enrollmentApiSlice, 'useGetProfilePaymentsQuery')
+//   const usePostCancelEnrollmentMutationMock = jest.spyOn(enrollmentApiSlice, 'usePostCancelEnrollmentMutation')
+//   const usePostPauseEnrollmentMutationMock = jest.spyOn(enrollmentApiSlice, 'usePostPauseEnrollmentMutation')
+//   const usePostResumeEnrollmentMutationMock = jest.spyOn(enrollmentApiSlice, 'usePostResumeEnrollmentMutation')
 
-  //         <div>{isFetching && 'isFetching'}</div>
+//   const Wrapper = storeWrapper(({ profileId }) => {
+//     const {
+//       isLoading: enrollmentIsLoading,
+//       isFetching: enrollmentIsFetching,
+//       isSuccess: enrollmentIsSuccess
+//     } = useGetEnrollmentQueryMock(profileId)
+//     const {
+//       isLoading: paymentsIsLoading,
+//       isFetching: paymentsIsFetching,
+//       isSuccess: paymentsIsSuccess
+//     } = useGetProfilePaymentsQueryMock(profileId)
 
-  //         <div>{triggerSuccess && 'triggerSuccess'}</div>
+//     const [cancelPayment, { isLoading: cancelPaymentLoading, isSuccess: cancelPaymentSuccess }] =
+//       usePostCancelEnrollmentMutationMock()
+//     const [pausePayment, { isLoading: pausePaymentLoading, isSuccess: pausePaymentSuccess }] =
+//       usePostPauseEnrollmentMutationMock()
+//     const [resumePayment, { isLoading: resumePaymentLoading, isSuccess: resumePaymentSuccess }] =
+//       usePostResumeEnrollmentMutationMock()
 
-  //         <div>{triggerLoading && 'triggerLoading'}</div>
+//     async function handleCancel() {
+//       const data = await cancelPayment(profileId).unwrap()
+//       console.log(data)
+//     }
 
-  //         <button onClick={handleClick}>esign</button>
-  //       </>
-  //     )
-  //   })
+//     async function handleResume() {
+//       const data = await resumePayment(profileId).unwrap()
+//       console.log(data)
+//     }
 
-  //   const { getByText } = render(<Wrapper profileId={_profileId} />)
+//     async function handlePause() {
+//       const data = await pausePayment(profileId).unwrap()
+//       console.log(data)
+//     }
 
-  //   // isSuccess should be true since getDocuments has already been called for this profileId
-  //   expect(getByText('isSuccess')).toBeInTheDocument()
+//     return (
+//       <>
+//         {/* ////////////////////////////////////////////////// */}
+//         <div>{enrollmentIsLoading && 'enrollmentIsLoading'}</div>
 
-  //   // fire button
-  //   const button = getByText('esign')
-  //   fireEvent.click(button)
-  //   await waitFor(() => expect(getByText('triggerLoading')).toBeInTheDocument(), { timeout: 2000 })
-  //   await waitFor(() => expect(getByText('triggerSuccess')).toBeInTheDocument(), { timeout: 2000 })
-  //   await waitFor(() => expect(getByText('isFetching')).toBeInTheDocument(), { timeout: 2000 })
-  //   await waitFor(() => expect(getByText('isSuccess')).toBeInTheDocument(), { timeout: 2000 })
+//         <div>{enrollmentIsFetching && 'enrollmentIsFetching'}</div>
 
-  //   await act(async () => {
-  //     await delay(300, () => true)
-  //   })
+//         <div>
+//           {enrollmentIsFetching && 'enrollmentIsFetching'}
+//           {enrollmentIsSuccess && 'enrollmentIsSuccess'}
+//         </div>
 
-  //   const state = store.getState()
+//         {/* ////////////////////////////////////////////////// */}
+//         <div>{paymentsIsLoading && 'paymentsIsLoading'}</div>
 
-  //   // access all profiles in global state
-  //   const profileDocs = selectDocumentsByProfileId(state, _profileId)
-  //   expect(profileDocs.length).toBe(2)
-  // })
-})
+//         <div>{paymentsIsFetching && 'paymentsIsFetching'}</div>
 
-/*
+//         <div>
+//           {paymentsIsFetching && 'paymentsIsFetching'}
+//           {paymentsIsSuccess && 'paymentsIsSuccess'}
+//         </div>
 
-    need to finish
-    - all liability
-    - esign
+//         {/* ////////////////////////////////////////////////// */}
 
-*/
+//         <div>{cancelPaymentLoading && 'cancelPaymentLoading'}</div>
+
+//         <div>{cancelPaymentSuccess && 'cancelPaymentSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{pausePaymentLoading && 'pausePaymentLoading'}</div>
+
+//         <div>{pausePaymentSuccess && 'pausePaymentSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{resumePaymentLoading && 'resumePaymentLoading'}</div>
+
+//         <div>{resumePaymentSuccess && 'resumePaymentSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <button onClick={handleCancel}>cancel</button>
+
+//         <button onClick={handlePause}>pause</button>
+
+//         <button onClick={handleResume}>resume</button>
+//       </>
+//     )
+//   })
+
+//   const { getByText } = render(<Wrapper profileId={_profileId} />)
+
+//   await waitFor(() => expect(getByText('enrollmentIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(getByText('paymentsIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(getByText('enrollmentIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(getByText('paymentsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+//   let state = store.getState()
+
+//   // access tags used for cache management
+//   let cacheETagIds = state[apiSlice.reducerPath].provided.ENROLLMENT
+//   let cachePTagIds = state[apiSlice.reducerPath].provided['ENROLLMENT-PAYMENT']
+
+//   let payments = selectPaymentByProfileId(state, _profileId)
+//   let enrollment = selectEnrollmentByProfileId(state, _profileId)
+//   console.log(cachePTagIds)
+//   console.log(cacheETagIds)
+
+//   // console.log(payments)
+//   console.log(enrollment)
+
+//   let button = getByText('pause')
+//   fireEvent.click(button)
+
+//   await waitFor(() => expect(getByText('pausePaymentLoading')).toBeInTheDocument(), { timeout: 3000 })
+//   await waitFor(() => expect(getByText('pausePaymentSuccess')).toBeInTheDocument(), { timeout: 3000 })
+//   await waitFor(() => expect(getByText('enrollmentIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(getByText('paymentsIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(getByText('enrollmentIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(getByText('paymentsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+//   state = store.getState()
+
+//   // access tags used for cache management
+//   cacheETagIds = state[apiSlice.reducerPath].provided.ENROLLMENT
+//   cachePTagIds = state[apiSlice.reducerPath].provided['ENROLLMENT-PAYMENT']
+
+//   // access all profiles in global state
+//   payments = selectPaymentByProfileId(state, _profileId)
+//   enrollment = selectEnrollmentByProfileId(state, _profileId)
+//   console.log(cachePTagIds)
+//   console.log(cacheETagIds)
+//   console.log(payments)
+//   console.log(enrollment)
+// }, 10000)
+
+// test('payment info', async () => {
+//   const useGetEnrollmentQueryMock = jest.spyOn(enrollmentApiSlice, 'useGetEnrollmentQuery')
+//   const useGetProfilePaymentsQueryMock = jest.spyOn(enrollmentApiSlice, 'useGetProfilePaymentsQuery')
+//   const usePostCancelEnrollmentMutationMock = jest.spyOn(enrollmentApiSlice, 'usePostCancelEnrollmentMutation')
+//   const usePostPauseEnrollmentMutationMock = jest.spyOn(enrollmentApiSlice, 'usePostPauseEnrollmentMutation')
+//   const usePostResumeEnrollmentMutationMock = jest.spyOn(enrollmentApiSlice, 'usePostResumeEnrollmentMutation')
+
+//   const Wrapper = storeWrapper(({ profileId }) => {
+//     const {
+//       isLoading: enrollmentIsLoading,
+//       isFetching: enrollmentIsFetching,
+//       isSuccess: enrollmentIsSuccess
+//     } = useGetEnrollmentQueryMock(profileId)
+//     const {
+//       isLoading: paymentsIsLoading,
+//       isFetching: paymentsIsFetching,
+//       isSuccess: paymentsIsSuccess
+//     } = useGetProfilePaymentsQueryMock(profileId)
+
+//     const [cancelPayment, { isLoading: cancelPaymentLoading, isSuccess: cancelPaymentSuccess }] =
+//       usePostCancelEnrollmentMutationMock()
+//     const [pausePayment, { isLoading: pausePaymentLoading, isSuccess: pausePaymentSuccess }] =
+//       usePostPauseEnrollmentMutationMock()
+//     const [resumePayment, { isLoading: resumePaymentLoading, isSuccess: resumePaymentSuccess }] =
+//       usePostResumeEnrollmentMutationMock()
+
+//     async function handleCancel() {
+//       const testData = {
+//         profileId,
+//         cancelDisposition: 'hello'
+//       }
+//       const data = await cancelPayment(testData).unwrap()
+//       console.log(data)
+//     }
+
+//     async function handleResume() {
+//       const data = await resumePayment(profileId).unwrap()
+//       console.log(data)
+//     }
+
+//     async function handlePause() {
+//       const data = await pausePayment(profileId).unwrap()
+//       console.log(data)
+//     }
+
+//     return (
+//       <>
+//         {/* ////////////////////////////////////////////////// */}
+//         <div>{enrollmentIsLoading && 'enrollmentIsLoading'}</div>
+
+//         <div>{enrollmentIsFetching && 'enrollmentIsFetching'}</div>
+
+//         <div>
+//           {enrollmentIsFetching && 'enrollmentIsFetching'}
+//           {enrollmentIsSuccess && 'enrollmentIsSuccess'}
+//         </div>
+
+//         {/* ////////////////////////////////////////////////// */}
+//         <div>{paymentsIsLoading && 'paymentsIsLoading'}</div>
+
+//         <div>{paymentsIsFetching && 'paymentsIsFetching'}</div>
+
+//         <div>
+//           {paymentsIsFetching && 'paymentsIsFetching'}
+//           {paymentsIsSuccess && 'paymentsIsSuccess'}
+//         </div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{cancelPaymentLoading && 'cancelPaymentLoading'}</div>
+
+//         <div>{cancelPaymentSuccess && 'cancelPaymentSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{pausePaymentLoading && 'pausePaymentLoading'}</div>
+
+//         <div>{pausePaymentSuccess && 'pausePaymentSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{resumePaymentLoading && 'resumePaymentLoading'}</div>
+
+//         <div>{resumePaymentSuccess && 'resumePaymentSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <button onClick={handleCancel}>cancel</button>
+
+//         <button onClick={handlePause}>pause</button>
+
+//         <button onClick={handleResume}>resume</button>
+//       </>
+//     )
+//   })
+
+//   const { getByText } = render(<Wrapper profileId={_profileId} />)
+
+//   await waitFor(() => expect(getByText('enrollmentIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(getByText('paymentsIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(getByText('enrollmentIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(getByText('paymentsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+//   let state = store.getState()
+
+//   // access tags used for cache management
+//   let cacheETagIds = state[apiSlice.reducerPath].provided.ENROLLMENT
+//   let cachePTagIds = state[apiSlice.reducerPath].provided['ENROLLMENT-PAYMENT']
+
+//   let payments = selectPaymentByProfileId(state, _profileId)
+//   let enrollment = selectEnrollmentByProfileId(state, _profileId)
+//   console.log(cachePTagIds)
+//   console.log(cacheETagIds)
+
+//   // console.log(payments)
+//   console.log(enrollment)
+
+//   let button = getByText('pause')
+//   fireEvent.click(button)
+
+//   await waitFor(() => expect(getByText('pausePaymentLoading')).toBeInTheDocument(), { timeout: 3000 })
+//   await waitFor(() => expect(getByText('pausePaymentSuccess')).toBeInTheDocument(), { timeout: 3000 })
+//   await waitFor(() => expect(getByText('enrollmentIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(getByText('paymentsIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(getByText('enrollmentIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(getByText('paymentsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+//   state = store.getState()
+
+//   // access tags used for cache management
+//   cacheETagIds = state[apiSlice.reducerPath].provided.ENROLLMENT
+//   cachePTagIds = state[apiSlice.reducerPath].provided['ENROLLMENT-PAYMENT']
+
+//   // access all profiles in global state
+//   payments = selectPaymentByProfileId(state, _profileId)
+//   enrollment = selectEnrollmentByProfileId(state, _profileId)
+//   console.log(cachePTagIds)
+//   console.log(cacheETagIds)
+//   console.log(payments)
+//   console.log(enrollment)
+// }, 10000)
+
+// test('submit / enroll / approve', async () => {
+//   const useGetProfileInfoQueryMock = jest.spyOn(profileApiSlice, 'useGetProfileInfoQuery')
+
+//   // const useGetProfileStatusQueryMock = jest.spyOn(profileApiSlice, 'useGetProfileStatusQuery')
+//   const usePostProfileSubmitMutationMock = jest.spyOn(profileApiSlice, 'usePostProfileSubmitMutation')
+//   const usePostProfileRejectMutationMock = jest.spyOn(profileApiSlice, 'usePostProfileRejectMutation')
+//   const usePostProfileEnrollMutationMock = jest.spyOn(profileApiSlice, 'usePostProfileEnrollMutation')
+//   const usePostProfileApproveMutationMock = jest.spyOn(profileApiSlice, 'usePostProfileApproveMutation')
+
+//   const Wrapper = storeWrapper(({ profileId }) => {
+//     const {
+//       isLoading: profileIsLoading,
+//       isFetching: profileIsFetching,
+//       isSuccess: profileIsSuccess
+//     } = useGetProfileInfoQueryMock(profileId)
+
+//     // const {
+//     //   isLoading: statusIsLoading,
+//     //   isFetching: statusIsFetching,
+//     //   isSuccess: statusIsSuccess
+//     // } = useGetProfileStatusQueryMock()
+
+//     const [submit, { isLoading: submitLoading, isSuccess: submitSuccess }] = usePostProfileSubmitMutationMock()
+//     const [reject, { isLoading: rejectLoading, isSuccess: rejectSuccess }] = usePostProfileRejectMutationMock()
+//     const [approve, { isLoading: approveLoading, isSuccess: approveSuccess }] = usePostProfileApproveMutationMock()
+//     const [enroll, { isLoading: enrollLoading, isSuccess: enrollSuccess }] = usePostProfileEnrollMutationMock()
+
+//     async function handleSubmit() {
+//       const data = await submit(profileId).unwrap()
+//       console.log(data)
+//     }
+
+//     async function handleReject() {
+//       const data = await reject(profileId).unwrap()
+//       console.log(data)
+//     }
+
+//     async function handleEnroll() {
+//       const data = await enroll(profileId).unwrap()
+//       console.log(data)
+//     }
+
+//     async function handleApprove() {
+//       const data = await approve(profileId).unwrap()
+//       console.log(data)
+//     }
+
+//     return (
+//       <>
+//         {/* ////////////////////////////////////////////////// */}
+//         <div>{profileIsLoading && 'profileIsLoading'}</div>
+
+//         <div>{profileIsFetching && 'profileIsFetching'}</div>
+
+//         <div>
+//           {profileIsFetching && 'profileIsFetching'}
+//           {profileIsSuccess && 'profileIsSuccess'}
+//         </div>
+
+//         {/* ////////////////////////////////////////////////// */}
+//         {/* <div>{statusIsLoading && 'statusIsLoading'}</div>
+
+//         <div>{statusIsFetching && 'statusIsFetching'}</div>
+
+//         <div>
+//           {statusIsFetching && 'statusIsFetching'}
+//           {statusIsSuccess && 'statusIsSuccess'}
+//         </div> */}
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{submitLoading && 'submitLoading'}</div>
+
+//         <div>{submitSuccess && 'submitSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{rejectLoading && 'rejectLoading'}</div>
+
+//         <div>{rejectSuccess && 'rejectSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{approveLoading && 'approveLoading'}</div>
+
+//         <div>{approveSuccess && 'approveSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{enrollLoading && 'enrollLoading'}</div>
+
+//         <div>{enrollSuccess && 'enrollSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <button onClick={handleApprove}>approve</button>
+
+//         <button onClick={handleEnroll}>enroll</button>
+
+//         <button onClick={handleReject}>reject</button>
+
+//         <button onClick={handleSubmit}>submit</button>
+//       </>
+//     )
+//   })
+
+//   const { getByText } = render(<Wrapper profileId={_profileId} />)
+
+//   await waitFor(() => expect(getByText('profileIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+
+//   // await waitFor(() => expect(getByText('statusIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(getByText('profileIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+//   // await waitFor(() => expect(getByText('statusIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+//   let state = store.getState()
+
+//   // access tags used for cache management
+//   let cacheETagIds = state[apiSlice.reducerPath].provided.PROFILE
+
+//   // let cachePTagIds = state[apiSlice.reducerPath].provided['PROFILE-STATUS']
+
+//   let profile = selectProfileById(state, _profileId)
+
+//   // console.log(cachePTagIds)
+//   console.log(cacheETagIds)
+
+//   // console.log(payments)
+//   console.log(profile)
+
+//   let button = getByText('enroll')
+//   fireEvent.click(button)
+
+//   await waitFor(() => expect(getByText('enrollLoading')).toBeInTheDocument(), { timeout: 3000 })
+//   await waitFor(() => expect(getByText('enrollSuccess')).toBeInTheDocument(), { timeout: 3000 })
+//   await waitFor(() => expect(getByText('profileIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(getByText('profileIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+//   state = store.getState()
+
+//   // access tags used for cache management
+//   cacheETagIds = state[apiSlice.reducerPath].provided.PROFILE
+
+// cachePTagIds = state[apiSlice.reducerPath].provided['PROFILE-STATUS']
+
+//   profile = selectProfileById(state, _profileId)
+
+//   // console.log(cachePTagIds)
+//   console.log(cacheETagIds)
+
+//   // console.log(payments)
+//   console.log(profile)
+// }, 10000)
