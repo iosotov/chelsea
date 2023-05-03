@@ -1,35 +1,32 @@
 import { useState, SyntheticEvent } from 'react'
 
-import Box from '@mui/material/Box'
-import Grid from '@mui/material/Grid'
-import Card from '@mui/material/Card'
-import Button from '@mui/material/Button'
-import Dialog from '@mui/material/Dialog'
-import Select from '@mui/material/Select'
-import Switch from '@mui/material/Switch'
-import Divider from '@mui/material/Divider'
-import MenuItem from '@mui/material/MenuItem'
-import { styled } from '@mui/material/styles'
-import TextField from '@mui/material/TextField'
-import Typography from '@mui/material/Typography'
-import InputLabel from '@mui/material/InputLabel'
-import CardContent from '@mui/material/CardContent'
-import CardActions from '@mui/material/CardActions'
+//MUI components
 import AccordionDetails from '@mui/material/AccordionDetails'
+import Box from '@mui/material/Box'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import Chip from '@mui/material/Chip'
+import Divider from '@mui/material/Divider'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
 
-import { useRouter } from 'next/router'
-import { Chip } from '@mui/material'
-import { flexbox } from '@mui/system'
-
-import { Snapshot } from 'src/pages/profiles/[profileId]'
-
-import Icon from 'src/@core/components/icon'
-
+//Custom Components
+import { styled } from '@mui/material/styles'
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion'
 import MuiAccordionSummary, { AccordionSummaryProps } from '@mui/material/AccordionSummary'
 
+//Icon Import
+import Icon from 'src/@core/components/icon'
+
+//Imported Types
+import { ProfileInfoType } from 'src/store/api/profileApiSlice'
+import { ProfileContactType } from 'src/store/api/profileApiSlice'
+
+//Utils
+import { format } from 'date-fns'
+
 type Props = {
-  data: Snapshot
+  data: ProfileInfoType
 }
 
 const Accordion = styled(MuiAccordion)<AccordionProps>(({ theme }) => ({
@@ -51,8 +48,6 @@ const AccordionSummary = styled(MuiAccordionSummary)<AccordionSummaryProps>(({ t
 }))
 
 export default function UserViewRight({ data }: Props) {
-  const router = useRouter()
-
   const {
     createdAt,
     createdByName,
@@ -65,12 +60,31 @@ export default function UserViewRight({ data }: Props) {
     birthdate,
     ssn,
     status,
+    statusName,
     stageName,
-    stageStatusName
+    stageStatusName,
+    profileAddresses,
+    profileAssignees,
+    profileContacts,
+    profileLabels
   } = data
 
-  //temp dictionary
-  const enrollmentStatus = ['inactive', 'active']
+  console.log(data)
+
+  //status dictionary
+  const statusDictionary = [
+    'secondary',
+    'success',
+    'info',
+    'warning',
+    'secondary',
+    'error',
+    'secondary',
+    'secondary',
+    'primary',
+    'secondary',
+    'secondary'
+  ]
 
   //use profileId to get enrollment info snapshot
 
@@ -103,6 +117,7 @@ export default function UserViewRight({ data }: Props) {
 
   return (
     <Grid container spacing={6}>
+      {/* Name, ID, & Details */}
       <Grid item xs={12}>
         <Card>
           <CardContent>
@@ -110,22 +125,20 @@ export default function UserViewRight({ data }: Props) {
               {firstName ?? ''} {lastName ?? ''}
             </Typography>
             <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Typography variant='h6'>ID: {data.profileId}</Typography>
-              <Chip label={enrollmentStatus[status ?? 0].toUpperCase() ?? 'blank'} color='primary'></Chip>
+              <Typography variant='h6'>ID: {profileId}</Typography>
+              <Chip label={statusName?.toUpperCase() ?? ''} color={statusDictionary[status ?? 0]}></Chip>
             </Box>
           </CardContent>
 
           <CardContent>
             <Box>
               <Typography sx={{ mb: 4 }} variant='body1'>
-                Profile Stage:{' '}
+                Profile Stage:{}
               </Typography>
-              <Box sx={{ display: 'flex' }}>
-                <Chip label={stageName} color='primary' />
-                <Typography sx={{ mx: 3 }} variant='body1'>
-                  &#8594;
-                </Typography>
-                <Chip label={stageStatusName} color='warning' />
+              <Box sx={{ display: 'flex', gap: 3, alignItems: 'center' }}>
+                <Chip label={stageName ?? 'None'} color='primary' />
+                <Icon icon='material-symbols:arrow-right-alt' />
+                <Chip label={stageStatusName ?? 'None'} color='error' />
               </Box>
             </Box>
           </CardContent>
@@ -139,52 +152,53 @@ export default function UserViewRight({ data }: Props) {
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Created By:</Typography>
                 <Box sx={{ textAlign: 'right' }}>
-                  <Typography variant='body2'>{createdByName}</Typography>
+                  <Typography variant='body2'>{createdByName ?? 'N/A'}</Typography>
                   <Typography variant='body2' sx={{ fontSize: '0.625rem' }}>
-                    {DateConverter(createdAt)}
+                    {}
                   </Typography>
                 </Box>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Data Point:</Typography>
                 <Typography variant='body2' align='right'>
-                  {createdCompanyName}
+                  {createdCompanyName ?? 'N/A'}
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Campaign:</Typography>
                 <Typography variant='body2' align='right'>
-                  {campaignName}
+                  {campaignName ?? 'N/A'}
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Account Manager:</Typography>
                 <Typography variant='body2' align='right'>
-                  {'Unassigned'}
+                  {profileAssignees[0]?.assigneeName ?? 'Unassigned'}
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Servicing Company:</Typography>
                 <Typography variant='body2' align='right'>
-                  {campaignName}
+                  {profileAssignees[0]?.assigneeCompanyLabel ?? 'N/A'}
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Marketing Agent:</Typography>
                 <Typography variant='body2' align='right'>
-                  {createdByName}
+                  {profileAssignees[0]?.employeeAlias ?? 'Unassigned'}
                 </Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Marketing Company:</Typography>
                 <Typography variant='body2' align='right'>
-                  {createdCompanyName}
+                  {profileAssignees[0]?.companyName ?? 'N/A'}
                 </Typography>
               </Box>
             </Box>
           </CardContent>
         </Card>
       </Grid>
+      {/* Personal Info Accordion */}
       <Grid item xs={12}>
         <Accordion expanded={personal} onChange={toggleAccordion('personal')}>
           <AccordionSummary
@@ -201,39 +215,41 @@ export default function UserViewRight({ data }: Props) {
             <Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Date of Birth:</Typography>
-                <Typography variant='body2'>{DateConverter(birthdate)}</Typography>
+                <Typography variant='body2'>{DateConverter(birthdate) ?? 'N/A'}</Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Social Security Number:</Typography>
-                <Typography variant='body2'>{ssn}</Typography>
+                <Typography variant='body2'>{ssn ?? 'N/A'}</Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Gender:</Typography>
-                <Typography variant='body2'>{genderName}</Typography>
+                <Typography variant='body2'>{genderName ?? 'N/A'}</Typography>
               </Box>
+              {generateContacts()}
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Primary Phone:</Typography>
-                <Typography variant='body2'>{'(949)-111-1234'}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Secondary Phone:</Typography>
-                <Typography variant='body2'>{''}</Typography>
+                <Typography variant='body2'>{'' ?? 'N/A'}</Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Email Address:</Typography>
-                <Typography variant='body2'>{'johntest@gmail.com'}</Typography>
+                <Typography variant='body2'>{'' ?? 'N/A'}</Typography>
               </Box>
               <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                 <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Mailing Address:</Typography>
                 <Box sx={{ textAlign: 'right' }}>
-                  <Typography variant='body2'>{'123 Test Street'}</Typography>
-                  <Typography variant='body2'>{'Dayton, New Jersey 20510'}</Typography>
+                  <Typography variant='body2'>
+                    {profileAddresses[0]?.address1 ?? ''} {profileAddresses[0]?.address2 ?? ''}
+                  </Typography>
+                  <Typography variant='body2'>
+                    {profileAddresses[0]?.city}, {profileAddresses[0]?.state} {profileAddresses[0]?.zipCode}
+                  </Typography>
                 </Box>
               </Box>
             </Box>
           </AccordionDetails>
         </Accordion>
       </Grid>
+      {/* Enrollment Accordion */}
       <Grid item xs={12}>
         <Accordion expanded={enrollment} onChange={toggleAccordion('enrollment')}>
           <AccordionSummary
@@ -312,6 +328,7 @@ export default function UserViewRight({ data }: Props) {
           </AccordionDetails>
         </Accordion>
       </Grid>
+      {/* Additional Info Accordion */}
       <Grid item xs={12}>
         <Accordion expanded={additional} onChange={toggleAccordion('additional')}>
           <AccordionSummary

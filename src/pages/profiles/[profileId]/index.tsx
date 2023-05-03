@@ -1,86 +1,65 @@
 import Grid from '@mui/material/Grid'
 import { Box, CircularProgress, Typography } from '@mui/material'
 
+import Link from 'next/link'
+
 import { useRouter } from 'next/router'
+import { useSelector } from 'react-redux'
 import { useEffect, useState } from 'react'
 
-//import views left and right views for page
+//Imported Views
 import UserViewLeft from 'src/views/pages/user/view/UserViewLeft'
 import UserViewRight from 'src/views/pages/user/view/UserViewRight'
 
+//API Calls
+import { useGetProfileInfoQuery } from 'src/store/api/apiHooks'
+
+//Imported Types
+import { ProfileInfoType } from 'src/store/api/profileApiSlice'
+import { useAppSelector } from 'src/store/hooks'
+import { selectProfileById } from 'src/store/profileSlice'
+
 type Props = {
   tab: string
-}
-
-export type Snapshot = {
-  createdAt?: string
-  createdBy?: string
-  createdByName?: string
-  createdCompany?: string
-  createdCompanyName?: string
-  campaignId?: string
-  campaignName?: string
-  profileAssignees?: any[]
-  profileAddresses?: any[]
-  profileContacts?: any[]
-  profileCustomFields?: any[]
-  profileId?: string
-  firstName?: string
-  lastName?: string
-  middleName?: string
-  gender?: number
-  genderName?: string
-  birthdate?: string
-  ssn?: string
-  status?: number
-  stage?: string
-  stageName?: string
-  stageStatus?: string
-  stageStatusName?: string
-}
-
-//dummy data
-const dummyData = {
-  createdAt: '2023-04-14T17:51:00.6733759',
-  createdBy: '90eb9d4c-3eb4-4f95-95d6-02f97d0f57b7',
-  createdByName: 'Test File',
-  createdCompany: '9dc05903-65ab-48c1-8073-33bfd6fd8cf5',
-  createdCompanyName: 'Test Financial Solutions',
-  campaignId: 'fjaipejfiawefaewfa',
-  campaignName: 'Test Ones',
-  profileAssignees: [],
-  profileAddresses: [],
-  profileContacts: [],
-  profileCustomFields: [],
-  profileId: '1235182312',
-  firstName: 'John',
-  lastName: 'Doe',
-  middleName: 'T.',
-  gender: 0,
-  genderName: 'Male',
-  birthdate: '1975-05-23T00:00:00',
-  ssn: '123-456-7890',
-  status: 0,
-  stage: '28912351235123512',
-  stageName: 'Sales Flow',
-  stageStatus: 'ijfpaisodjfopaoefa',
-  stageStatusName: 'New Lead'
 }
 
 export default function UserProfile({ tab }: Props) {
   const router = useRouter()
   const { profileId } = router.query
   const [loading, setLoading] = useState(true)
-  const [data, setData] = useState({})
+  const [data, setData] = useState({} as ProfileInfoType)
 
-  // check to see if valid id (get profile info)
-  // if valid id, show view
-  // else bounce to contacts list
+  let { data: profile, isError } = useGetProfileInfoQuery(profileId !== undefined ? profileId.toString() : '', {
+    skip: profileId === undefined || profileId === ''
+  })
 
-  setTimeout(() => {
-    setData(dummyData)
-    setLoading(false)
-  }, 1000)
+  useEffect(() => {
+    if (profile) {
+      setTimeout(() => {
+        setLoading(false)
+        setData(profile)
+      }, 500)
+    }
+  }, [profile])
+
+  //needs error handling
+
+  if (isError) {
+    return (
+      <>
+        <Typography mb={4} variant='h5'>
+          No profile matching the ID of {profileId} could be found.
+        </Typography>
+        <Typography variant='body1'>
+          Click{' '}
+          <Link className='text-blue-400' href='/profiles/list'>
+            here
+          </Link>{' '}
+          to return to search.
+        </Typography>
+      </>
+    )
+  }
 
   return (
     <>

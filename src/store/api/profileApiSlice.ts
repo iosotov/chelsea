@@ -242,10 +242,12 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           dispatch(updateProfiles([data]))
         } catch (err) {
-          // ************************
+          // ********************
           // NEED TO CREATE ERROR HANDLING
 
           console.log(err)
+          // Re-throw the error to make sure isError becomes true
+          throw err
         }
       },
       providesTags: result => {

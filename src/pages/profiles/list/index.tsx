@@ -42,12 +42,12 @@ import { CardStatsHorizontalProps } from 'src/@core/components/card-statistics/t
 
 // ** Custom Table Components Imports
 import { useAppDispatch, useAppSelector } from 'src/store/hooks'
-import { useGetProfilesQuery } from 'src/store/api/profileApiSlice'
+import { useGetProfilesQuery } from 'src/store/api/apiHooks'
 import { ProfileInfoType } from 'src/store/api/profileApiSlice'
 import { selectAllProfiles } from 'src/store/profileSlice'
 // import SidebarAddUser from 'src/views/pages/user/list/AddUserDrawer'
 // import TableHeader from 'src/views/pages/user/list/TableHeader'
-import { useGetBudgetsQuery, useGetProfileBudgetsQuery } from 'src/store/api/profileBudgetApiSlice'
+// import { useGetBudgetsQuery, useGetProfileBudgetsQuery } from 'src/store/api/profileBudgetApiSlice'
 import { selectAllBudgets, selectAllProfileBudgets } from 'src/store/profileBudgetSlice'
 
 interface UserRoleType {
@@ -310,10 +310,8 @@ const ProfileList = () => {
   const [value, setValue] = useState<string>('')
 
   useGetProfilesQuery(data)
-  useGetProfileBudgetsQuery('1327485548')
-  useGetBudgetsQuery({})
-
-  console.log(profileBudgets, budgets)
+  // useGetProfileBudgetsQuery('1327485548')
+  // useGetBudgetsQuery({})
 
   const [pageSize, setPageSize] = useState<number>(10)
   const [addUserOpen, setAddUserOpen] = useState<boolean>(false)
