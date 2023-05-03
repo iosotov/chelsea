@@ -152,8 +152,7 @@ export type EnrollmentSearchResultModel = {
   nextPaymentAmount: number
   initialFeeAmount: number
   lastPaymentStatus: EnrollmentDetailStatus
-
-  // no lastpaymentstatusname?
+  lastPaymentStatusName: string
   lastPaymentDate: string
   lastPaymentAmount: number
   cancelledDate: string

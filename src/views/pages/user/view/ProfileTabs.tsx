@@ -5,9 +5,7 @@ import Box from '@mui/material/Box'
 import Tab from '@mui/material/Tab'
 import TabPanel from '@mui/lab/TabPanel'
 import TabContext from '@mui/lab/TabContext'
-import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
-import MuiTabList, { TabListProps } from '@mui/lab/TabList'
 import CircularProgress from '@mui/material/CircularProgress'
 import TabList from '@mui/lab/TabList'
 import { useRouter } from 'next/router'
@@ -27,7 +25,7 @@ type Props = {
   tab: string
 }
 
-export default function UserViewLeft({ id, tab }: Props) {
+export default function ProfileTabs({ id, tab }: Props) {
   const router = useRouter()
 
   const [activeTab, setActiveTab] = useState(tab ?? 'debts')

@@ -1,4 +1,4 @@
-import { ReactElement, useEffect } from 'react'
+import { ReactElement } from 'react'
 
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -9,8 +9,6 @@ import { Grid, Typography, Box } from '@mui/material'
 import { useForm } from 'react-hook-form'
 import TextInput from 'src/views/shared/form-input/text-input'
 import SingleSelect from 'src/views/shared/form-input/single-select'
-import ToggleSwitch from 'src/views/shared/form-input/toggle-switch'
-import CreditCard from 'src/views/shared/form-input/credit-card'
 import Button from '@mui/material/Button'
 import SelectDate from 'src/views/shared/form-input/date-picker'
 
@@ -31,7 +29,7 @@ const typeOptions = [
   }
 ]
 
-export default function TransactionDialog({ data, open, toggle }: TransactionDialogProps) {
+export default function TransactionDialog({ data, open, toggle }: TransactionDialogProps): ReactElement {
   const transForm = useForm()
   const {
     control,

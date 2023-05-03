@@ -8,8 +8,8 @@ import { useSelector } from 'react-redux'
 import { useEffect, useState } from 'react'
 
 //Imported Views
-import UserViewLeft from 'src/views/pages/user/view/UserViewLeft'
-import UserViewRight from 'src/views/pages/user/view/UserViewRight'
+import ProfileTabs from 'src/views/pages/user/view/ProfileTabs'
+import ProfileSnapshot from 'src/views/pages/user/view/ProfileSnapshot'
 
 //API Calls
 import { useGetProfileInfoQuery } from 'src/store/api/apiHooks'
@@ -70,10 +70,10 @@ export default function UserProfile({ tab }: Props) {
         <Grid container spacing={4}>
           <Grid item xs={12} md={4} lg={4}>
             {/* pass profileInfo directly into UserViewLeft */}
-            <UserViewLeft data={data} />
+            <ProfileSnapshot data={data} />
           </Grid>
           <Grid item xs={12} md={8} lg={8}>
-            <UserViewRight id={profileId} tab={tab} />
+            <ProfileTabs id={profileId} tab={tab} />
           </Grid>
         </Grid>
       )}
