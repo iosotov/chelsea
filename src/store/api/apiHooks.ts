@@ -148,7 +148,10 @@ export const {
   usePostPauseEnrollmentMutation,
 
   // POST enrollment/profileId/profile/resume
-  usePostResumeEnrollmentMutation
+  usePostResumeEnrollmentMutation,
+
+  // POST enrollment/profileId/preview
+  useGetEnrollmentPreviewMutation
 } = enrollmentApiSlice
 
 // LIABILITY
