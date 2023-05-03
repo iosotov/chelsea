@@ -1,4 +1,4 @@
-// import { MouseEvent, SyntheticEvent, useState } from 'react';
+import { MouseEvent, SyntheticEvent } from 'react'
 
 import { Ref, useState, ChangeEvent, useEffect, forwardRef, ReactElement, ForwardedRef } from 'react'
 
@@ -12,6 +12,7 @@ import InputLabel from '@mui/material/InputLabel'
 import Typography from '@mui/material/Typography'
 import Box, { BoxProps } from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
+
 import InputAdornment from '@mui/material/InputAdornment'
 import Cards, { Focused } from 'react-credit-cards'
 import { DateType } from 'src/types/forms/reactDatepickerTypes'
@@ -41,6 +42,15 @@ import Grid from '@mui/material/Grid'
 import Icon from 'src/@core/components/icon'
 
 import { SettingsContext } from 'src/@core/context/settingsContext'
+
+//api hooks
+
+import {
+  useGetTaskQuery,
+  useGetProfileTasksQuery,
+  usePutUpdateTaskMutation,
+  usePostCreateTaskMutation
+} from 'src/store/api/apiHooks'
 
 interface Props {
   open: boolean
@@ -72,8 +82,9 @@ const CustomPaymentInput = forwardRef(({ ...props }, ref: ForwardedRef<HTMLEleme
   return <TextField inputRef={ref} label='Payment Date' {...props} />
 })
 
-const ProfileTasks = () => {
+const ProfileTasks = ({ id }: any) => {
   // console.log(data)
+  console.log(id)
 
   // const Transition = forwardRef(function Transition(
   //   props: FadeProps & { children?: ReactElement<any, any> },
@@ -83,11 +94,19 @@ const ProfileTasks = () => {
   // })
 
   // ** Hooks
-
+  const profileId = id
+  const [data, setData] = useState<any>([])
   const [drawerTitle, setDrawerTitle] = useState<string>('Add')
   const [group, setGroup] = useState<string>('Users')
   const [taskName, setTaskName] = useState<string>('')
-  const [paymentDate, setPaymentDate] = useState<DateType>(new Date())
+  const [paymentDate, setPaymentDate] = useState<string>('')
+  const [rows, setRows] = useState<any>([])
+
+  //edit
+  //set type to taskType
+  const [selectedTask, setSelectedTask] = useState<any>({})
+
+  // const [paymentDate, setPaymentDate] = useState<DateType>(new Date())
   const [status, setStatus] = useState<string>('')
   const [focus, setFocus] = useState<Focused>()
 
@@ -96,50 +115,85 @@ const ProfileTasks = () => {
 
   const [openAddTask, setOpenAddTask] = useState<boolean>(false)
   const [openEditTask, setOpenEditTask] = useState<boolean>(false)
+  const [trigger, { isSuccess: triggerSuccess }] = usePostCreateTaskMutation()
 
   // const [data, setData] = useState<[]>(initData)
   // const [data, setData] = useState<TaskType>()
   //fake data, set up TaskType data structure
-  const ex = [
-    { id: 1, taskName: 'task1', assignedTo: 'Jon', dueDate: new Date('01/01/2020'), note: 'hi', status: 'open' },
-    { id: 2, taskName: 'task2', assignedTo: 'Cersei', dueDate: new Date('01/01/2020'), note: 'hi', status: 'open' },
-    { id: 3, taskName: 'task3', assignedTo: 'Jaime', dueDate: new Date('01/01/2020'), note: 'hi', status: 'open' },
-    { id: 4, taskName: 'Stark', assignedTo: 'Arya', dueDate: new Date('01/01/2020'), note: 'hi', status: 'open' },
-    {
-      id: 5,
-      taskName: 'Targaryen',
-      assignedTo: 'Daenerys',
-      dueDate: new Date('01/01/2020'),
-      note: 'hi',
-      status: 'false'
-    },
-    { id: 6, taskName: 'Melisandre', assignedTo: 'null', dueDate: new Date('01/01/2020'), note: 'hi', status: 'true' },
-    {
-      id: 7,
-      taskName: 'Clifford',
-      assignedTo: 'Ferrara',
-      dueDate: new Date('01/01/2020'),
-      note: 'hi',
-      status: 'false'
-    },
-    { id: 8, taskName: 'Frances', assignedTo: 'Rossini', dueDate: new Date('01/01/2020'), note: 'hi', status: 'true' },
-    { id: 9, taskName: 'Roxie', assignedTo: 'Harvey', dueDate: new Date('01/01/2020'), note: 'hi', status: 'true' }
-  ]
+  // const myData = useGetTaskQuery(profileId)
+  const tasksData = useGetProfileTasksQuery(profileId).data
+  console.log(tasksData)
+
+  // const ex = [
+
+  useEffect(() => {
+    if (tasksData) {
+      console.log(tasksData)
+      const dataWithIndex = tasksData.map((obj, index) => {
+        return { ...obj, id: index }
+      })
+      console.log(dataWithIndex)
+
+      setRows(dataWithIndex)
+      setData(tasksData)
+      setSelectedTask({})
+    }
+  }, [tasksData, data])
+
+  async function handleClick() {
+    const testData = {
+      profileId,
+      taskName: taskName,
+      dueDate: paymentDate,
+      assignedTo: 'b12557c2-3a35-4ce6-9e52-959c07e13ce5',
+      assignType: 2,
+      notes: note
+    }
+    const mine = await trigger(testData).unwrap()
+    console.log(mine)
+  }
+
+  //   { id: 1, taskName: 'task1', assignedTo: 'Jon', dueDate: new Date('01/01/2020'), note: 'hi', status: 'open' },
+  //   { id: 2, taskName: 'task2', assignedTo: 'Cersei', dueDate: new Date('01/01/2020'), note: 'hi', status: 'open' },
+  //   { id: 3, taskName: 'task3', assignedTo: 'Jaime', dueDate: new Date('01/01/2020'), note: 'hi', status: 'open' },
+  //   { id: 4, taskName: 'Stark', assignedTo: 'Arya', dueDate: new Date('01/01/2020'), note: 'hi', status: 'open' },
+  //   {
+  //     id: 5,
+  //     taskName: 'Targaryen',
+  //     assignedTo: 'Daenerys',
+  //     dueDate: new Date('01/01/2020'),
+  //     note: 'hi',
+  //     status: 'false'
+  //   },
+  //   { id: 6, taskName: 'Melisandre', assignedTo: 'null', dueDate: new Date('01/01/2020'), note: 'hi', status: 'true' },
+  //   {
+  //     id: 7,
+  //     taskName: 'Clifford',
+  //     assignedTo: 'Ferrara',
+  //     dueDate: new Date('01/01/2020'),
+  //     note: 'hi',
+  //     status: 'false'
+  //   },
+  //   { id: 8, taskName: 'Frances', assignedTo: 'Rossini', dueDate: new Date('01/01/2020'), note: 'hi', status: 'true' },
+  //   { id: 9, taskName: 'Roxie', assignedTo: 'Harvey', dueDate: new Date('01/01/2020'), note: 'hi', status: 'true' }
+  // ]
 
   // s
-  const [data, setData] = useState<any>(ex)
+  // const [data, setData] = useState<any>(tasksData)
 
   // const [props, setProps] = useState < any > [{ group, taskName, paymentDate, status, selectedGroup, note }]
 
   const handleEditTaskOpen = () => {
     console.log('HANLING')
     setDrawerTitle('Edit')
-    setTaskName('')
+    setTaskName(taskName ?? '')
     setSelectedGroup('')
-    setPaymentDate(new Date('01/01/2020'))
+
+    // setPaymentDate(new Date('01/01/2020'))
+    setPaymentDate(paymentDate ?? '')
     setStatus('')
-    setNote('')
-    setOpenEditTask(true)
+    setNote(note ?? '')
+    setOpenAddTask(true)
   }
 
   const handleAddTaskOpen = () => {
@@ -148,7 +202,9 @@ const ProfileTasks = () => {
     setDrawerTitle('Add')
     setTaskName('')
     setSelectedGroup('')
-    setPaymentDate(new Date('01/01/2020'))
+
+    // setPaymentDate(new Date('01/01/2020'))
+    setPaymentDate('')
     setStatus('')
     setNote('')
     setOpenAddTask(true)
@@ -200,6 +256,8 @@ const ProfileTasks = () => {
 
   const addTask = query => {
     setOpenAddTask(false)
+
+    // handleClick
     console.log('payload', query)
   }
 
@@ -211,8 +269,76 @@ const ProfileTasks = () => {
 
   // }
 
+  async function getTaskById(settings: any) {
+    console.log(settings)
+
+    // await selectedTask
+    await settings
+    console.log(settings)
+    const selected = data.find(select => select.taskId === settings)
+    setSelectedTask(selected)
+    console.log(selected)
+    console.log(selectedTask)
+
+    //set isLoading, and only open modal after it loads is false
+
+    //set selected to task after filtering data list
+  }
+
+  //fixing and checking for missing values
+  const getCompletedDate = (params: GridValueGetterParams) => {
+    console.log(`${params.row.completedDate}`)
+    if (`${params.row.completedDate}`) {
+      return 'Incomplete'
+    } else {
+      return `${params.row.completedDate}`
+    }
+  }
+  const buttonActions = params => {
+    console.log(params.row.taskId)
+
+    // setSelectedTask(params.row.taskId)
+    // console.log(selectedTask)
+
+    // const setting = selectedTask
+    const setting = params.row.taskId
+
+    getTaskById(setting)
+
+    //not being updated before it is sent
+    console.log(selectedTask)
+    handleEditTaskOpen()
+
+    return params.row.id
+  }
+
+  const renderSummaryDownloadButton = params => {
+    return (
+      <strong>
+        {/* <Button
+          variant='contained'
+          color='primary'
+          size='small'
+          onClick={() => {
+            params.row.id
+          }}
+        >
+          More Info
+        </Button> */}
+        <IconButton
+          sx={{ color: '#497ce2' }}
+          onClick={() => {
+            buttonActions(params)
+          }}
+        >
+          <Icon icon='mdi:edit' />
+        </IconButton>
+      </strong>
+    )
+  }
+
   const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 90 },
+    { field: 'id', headerName: 'ID', width: 90, renderCell: renderSummaryDownloadButton },
     {
       field: 'taskName',
       headerName: 'Task Name',
@@ -239,10 +365,11 @@ const ProfileTasks = () => {
 
       // type: 'text',
       width: 110,
-      editable: true
+      editable: true,
+      valueGetter: getCompletedDate
     },
     {
-      field: 'status',
+      field: 'statusName',
       headerName: 'Status',
 
       // type: 'text',
@@ -250,7 +377,7 @@ const ProfileTasks = () => {
       editable: true
     },
     {
-      field: 'note',
+      field: 'notes',
       headerName: 'Note',
 
       // type: 'text',
@@ -267,9 +394,6 @@ const ProfileTasks = () => {
     //   valueGetter: (params: GridValueGetterParams) => `${params.row.firstName || ''} ${params.row.lastName || ''}`
     // }
   ]
-
-  const rows = []
-  console.log(new Date())
 
   // const GetTasks = () => {
   //   //call api to get tasks
@@ -300,13 +424,22 @@ const ProfileTasks = () => {
     setDrawerTitle('Add')
     setTaskName('')
     setSelectedGroup('')
-    setPaymentDate(1)
+    setPaymentDate('1')
     setStatus('')
     setNote('')
 
     // setOpenEditTask(false)
     console.log(drawerTitle, taskName, selectedGroup, paymentDate, status, note)
   }
+
+  //handle null values
+  // const handleCellEditCommit = params => {
+  //   if (params.field === 'completedDate' && params.value === null) {
+  //     console.log('hi')
+  //     params.row.completeDate = 'Not Completed' // Replace null with 0
+  //     params.api.updateRow(params.row) // Update the row in the grid
+  //   }
+  // }
 
   return (
     <>
@@ -325,9 +458,21 @@ const ProfileTasks = () => {
           </Button>
           {/* </Box> */}
         </Grid>
+        {/* <Grid item xs={12}>
+          <Button
+            size='medium'
+            type='submit'
+            variant='contained'
+            color='secondary'
+            sx={{ mb: 7, position: 'absolute', right: '12%' }}
+            onClick={handleEditTaskOpen}
+          >
+            Edit Task
+          </Button>
+        </Grid> */}
         <Grid item xs={12}>
           <Box sx={{ height: 400, width: '100%' }}>
-            <DataGrid rows={data} columns={columns} sx={{ mt: 7 }} />
+            <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }}></DataGrid>
           </Box>
         </Grid>
 
@@ -355,6 +500,7 @@ const ProfileTasks = () => {
                     name='task-name'
                     label='Task Name'
                     value={taskName}
+                    // defaultValue={taskName}
                     onBlur={handleBlur}
                     placeholder='Task Name'
                     onChange={handleInputChange}
@@ -469,12 +615,8 @@ const ProfileTasks = () => {
               </Box>
 
               <div>
-                <Button
-                  size='large'
-                  variant='contained'
-                  sx={{ mr: 4 }}
-                  onClick={() => addTask({ taskName, note, paymentDate, group, selectedGroup })}
-                >
+                <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleClick()}>
+                  {/* addTask({ taskName, note, paymentDate, selectedGroup }) */}
                   Send
                 </Button>
                 <Button size='large' variant='outlined' color='secondary' onClick={() => setOpenAddTask(false)}>
