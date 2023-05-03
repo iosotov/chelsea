@@ -51,6 +51,8 @@ import {
   usePutUpdateTaskMutation,
   usePostCreateTaskMutation
 } from 'src/store/api/apiHooks'
+import { useAppSelector } from 'src/store/hooks'
+import { selectTaskByProfileId } from 'src/store/taskSlice'
 
 interface Props {
   open: boolean
@@ -99,12 +101,14 @@ const ProfileTasks = ({ id }: any) => {
   const [drawerTitle, setDrawerTitle] = useState<string>('Add')
   const [group, setGroup] = useState<string>('Users')
   const [taskName, setTaskName] = useState<string>('')
-  const [paymentDate, setPaymentDate] = useState<string>('')
+  const [paymentDate, setPaymentDate] = useState<DateType>()
   const [rows, setRows] = useState<any>([])
 
   //edit
   //set type to taskType
   const [selectedTask, setSelectedTask] = useState<any>({})
+
+  const profileTask = useAppSelector(state => selectTaskByProfileId(state, profileId))
 
   // const [paymentDate, setPaymentDate] = useState<DateType>(new Date())
   const [status, setStatus] = useState<string>('')
@@ -121,14 +125,29 @@ const ProfileTasks = ({ id }: any) => {
   // const [data, setData] = useState<TaskType>()
   //fake data, set up TaskType data structure
   // const myData = useGetTaskQuery(profileId)
-  const tasksData = useGetProfileTasksQuery(profileId).data
-  console.log(tasksData)
+
+  const { isLoading, isSuccess, isError, error } = useGetProfileTasksQuery(profileId)
+
+  // error.msg
+
+  // return (
+
+  //   <>
+  //   {profileTask.map(el => el )}
+  //   </>
+  // )
+  //use isLoading state to conditionally render data
+  console.log(profileTask)
+  console.log(isLoading, isSuccess, isError, error)
+  const tasksData = profileTask
 
   // const ex = [
 
   useEffect(() => {
     if (tasksData) {
       console.log(tasksData)
+
+      //adds index to data needed for dataGrid display
       const dataWithIndex = tasksData.map((obj, index) => {
         return { ...obj, id: index }
       })
@@ -136,10 +155,30 @@ const ProfileTasks = ({ id }: any) => {
 
       setRows(dataWithIndex)
       setData(tasksData)
-      setSelectedTask({})
+
+      // setSelectedTask({})
     }
   }, [tasksData, data])
 
+  //selected Task useeffect
+
+  useEffect(() => {
+    openEditDrawer()
+  }, [selectedTask])
+
+  function openEditDrawer() {
+    console.log(selectedTask)
+    handleEditTaskOpen()
+
+    // setOpenAddTask(false)
+
+    // handleEditTaskOpen()
+  }
+
+  function handleEditClick(choice) {
+    setSelectedTask(choice.row)
+    setOpenAddTask(true)
+  }
   async function handleClick() {
     const testData = {
       profileId,
@@ -153,31 +192,6 @@ const ProfileTasks = ({ id }: any) => {
     console.log(mine)
   }
 
-  //   { id: 1, taskName: 'task1', assignedTo: 'Jon', dueDate: new Date('01/01/2020'), note: 'hi', status: 'open' },
-  //   { id: 2, taskName: 'task2', assignedTo: 'Cersei', dueDate: new Date('01/01/2020'), note: 'hi', status: 'open' },
-  //   { id: 3, taskName: 'task3', assignedTo: 'Jaime', dueDate: new Date('01/01/2020'), note: 'hi', status: 'open' },
-  //   { id: 4, taskName: 'Stark', assignedTo: 'Arya', dueDate: new Date('01/01/2020'), note: 'hi', status: 'open' },
-  //   {
-  //     id: 5,
-  //     taskName: 'Targaryen',
-  //     assignedTo: 'Daenerys',
-  //     dueDate: new Date('01/01/2020'),
-  //     note: 'hi',
-  //     status: 'false'
-  //   },
-  //   { id: 6, taskName: 'Melisandre', assignedTo: 'null', dueDate: new Date('01/01/2020'), note: 'hi', status: 'true' },
-  //   {
-  //     id: 7,
-  //     taskName: 'Clifford',
-  //     assignedTo: 'Ferrara',
-  //     dueDate: new Date('01/01/2020'),
-  //     note: 'hi',
-  //     status: 'false'
-  //   },
-  //   { id: 8, taskName: 'Frances', assignedTo: 'Rossini', dueDate: new Date('01/01/2020'), note: 'hi', status: 'true' },
-  //   { id: 9, taskName: 'Roxie', assignedTo: 'Harvey', dueDate: new Date('01/01/2020'), note: 'hi', status: 'true' }
-  // ]
-
   // s
   // const [data, setData] = useState<any>(tasksData)
 
@@ -185,15 +199,20 @@ const ProfileTasks = ({ id }: any) => {
 
   const handleEditTaskOpen = () => {
     console.log('HANLING')
+
+    console.log(selectedTask)
     setDrawerTitle('Edit')
-    setTaskName(taskName ?? '')
+
+    // setTaskName(taskName ?? '')
+    setTaskName(selectedTask.taskName ?? '')
     setSelectedGroup('')
 
-    // setPaymentDate(new Date('01/01/2020'))
-    setPaymentDate(paymentDate ?? '')
+    // setPaymentDate(new Date(selectedTask.dueDate ?? ''))
+    // console.log(paymentDate)
+
+    // setPaymentDate('')
     setStatus('')
-    setNote(note ?? '')
-    setOpenAddTask(true)
+    setNote(selectedTask.notes ?? '')
   }
 
   const handleAddTaskOpen = () => {
@@ -269,20 +288,30 @@ const ProfileTasks = ({ id }: any) => {
 
   // }
 
-  async function getTaskById(settings: any) {
-    console.log(settings)
+  // async function getTaskById(settings: any) {
+  //   console.log(settings)
 
-    // await selectedTask
-    await settings
+  //   // await selectedTask
+  //   await settings
+  //   console.log(settings)
+  //   const selected = await data.find(select => select.taskId === settings)
+  //   await setSelectedTask(selected)
+  //   console.log(selected)
+  //   console.log(selectedTask)
+
+  //   //set isLoading, and only open modal after it loads is false
+
+  //   //set selected to task after filtering data list
+  // }
+
+  const getTaskById = (settings: any) => {
     console.log(settings)
     const selected = data.find(select => select.taskId === settings)
     setSelectedTask(selected)
-    console.log(selected)
-    console.log(selectedTask)
 
-    //set isLoading, and only open modal after it loads is false
+    return selected
 
-    //set selected to task after filtering data list
+    // setSelectedTask(selected)
   }
 
   //fixing and checking for missing values
@@ -294,43 +323,42 @@ const ProfileTasks = ({ id }: any) => {
       return `${params.row.completedDate}`
     }
   }
-  const buttonActions = params => {
-    console.log(params.row.taskId)
 
-    // setSelectedTask(params.row.taskId)
-    // console.log(selectedTask)
+  // const buttonActions = params => {
+  //   console.log(params.row.taskId)
 
-    // const setting = selectedTask
-    const setting = params.row.taskId
+  //   // setSelectedTask(params.row.taskId)
+  //   // console.log(selectedTask)
 
-    getTaskById(setting)
+  //   // const setting = selectedTask
+  //   const setting = params.row.taskId
 
-    //not being updated before it is sent
-    console.log(selectedTask)
-    handleEditTaskOpen()
+  //   getTaskById(setting)
 
-    return params.row.id
-  }
+  //   //not being updated before it is sent
+  //   console.log(selectedTask)
+  //   handleEditTaskOpen()
 
-  const renderSummaryDownloadButton = params => {
+  //   return params.row.id
+  // }
+
+  // function handleSelectItem(item) {
+  //   console.log(item.row)
+  //   setSelectedTask(item.row)
+  //   console.log(selectedTask)
+  // }
+
+  //generate button for editById
+  const renderEditTaskButton = params => {
     return (
       <strong>
-        {/* <Button
-          variant='contained'
-          color='primary'
-          size='small'
-          onClick={() => {
-            params.row.id
-          }}
-        >
-          More Info
-        </Button> */}
         <IconButton
           sx={{ color: '#497ce2' }}
           onClick={() => {
-            buttonActions(params)
+            handleEditClick(params)
           }}
         >
+          {params.row.taskId}
           <Icon icon='mdi:edit' />
         </IconButton>
       </strong>
@@ -338,11 +366,11 @@ const ProfileTasks = ({ id }: any) => {
   }
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 90, renderCell: renderSummaryDownloadButton },
+    { field: 'id', headerName: 'ID', width: 120, renderCell: renderEditTaskButton },
     {
       field: 'taskName',
       headerName: 'Task Name',
-      width: 150,
+      width: 130,
       editable: true
     },
     {
@@ -405,26 +433,12 @@ const ProfileTasks = ({ id }: any) => {
   //   GetMine()
   // }, [])
 
-  // const updateData = () => {
-  //   const ex = [
-  //     { id: 1, taskName: 'taskNew', assignedTo: 'Jon', dueDate: 35 },
-  //     { id: 2, taskName: 'task2', assignedTo: 'Cersei', dueDate: 42 },
-  //     { id: 3, taskName: 'task3', assignedTo: 'Jaime', dueDate: 45 },
-  //     { id: 4, taskName: 'Stark', assignedTo: 'Arya', dueDate: 16 },
-  //     { id: 5, taskName: 'Targaryen', assignedTo: 'Daenerys', dueDate: null },
-  //     { id: 6, taskName: 'Melisandre', assignedTo: null, dueDate: 150 },
-  //     { id: 7, taskName: 'Clifford', assignedTo: 'Ferrara', dueDate: 44 },
-  //     { id: 8, taskName: 'Frances', assignedTo: 'Rossini', dueDate: 36 },
-  //     { id: 9, taskName: 'Roxie', assignedTo: 'Harvey', dueDate: 65 }
-  //   ]
-  //   setData(ex)
-  // }
   const resetForm = () => {
     console.log('resetting')
     setDrawerTitle('Add')
     setTaskName('')
     setSelectedGroup('')
-    setPaymentDate('1')
+    setPaymentDate('')
     setStatus('')
     setNote('')
 
@@ -500,7 +514,7 @@ const ProfileTasks = ({ id }: any) => {
                     name='task-name'
                     label='Task Name'
                     value={taskName}
-                    // defaultValue={taskName}
+                    // defaultValue='hi'
                     onBlur={handleBlur}
                     placeholder='Task Name'
                     onChange={handleInputChange}
@@ -543,6 +557,7 @@ const ProfileTasks = ({ id }: any) => {
                 <DatePickerWrapper sx={{ '& .MuiFormControl-root': { width: '100%' } }}>
                   <DatePicker
                     selected={paymentDate}
+                    value={paymentDate}
                     name='task-paymentDate'
                     id='task-paymentDate'
                     customInput={<CustomPaymentInput />}
@@ -560,6 +575,7 @@ const ProfileTasks = ({ id }: any) => {
             }}
           />
         </Box> */}
+              <Box sx={{ mb: 6 }}>{selectedTask.taskId}</Box>
               <Box sx={{ mb: 6 }}>
                 <ButtonGroup variant='contained' sx={{ ml: 10 }}>
                   <Button onClick={() => setGroup('Users')}>Users</Button>
