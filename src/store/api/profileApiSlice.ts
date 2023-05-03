@@ -278,6 +278,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
     }),
 
     // GET PROFILE STATUS
+    // ******************** backend bug ****************************************
     getProfileStatus: builder.query<ProfileStatusType, string>({
       query: profileId => ({
         url: `/profile/${profileId}/status-summary`,
@@ -434,13 +435,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: (result, err, arg) =>
-        result
-          ? [
-              { type: 'PROFILE-STATUS', id: arg },
-              { type: 'PROFILE', id: arg }
-            ]
-          : []
+      invalidatesTags: (result, err, arg) => (result ? [{ type: 'PROFILE', id: arg }] : [])
     }),
 
     // POST PROFILE APPROVE
@@ -466,7 +461,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: (result, err, arg) => [{ type: 'PROFILE-STATUS', id: arg }]
+      invalidatesTags: (result, err, arg) => [{ type: 'PROFILE', id: arg }]
     }),
 
     // POST PROFILE REJECT
@@ -492,13 +487,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: (result, err, arg) =>
-        result
-          ? [
-              { type: 'PROFILE-STATUS', id: arg },
-              { type: 'PROFILE', id: arg }
-            ]
-          : []
+      invalidatesTags: (result, err, arg) => (result ? [{ type: 'PROFILE', id: arg }] : [])
     }),
 
     // POST PROFILE ENROLL
@@ -524,7 +513,11 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: (result, err, arg) => [{ type: 'PROFILE-STATUS', id: arg }]
+      invalidatesTags: (result, err, arg) => [
+        { type: 'PROFILE', id: arg },
+        { type: 'ENROLLMENT', id: arg },
+        { type: 'ENROLLMENT-PAYMENT', id: arg }
+      ]
     }),
 
     // POST PROFILE GRANT AUTH

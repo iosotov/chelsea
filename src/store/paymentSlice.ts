@@ -4,7 +4,7 @@ import { RootState } from './store'
 import { PaymentDetailInfoModel } from './api/enrollmentApiSlice'
 
 const paymentAdapter = createEntityAdapter({
-  selectId: (payment: PaymentDetailInfoModel) => payment.profileId
+  selectId: (payment: PaymentDetailInfoModel) => payment.enrollmentDetailId
 })
 
 const initialState = paymentAdapter.getInitialState()
