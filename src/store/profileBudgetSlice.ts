@@ -1,6 +1,6 @@
-import { createEntityAdapter, createSelector, createSlice, EntityState } from '@reduxjs/toolkit'
+import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit'
 
-import { Budget, ProfileBudget } from './api/profileBudgetApiSlice'
+import { BudgetType, ProfileBudget } from './api/profileBudgetApiSlice'
 import { RootState } from './store'
 
 const profileBudgetAdapter = createEntityAdapter({
@@ -8,7 +8,7 @@ const profileBudgetAdapter = createEntityAdapter({
 })
 
 const budgetAdapter = createEntityAdapter({
-  selectId: (budget: Budget) => budget.budgetId
+  selectId: (budget: BudgetType) => budget.budgetId
 })
 
 const initialState = {
@@ -20,21 +20,33 @@ const profileBudgetSlice = createSlice({
   name: 'profileBudget',
   initialState,
   reducers: {
+    updateProfileBudget: (state, action) => {
+      const { profile, budget } = action.payload
+
+      profileBudgetAdapter.upsertMany(state.profileBudget, profile)
+      budgetAdapter.upsertMany(state.budget, budget)
+    },
     setProfileBudget: (state, action) => {
       const { profile, budget } = action.payload
 
       profileBudgetAdapter.setAll(state.profileBudget, profile)
       budgetAdapter.setAll(state.budget, budget)
     },
+    updateBudget: (state, action) => {
+      budgetAdapter.upsertMany(state.budget, action.payload)
+    },
     setBudget: (state, action) => {
       budgetAdapter.setAll(state.budget, action.payload)
+    },
+    removeBudget: (state, action) => {
+      budgetAdapter.removeOne(state.budget, action.payload)
+      profileBudgetAdapter.removeOne(state.profileBudget, action.payload)
     }
-
-    // profileBudget reducers
   }
 })
 
-export const { setBudget, setProfileBudget } = profileBudgetSlice.actions
+export const { setBudget, setProfileBudget, updateBudget, updateProfileBudget, removeBudget } =
+  profileBudgetSlice.actions
 
 export default profileBudgetSlice.reducer
 
