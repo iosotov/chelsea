@@ -37,7 +37,12 @@ export const apiSlice = createApi({
     'ENROLLMENT',
     'ENROLLMENT-PAYMENT',
     'LIABILITY',
-    'TASK'
+    'TASK',
+    'SETTING-ADDRESS',
+    'SETTING-ASSIGNEE',
+    'SETTING-CONTACT',
+    'SETTING-CUSTOMFIELD',
+    'SETTING-LABEL'
   ],
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
