@@ -53,6 +53,9 @@ const settingSlice = createSlice({
     updateAssignees: (state, action) => {
       assigneeAdapter.upsertMany(state.assignee, action.payload)
     },
+    removeAssignee: (state, action) => {
+      assigneeAdapter.removeOne(state.assignee, action.payload)
+    },
     setContacts: (state, action) => {
       contactAdapter.setAll(state.contact, action.payload)
     },
@@ -84,7 +87,8 @@ export const {
   updateAssignees,
   updateContacts,
   updateCustomFields,
-  updateLabels
+  updateLabels,
+  removeAssignee
 } = settingSlice.actions
 
 export default settingSlice.reducer

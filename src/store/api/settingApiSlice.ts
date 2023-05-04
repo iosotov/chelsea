@@ -1,4 +1,4 @@
-import { setAddresses, updateAddresses } from '../settingSlice'
+import { setAddresses, setAssignees, updateAddresses, updateAssignees } from '../settingSlice'
 import { apiSlice } from './apiSlice'
 
 export type AddressSettingType = {
@@ -6,6 +6,12 @@ export type AddressSettingType = {
   name: string
   order: number
   active: boolean
+}
+
+export type AssigneeDatasourceType = {
+  key: string
+  value: string
+  parentKey: string
 }
 
 export type AddressCreateType = {
@@ -22,6 +28,52 @@ export type AssigneeSettingType = {
   description: string
   createdByName: string
   order: number
+}
+
+export type SearchFilterColumnsType = {
+  index: number
+  displayName: string
+  columnName: string
+  search: {
+    value: string
+    operator: string
+  }
+}
+
+export type SearchFilterOrderType = {
+  columnName: string
+  direction: string
+}
+
+export type SearchFilterType = {
+  start?: number
+  length?: number
+  columns?: SearchFilterColumnsType[]
+  order?: SearchFilterOrderType[]
+  columnsExport: string
+}
+
+export type AssigneeCreateType = {
+  assigneeId?: string
+  name: string
+  filters: {
+    dataSourceType: string
+    filters: SearchFilterType
+  }
+  description: string
+  companyName: string
+}
+
+export type AssigneeInfoType = {
+  assigneeId: string
+  name: string
+  companyName: string
+  datasourceFilter: string
+  order: number
+  description: string
+  active: boolean
+  filters: SearchFilterType
+  dataSource: null
 }
 
 export type ContactSettingType = {
@@ -62,6 +114,8 @@ export type LabelSettingType = {
 
 export const settingApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
+    // ***************** ADDRESS **************************************************************
+
     getAddress: builder.query<AddressSettingType, string>({
       query: addressId => ({
         url: `/setting/addresses/${addressId}/info`,
@@ -92,7 +146,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
 
     getAddresses: builder.query<AddressSettingType[], undefined>({
       query: () => ({
-        url: `/setting/addresses/`,
+        url: `/setting/addresses`,
         method: 'GET'
       }),
       transformResponse: (res: Record<string, any>) => {
@@ -123,7 +177,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    postAddress: builder.mutation<AddressCreateType, Record<string, any>>({
+    postAddress: builder.mutation<string, AddressCreateType>({
       query: body => ({
         url: `/setting/addresses`,
         method: 'POST',
@@ -263,6 +317,224 @@ export const settingApiSlice = apiSlice.injectEndpoints({
               { type: 'SETTING-ADDRESS', id: 'LIST' }
             ]
           : []
+      }
+    }),
+
+    // ***************** ASSIGNEE **************************************************************
+
+    getAssignee: builder.query<AssigneeInfoType, string>({
+      query: assigneeId => ({
+        url: `/setting/assignees/${assigneeId}/info`,
+        method: 'GET'
+      }),
+      transformResponse: (res: Record<string, any>) => {
+        if (!res.success) throw new Error('There was an error fetching assignee setting')
+
+        return res.data
+      },
+      async onQueryStarted(settingId, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+
+          const { assigneeId, companyName, name, datasourceFilter, order, description, active, filters, dataSource } =
+            data
+
+          const res = {
+            assigneeId,
+            assigneeName: name,
+            companyName,
+            active,
+            description,
+            datasourceFilter,
+            order,
+            filters,
+            dataSource
+          }
+
+          console.log(res)
+
+          dispatch(updateAssignees([data]))
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+          console.log(err)
+        }
+      },
+      providesTags: (result, error, arg) => {
+        return result
+          ? [
+              { type: 'SETTING-ASSIGNEE', id: arg },
+              { type: 'SETTING-ASSIGNEE', id: 'LIST' }
+            ]
+          : []
+      }
+    }),
+
+    getAssignees: builder.query<AssigneeSettingType[], undefined>({
+      query: () => ({
+        url: `/setting/assignees`,
+        method: 'GET'
+      }),
+      transformResponse: (res: Record<string, any>) => {
+        if (!res.success) throw new Error('There was an error fetching assignee settings')
+
+        return res.data
+      },
+      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+
+          console.log(data)
+
+          dispatch(setAssignees(data))
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+          console.log(err)
+        }
+      },
+      providesTags: result => {
+        return result
+          ? [
+              { type: 'SETTING-ASSIGNEE', id: 'LIST' },
+              ...result.map(a => ({ type: 'SETTING-ASSIGNEE' as const, id: a.assigneeId }))
+            ]
+          : []
+      }
+    }),
+
+    postAssignee: builder.mutation<string, AssigneeCreateType>({
+      query: body => ({
+        url: `/setting/assignees`,
+        method: 'POST',
+        body
+      }),
+      transformResponse: (res: Record<string, any>) => {
+        if (!res.success) throw new Error('There was an error creating assignee setting')
+
+        return res.data
+      },
+      async onQueryStarted(body, { queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+          console.log(err)
+        }
+      },
+      invalidatesTags: result => {
+        return result ? [{ type: 'SETTING-ASSIGNEE', id: 'LIST' }] : []
+      }
+    }),
+
+    putAssignee: builder.mutation<boolean, AssigneeCreateType>({
+      query: body => {
+        const { assigneeId } = body
+
+        return {
+          url: `/setting/assignees/${assigneeId}`,
+          method: 'PUT',
+          body
+        }
+      },
+      transformResponse: (res: Record<string, any>) => {
+        if (!res.success) throw new Error('There was an error updating assignee setting')
+
+        return res.success
+      },
+      async onQueryStarted(body, { queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+          console.log(err)
+        }
+      },
+      invalidatesTags: (result, error, arg) => {
+        return result ? [{ type: 'SETTING-ASSIGNEE', id: arg.assigneeId }] : []
+      }
+    }),
+
+    putAssigneeEnable: builder.mutation<string, string>({
+      query: assigneeId => ({
+        url: `/setting/assignees/${assigneeId}/enable`,
+        method: 'PUT'
+      }),
+      transformResponse: (res: Record<string, any>, meta, arg) => {
+        if (!res.success) throw new Error('There was an error enabling assignee setting')
+
+        return arg
+      },
+      async onQueryStarted(body, { queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+          console.log(err)
+        }
+      },
+      invalidatesTags: result => {
+        return result
+          ? [
+              { type: 'SETTING-ASSIGNEE', id: result },
+              { type: 'SETTING-ASSIGNEE', id: 'LIST' }
+            ]
+          : []
+      }
+    }),
+
+    putAssigneeDisable: builder.mutation<string, string>({
+      query: assigneeId => ({
+        url: `/setting/assignees/${assigneeId}/enable`,
+        method: 'PUT'
+      }),
+      transformResponse: (res: Record<string, any>, meta, arg) => {
+        if (!res.success) throw new Error('There was an error enabling assignee setting')
+
+        return arg
+      },
+      async onQueryStarted(body, { queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+          console.log(err)
+        }
+      },
+      invalidatesTags: result => {
+        return result
+          ? [
+              { type: 'SETTING-ASSIGNEE', id: result },
+              { type: 'SETTING-ASSIGNEE', id: 'LIST' }
+            ]
+          : []
+      }
+    }),
+
+    getAssigneeDatasource: builder.query<AssigneeDatasourceType, string>({
+      query: assigneeId => ({
+        url: `/setting/assignees/${assigneeId}/datasource`,
+        method: 'GET'
+      }),
+      transformResponse: (res: Record<string, any>) => {
+        if (!res.success) throw new Error('There was an error disabling assignee setting')
+
+        console.log(res.data)
+
+        return res.data
+      },
+      async onQueryStarted(body, { queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+          console.log(err)
+        }
       }
     })
   })

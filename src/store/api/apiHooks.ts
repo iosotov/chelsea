@@ -1,4 +1,3 @@
-import settingSlice from '../settingSlice'
 import { bankAccountApiSlice } from './bankAccountApiSlice'
 import { campaignApiSlice } from './campaignApiSlice'
 import { companyApiSlice } from './companyApiSlice'
@@ -315,5 +314,26 @@ export const {
   usePutAddressEnableMutation,
 
   // PUT setting/addresses/addressId/disable
-  usePutAddressDisableMutation
+  usePutAddressDisableMutation,
+
+  // GET setting/assignees/assigneeId/info
+  useGetAssigneeQuery,
+
+  // GET setting/assignees
+  useGetAssigneesQuery,
+
+  // POST setting/assignees
+  usePostAssigneeMutation,
+
+  // PUT setting/assignees/assigneeId
+  usePutAssigneeMutation,
+
+  // PUT setting/assignees/assigneeId/enable
+  usePutAssigneeEnableMutation,
+
+  // PUT setting/assignees/assigneeId/disable
+  usePutAssigneeDisableMutation,
+
+  // GET setting/assignees/assigneeId/datasource
+  useGetAssigneeDatasourceQuery
 } = settingApiSlice
