@@ -15,7 +15,7 @@ export type ProfileInfoType = {
   status: number
   statusName: string
 
-  stage: string
+  stage: number
   stageName: string
   stageStatus: string
   stageStatusName: string
@@ -48,8 +48,13 @@ export type ProfileInfoType = {
 }
 
 export type ProfileLabelsType = {
-  profileId: string
   labelId: string
+  name: string
+  order: number
+  profileId: string
+  required: boolean
+  type: number
+  typeName: string
   value: string
 }
 

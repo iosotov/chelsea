@@ -23,7 +23,7 @@ import StatusDialog from './components/snapshot/StatusDialog'
 import Icon from 'src/@core/components/icon'
 
 //Imported Types
-import { ProfileInfoType } from 'src/store/api/profileApiSlice'
+import { ProfileInfoType, ProfileLabelsType } from 'src/store/api/profileApiSlice'
 import { ProfileContactType } from 'src/store/api/profileApiSlice'
 import { ProfileCustomFieldType } from 'src/store/api/profileApiSlice'
 
@@ -38,7 +38,6 @@ import { Button, Fade, Menu, MenuItem } from '@mui/material'
 import PersonalDialog from './components/snapshot/PersonalDialog'
 
 import { useConfirm } from 'material-ui-confirm'
-import { EnrollmentInfoModel, EnrollmentSearchResultModel } from 'src/store/api/enrollmentApiSlice'
 
 type Props = {
   data: ProfileInfoType
@@ -86,6 +85,8 @@ export default function ProfileSnapshot({ data }: Props) {
     profileCustomFields
   } = data
 
+  console.log(profileLabels)
+
   //status dictionary
   const statusDictionary = [
     'secondary',
@@ -104,8 +105,6 @@ export default function ProfileSnapshot({ data }: Props) {
   //Enrollment info
   useGetEnrollmentQuery(profileId, { skip: profileId === null })
   const enrollmentData = useAppSelector(state => selectEnrollmentByProfileId(state, profileId))
-
-  console.log(status)
 
   // returns date in mm/dd/yyyy form
   const DateConverter = (date: string | undefined) => {
@@ -357,9 +356,9 @@ export default function ProfileSnapshot({ data }: Props) {
                 <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                   <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Labels:</Typography>
                   {profileLabels.length > 0 ? (
-                    <Box sx={{ display: 'flex', gap: 2 }}>
+                    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                       {profileLabels.map(label => {
-                        return <CustomChip skin='light' label={String(label)} color='primary' />
+                        return <CustomChip skin='light' label={String(label.name)} color='primary' />
                       })}
                     </Box>
                   ) : (
