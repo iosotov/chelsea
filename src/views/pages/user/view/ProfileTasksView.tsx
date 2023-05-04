@@ -140,23 +140,37 @@ const ProfileTasks = ({ id }: any) => {
   console.log(isLoading, isSuccess, isError, error)
   const tasksData = profileTask
 
+  // if (tasksData) {
+  console.log(tasksData)
+  const dataWithIndex = tasksData.map((obj, index) => {
+    return { ...obj, id: index }
+  })
+  console.log(dataWithIndex)
+
+  // setRows(dataWithIndex)
+
+  // setData(tasksData)
+  console.log(rows)
+
+  // }
+
   //Global localstate useEffect, need to remove and use global global
-  useEffect(() => {
-    if (tasksData) {
-      console.log(tasksData)
+  // useEffect(() => {
+  //   if (tasksData) {
+  //     console.log(tasksData)
 
-      //adds index to data needed for dataGrid display can move to a function
-      const dataWithIndex = tasksData.map((obj, index) => {
-        return { ...obj, id: index }
-      })
-      console.log(dataWithIndex)
+  //     //adds index to data needed for dataGrid display can move to a function
+  //     const dataWithIndex = tasksData.map((obj, index) => {
+  //       return { ...obj, id: index }
+  //     })
+  //     console.log(dataWithIndex)
 
-      setRows(dataWithIndex)
-      setData(tasksData)
+  //     setRows(dataWithIndex)
+  //     setData(tasksData)
 
-      // setSelectedTask({})
-    }
-  }, [tasksData, data])
+  //     // setSelectedTask({})
+  //   }
+  // }, [tasksData, data])
 
   //selected Task useeffect
 
@@ -476,7 +490,8 @@ const ProfileTasks = ({ id }: any) => {
         </Grid> */}
         <Grid item xs={12}>
           <Box sx={{ height: 400, width: '100%' }}>
-            <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }}></DataGrid>
+            {/* <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }}></DataGrid> */}
+            <DataGrid rows={dataWithIndex} columns={columns} sx={{ mt: 7 }}></DataGrid>
           </Box>
         </Grid>
 
