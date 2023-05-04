@@ -57,7 +57,7 @@ const stageOptions = [
 export default function StatusDialog({ open, toggle, stage, status }: Props): ReactElement {
   // call api for status/stage
 
-  const statusForm = useForm({ defaultValues: { stage, status } })
+  const statusForm = useForm()
   const {
     formState: { errors },
     control,
@@ -99,6 +99,7 @@ export default function StatusDialog({ open, toggle, stage, status }: Props): Re
             <Grid container spacing={6}>
               <Grid item xs={12}>
                 <SingleSelect
+                  defaultValue={stage ?? 0}
                   name='stage'
                   label='Stage'
                   options={stageOptions}
@@ -109,6 +110,7 @@ export default function StatusDialog({ open, toggle, stage, status }: Props): Re
               </Grid>
               <Grid item xs={12}>
                 <SingleSelect
+                  defaultValue={status ?? 0}
                   name='status'
                   label='Status'
                   options={statusOptions}

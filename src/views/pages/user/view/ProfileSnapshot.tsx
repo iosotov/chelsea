@@ -102,8 +102,10 @@ export default function ProfileSnapshot({ data }: Props) {
   ]
 
   //Enrollment info
-  useGetEnrollmentQuery(profileId)
+  useGetEnrollmentQuery(profileId, { skip: profileId === null })
   const enrollmentData = useAppSelector(state => selectEnrollmentByProfileId(state, profileId))
+
+  console.log(status)
 
   // returns date in mm/dd/yyyy form
   const DateConverter = (date: string | undefined) => {
@@ -184,6 +186,15 @@ export default function ProfileSnapshot({ data }: Props) {
           break
         case 'delete':
           console.log(`deleting profileId: ${profileId}`)
+          break
+        case 'pause':
+          console.log(`pause profileId: ${profileId}`)
+          break
+        case 'cancel':
+          console.log(`cancel profileId: ${profileId}`)
+          break
+        case 'resume':
+          console.log(`resume profileId: ${profileId}`)
           break
       }
     })
@@ -299,6 +310,7 @@ export default function ProfileSnapshot({ data }: Props) {
                   <MenuItem sx={{ minWidth: '150px' }} onClick={() => handleClick('delete')}>
                     Delete
                   </MenuItem>
+                  <MenuItem>Reenroll</MenuItem>
                 </Menu>
               </Box>
               <Typography mb={2} variant='h4'>
@@ -403,18 +415,41 @@ export default function ProfileSnapshot({ data }: Props) {
                 </Box>
               </Box>
               <Box sx={{ display: 'flex', mt: 1, justifyContent: 'space-evenly' }}>
-                <Button hidden size='small' color='primary' variant='contained' onClick={() => handleClick('submit')}>
-                  Submit
-                </Button>
-                <Button size='small' color='info' variant='contained' onClick={() => handleClick('approve')}>
-                  Approve
-                </Button>
-                <Button size='small' color='warning' variant='contained' onClick={() => handleClick('reject')}>
-                  Reject
-                </Button>
-                <Button size='small' color='success' variant='contained' onClick={() => handleClick('enroll')}>
-                  Enroll
-                </Button>
+                {status === 0 ? (
+                  <Button size='small' color='primary' variant='contained' onClick={() => handleClick('submit')}>
+                    Submit
+                  </Button>
+                ) : null}
+                {status === 1 ? (
+                  <Button size='small' color='info' variant='contained' onClick={() => handleClick('approve')}>
+                    Approve
+                  </Button>
+                ) : null}
+                {status === 1 ? (
+                  <Button size='small' color='warning' variant='contained' onClick={() => handleClick('reject')}>
+                    Reject
+                  </Button>
+                ) : null}
+                {status === 7 ? (
+                  <Button size='small' color='success' variant='contained' onClick={() => handleClick('enroll')}>
+                    Enroll
+                  </Button>
+                ) : null}
+                {status === 0 ? (
+                  <>
+                    <Button size='small' color='secondary' variant='contained' onClick={() => handleClick('pause')}>
+                      Pause
+                    </Button>
+                    <Button size='small' color='error' variant='contained' onClick={() => handleClick('cancel')}>
+                      Cancel
+                    </Button>
+                  </>
+                ) : null}
+                {status === 6 ? (
+                  <Button size='small' color='primary' variant='contained' onClick={() => handleClick('resume')}>
+                    Resume
+                  </Button>
+                ) : null}
               </Box>
             </CardContent>
           </Card>
@@ -570,13 +605,6 @@ export default function ProfileSnapshot({ data }: Props) {
       </Grid>
       <StatusDialog open={statusDialog} toggle={toggleStatus} stage={stage} status={status} />
       <PersonalDialog open={personalDialog} toggle={togglePersonal} data={enrollmentData} />
-      {/* <ConfirmationDialog
-        open={confirmationDialog}
-        toggle={toggleConfirmation}
-        title='Confirmation'
-        textBody='Are you sure you want to continue?'
-        action={target}
-      /> */}
     </>
   )
 }
