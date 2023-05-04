@@ -11,6 +11,9 @@ import TextInput from 'src/views/shared/form-input/text-input'
 import SingleSelect from 'src/views/shared/form-input/single-select'
 import Button from '@mui/material/Button'
 import SelectDate from 'src/views/shared/form-input/date-picker'
+import IconButton from '@mui/material/IconButton'
+
+import Icon from 'src/@core/components/icon'
 
 import { useAppSelector } from 'src/store/hooks'
 
@@ -81,7 +84,17 @@ export default function StatusDialog({ open, toggle, stage, status }: Props): Re
   }, [watch])
   return (
     <Dialog open={open} maxWidth='xs' fullWidth onClose={toggle} aria-labelledby='form-dialog-title'>
-      <DialogTitle id='form-dialog-title'>Update Stage & Status</DialogTitle>
+      <DialogTitle id='form-dialog-title'>
+        <Typography variant='h6'>Update Stage & Status</Typography>
+        <IconButton
+          aria-label='close'
+          onClick={onClose}
+          sx={{ top: 10, right: 10, position: 'absolute', color: 'grey.500' }}
+        >
+          <Icon icon='mdi:close' />
+        </IconButton>
+      </DialogTitle>
+
       <DialogContent>
         <Box my={2}>
           <form>

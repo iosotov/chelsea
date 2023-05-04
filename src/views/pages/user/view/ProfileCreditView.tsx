@@ -492,6 +492,7 @@ export default function ProfileCredit({ id }: Props) {
     }
   }, [id])
 
+  console.log('rerendered')
   return (
     <Grid container spacing={4}>
       <Grid item xs={12}>

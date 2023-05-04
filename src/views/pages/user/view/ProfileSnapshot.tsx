@@ -17,6 +17,7 @@ import MuiAccordionSummary, { AccordionSummaryProps } from '@mui/material/Accord
 
 //Imported Components
 import StatusDialog from './components/snapshot/StatusDialog'
+import ConfirmationDialog from 'src/views/shared/dialog/confirmationDialog'
 
 //Icon Import
 import Icon from 'src/@core/components/icon'
@@ -33,7 +34,7 @@ import { format } from 'date-fns'
 import { useAppSelector } from 'src/store/hooks'
 import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
 import { useGetEnrollmentQuery } from 'src/store/api/apiHooks'
-import { Button } from '@mui/material'
+import { Button, Hidden } from '@mui/material'
 import PersonalDialog from './components/snapshot/PersonalDialog'
 
 type Props = {
@@ -137,6 +138,8 @@ export default function ProfileSnapshot({ data }: Props) {
     }
   }
 
+  console.log('rerendered')
+
   //Stage/Status Edit Dialog
   const [statusDialog, setStatusDialog] = useState<boolean>(false)
   const toggleStatus = () => setStatusDialog(!statusDialog)
@@ -144,6 +147,10 @@ export default function ProfileSnapshot({ data }: Props) {
   //Update PersonalInfo Dialog
   const [personalDialog, setPersonalDialog] = useState<boolean>(false)
   const togglePersonal = () => setPersonalDialog(!personalDialog)
+
+  //Confirmation Dialog
+  const [confirmationDialog, setConfirmationDialog] = useState<boolean>(false)
+  const toggleConfirmation = () => setConfirmationDialog(!confirmationDialog)
 
   //Phone = 0, email = 1, fax = 2
   const generatePhone = () => {
@@ -227,6 +234,11 @@ export default function ProfileSnapshot({ data }: Props) {
         <Grid item xs={12}>
           <Card>
             <CardContent>
+              <Box sx={{ display: 'flex', justifyContent: 'end', mb: 1 }}>
+                <Button size='small' color='error'>
+                  Delete
+                </Button>
+              </Box>
               <Typography mb={2} variant='h4'>
                 {firstName ?? ''} {lastName ?? ''}
               </Typography>
@@ -323,6 +335,20 @@ export default function ProfileSnapshot({ data }: Props) {
                     {profileAssignees[0]?.companyName ?? 'N/A'}
                   </Typography>
                 </Box>
+              </Box>
+              <Box sx={{ display: 'flex', mt: 1, justifyContent: 'space-evenly' }}>
+                <Button size='small' color='primary' variant='contained'>
+                  Submit
+                </Button>
+                <Button size='small' color='info' variant='contained' onClick={toggleConfirmation}>
+                  Approve
+                </Button>
+                <Button size='small' color='warning' variant='contained' onClick={toggleConfirmation}>
+                  Reject
+                </Button>
+                <Button size='small' color='success' variant='contained' onClick={toggleConfirmation}>
+                  Enroll
+                </Button>
               </Box>
             </CardContent>
           </Card>
@@ -478,6 +504,13 @@ export default function ProfileSnapshot({ data }: Props) {
       </Grid>
       <StatusDialog open={statusDialog} toggle={toggleStatus} stage={stage} status={status} />
       <PersonalDialog open={personalDialog} toggle={togglePersonal} data={enrollmentData} />
+      <ConfirmationDialog
+        open={confirmationDialog}
+        toggle={toggleConfirmation}
+        title='Confirmation'
+        textBody='Are you sure you want to continue?'
+        action={() => console.log('accepted')}
+      />
     </>
   )
 }

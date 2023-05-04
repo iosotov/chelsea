@@ -113,8 +113,6 @@ const stateOptions = [
 
 export default function PersonalDialog({ open, toggle, data }: Props): ReactElement {
   // call api for status/stage
-
-  console.log(status)
   const statusForm = useForm()
   const {
     formState: { errors },
