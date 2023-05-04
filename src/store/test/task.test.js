@@ -9,10 +9,10 @@ import profile, { selectProfileById } from '../profileSlice'
 import { JSDOM } from 'jsdom'
 import { apiSlice } from '../api/apiSlice'
 import auth, { setCredentials } from '../authSlice'
-import task from '../taskSlice'
+import task, { selectTaskByProfileId } from '../taskSlice'
 
 import SolApi from '../api/SolApi'
-import { profileBudgetApiSlice } from '../api/profileBudgetApiSlice'
+import { taskApiSlice } from '../api/taskApiSlice'
 
 // import { waitForApiCall } from './helper'
 
@@ -64,52 +64,61 @@ afterAll(async () => {
 
 test('task api', async () => {
   let _profileId = '9158384435'
-  let _budgetId = '4cb707ca-3579-4fb9-aa60-151fd4787ce1'
+  let _taskId = '3a02608d-d65d-4054-b7b2-e1c2b230aea4'
 
-  const _profileBudgetUpdate = {
+  const _profileTaskCreate = {
     profileId: _profileId,
-    budgets: [
-      {
-        budgetId: 'fb065254-000a-44b4-ab42-de6939938bed',
-        amount: 20
-      }
-    ]
+    taskName: 'Welcome call 2',
+    dueDate: '2023-01-30',
+    assignedTo: 'b12557c2-3a35-4ce6-9e52-959c07e13ce5',
+    assignType: 2
   }
 
-  const _budgetCreate = {
-    name: 'Redux Budget',
-    budgetType: 0,
-    description: 'testing the redux store'
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _profileTaskUpdate = {
+    profileId: _profileId,
+    taskId: _taskId,
+    taskName: 'Introductory Redux Update KKKKKK',
+    dueDate: '2023-06-09',
+    assignedTo: 'b12557c2-3a35-4ce6-9e52-959c07e13ce5',
+    assignType: 2,
+    status: 1,
+    notes: 'updated redux'
   }
 
-  const _budgetUpdate = {
-    budgetId: _budgetId,
-    name: 'Redux Budget Update',
-    budgetType: 1,
-    description: 'testing the redux expense'
-  }
+  // const a = {
+  //   taskName: 'Introductory Call 2',
+  //   dueDate: '2023-03-09',
+  //   assignedTo: 'b12557c2-3a35-4ce6-9e52-959c07e13ce5',
+  //   assignType: 2,
+  //   status: 1,
+  //   notes: '',
+  //   taskId: '5444139b-acab-4ca6-a50e-ba406fba85b1'
+  // }
 
-  const useGetProfileBudgetsQueryMock = jest.spyOn(profileBudgetApiSlice, 'useGetProfileBudgetsQuery')
-  const useGetBudgetsQueryMock = jest.spyOn(profileBudgetApiSlice, 'useGetBudgetsQuery')
-  const useGetBudgetInfoQueryMock = jest.spyOn(profileBudgetApiSlice, 'useGetBudgetInfoQuery')
-  const usePostProfileBudgetsMutationMock = jest.spyOn(profileBudgetApiSlice, 'usePostProfileBudgetsMutation')
-  const usePostBudgetsMutationMock = jest.spyOn(profileBudgetApiSlice, 'usePostBudgetsMutation')
-  const usePutDisableBudgetMutationMock = jest.spyOn(profileBudgetApiSlice, 'usePutDisableBudgetMutation')
-  const usePutEnableBudgetMutationMock = jest.spyOn(profileBudgetApiSlice, 'usePutEnableBudgetMutation')
-  const usePutUpdateBudgetMutationMock = jest.spyOn(profileBudgetApiSlice, 'usePutUpdateBudgetMutation')
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const useGetTaskQueryMock = jest.spyOn(taskApiSlice, 'useGetTaskQuery')
+  const useGetProfileTasksQueryMock = jest.spyOn(taskApiSlice, 'useGetProfileTasksQuery')
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const usePutUpdateTaskMutationMock = jest.spyOn(taskApiSlice, 'usePutUpdateTaskMutation')
+  const usePutBulkUpdateTasksMutationMock = jest.spyOn(taskApiSlice, 'usePutBulkUpdateTasksMutation')
+
+  const usePostCreateTaskMutationMock = jest.spyOn(taskApiSlice, 'usePostCreateTaskMutation')
+  const usePostSearchTaskQueryMock = jest.spyOn(taskApiSlice, 'usePostSearchTaskQuery')
+  const useDeleteTaskMutationMock = jest.spyOn(taskApiSlice, 'useDeleteTaskMutation')
 
   const ProfileWrapper = storeWrapper(({ profileId }) => {
     const {
       isLoading: profileIsLoading,
       isSuccess: profileIsSuccess,
       isFetching: profileIsFetching
-    } = useGetProfileBudgetsQueryMock(profileId)
+    } = useGetProfileTasksQueryMock(profileId)
 
-    const [updateProfile, { isLoading: updateProfileLoading, isSuccess: updateProfileSuccess }] =
-      usePostProfileBudgetsMutationMock()
+    const [createTask, { isLoading: createTaskLoading, isSuccess: createTaskSuccess }] = usePostCreateTaskMutationMock()
 
-    async function handleUpdateProfile() {
-      const data = await updateProfile(_profileBudgetUpdate).unwrap()
+    async function handleCreateTask() {
+      const data = await createTask(_profileTaskCreate).unwrap()
       console.log(data)
     }
 
@@ -128,186 +137,172 @@ test('task api', async () => {
 
         {/* ////////////////////////////////////////////////// */}
 
-        <div>{updateProfileLoading && 'updateProfileLoading'}</div>
+        <div>{createTaskLoading && 'createTaskLoading'}</div>
 
-        <div>{updateProfileSuccess && 'updateProfileSuccess'}</div>
+        <div>{createTaskSuccess && 'createTaskSuccess'}</div>
 
         {/* ////////////////////////////////////////////////// */}
 
-        <button onClick={handleUpdateProfile}>updateProfile</button>
+        <button onClick={handleCreateTask}>createTask</button>
       </>
     )
   })
 
-  const BudgetListWrapper = storeWrapper(({ budgetId }) => {
-    const {
-      isLoading: budgetsIsLoading,
-      isSuccess: budgetsIsSuccess,
-      isFetching: budgetsIsFetching
-    } = useGetBudgetsQueryMock({})
-
-    const [createBudget, { isLoading: createBudgetLoading, isSuccess: createBudgetSuccess }] =
-      usePostBudgetsMutationMock()
-
-    const [enableBudget, { isLoading: enableBudgetLoading, isSuccess: enableBudgetSuccess }] =
-      usePutEnableBudgetMutationMock()
-
-    const [disableBudget, { isLoading: disableBudgetLoading, isSuccess: disableBudgetSuccess }] =
-      usePutDisableBudgetMutationMock()
-
-    async function handleCreateBudget() {
-      _budgetId = await createBudget(_budgetCreate).unwrap()
-      console.log(data)
-    }
-
-    async function handleEnableBudget() {
-      const data = await enableBudget(budgetId).unwrap()
-      console.log(data)
-    }
-
-    async function handleDisableBudget() {
-      const data = await disableBudget(budgetId).unwrap()
-      console.log(data)
-    }
-
-    return (
-      <>
-        {/* ////////////////////////////////////////////////// */}
-
-        <div>{budgetsIsLoading && 'budgetsIsLoading'}</div>
-
-        <div>{budgetsIsFetching && 'budgetsIsFetching'}</div>
-
-        <div>
-          {budgetsIsFetching && 'budgetsIsFetching'}
-          {budgetsIsSuccess && 'budgetsIsSuccess'}
-        </div>
-
-        {/* ////////////////////////////////////////////////// */}
-
-        <div>{createBudgetLoading && 'createBudgetLoading'}</div>
-
-        <div>{createBudgetSuccess && 'createBudgetSuccess'}</div>
-
-        {/* ////////////////////////////////////////////////// */}
-
-        <div>{enableBudgetLoading && 'enableBudgetLoading'}</div>
-
-        <div>{enableBudgetSuccess && 'enableBudgetSuccess'}</div>
-
-        {/* ////////////////////////////////////////////////// */}
-
-        <div>{disableBudgetLoading && 'disableBudgetLoading'}</div>
-
-        <div>{disableBudgetSuccess && 'disableBudgetSuccess'}</div>
-
-        {/* ////////////////////////////////////////////////// */}
-
-        <button onClick={handleCreateBudget}>createBudget</button>
-
-        <button onClick={handleEnableBudget}>enableBudget</button>
-
-        <button onClick={handleDisableBudget}>disableBudget</button>
-      </>
-    )
-  })
-
-  const BudgetWrapper = storeWrapper(({ budgetId }) => {
+  const TaskListWrapper = storeWrapper(({ taskId }) => {
     const {
       data,
-      isLoading: budgetIsLoading,
-      isSuccess: budgetIsSuccess,
-      isFetching: budgetIsFetching
-    } = useGetBudgetInfoQueryMock(budgetId)
+      isLoading: tasksIsLoading,
+      isSuccess: tasksIsSuccess,
+      isFetching: tasksIsFetching
+    } = usePostSearchTaskQueryMock({})
 
-    console.log(data)
+    console.log(data && data.filter(task => task.taskId === _taskId))
 
-    const [updateBudget, { isLoading: updateBudgetLoading, isSuccess: updateBudgetSuccess }] =
-      usePutUpdateBudgetMutationMock()
+    const [deleteTask, { isLoading: deleteTaskLoading, isSuccess: deleteTaskSuccess }] = useDeleteTaskMutationMock()
+    const [bulkUpdate, { isLoading: bulkUpdateLoading, isSuccess: bulkUpdateSuccess }] =
+      usePutBulkUpdateTasksMutationMock()
 
-    async function handleUpdateBudget() {
-      const data = await updateBudget(_budgetUpdate).unwrap()
+    async function handleDeleteTask() {
+      const data = await deleteTask(taskId).unwrap()
       console.log(data)
+    }
+
+    async function handleBulkUpdate() {
+      const data = {
+        taskIds: ['3a02608d-d65d-4054-b7b2-e1c2b230aea4', '4fe2b159-19b6-4223-a1e7-737b72c7371b'],
+        status: 0,
+        dueDate: '2023-07-04',
+        notes: 'update Test',
+        assignedTo: 'b12557c2-3a35-4ce6-9e52-959c07e13ce5',
+        assignType: 2
+      }
+      const res = await bulkUpdate(data).unwrap()
+      console.log(res)
     }
 
     return (
       <>
         {/* ////////////////////////////////////////////////// */}
 
-        <div>{budgetIsLoading && 'budgetIsLoading'}</div>
+        <div>{tasksIsLoading && 'tasksIsLoading'}</div>
 
-        <div>{budgetIsFetching && 'budgetIsFetching'}</div>
+        <div>{tasksIsFetching && 'tasksIsFetching'}</div>
 
         <div>
-          {budgetIsFetching && 'budgetIsFetching'}
-          {budgetIsSuccess && 'budgetIsSuccess'}
+          {tasksIsFetching && 'tasksIsFetching'}
+          {tasksIsSuccess && 'tasksIsSuccess'}
         </div>
 
         {/* ////////////////////////////////////////////////// */}
 
-        <div>{updateBudgetLoading && 'updateBudgetLoading'}</div>
+        <div>{deleteTaskLoading && 'deleteTaskLoading'}</div>
 
-        <div>{updateBudgetSuccess && 'updateBudgetSuccess'}</div>
+        <div>{deleteTaskSuccess && 'deleteTaskSuccess'}</div>
 
         {/* ////////////////////////////////////////////////// */}
 
-        <button onClick={handleUpdateBudget}>updateBudget</button>
+        <div>{bulkUpdateLoading && 'bulkUpdateLoading'}</div>
+
+        <div>{bulkUpdateSuccess && 'bulkUpdateSuccess'}</div>
+
+        {/* ////////////////////////////////////////////////// */}
+
+        <button onClick={handleBulkUpdate}>bulkUpdate</button>
+
+        <button onClick={handleDeleteTask}>deleteTask</button>
       </>
     )
   })
+
+  // const TaskWrapper = storeWrapper(({ taskId }) => {
+  //   const {
+  //     data,
+  //     isLoading: taskIsLoading,
+  //     isSuccess: taskIsSuccess,
+  //     isFetching: taskIsFetching
+  //   } = useGetTaskQueryMock(taskId)
+
+  //   console.log(data)
+
+  //   const [updateTask, { isLoading: updateTaskLoading, isSuccess: updateTaskSuccess }] = usePutUpdateTaskMutationMock()
+
+  //   async function handleUpdateTask() {
+  //     const data = await updateTask(_profileTaskUpdate).unwrap()
+  //     console.log(data)
+  //   }
+
+  //   return (
+  //     <>
+  //       {/* ////////////////////////////////////////////////// */}
+
+  //       <div>{taskIsLoading && 'taskIsLoading'}</div>
+
+  //       <div>{taskIsFetching && 'taskIsFetching'}</div>
+
+  //       <div>
+  //         {taskIsFetching && 'taskIsFetching'}
+  //         {taskIsSuccess && 'taskIsSuccess'}
+  //       </div>
+
+  //       {/* ////////////////////////////////////////////////// */}
+
+  //       <div>{updateTaskLoading && 'updateTaskLoading'}</div>
+
+  //       <div>{updateTaskSuccess && 'updateTaskSuccess'}</div>
+
+  //       {/* ////////////////////////////////////////////////// */}
+
+  //       <button onClick={handleUpdateTask}>updateTask</button>
+  //     </>
+  //   )
+  // })
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
   const { getByText: profile } = render(<ProfileWrapper profileId={_profileId} />)
-  const { getByText: budget } = render(<BudgetWrapper budgetId={_budgetId} />)
-  const { getByText: budgets } = render(<BudgetListWrapper budgetId={_budgetId} />)
+
+  // const { getByText: task } = render(<TaskWrapper taskId={_taskId} />)
+  const { getByText: tasks } = render(<TaskListWrapper taskId={_taskId} />)
 
   await waitFor(() => expect(profile('profileIsLoading')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(budget('budgetIsLoading')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(budgets('budgetsIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+
+  // await waitFor(() => expect(task('taskIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+  await waitFor(() => expect(tasks('tasksIsLoading')).toBeInTheDocument(), { timeout: 5000 })
   await waitFor(() => expect(profile('profileIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(budget('budgetIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(budgets('budgetsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+  // await waitFor(() => expect(task('taskIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+  await waitFor(() => expect(tasks('tasksIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
 
   let state = store.getState()
 
   // access tags used for cache management
-  let budgetTags = state[apiSlice.reducerPath].provided.BUDGET
-  let profileBudgetTags = state[apiSlice.reducerPath].provided['PROFILE-BUDGET']
+  // let taskTags = state[apiSlice.reducerPath].provided.TASK
 
-  let allBudgets = selectAllBudgets(state)
-  let profileBudgets = selectProfileBudgetsByProfileId(state, _profileId)
+  let profileTasks = selectTaskByProfileId(state, _profileId)
 
-  console.log(budgetTags)
-  console.log(profileBudgetTags)
+  // console.log(taskTags)
+  console.log(profileTasks)
 
-  // console.log(allBudgets, allBudgets.length)
-  // console.log(profileBudgets, profileBudgets.length)
-
-  let button = budgets('updateBudget')
+  let button = tasks('deleteTask')
   fireEvent.click(button)
 
-  await waitFor(() => expect(budget('updateBudgetLoading')).toBeInTheDocument(), { timeout: 3000 })
-  await waitFor(() => expect(budget('updateBudgetSuccess')).toBeInTheDocument(), { timeout: 3000 })
-  await waitFor(() => expect(budget('budgetIsFetching')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(budgets('budgetsIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+  await waitFor(() => expect(tasks('deleteTaskLoading')).toBeInTheDocument(), { timeout: 3000 })
+  await waitFor(() => expect(tasks('deleteTaskSuccess')).toBeInTheDocument(), { timeout: 3000 })
+  await waitFor(() => expect(tasks('tasksIsFetching')).toBeInTheDocument(), { timeout: 5000 })
   await waitFor(() => expect(profile('profileIsFetching')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(budget('budgetIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(budgets('budgetsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+  // await waitFor(() => expect(task('taskIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+  await waitFor(() => expect(tasks('tasksIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
   await waitFor(() => expect(profile('profileIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+  // await waitFor(() => expect(task('taskIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
 
   state = store.getState()
 
-  // access tags used for cache management
-  budgetTags = state[apiSlice.reducerPath].provided.BUDGET
-  profileBudgetTags = state[apiSlice.reducerPath].provided['PROFILE-BUDGET']
+  // taskTags = state[apiSlice.reducerPath].provided.TASK
 
-  allBudgets = selectAllBudgets(state)
-  profileBudgets = selectProfileBudgetsByProfileId(state, _profileId)
+  profileTasks = selectTaskByProfileId(state, _profileId)
 
-  console.log(budgetTags)
-  console.log(profileBudgetTags)
-
-  console.log(allBudgets, allBudgets.length)
-  console.log(profileBudgets, profileBudgets.length)
+  // console.log(taskTags)
+  console.log(profileTasks)
 }, 10000)

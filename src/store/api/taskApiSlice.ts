@@ -1,3 +1,4 @@
+import { deleteTask } from '../taskSlice'
 import { setTasks, updateTasks } from '../taskSlice'
 import { apiSlice } from './apiSlice'
 
@@ -98,7 +99,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
           : []
       }
     }),
-    postCreateTask: builder.mutation<boolean, TaskCreateType>({
+    postCreateTask: builder.mutation<string, TaskCreateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -124,7 +125,13 @@ export const taskApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: (res, error, arg) => (res ? [{ type: 'TASK', id: arg.profileId }] : [])
+      invalidatesTags: (res, error, arg) =>
+        res
+          ? [
+              { type: 'TASK', id: arg.profileId },
+              { type: 'TASK', id: 'LIST' }
+            ]
+          : []
     }),
     postSearchTask: builder.query<TaskType[], Record<string, any>>({
       query: body => {
@@ -137,13 +144,14 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: Record<string, any>) => {
         if (!res.success) throw new Error('There was an error creating task')
 
-        return res.data
+        return res.data.data
       },
       async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
           dispatch(setTasks(data))
-          console.log(data)
+
+          // console.log(data)
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
@@ -154,7 +162,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       providesTags: res =>
         res ? [{ type: 'TASK', id: 'LIST' }, ...res.map(task => ({ type: 'TASK' as const, id: task.taskId }))] : []
     }),
-    putUpdateTask: builder.mutation<string, TaskCreateType>({
+    putUpdateTask: builder.mutation<boolean, TaskCreateType>({
       query: params => {
         const { taskId, ...body } = params
 
@@ -162,37 +170,6 @@ export const taskApiSlice = apiSlice.injectEndpoints({
           url: `/task/${taskId}`,
           method: 'PUT',
           body
-        }
-      },
-      transformResponse: (res: Record<string, any>) => {
-        if (!res.success) throw new Error('There was an error updating task')
-        console.log(res.data)
-
-        return res.data
-      },
-      async onQueryStarted(params, { queryFulfilled }) {
-        try {
-          await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
-        }
-      },
-      invalidatesTags: (res, error, arg) =>
-        res
-          ? [
-              { type: 'TASK', id: arg.taskId },
-              { type: 'TASK', id: arg.profileId }
-            ]
-          : []
-    }),
-    deleteTask: builder.mutation<boolean, string>({
-      query: taskId => {
-        return {
-          url: `/task/${taskId}`,
-          method: 'DELETE'
         }
       },
       transformResponse: (res: Record<string, any>) => {
@@ -214,12 +191,44 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: (res, error, arg) =>
         res
           ? [
+              { type: 'TASK', id: arg.taskId },
+              { type: 'TASK', id: arg.profileId }
+            ]
+          : []
+    }),
+    deleteTask: builder.mutation<string, string>({
+      query: taskId => {
+        return {
+          url: `/task/${taskId}`,
+          method: 'DELETE'
+        }
+      },
+      transformResponse: (res: Record<string, any>, meta, arg) => {
+        if (!res.success) throw new Error('There was an error updating task')
+        console.log(res.data)
+
+        return arg
+      },
+      async onQueryStarted(params, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          dispatch(deleteTask(data))
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+
+          console.log(err)
+        }
+      },
+      invalidatesTags: (res, error, arg) =>
+        res
+          ? [
               { type: 'TASK', id: 'LIST' },
               { type: 'TASK', id: arg }
             ]
           : []
     }),
-    putBulkUpdateTasks: builder.mutation<string, TaskBulkUpdateType>({
+    putBulkUpdateTasks: builder.mutation<boolean, TaskBulkUpdateType>({
       query: body => {
         return {
           url: `/task/bulk-update`,
@@ -231,7 +240,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
         if (!res.success) throw new Error('There was an error bulk updating tasks')
         console.log(res.data)
 
-        return res.data
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
