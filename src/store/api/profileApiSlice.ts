@@ -95,6 +95,14 @@ export type ProfileCustomFieldCreateType = {
   value: string
 }
 
+export type AddressType = {
+  addressId: string
+  name: string
+  order: number
+  active: boolean
+  createdByName: string
+}
+
 export type ProfileCreateType = {
   profileId: string
   firstName: string
@@ -169,17 +177,56 @@ export type ProfileContactType = {
   value: string
 }
 
+export type ContactType = {
+  contactId: string
+  name: string
+  type: number
+  typeName: string
+  active: boolean
+  createdByName: string
+  order: number
+  required: boolean
+}
+
 export type ProfileCustomFieldType = {
   profileId: string
   customFieldId: string
-  value: string
-  order: number
   fieldName: string
   fieldType: number
+  fieldTypeName: string
   label: string
   defaultValue: string
   isVisible: boolean
   dataSources: string
+  fieldGroup: string
+  order: number
+  value: string
+}
+
+export type CustomFieldType = {
+  customFieldId: string
+  fieldName: string
+  fieldType: number
+  fieldTypeName: string
+  label: string
+  defaultValue: string
+  isVisible: boolean
+  dataSources: string
+  active: boolean
+  createdByName: string
+  fieldGroup: string
+  order: number
+}
+
+export type LabelType = {
+  labelId: string
+  name: string
+  type: number
+  typeName: string
+  active: boolean
+  createdByName: string
+  order: number
+  required: boolean
 }
 
 export type ProfileBasicType = {
@@ -238,11 +285,158 @@ export const profileApiSlice = apiSlice.injectEndpoints({
       transformResponse: async (res: Record<string, any>) => {
         if (!res.success) throw new Error('There was an error fetching profile')
 
-        return res.data
+        const profileInfo: ProfileInfoType = { ...res.data }
+
+        // GET ASSIGNEES
+        const systemAssignees: ProfileAssigneeType[] = await SolApi.GetAssignees()
+        const profileAssignees = systemAssignees.map(assignee => {
+          const { assigneeId, assigneeName, companyName, order } = assignee
+
+          const profileAssignee = profileInfo.profileAssignees.find(ass => ass.assigneeId === assignee.assigneeId)
+
+          let result = {
+            profileId: profileInfo.profileId,
+            assigneeId,
+            assigneeName,
+            assigneeCompanyLabel: companyName,
+            employeeId: 'N/A',
+            employeeName: 'N/A',
+            employeeAlias: 'N/A',
+            companyId: 'N/A',
+            companyName: 'N/A',
+            order
+          }
+
+          if (profileAssignee) result = { ...result, ...profileAssignee }
+
+          return result
+        })
+
+        profileInfo.profileAssignees = profileAssignees
+
+        // GET ADDRESSES
+        const systemAddresses: AddressType[] = await SolApi.GetAddresses()
+        const profileAddresses = systemAddresses.map(address => {
+          const { addressId, name, order } = address
+
+          const profileAddress = profileInfo.profileAddresses.find(add => add.addressId === address.addressId)
+
+          let result = {
+            profileId: profileInfo.profileId,
+            addressId,
+            addressName: name,
+            address1: 'N/A',
+            address2: 'N/A',
+            city: 'N/A',
+            state: 'N/A',
+            zipCode: 'N/A',
+            order
+          }
+
+          if (profileAddress) result = { ...result, ...profileAddress }
+
+          return result
+        })
+
+        profileInfo.profileAddresses = profileAddresses
+
+        // GET CONTACTS
+        const systemContacts: ContactType[] = await SolApi.GetContacts()
+        const profileContacts = systemContacts.map(contact => {
+          const { contactId, name, order, type, typeName } = contact
+
+          const profileContact = profileInfo.profileContacts.find(con => con.contactId === contact.contactId)
+
+          let result = {
+            profileId: profileInfo.profileId,
+            contactId,
+            contactName: name,
+            contactType: type,
+            contactTypeName: typeName,
+            value: 'N/A',
+            order
+          }
+
+          if (profileContact) result = { ...result, ...profileContact }
+
+          return result
+        })
+
+        profileInfo.profileContacts = profileContacts
+
+        // GET CUSTOM FIELDS
+        const systemCustomFields: CustomFieldType[] = await SolApi.GetCustomFields()
+        const profileCustomFields = systemCustomFields.map(customField => {
+          const {
+            isVisible,
+            customFieldId,
+            fieldName,
+            fieldTypeName,
+            fieldType,
+            label,
+            defaultValue,
+            dataSources,
+            fieldGroup,
+            order
+          } = customField
+
+          const profileCustomField = profileInfo.profileCustomFields.find(
+            cf => cf.customFieldId === customField.customFieldId
+          )
+
+          let result = {
+            profileId: profileInfo.profileId,
+            customFieldId,
+            fieldName,
+            fieldType,
+            fieldTypeName,
+            label,
+            defaultValue,
+            isVisible,
+            dataSources,
+            fieldGroup,
+            order,
+            value: 'N/A'
+          }
+
+          if (profileCustomField) result = { ...result, ...profileCustomField }
+
+          return result
+        })
+
+        profileInfo.profileCustomFields = profileCustomFields
+
+        // GET LABELS
+        const systemLabels: LabelType[] = await SolApi.GetLabels()
+        const profileLabels = systemLabels.map(label => {
+          const { labelId, name, type, typeName, required, order } = label
+
+          const profileLabel = profileInfo.profileLabels.find(label => label.labelId === label.labelId)
+
+          let result = {
+            profileId: profileInfo.profileId,
+            labelId,
+            name,
+            type,
+            typeName,
+            required,
+            order,
+            value: 'N/A'
+          }
+
+          if (profileLabel) result = { ...result, ...profileLabel }
+
+          return result
+        })
+
+        profileInfo.profileLabels = profileLabels
+
+        return profileInfo
       },
       async onQueryStarted(searchParams, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
+
           dispatch(updateProfiles([data]))
         } catch (err) {
           // ********************

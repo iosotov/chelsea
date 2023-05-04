@@ -7,6 +7,7 @@ import { enrollmentApiSlice } from './enrollmentApiSlice'
 import { liabilityApiSlice } from './liabilityApiSlice'
 import { profileApiSlice } from './profileApiSlice'
 import { profileBudgetApiSlice } from './profileBudgetApiSlice'
+import { settingApiSlice } from './settingApiSlice'
 import { taskApiSlice } from './taskApiSlice'
 
 // SOL REDUX API POINTS
@@ -279,7 +280,7 @@ export const {
   // GET task/profileId/profile
   useGetProfileTasksQuery,
 
-  // PUT task/profileId/profile
+  // PUT task/taskId
   usePutUpdateTaskMutation,
 
   // PUT task/bulk-update
@@ -289,5 +290,53 @@ export const {
   usePostCreateTaskMutation,
 
   // POST task/search
-  usePostSearchTaskQuery
+  usePostSearchTaskQuery,
+
+  // DELETE task/taskId/
+  useDeleteTaskMutation
 } = taskApiSlice
+
+// SETTINGS
+export const {
+  // GET setting/addresses/addressId/info
+  useGetAddressQuery,
+
+  // GET setting/addresses
+  useGetAddressesQuery,
+
+  // POST setting/addresses
+  usePostAddressMutation,
+
+  // POST setting/addresses/search
+  usePostAddressSearchQuery,
+
+  // PUT setting/addresses/addressId
+  usePutAddressMutation,
+
+  // PUT setting/addresses/addressId/enable
+  usePutAddressEnableMutation,
+
+  // PUT setting/addresses/addressId/disable
+  usePutAddressDisableMutation,
+
+  // GET setting/assignees/assigneeId/info
+  useGetAssigneeQuery,
+
+  // GET setting/assignees
+  useGetAssigneesQuery,
+
+  // POST setting/assignees
+  usePostAssigneeMutation,
+
+  // PUT setting/assignees/assigneeId
+  usePutAssigneeMutation,
+
+  // PUT setting/assignees/assigneeId/enable
+  usePutAssigneeEnableMutation,
+
+  // PUT setting/assignees/assigneeId/disable
+  usePutAssigneeDisableMutation,
+
+  // GET setting/assignees/assigneeId/datasource
+  useGetAssigneeDatasourceQuery
+} = settingApiSlice

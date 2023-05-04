@@ -12,6 +12,7 @@ import enrollment from './enrollmentSlice'
 import liability from './liabilitySlice'
 import payment from './paymentSlice'
 import task from './taskSlice'
+import setting from './settingSlice'
 
 export const store = configureStore({
   reducer: {
@@ -27,7 +28,8 @@ export const store = configureStore({
     enrollment,
     liability,
     payment,
-    task
+    task,
+    setting
   },
   middleware: getDefaultMiddleware => getDefaultMiddleware().concat(apiSlice.middleware),
   devTools: true

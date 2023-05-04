@@ -14,7 +14,6 @@ const taskSlice = createSlice({
   initialState,
   reducers: {
     setTasks: (state, action) => {
-      console.log(action.payload)
       taskAdapter.setAll(state, action.payload)
     },
     updateTasks: (state, action) => {

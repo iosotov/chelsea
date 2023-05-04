@@ -80,6 +80,88 @@ class SolApi {
     return res
   }
 
+  static async GetAssignees() {
+    const res = await this.request(`/setting/assignees`, {}, 'GET')
+
+    return res.data
+  }
+
+  static async GetAddresses() {
+    const params = {
+      columns: [
+        {
+          index: 0,
+          displayName: 'active',
+          columnName: 'active',
+          search: {
+            value: true,
+            operator: 0
+          }
+        }
+      ]
+    }
+    const res = await this.request(`/setting/addresses/search`, params, 'POST')
+
+    return res.data.data
+  }
+
+  static async GetContacts() {
+    const params = {
+      columns: [
+        {
+          index: 0,
+          displayName: 'active',
+          columnName: 'active',
+          search: {
+            value: true,
+            operator: 0
+          }
+        }
+      ]
+    }
+    const res = await this.request(`/setting/contacts/search`, params, 'POST')
+
+    return res.data.data
+  }
+
+  static async GetCustomFields() {
+    const params = {
+      columns: [
+        {
+          index: 0,
+          displayName: 'active',
+          columnName: 'active',
+          search: {
+            value: true,
+            operator: 0
+          }
+        }
+      ]
+    }
+    const res = await this.request(`/setting/customfields/search`, params, 'POST')
+
+    return res.data.data
+  }
+
+  static async GetLabels() {
+    const params = {
+      columns: [
+        {
+          index: 0,
+          displayName: 'active',
+          columnName: 'active',
+          search: {
+            value: true,
+            operator: 0
+          }
+        }
+      ]
+    }
+    const res = await this.request(`/setting/labels/search`, params, 'POST')
+
+    return res.data.data
+  }
+
   static async TestAuth() {
     const testCred = {
       username: 'sam@prime.co',
