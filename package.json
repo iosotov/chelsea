@@ -61,6 +61,7 @@
     "jest-dev-server": "^8.0.5",
     "jsonwebtoken": "8.5.1",
     "keen-slider": "6.8.5",
+    "material-ui-confirm": "^3.0.9",
     "next": "13.1.6",
     "nprogress": "0.2.0",
     "payment": "2.4.6",

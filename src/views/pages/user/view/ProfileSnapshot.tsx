@@ -5,10 +5,11 @@ import AccordionDetails from '@mui/material/AccordionDetails'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
-import Chip from '@mui/material/Chip'
 import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
+import CustomChip from 'src/@core/components/mui/chip'
+import IconButton from '@mui/material/IconButton'
 
 //Custom Components
 import { styled } from '@mui/material/styles'
@@ -17,7 +18,6 @@ import MuiAccordionSummary, { AccordionSummaryProps } from '@mui/material/Accord
 
 //Imported Components
 import StatusDialog from './components/snapshot/StatusDialog'
-import ConfirmationDialog from 'src/views/shared/dialog/confirmationDialog'
 
 //Icon Import
 import Icon from 'src/@core/components/icon'
@@ -34,8 +34,11 @@ import { format } from 'date-fns'
 import { useAppSelector } from 'src/store/hooks'
 import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
 import { useGetEnrollmentQuery } from 'src/store/api/apiHooks'
-import { Button, Hidden } from '@mui/material'
+import { Button, Fade, Menu, MenuItem } from '@mui/material'
 import PersonalDialog from './components/snapshot/PersonalDialog'
+
+import { useConfirm } from 'material-ui-confirm'
+import { EnrollmentInfoModel, EnrollmentSearchResultModel } from 'src/store/api/enrollmentApiSlice'
 
 type Props = {
   data: ProfileInfoType
@@ -138,8 +141,6 @@ export default function ProfileSnapshot({ data }: Props) {
     }
   }
 
-  console.log('rerendered')
-
   //Stage/Status Edit Dialog
   const [statusDialog, setStatusDialog] = useState<boolean>(false)
   const toggleStatus = () => setStatusDialog(!statusDialog)
@@ -148,10 +149,47 @@ export default function ProfileSnapshot({ data }: Props) {
   const [personalDialog, setPersonalDialog] = useState<boolean>(false)
   const togglePersonal = () => setPersonalDialog(!personalDialog)
 
-  //Confirmation Dialog
-  const [confirmationDialog, setConfirmationDialog] = useState<boolean>(false)
-  const toggleConfirmation = () => setConfirmationDialog(!confirmationDialog)
+  //Dropdown Menu
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null)
+  const menuClick = (event: MouseEvent<HTMLButtonElement>) => {
+    setAnchor(event.currentTarget)
+  }
 
+  const menuClose = () => {
+    setAnchor(null)
+  }
+
+  //Confirmation Dialog
+  const confirm = useConfirm()
+
+  const handleClick = (type: string) => {
+    confirm({
+      title: 'Confirmation',
+      description: 'Are you sure you want to continue?',
+      confirmationText: 'Accept',
+      dialogProps: { maxWidth: 'xs' }
+    }).then(() => {
+      switch (type) {
+        case 'submit':
+          console.log(`submitting profileId: ${profileId}`)
+          break
+        case 'approve':
+          console.log(`approving profileId: ${profileId}`)
+          break
+        case 'reject':
+          console.log(`rejecting profileId: ${profileId}`)
+          break
+        case 'enroll':
+          console.log(`enrolling profileId: ${profileId}`)
+          break
+        case 'delete':
+          console.log(`deleting profileId: ${profileId}`)
+          break
+      }
+    })
+  }
+
+  //Generating Profiles
   //Phone = 0, email = 1, fax = 2
   const generatePhone = () => {
     const contacts: ProfileContactType[] = profileContacts.filter(
@@ -235,16 +273,44 @@ export default function ProfileSnapshot({ data }: Props) {
           <Card>
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'end', mb: 1 }}>
-                <Button size='small' color='error'>
-                  Delete
-                </Button>
+                <IconButton
+                  size='small'
+                  aria-label='profile-dropdown'
+                  aria-controls='profile-controls'
+                  onClick={menuClick}
+                >
+                  <Icon icon='mdi:dots-vertical' />
+                </IconButton>
+                <Menu
+                  id='profile-controls'
+                  TransitionComponent={Fade}
+                  anchorEl={anchor}
+                  open={Boolean(anchor)}
+                  onClose={menuClose}
+                  anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'right'
+                  }}
+                  transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'right'
+                  }}
+                >
+                  <MenuItem sx={{ minWidth: '150px' }} onClick={() => handleClick('delete')}>
+                    Delete
+                  </MenuItem>
+                </Menu>
               </Box>
               <Typography mb={2} variant='h4'>
                 {firstName ?? ''} {lastName ?? ''}
               </Typography>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Typography variant='h6'>ID: {profileId}</Typography>
-                <Chip label={statusName?.toUpperCase() ?? ''} color={statusDictionary[status ?? 0]}></Chip>
+                <CustomChip
+                  skin='light'
+                  label={statusName?.toUpperCase() ?? ''}
+                  color={statusDictionary[status ?? 0]}
+                ></CustomChip>
               </Box>
             </CardContent>
 
@@ -252,14 +318,14 @@ export default function ProfileSnapshot({ data }: Props) {
               <Box sx={{ display: 'flex', gap: 3, alignItems: 'end' }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: 1 }}>
                   <Typography variant='caption'>Stage</Typography>
-                  <Chip label={stageName ?? 'None'} color='primary' />
+                  <CustomChip skin='light' label={stageName ?? 'None'} color='primary' />
                 </Box>
                 <Box>
                   <Icon icon='material-symbols:arrow-right-alt' />
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: 1 }}>
                   <Typography variant='caption'>Status</Typography>
-                  <Chip label={stageStatusName ?? 'None'} color='warning' />
+                  <CustomChip skin='light' label={stageStatusName ?? 'None'} color='warning' />
                 </Box>
               </Box>
             </CardContent>
@@ -281,7 +347,7 @@ export default function ProfileSnapshot({ data }: Props) {
                   {profileLabels.length > 0 ? (
                     <Box sx={{ display: 'flex', gap: 2 }}>
                       {profileLabels.map(label => {
-                        return <Chip label={String(label)} color='primary' />
+                        return <CustomChip skin='light' label={String(label)} color='primary' />
                       })}
                     </Box>
                   ) : (
@@ -337,16 +403,16 @@ export default function ProfileSnapshot({ data }: Props) {
                 </Box>
               </Box>
               <Box sx={{ display: 'flex', mt: 1, justifyContent: 'space-evenly' }}>
-                <Button size='small' color='primary' variant='contained'>
+                <Button hidden size='small' color='primary' variant='contained' onClick={() => handleClick('submit')}>
                   Submit
                 </Button>
-                <Button size='small' color='info' variant='contained' onClick={toggleConfirmation}>
+                <Button size='small' color='info' variant='contained' onClick={() => handleClick('approve')}>
                   Approve
                 </Button>
-                <Button size='small' color='warning' variant='contained' onClick={toggleConfirmation}>
+                <Button size='small' color='warning' variant='contained' onClick={() => handleClick('reject')}>
                   Reject
                 </Button>
-                <Button size='small' color='success' variant='contained' onClick={toggleConfirmation}>
+                <Button size='small' color='success' variant='contained' onClick={() => handleClick('enroll')}>
                   Enroll
                 </Button>
               </Box>
@@ -504,13 +570,13 @@ export default function ProfileSnapshot({ data }: Props) {
       </Grid>
       <StatusDialog open={statusDialog} toggle={toggleStatus} stage={stage} status={status} />
       <PersonalDialog open={personalDialog} toggle={togglePersonal} data={enrollmentData} />
-      <ConfirmationDialog
+      {/* <ConfirmationDialog
         open={confirmationDialog}
         toggle={toggleConfirmation}
         title='Confirmation'
         textBody='Are you sure you want to continue?'
-        action={() => console.log('accepted')}
-      />
+        action={target}
+      /> */}
     </>
   )
 }

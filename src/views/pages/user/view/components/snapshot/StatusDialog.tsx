@@ -57,7 +57,6 @@ const stageOptions = [
 export default function StatusDialog({ open, toggle, stage, status }: Props): ReactElement {
   // call api for status/stage
 
-  console.log(status)
   const statusForm = useForm({ defaultValues: { stage, status } })
   const {
     formState: { errors },
@@ -77,7 +76,6 @@ export default function StatusDialog({ open, toggle, stage, status }: Props): Re
   }
 
   useEffect(() => {
-    console.log(watch('stage'))
     if (stage !== watch('stage')) {
       reset({ stage: watch('stage'), status: status })
     }
