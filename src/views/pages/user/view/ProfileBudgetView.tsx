@@ -50,8 +50,8 @@ export default function ProfileBudget({ id }: any) {
   const [data, setData] = useState<Profile[] | {}>({})
 
   // const [isLoading, setLoading] = useState(false)
-  const [allBudgets, setAllBudgets] = useState<any>([])
-  const [budgetTypes, setBudgetTypes] = useState<any>([])
+  // const [allBudgets, setAllBudgets] = useState<any>([])
+  // const [budgetTypes, setBudgetTypes] = useState<any>([])
 
   const profileId = id
 
@@ -183,70 +183,77 @@ export default function ProfileBudget({ id }: any) {
       return [incomeList, expenseList]
     }
   }
+  console.log(dataDivider())
 
-  if (!isLoading) {
-    console.log(dataDivider())
-    const divide = dataDivider()
-    if (divide != null) {
-      const myIncome = divide[0]
-      const myExpense = divide[1]
-      setIncome(myIncome)
-      setExpense(myExpense)
-    }
-    console.log(income, expense)
+  const incomeDiv = dataDivider()[0]
+  console.log(incomeDiv)
 
-    // setIncome(dataDivider()[0])
-  }
+  const expenseDiv = dataDivider()[1]
+  console.log(expenseDiv)
 
-  const dataSplitter = () => {
-    if (budgetTypes && allBudgets) {
-      console.log(budgetTypes)
-      console.log(allBudgets)
-      const budgetArr: any = []
-      const typeArr: any = []
-      const incomeList: any = []
-      const expenseList: any = []
-      let i = 0
-      for (i = 0; i < budgetTypes.length; i++) {
-        console.log(budgetTypes[i])
-        if (budgetTypes[i].active) {
-          if (budgetTypes[i].budgetType == 0) {
-            const choiceId = budgetTypes[i].budgetId
-            const filteredIncome = allBudgets.find(filteredIncome => filteredIncome.budgetId == choiceId)
-            if (filteredIncome) {
-              console.log(filteredIncome)
-              incomeList.push(filteredIncome)
-            } else {
-              const notFound = { budgetId: choiceId, amount: 0 }
+  // if (!isLoading) {
+  //   console.log(dataDivider())
+  //   const divide = dataDivider()
+  //   if (divide != null) {
+  //     const myIncome = divide[0]
+  //     const myExpense = divide[1]
+  //     setIncome(myIncome)
+  //     setExpense(myExpense)
+  //   }
+  //   console.log(income, expense)
 
-              //                 console.log(notFound)
-              //                 incomeList.push(notFound)
-              incomeList.push(notFound)
-            }
-            setIncome(incomeList)
-          } else {
-            const choiceId = budgetTypes[i].budgetId
-            const filteredExpense = allBudgets.find(filteredExpense => filteredExpense.budgetId == choiceId)
-            if (filteredExpense) {
-              console.log(filteredExpense)
-              expenseList.push(filteredExpense)
-            } else {
-              const notFound = { budgetId: choiceId, amount: 0 }
+  //   // setIncome(dataDivider()[0])
+  // }
 
-              //                 console.log(notFound)
-              //                 incomeList.push(notFound)
-              expenseList.push(notFound)
-            }
-            setExpense(expenseList)
-          }
-        }
-      }
-      console.log(incomeList, expenseList)
+  // const dataSplitter = () => {
+  //   if (budgetTypes && allBudgets) {
+  //     console.log(budgetTypes)
+  //     console.log(allBudgets)
+  //     const budgetArr: any = []
+  //     const typeArr: any = []
+  //     const incomeList: any = []
+  //     const expenseList: any = []
+  //     let i = 0
+  //     for (i = 0; i < budgetTypes.length; i++) {
+  //       console.log(budgetTypes[i])
+  //       if (budgetTypes[i].active) {
+  //         if (budgetTypes[i].budgetType == 0) {
+  //           const choiceId = budgetTypes[i].budgetId
+  //           const filteredIncome = allBudgets.find(filteredIncome => filteredIncome.budgetId == choiceId)
+  //           if (filteredIncome) {
+  //             console.log(filteredIncome)
+  //             incomeList.push(filteredIncome)
+  //           } else {
+  //             const notFound = { budgetId: choiceId, amount: 0 }
 
-      // setIncome(incomeList)
-      // setExpense(expenseList)
-    }
-  }
+  //             //                 console.log(notFound)
+  //             //                 incomeList.push(notFound)
+  //             incomeList.push(notFound)
+  //           }
+  //           setIncome(incomeList)
+  //         } else {
+  //           const choiceId = budgetTypes[i].budgetId
+  //           const filteredExpense = allBudgets.find(filteredExpense => filteredExpense.budgetId == choiceId)
+  //           if (filteredExpense) {
+  //             console.log(filteredExpense)
+  //             expenseList.push(filteredExpense)
+  //           } else {
+  //             const notFound = { budgetId: choiceId, amount: 0 }
+
+  //             //                 console.log(notFound)
+  //             //                 incomeList.push(notFound)
+  //             expenseList.push(notFound)
+  //           }
+  //           setExpense(expenseList)
+  //         }
+  //       }
+  //     }
+  //     console.log(incomeList, expenseList)
+
+  //     // setIncome(incomeList)
+  //     // setExpense(expenseList)
+  //   }
+  // }
 
   // val stores state for header filters
   // const [value, setValue] = useState<string>('')
@@ -312,14 +319,11 @@ export default function ProfileBudget({ id }: any) {
       // ))}
       // setBudgetTypes(newProfile.data.budget)
       // setAllBudgets(newProfile.data.profile)
-      console.log(budgetTypes)
-      console.log(allBudgets)
     }
   }
 
   const resetForm = () => {
     console.log(data)
-    console.log(budgets, profileBudgets, profiles)
 
     const formReset = profileBudgets.map(item => {
       if (item.amount != 0) {
@@ -332,9 +336,7 @@ export default function ProfileBudget({ id }: any) {
     console.log(formReset)
 
     //set form reset to data and rerender
-    setAllBudgets(formReset)
-
-    console.log(allBudgets)
+    // setAllBudgets(formReset)
   }
 
   //api calls
@@ -351,8 +353,6 @@ export default function ProfileBudget({ id }: any) {
 
     // console.log(joined)
   }
-
-  console.log(allBudgets)
 
   // LoadData()
 
@@ -491,7 +491,8 @@ export default function ProfileBudget({ id }: any) {
         </Grid>
         <Grid item xs={12}>
           {/* //make sure data coming in isnt object, map */}
-          <IncomeTable budgetTypes={budgetTypes} budgetList={allBudgets} income={income}></IncomeTable>
+          {/* <IncomeTable budgetTypes={budgetTypes} budgetList={allBudgets} income={income}></IncomeTable> */}
+          <IncomeTable income={incomeDiv}></IncomeTable>
           {/* <BudgetTableGenerator
             budgetTypes={profileBudgets}
             budgetList={budgets}
@@ -501,7 +502,8 @@ export default function ProfileBudget({ id }: any) {
           {/* <BudgetTableGenerator budgetList={allBudgets} budgetTypes={budgetTypes}></BudgetTableGenerator> */}
         </Grid>
         <Grid item xs={12}>
-          <ExpenseTable budgetTypes={budgetTypes} budgetList={allBudgets} expense={expense}></ExpenseTable>
+          <ExpenseTable expense={expenseDiv}></ExpenseTable>
+          {/* <ExpenseTable budgetTypes={budgetTypes} budgetList={allBudgets} expense={expense}></ExpenseTable> */}
         </Grid>
         <Grid item xs={12} textAlign={'right'}>
           <Button variant='outlined' color='secondary' sx={{ mr: 4 }} onClick={resetForm}>
