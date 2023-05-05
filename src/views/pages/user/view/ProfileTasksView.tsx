@@ -109,9 +109,12 @@ const ProfileTasks = ({ id }: any) => {
   const [paymentDate, setPaymentDate] = useState<string>('')
   const [selectedGroup, setSelectedGroup] = useState<string>('')
   const [note, setNote] = useState<string>('')
+  let rows = []
+
+  // const { isLoading, isSuccess, isError, error }= useAppSelector(state => selectTaskByProfileId(state, profileId))
 
   // const [paymentDate, setPaymentDate] = useState<DateType>()
-  const [rows, setRows] = useState<any>([])
+  // const [rows, setRows] = useState<any>([])
 
   //State Management
   //set selectedTask type to taskType
@@ -124,39 +127,73 @@ const ProfileTasks = ({ id }: any) => {
   const [triggerCreate, { isSuccess: triggerSuccess }] = usePostCreateTaskMutation()
   const [triggerUpdate, { isSuccess: editApiSuccess }] = usePutUpdateTaskMutation()
 
-  const { isLoading, isSuccess, isError, error } = useGetProfileTasksQuery(profileId)
+  const { isLoading, isSuccess, isError } = useGetProfileTasksQuery(profileId)
+  console.log(isLoading, isSuccess, isError)
 
-  // error.msg
+  console.log(profileTask)
 
-  // return (
+  const dataWithIndex = profileTask.map((obj, index) => {
+    return { ...obj, id: index }
+  })
+  rows = dataWithIndex
+  console.log(rows)
 
-  //   <>
-  //   {profileTask.map(el => el )}
-  //   </>
-  // )
+  // const loadData = () => {
+  //   rows = []
+  //   rows = dataWithIndex
+  //   console.log(rows)
+  // }
+  // console.log(dataWithIndex)
+  // console.log(rows)
+  // loadData()
+  // console.log(rows)
+
+  // loadData
   //use isLoading state to conditionally render data
   //use global
-  console.log(profileTask)
-  console.log(isLoading, isSuccess, isError, error)
-  const tasksData = profileTask
+  // console.log(profileTask)
+  // console.log(isLoading, isSuccess, isError, error)
+
+  // const tasksData = profileTask
+  // console.log(profileTask)
+
+  // const tasksData = useGetProfileTasksQuery(profileId)
+
+  // const tasksData = useGetProfileTasksQuery('9158384435')
+
+  // console.log(tasksData)
+
+  // if (tasksData) {
+  // console.log(tasksData)
+  // const dataWithIndex = tasksData.map((obj, index) => {
+  //   return { ...obj, id: index }
+  // })
+  // console.log(dataWithIndex)
+
+  // setRows(dataWithIndex)
+
+  // setData(tasksData)
+  // console.log(rows)
+
+  // }
 
   //Global localstate useEffect, need to remove and use global global
-  useEffect(() => {
-    if (tasksData) {
-      console.log(tasksData)
+  // useEffect(() => {
+  //   if (tasksData) {
+  //     console.log(tasksData)
 
-      //adds index to data needed for dataGrid display can move to a function
-      const dataWithIndex = tasksData.map((obj, index) => {
-        return { ...obj, id: index }
-      })
-      console.log(dataWithIndex)
+  //     //adds index to data needed for dataGrid display can move to a function
+  //     const dataWithIndex = tasksData.map((obj, index) => {
+  //       return { ...obj, id: index }
+  //     })
+  //     console.log(dataWithIndex)
 
-      setRows(dataWithIndex)
-      setData(tasksData)
+  //     setRows(dataWithIndex)
+  //     setData(tasksData)
 
-      // setSelectedTask({})
-    }
-  }, [tasksData, data])
+  //     // setSelectedTask({})
+  //   }
+  // }, [tasksData, data])
 
   //selected Task useeffect
 
@@ -188,6 +225,8 @@ const ProfileTasks = ({ id }: any) => {
       assignType: 2,
       notes: note
     }
+    console.log(testData)
+
     const postResponse = await triggerCreate(testData).unwrap()
     console.log(postResponse)
   }
@@ -207,14 +246,27 @@ const ProfileTasks = ({ id }: any) => {
     }
     console.log(testEditData)
 
-    const putResponse = await triggerUpdate(testEditData).unwrap()
-    console.log(putResponse)
+    // const putResponse = await triggerUpdate(testEditData).unwrap()
+    // console.log(putResponse)
   }
 
-  // s
-  // const [data, setData] = useState<any>(tasksData)
+  async function handleDeleteClick() {
+    const testData = {
+      taskId: selectedTask.taskId
 
-  // const [props, setProps] = useState < any > [{ group, taskName, paymentDate, status, selectedGroup, note }]
+      //   profileId,
+      //   taskName: taskName,
+      //   dueDate: paymentDate,
+      //   assignedTo: 'b12557c2-3a35-4ce6-9e52-959c07e13ce5',
+      //   assignType: 2,
+      //   notes: note
+    }
+
+    console.log(testData)
+
+    const delResponse = await triggerCreate(testData).unwrap()
+    console.log(delResponse)
+  }
 
   const handleEditTaskOpen = () => {
     setDrawerTitle('Edit')
@@ -274,46 +326,15 @@ const ProfileTasks = ({ id }: any) => {
     }
   }
 
-  const addTask = query => {
-    setOpenAddTask(false)
-
-    // handleClick
-    console.log('payload', query)
-  }
-
-  // const getTask =() =>{
-
-  // }
-
-  // const getTaskbyId =() =>{
-
-  // }
-
-  // async function getTaskById(settings: any) {
+  // const getTaskById = (settings: any) => {
   //   console.log(settings)
+  //   const selected = data.find(select => select.taskId === settings)
+  //   setSelectedTask(selected)
 
-  //   // await selectedTask
-  //   await settings
-  //   console.log(settings)
-  //   const selected = await data.find(select => select.taskId === settings)
-  //   await setSelectedTask(selected)
-  //   console.log(selected)
-  //   console.log(selectedTask)
+  //   return selected
 
-  //   //set isLoading, and only open modal after it loads is false
-
-  //   //set selected to task after filtering data list
+  //   // setSelectedTask(selected)
   // }
-
-  const getTaskById = (settings: any) => {
-    console.log(settings)
-    const selected = data.find(select => select.taskId === settings)
-    setSelectedTask(selected)
-
-    return selected
-
-    // setSelectedTask(selected)
-  }
 
   //fixing and checking for missing values using valueGetter in columns
   const getCompletedDate = (params: GridValueGetterParams) => {
@@ -323,30 +344,6 @@ const ProfileTasks = ({ id }: any) => {
       return `${params.row.completedDate}`
     }
   }
-
-  // const buttonActions = params => {
-  //   console.log(params.row.taskId)
-
-  //   // setSelectedTask(params.row.taskId)
-  //   // console.log(selectedTask)
-
-  //   // const setting = selectedTask
-  //   const setting = params.row.taskId
-
-  //   getTaskById(setting)
-
-  //   //not being updated before it is sent
-  //   console.log(selectedTask)
-  //   handleEditTaskOpen()
-
-  //   return params.row.id
-  // }
-
-  // function handleSelectItem(item) {
-  //   console.log(item.row)
-  //   setSelectedTask(item.row)
-  //   console.log(selectedTask)
-  // }
 
   //generate button for editById
   const renderEditTaskButton = params => {
@@ -444,6 +441,10 @@ const ProfileTasks = ({ id }: any) => {
   //   }
   // }
 
+  if (isError) return <div>An error occured</div>
+
+  if (isLoading) return <div>Loading</div>
+
   return (
     <>
       <Grid container spacing={6}>
@@ -476,7 +477,10 @@ const ProfileTasks = ({ id }: any) => {
         </Grid> */}
         <Grid item xs={12}>
           <Box sx={{ height: 400, width: '100%' }}>
+            {isLoading}
+            {isError}
             <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }}></DataGrid>
+            {/* <DataGrid rows={dataWithIndex} columns={columns} sx={{ mt: 7 }}></DataGrid> */}
           </Box>
         </Grid>
 
@@ -490,7 +494,7 @@ const ProfileTasks = ({ id }: any) => {
             sx={{ '& .MuiDrawer-paper': { width: [300, 400] } }}
           >
             <Header>
-              <Typography variant='h6'>{drawerTitle} Task</Typography>
+              <Typography variant='h6'>{drawerTitle ?? ''} Task</Typography>
               <IconButton size='small' sx={{ color: 'text.primary' }}>
                 <Icon icon='mdi:close' fontSize={20} />
               </IconButton>
@@ -503,7 +507,7 @@ const ProfileTasks = ({ id }: any) => {
                     fullWidth
                     name='task-name'
                     label='Task Name'
-                    value={taskName}
+                    value={taskName ?? ''}
                     // defaultValue='hi'
                     onBlur={handleBlur}
                     placeholder='Task Name'
@@ -559,10 +563,10 @@ const ProfileTasks = ({ id }: any) => {
                   fullWidth
                   name='task-paymentDate'
                   label='Task Payment Date'
-                  value={paymentDate}
+                  value={paymentDate ?? ''}
                   // defaultValue='hi'
                   onBlur={handleBlur}
-                  placeholder='Task Name'
+                  placeholder='Task Payment Date'
                   onChange={handleInputChange}
                   inputProps={{ maxLength: 100 }}
                   onFocus={e => setFocus(e.target.name as Focused)}
@@ -619,7 +623,7 @@ const ProfileTasks = ({ id }: any) => {
                     name='task-note'
                     label='Note'
                     placeholder='Note'
-                    value={note}
+                    value={note ?? ''}
                     onBlur={handleBlur}
                     onChange={handleInputChange}
                     inputProps={{ maxLength: 1000 }}
@@ -650,6 +654,11 @@ const ProfileTasks = ({ id }: any) => {
                   Cancel
                 </Button>
               </div>
+            </Box>
+            <Box sx={{ mb: 6 }}>
+              <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleDeleteClick()}>
+                Delete
+              </Button>
             </Box>
           </Drawer>
         </Grid>

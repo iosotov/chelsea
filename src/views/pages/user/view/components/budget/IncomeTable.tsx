@@ -16,7 +16,6 @@ const IncomeTable = (data: any) => {
   console.log(data)
   const dataSource = data.income
   console.log(dataSource)
-  console.log(data.budgetList)
 
   //being dfed data object, taht has budget, profile props list
   // var budget
@@ -30,14 +29,13 @@ const IncomeTable = (data: any) => {
     console.log(choice)
     if (data) {
       console.log(data)
-      const budgetName = data.budgetTypes.find(element => element.budgetId == choice)
-      if (budgetName) {
+
+      const budgetName = dataSource.find(element => element.budgetId == choice)
+      if (budgetName.name) {
         return budgetName.name
       } else {
         console.log('no Name')
       }
-
-      console.log(budgetAmount)
 
       // console.log(budgetAmount.amount)
 
@@ -74,9 +72,7 @@ const IncomeTable = (data: any) => {
                 {/* <TextField fullWidth label='Amount' defaultValue={getBudgetById(budget.budgetId)} placeholder='Amount'>
                   {' '}
                 </TextField> */}
-                <TextField fullWidth label='Amount' defaultValue={budget.amount} placeholder='Amount'>
-                  {' '}
-                </TextField>
+                <TextField fullWidth label='Amount' defaultValue={budget.amount} placeholder='Amount'></TextField>
               </TableCell>
             </TableRow>
           ))}
