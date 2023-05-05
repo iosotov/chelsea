@@ -124,7 +124,8 @@ const ProfileTasks = ({ id }: any) => {
   const [triggerCreate, { isSuccess: triggerSuccess }] = usePostCreateTaskMutation()
   const [triggerUpdate, { isSuccess: editApiSuccess }] = usePutUpdateTaskMutation()
 
-  const { isLoading, isSuccess, isError, error } = useGetProfileTasksQuery(profileId)
+  // const { isLoading, isSuccess, isError, error } = useGetProfileTasksQuery(profileId)
+  console.log(profileTask)
 
   // error.msg
 
@@ -136,21 +137,29 @@ const ProfileTasks = ({ id }: any) => {
   // )
   //use isLoading state to conditionally render data
   //use global
-  console.log(profileTask)
-  console.log(isLoading, isSuccess, isError, error)
-  const tasksData = profileTask
+  // console.log(profileTask)
+  // console.log(isLoading, isSuccess, isError, error)
+
+  // const tasksData = profileTask
+  // console.log(profileTask)
+
+  const tasksData = useGetProfileTasksQuery(profileId)
+
+  // const tasksData = useGetProfileTasksQuery('9158384435')
+
+  console.log(tasksData)
 
   // if (tasksData) {
-  console.log(tasksData)
-  const dataWithIndex = tasksData.map((obj, index) => {
-    return { ...obj, id: index }
-  })
-  console.log(dataWithIndex)
+  // console.log(tasksData)
+  // const dataWithIndex = tasksData.map((obj, index) => {
+  //   return { ...obj, id: index }
+  // })
+  // console.log(dataWithIndex)
 
   // setRows(dataWithIndex)
 
   // setData(tasksData)
-  console.log(rows)
+  // console.log(rows)
 
   // }
 
@@ -490,8 +499,8 @@ const ProfileTasks = ({ id }: any) => {
         </Grid> */}
         <Grid item xs={12}>
           <Box sx={{ height: 400, width: '100%' }}>
-            {/* <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }}></DataGrid> */}
-            <DataGrid rows={dataWithIndex} columns={columns} sx={{ mt: 7 }}></DataGrid>
+            <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }}></DataGrid>
+            {/* <DataGrid rows={dataWithIndex} columns={columns} sx={{ mt: 7 }}></DataGrid> */}
           </Box>
         </Grid>
 

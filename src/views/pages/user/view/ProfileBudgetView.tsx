@@ -42,22 +42,29 @@ import {
 import { left } from '@popperjs/core'
 import { ValidationError } from 'yup'
 import { useGetProfileBudgetsQuery, useGetBudgetsQuery, usePostProfileBudgetsMutation } from 'src/store/api/apiHooks'
+import { gridColumnPositionsSelector } from '@mui/x-data-grid'
 
 export default function ProfileBudget({ id }: any) {
   //add isLoading?
   console.log(id)
   const [data, setData] = useState<Profile[] | {}>({})
-  const [isLoading, setLoading] = useState(false)
+
+  // const [isLoading, setLoading] = useState(false)
   const [allBudgets, setAllBudgets] = useState<any>([])
   const [budgetTypes, setBudgetTypes] = useState<any>([])
 
   const profileId = id
 
-  //
+  //isFetching, isInitialized
   const profileBudgets = useAppSelector(state => selectProfileBudgetsByProfileId(state, profileId))
   console.log(profileBudgets)
 
-  // const {isLoading, isSuccess, isError} = useGetProfileBudgetsQuery(profileId, {skip: !profileId})
+  //   const {getIsLoading} =  useAppSelector(state => selectProfileBudgetsByProfileId(state, profileId))
+  //  console.log(getIsLoading)
+
+  const { isLoading, isSuccess, isError } = useGetProfileBudgetsQuery(profileId, { skip: !profileId })
+
+  // console.log(isLoading:getisLoading, isSuccess)
 
   // isLoading
 
@@ -106,13 +113,12 @@ export default function ProfileBudget({ id }: any) {
     getTotals()
   }
 
-  // const { data: newProfile } = useGetProfileBudgetsQuery('1327485548')
-
   // const { data: newProfile } = useGetProfileBudgetsQuery(id)
   // useGetBudgetsQuery({})
+
   // console.log(newProfile)
 
-  //useeffect data init
+  // useeffect data init
   // useEffect(() => {
   //   if (newProfile) {
   //     console.log(newProfile)
@@ -129,6 +135,68 @@ export default function ProfileBudget({ id }: any) {
   //     getTotals()
   //   }
   // }, [newProfile, allBudgets])
+
+  const dataDivider = () => {
+    if (profileBudgets) {
+      console.log(profileBudgets)
+      const incomeList: any = []
+      const expenseList: any = []
+      let i = 0
+      for (i = 0; i < profileBudgets.length; i++) {
+        // if (profileBudgets[i].active) {
+
+        // }
+        if (profileBudgets[i].budgetType == 0) {
+          // const choiceId = profileBudgets[i].budgetId
+          //   const filteredIncome = profileBudgets.find(filteredIncome => filteredIncome.budgetId == choiceId)
+
+          incomeList.push(profileBudgets[i])
+
+          // setIncome(incomeList)
+
+          //  else {
+          //   const notFound = { budgetId: choiceId, amount: 0 }
+
+          //   //                 console.log(notFound)
+          //   //                 incomeList.push(notFound)
+          //   incomeList.push(notFound)
+          // }
+        } else {
+          // const choiceId = budgetTypes[i].budgetId
+          // const filteredExpense = allBudgets.find(filteredExpense => filteredExpense.budgetId == choiceId)
+
+          expenseList.push(profileBudgets[i])
+
+          // else {
+          //   const notFound = { budgetId: choiceId, amount: 0 }
+
+          //   //                 console.log(notFound)
+          //   //                 incomeList.push(notFound)
+          //   expenseList.push(notFound)
+          // }
+          // setExpense(expenseList)
+        }
+      }
+
+      // console.log(income, expense)
+
+      return [incomeList, expenseList]
+    }
+  }
+
+  if (!isLoading) {
+    console.log(dataDivider())
+    const divide = dataDivider()
+    if (divide != null) {
+      const myIncome = divide[0]
+      const myExpense = divide[1]
+      setIncome(myIncome)
+      setExpense(myExpense)
+    }
+    console.log(income, expense)
+
+    // setIncome(dataDivider()[0])
+  }
 
   const dataSplitter = () => {
     if (budgetTypes && allBudgets) {
