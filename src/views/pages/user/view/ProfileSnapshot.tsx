@@ -62,6 +62,22 @@ const AccordionSummary = styled(MuiAccordionSummary)<AccordionSummaryProps>(({ t
   }
 }))
 
+// returns date in mm/dd/yyyy form
+const DateConverter = (date: string | undefined) => {
+  if (!date) {
+    return 'N/A'
+  }
+  return new Date(date).toLocaleDateString('en-US')
+}
+
+// returns money in $xx.xx form
+const MoneyConverter = (money: string | number | undefined) => {
+  if (!money) {
+    return 'N/A'
+  }
+  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(money))
+}
+
 export default function ProfileSnapshot({ data }: Props) {
   const {
     createdAt,
@@ -107,106 +123,106 @@ export default function ProfileSnapshot({ data }: Props) {
 
   console.log(data)
 
-  // returns date in mm/dd/yyyy form
-  const DateConverter = (date: string | undefined) => {
-    if (!date) {
-      return 'N/A'
-    }
-    return new Date(date).toLocaleDateString('en-US')
-  }
+  // //Edit Assignee
+  // const [assigneeDialog, setAssigneeDialog] = useState<boolean>(false)
+  // const [assignee, setAssignee] = useState<{
+  //   assigneeId: string
+  //   assigneeName: string
+  //   employeeAlias: string
+  //   employeeId: string
+  // }>({
+  //   assigneeId: '',
+  //   assigneeName: '',
+  //   employeeId: '',
+  //   employeeAlias: ''
+  // })
 
-  // returns money in $xx.xx form
-  const MoneyConverter = (money: string | number | undefined) => {
-    if (!money) {
-      return 'N/A'
-    }
-    return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(money))
-  }
+  // const closeAssignee = () => setAssigneeDialog(false)
 
-  //Edit Assignee
-  const [assigneeDialog, setAssigneeDialog] = useState<boolean>(false)
-  const [assignee, setAssignee] = useState<{
-    assigneeId: string
-    assigneeName: string
-    employeeAlias: string
-    employeeId: string
-  }>({
-    assigneeId: '',
-    assigneeName: '',
-    employeeId: '',
-    employeeAlias: ''
-  })
-
-  const closeAssignee = () => setAssigneeDialog(false)
-
-  const editAssignee = (assigneeId: string, employeeAlias: string, assigneeName: string, employeeId: string) => {
-    setAssignee({ assigneeId, assigneeName, employeeAlias, employeeId })
-    setAssigneeDialog(true)
-  }
+  // const editAssignee = (assigneeId: string, employeeAlias: string, assigneeName: string, employeeId: string) => {
+  //   setAssignee({ assigneeId, assigneeName, employeeAlias, employeeId })
+  //   setAssigneeDialog(true)
+  // }
 
   //Stage/Status Edit Dialog
-  const [statusDialog, setStatusDialog] = useState<boolean>(false)
-  const toggleStatus = () => setStatusDialog(!statusDialog)
+  // const [statusDialog, setStatusDialog] = useState<boolean>(false)
+  // const toggleStatus = () => setStatusDialog(!statusDialog)
 
   //Update PersonalInfo Dialog
   const [personalDialog, setPersonalDialog] = useState<boolean>(false)
   const togglePersonal = () => setPersonalDialog(!personalDialog)
 
   //Dropdown Menu
-  const [anchor, setAnchor] = useState<HTMLElement | null>(null)
-  const menuClick = (event: MouseEvent<HTMLButtonElement>) => {
-    setAnchor(event.currentTarget)
-  }
+  // const [anchor, setAnchor] = useState<HTMLElement | null>(null)
+  // const menuClick = (event: MouseEvent<HTMLButtonElement>) => {
+  //   setAnchor(event.currentTarget)
+  // }
 
-  const menuClose = () => {
-    setAnchor(null)
-  }
+  // const menuClose = () => {
+  //   setAnchor(null)
+  // }
 
   //Confirmation Dialog
-  const confirm = useConfirm()
+  // const confirm = useConfirm()
 
-  const handleClick = (type: string) => {
-    confirm({
-      title: 'Confirmation',
-      description: 'Are you sure you want to continue?',
-      confirmationText: 'Accept',
-      dialogProps: { maxWidth: 'xs' }
-    }).then(() => {
-      switch (type) {
-        case 'submit':
-          console.log(`submitting profileId: ${profileId}`)
-          break
-        case 'approve':
-          console.log(`approving profileId: ${profileId}`)
-          break
-        case 'reject':
-          console.log(`rejecting profileId: ${profileId}`)
-          break
-        case 'enroll':
-          console.log(`enrolling profileId: ${profileId}`)
-          break
-        case 'delete':
-          console.log(`deleting profileId: ${profileId}`)
-          break
-        case 'pause':
-          console.log(`pause profileId: ${profileId}`)
-          break
-        case 'cancel':
-          console.log(`cancel profileId: ${profileId}`)
-          break
-        case 'resume':
-          console.log(`resume profileId: ${profileId}`)
-          break
-      }
-    })
-  }
+  // const handleClick = (type: string) => {
+  //   confirm({
+  //     title: 'Confirmation',
+  //     description: 'Are you sure you want to continue?',
+  //     confirmationText: 'Accept',
+  //     dialogProps: { maxWidth: 'xs' }
+  //   }).then(() => {
+  //     switch (type) {
+  //       case 'submit':
+  //         console.log(`submitting profileId: ${profileId}`)
+  //         break
+  //       case 'approve':
+  //         console.log(`approving profileId: ${profileId}`)
+  //         break
+  //       case 'reject':
+  //         console.log(`rejecting profileId: ${profileId}`)
+  //         break
+  //       case 'enroll':
+  //         console.log(`enrolling profileId: ${profileId}`)
+  //         break
+  //       case 'delete':
+  //         console.log(`deleting profileId: ${profileId}`)
+  //         break
+  //       case 'pause':
+  //         console.log(`pause profileId: ${profileId}`)
+  //         break
+  //       case 'cancel':
+  //         console.log(`cancel profileId: ${profileId}`)
+  //         break
+  //       case 'resume':
+  //         console.log(`resume profileId: ${profileId}`)
+  //         break
+  //     }
+  //   })
+  // }
 
   return (
     <>
       <Grid container spacing={6}>
         {/* Name, ID, & Details */}
         <Grid item xs={12}>
-          <Card>
+          <ProfileInfo
+            firstName={firstName}
+            lastName={lastName}
+            profileId={profileId}
+            status={status}
+            statusName={statusName}
+            stage={stage}
+            stageName={stageName}
+            stageStatusName={stageStatusName}
+            createdAt={createdAt}
+            createdByName={createdByName}
+            createdCompanyName={createdCompanyName}
+            campaignName={campaignName}
+            profileLabels={profileLabels}
+            profileAssignees={profileAssignees}
+          />
+          {/* <Card>
             <CardContent>
               <Box sx={{ display: 'flex', justifyContent: 'end', mb: 1 }}>
                 <IconButton
@@ -384,7 +400,7 @@ export default function ProfileSnapshot({ data }: Props) {
                 ) : null}
               </Box>
             </CardContent>
-          </Card>
+          </Card> */}
         </Grid>
         {/* Personal Info Accordion */}
         <Grid item xs={12}>
@@ -556,57 +572,206 @@ export default function ProfileSnapshot({ data }: Props) {
           </Grid>
         ) : null}
       </Grid>
-      <StatusDialog open={statusDialog} toggle={toggleStatus} stage={stage} status={status} />
+      {/* <StatusDialog open={statusDialog} toggle={toggleStatus} stage={stage} status={status} /> */}
       <PersonalDialog open={personalDialog} toggle={togglePersonal} data={data} />
-      <AssigneeDialog open={assigneeDialog} data={assignee} toggle={closeAssignee} />
+      {/* <AssigneeDialog open={assigneeDialog} data={assignee} toggle={closeAssignee} /> */}
     </>
   )
 }
 
-type PersonalProps = {}
+type ProfileProps = {
+  firstName: string
+  lastName: string
+  profileId: string
+  status: number
+  statusName: string
+  stage: number
+  stageName: string
+  stageStatusName: string
+  createdAt: string
+  createdByName: string
+  createdCompanyName: string
+  campaignName: string
+  profileLabels: any[]
+  profileAssignees: any[]
+}
 
-const PersonalInfo = ({}: PersonalProps): ReactElement => {
+const ProfileInfo = ({
+  firstName,
+  lastName,
+  profileId,
+  status,
+  statusName,
+  stage,
+  stageName,
+  stageStatusName,
+  createdAt,
+  createdByName,
+  createdCompanyName,
+  campaignName,
+  profileLabels,
+  profileAssignees
+}: ProfileProps): ReactElement => {
+  //Confirmation Modal
+  const confirm = useConfirm()
+
+  const handleClick = (type: string) => {
+    confirm({
+      title: 'Confirmation',
+      description: 'Are you sure you want to continue?',
+      confirmationText: 'Accept',
+      dialogProps: { maxWidth: 'xs' }
+    }).then(() => {
+      switch (type) {
+        case 'submit':
+          console.log(`submitting profileId: ${profileId}`)
+          break
+        case 'approve':
+          console.log(`approving profileId: ${profileId}`)
+          break
+        case 'reject':
+          console.log(`rejecting profileId: ${profileId}`)
+          break
+        case 'enroll':
+          console.log(`enrolling profileId: ${profileId}`)
+          break
+        case 'delete':
+          console.log(`deleting profileId: ${profileId}`)
+          break
+        case 'pause':
+          console.log(`pause profileId: ${profileId}`)
+          break
+        case 'cancel':
+          console.log(`cancel profileId: ${profileId}`)
+          break
+        case 'resume':
+          console.log(`resume profileId: ${profileId}`)
+          break
+      }
+    })
+  }
+
   return (
     <Card>
-      <CardContent>
-        <Box sx={{ display: 'flex', justifyContent: 'end', mb: 1 }}>
-          <IconButton size='small' aria-label='profile-dropdown' aria-controls='profile-controls' onClick={menuClick}>
-            <Icon icon='mdi:dots-vertical' />
-          </IconButton>
-          <Menu
-            id='profile-controls'
-            TransitionComponent={Fade}
-            anchorEl={anchor}
-            open={Boolean(anchor)}
-            onClose={menuClose}
-            anchorOrigin={{
-              vertical: 'bottom',
-              horizontal: 'right'
-            }}
-            transformOrigin={{
-              vertical: 'top',
-              horizontal: 'right'
-            }}
-          >
-            <MenuItem sx={{ minWidth: '150px' }} onClick={() => handleClick('delete')}>
-              Delete
-            </MenuItem>
-            <MenuItem>Reenroll</MenuItem>
-          </Menu>
-        </Box>
-        <Typography mb={2} variant='h4'>
-          {firstName ?? ''} {lastName ?? ''}
-        </Typography>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-          <Typography variant='h6'>ID: {profileId}</Typography>
-          <CustomChip
-            skin='light'
-            label={statusName?.toUpperCase() ?? ''}
-            color={statusDictionary[status ?? 0]}
-          ></CustomChip>
-        </Box>
-      </CardContent>
+      <ProfileTitle
+        handleClick={handleClick}
+        firstName={firstName}
+        lastName={lastName}
+        profileId={profileId}
+        statusName={statusName}
+        status={status}
+      />
 
+      <ProfileStageStatus stageName={stageName} stageStatusName={stageStatusName} stage={stage} status={status} />
+      <ProfileDetails
+        profileLabels={profileLabels}
+        profileAssignees={profileAssignees}
+        status={status}
+        createdAt={createdAt}
+        createdByName={createdByName}
+        createdCompanyName={createdCompanyName}
+        campaignName={campaignName}
+        handleClick={handleClick}
+      />
+    </Card>
+  )
+}
+
+type ProfileTitleProps = {
+  handleClick: (type: string) => void
+  firstName: string
+  lastName: string
+  profileId: string
+  statusName: string
+  status: number
+}
+
+const ProfileTitle = ({
+  handleClick,
+  firstName,
+  lastName,
+  profileId,
+  statusName,
+  status
+}: ProfileTitleProps): ReactElement => {
+  const statusDictionary = [
+    'secondary',
+    'success',
+    'info',
+    'warning',
+    'secondary',
+    'error',
+    'secondary',
+    'secondary',
+    'primary',
+    'secondary',
+    'secondary'
+  ]
+
+  const [anchor, setAnchor] = useState<HTMLElement | null>(null)
+  const menuClick = (event: MouseEvent<HTMLButtonElement>) => {
+    setAnchor(event.currentTarget)
+  }
+
+  const menuClose = () => {
+    setAnchor(null)
+  }
+
+  return (
+    <CardContent>
+      <Box sx={{ display: 'flex', justifyContent: 'end', mb: 1 }}>
+        <IconButton size='small' aria-label='profile-dropdown' aria-controls='profile-controls' onClick={menuClick}>
+          <Icon icon='mdi:dots-vertical' />
+        </IconButton>
+        <Menu
+          id='profile-controls'
+          TransitionComponent={Fade}
+          anchorEl={anchor}
+          open={Boolean(anchor)}
+          onClose={menuClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right'
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right'
+          }}
+        >
+          <MenuItem sx={{ minWidth: '150px' }} onClick={() => handleClick('delete')}>
+            Delete
+          </MenuItem>
+          <MenuItem>Reenroll</MenuItem>
+        </Menu>
+      </Box>
+      <Typography mb={2} variant='h4'>
+        {firstName ?? ''} {lastName ?? ''}
+      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Typography variant='h6'>ID: {profileId}</Typography>
+        <CustomChip
+          skin='light'
+          label={statusName?.toUpperCase() ?? ''}
+          color={statusDictionary[status ?? 0]}
+        ></CustomChip>
+      </Box>
+    </CardContent>
+  )
+}
+
+type ProfileStageStatusProps = {
+  stageName: string
+  stageStatusName: string
+  stage: number
+  status: number
+}
+
+const ProfileStageStatus = ({ stageName, stageStatusName, stage, status }: ProfileStageStatusProps) => {
+  const [statusDialog, setStatusDialog] = useState<boolean>(false)
+  const toggleStatus = () => setStatusDialog(!statusDialog)
+
+  return (
+    <>
       <CardContent>
         <Box sx={{ display: 'flex', gap: 3, alignItems: 'end' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: 1 }}>
@@ -629,6 +794,56 @@ const PersonalInfo = ({}: PersonalProps): ReactElement => {
         </Button>
       </Box>
 
+      <StatusDialog open={statusDialog} toggle={toggleStatus} stage={stage} status={status} />
+    </>
+  )
+}
+
+type ProfileDetailsProps = {
+  profileLabels: any[]
+  profileAssignees: any[]
+  status: number
+  createdByName: string
+  createdAt: string
+  createdCompanyName: string
+  campaignName: string
+  handleClick: (type: string) => void
+}
+
+const ProfileDetails = ({
+  profileLabels,
+  profileAssignees,
+  status,
+  createdByName,
+  createdAt,
+  createdCompanyName,
+  campaignName,
+  handleClick
+}: ProfileDetailsProps) => {
+  //Edit Assignee
+  const [assigneeDialog, setAssigneeDialog] = useState<boolean>(false)
+  const [assignee, setAssignee] = useState<{
+    assigneeId: string
+    assigneeName: string
+    employeeAlias: string
+    employeeId: string
+  }>({
+    assigneeId: '',
+    assigneeName: '',
+    employeeId: '',
+    employeeAlias: ''
+  })
+
+  const closeAssignee = () => setAssigneeDialog(false)
+
+  const editAssignee = (assigneeId: string, employeeAlias: string, assigneeName: string, employeeId: string) => {
+    setAssignee({ assigneeId, assigneeName, employeeAlias, employeeId })
+    setAssigneeDialog(true)
+  }
+
+  return (
+    <>
+      {' '}
       <CardContent>
         <Typography mb={2} variant='h6'>
           Details
@@ -681,7 +896,9 @@ const PersonalInfo = ({}: PersonalProps): ReactElement => {
                   <Button
                     size='small'
                     color='info'
-                    onClick={() => editAssignee(assignee.assigneeId, assignee.companyId, assignee.assigneeName)}
+                    onClick={() =>
+                      editAssignee(assignee.assigneeId, assignee.companyId, assignee.assigneeName, assignee.employeeId)
+                    }
                   >
                     {assignee.employeeAlias === 'N/A' ? 'Unassigned' : assignee.employeeAlias}
                   </Button>
@@ -736,6 +953,7 @@ const PersonalInfo = ({}: PersonalProps): ReactElement => {
           ) : null}
         </Box>
       </CardContent>
-    </Card>
+      <AssigneeDialog open={assigneeDialog} data={assignee} toggle={closeAssignee} />
+    </>
   )
 }
