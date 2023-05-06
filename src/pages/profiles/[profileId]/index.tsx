@@ -16,6 +16,8 @@ import { useGetProfileInfoQuery } from 'src/store/api/apiHooks'
 
 //Imported Types
 import { ProfileInfoType } from 'src/store/api/profileApiSlice'
+import { useAppSelector } from 'src/store/hooks'
+import { selectProfileById } from 'src/store/profileSlice'
 
 type Props = {
   tab: string
@@ -23,24 +25,15 @@ type Props = {
 
 export default function UserProfile({ tab }: Props) {
   const router = useRouter()
-  const { profileId } = router.query
-  const [loading, setLoading] = useState(true)
-  const [data, setData] = useState({} as ProfileInfoType)
+  const { profileId = '' } = router.query
 
-  let { data: profile, isError } = useGetProfileInfoQuery(profileId !== undefined ? profileId.toString() : '', {
-    skip: profileId === undefined || profileId === ''
+  const data = useAppSelector(state => selectProfileById(state, String(profileId)))
+
+  let { isError, isLoading, isFetching, isSuccess } = useGetProfileInfoQuery(String(profileId), {
+    skip: !profileId
   })
 
-  useEffect(() => {
-    if (profile !== undefined) {
-      setTimeout(() => {
-        setLoading(false)
-        setData(profile)
-      }, 500)
-    }
-  }, [profile])
-
-  //needs error handling
+  console.log(data)
 
   if (isError) {
     return (
@@ -61,12 +54,13 @@ export default function UserProfile({ tab }: Props) {
 
   return (
     <>
-      {loading ? (
+      {(isLoading || isFetching) && (
         <Box sx={{ mt: 6, display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
           <CircularProgress sx={{ mb: 4 }} />
           <Typography>Loading...</Typography>
         </Box>
-      ) : (
+      )}
+      {isSuccess && data ? (
         <Grid container spacing={4}>
           <Grid item xs={12} md={4} lg={4}>
             {/* pass profileInfo directly into UserViewLeft */}
@@ -76,7 +70,7 @@ export default function UserProfile({ tab }: Props) {
             <ProfileTabs id={profileId} tab={tab} />
           </Grid>
         </Grid>
-      )}
+      ) : null}
     </>
   )
 }

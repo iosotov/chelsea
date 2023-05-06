@@ -1,5 +1,6 @@
 import { setAddresses, setAssignees, updateAddresses, updateAssignees } from '../settingSlice'
 import { apiSlice } from './apiSlice'
+import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
 
 export type AddressSettingType = {
   addressId: string
@@ -515,7 +516,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    getAssigneeDatasource: builder.query<AssigneeDatasourceType, string>({
+    getAssigneeDatasource: builder.query<SingleSelectOption[], string>({
       query: assigneeId => ({
         url: `/setting/assignees/${assigneeId}/datasource`,
         method: 'GET'
@@ -523,9 +524,11 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: Record<string, any>) => {
         if (!res.success) throw new Error('There was an error disabling assignee setting')
 
-        console.log(res.data)
+        const data: SingleSelectOption[] = res.data.map((entry: AssigneeDatasourceType) => {
+          return { value: entry.key, label: entry.value }
+        })
 
-        return res.data
+        return data
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {

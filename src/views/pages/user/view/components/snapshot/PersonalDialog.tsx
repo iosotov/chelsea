@@ -133,7 +133,7 @@ export default function PersonalDialog({ open, toggle, data }: Props): ReactElem
   return (
     <Dialog open={open} maxWidth='xl' fullWidth onClose={toggle} aria-labelledby='profile-personal-dialog'>
       <DialogTitle id='profile-personal-dialog'>
-        <Typography variant='h5'>Update Profile Information</Typography>
+        Update Profile Information
         <IconButton
           aria-label='close'
           onClick={onClose}

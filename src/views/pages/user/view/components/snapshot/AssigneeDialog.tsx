@@ -17,27 +17,13 @@ import Icon from 'src/@core/components/icon'
 
 import { useAppSelector } from 'src/store/hooks'
 
-type Props = {
-  open: boolean
-  toggle: () => void
-  stage: number
-  status: number
-}
+import { useGetAssigneeDatasourceQuery } from 'src/store/api/apiHooks'
 
-const statusOptions = [
-  {
-    value: 0,
-    label: 'Status One'
-  },
-  {
-    value: 1,
-    label: 'Status Two'
-  },
-  {
-    value: 2,
-    label: 'Status Three'
-  }
-]
+type Props = {
+  data: { assigneeId: string; assigneeName: string; employeeAlias: string; employeeId: string }
+  toggle: () => void
+  open: boolean
+}
 
 const stageOptions = [
   {
@@ -54,36 +40,45 @@ const stageOptions = [
   }
 ]
 
-export default function StatusDialog({ open, toggle, stage, status }: Props): ReactElement {
-  // call api for status/stage
+export default function AssigneeDialog({ data, toggle, open }: Props): ReactElement {
+  //might need to check to make sure employeeId is a valid employee still (filter for active accounts)
+  //if not active, need to default to ''
+  const { assigneeId, assigneeName, employeeAlias, employeeId = '' } = data
 
-  const statusForm = useForm()
+  // call api for status/stage
+  const assigneeForm = useForm()
   const {
     formState: { errors },
     control,
-    watch,
-    reset
-  } = statusForm
+    handleSubmit,
+    setError,
+    clearErrors
+  } = assigneeForm
 
   const onClose = () => {
     toggle()
-    statusForm.reset()
+    assigneeForm.reset()
+    clearErrors()
   }
 
   const onSubmit = () => {
-    const data = statusForm.getValues()
-    console.log(data)
+    const check = assigneeForm.getValues('assignee')
+    console.log(check, employeeId)
+    if (check === employeeId) {
+      setError('assignee', { type: 'required' }, { shouldFocus: true })
+      return
+    }
+    console.log(`Submitting: ${check}`)
+    onClose()
   }
 
-  useEffect(() => {
-    if (stage !== watch('stage')) {
-      reset({ stage: watch('stage'), status: status })
-    }
-  }, [watch])
+  const { data: assigneeList } = useGetAssigneeDatasourceQuery(assigneeId, { skip: !assigneeId })
+
+  console.log({ assigneeList, assigneeId, assigneeName, employeeAlias, employeeId })
   return (
     <Dialog open={open} maxWidth='xs' fullWidth onClose={toggle} aria-labelledby='form-dialog-title'>
       <DialogTitle id='form-dialog-title'>
-        Update Stage & Status
+        Update Assignee
         <IconButton
           aria-label='close'
           onClick={onClose}
@@ -94,30 +89,22 @@ export default function StatusDialog({ open, toggle, stage, status }: Props): Re
       </DialogTitle>
 
       <DialogContent>
-        <Box my={2}>
+        <Typography variant='caption'>
+          Current {assigneeName}: {employeeAlias ?? 'Unassigned'}
+        </Typography>
+        <Box my={4}>
           <form>
             <Grid container spacing={6}>
               <Grid item xs={12}>
                 <SingleSelect
-                  defaultValue={stage ?? 0}
-                  name='stage'
-                  label='Stage'
-                  options={stageOptions}
+                  defaultValue={employeeId}
+                  placeholder={employeeId ? `Active: ${employeeAlias}` : `Unassigned`}
+                  name='assignee'
+                  label={assigneeName}
+                  options={assigneeList}
                   control={control}
                   errors={errors}
                   required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <SingleSelect
-                  defaultValue={status ?? 0}
-                  name='status'
-                  label='Status'
-                  options={statusOptions}
-                  control={control}
-                  errors={errors}
-                  required
-                  disabled={!watch('stage')}
                 />
               </Grid>
             </Grid>
@@ -126,7 +113,7 @@ export default function StatusDialog({ open, toggle, stage, status }: Props): Re
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant='outlined' onClick={onSubmit}>
+        <Button variant='outlined' onClick={handleSubmit(onSubmit)}>
           Save Changes
         </Button>
       </DialogActions>

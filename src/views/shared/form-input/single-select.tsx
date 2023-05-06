@@ -1,24 +1,20 @@
 import React from 'react'
 import { FormControl, InputLabel, MenuItem, Select, FormHelperText } from '@mui/material'
 import { Controller } from 'react-hook-form'
-
-type Options = {
-  label: string
-  value: string | number
-  disabled?: boolean
-}
+import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
 
 type Props = {
   name: string
   control: any
   label: string
-  options: Options[]
+  options?: SingleSelectOption[]
   props?: any
   defaultValue?: string | number
   defaultLabel?: string
   required?: boolean
   errors?: any
   disabled?: boolean
+  placeholder?: string
 }
 
 export default function SingleSelect({
@@ -30,10 +26,12 @@ export default function SingleSelect({
   required,
   defaultValue,
   errors,
-  // onChange,
+  placeholder,
   ...props
 }: Props) {
   const generateOptions = () => {
+    if (!options) return
+
     return options.map(option => {
       return (
         <MenuItem key={option.value} value={option.value} disabled={option.disabled ?? false}>

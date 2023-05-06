@@ -1,4 +1,4 @@
-import { useState, SyntheticEvent, useEffect } from 'react'
+import { useState, SyntheticEvent, useEffect, ReactElement } from 'react'
 
 //MUI components
 import AccordionDetails from '@mui/material/AccordionDetails'
@@ -17,7 +17,9 @@ import MuiAccordion, { AccordionProps } from '@mui/material/Accordion'
 import MuiAccordionSummary, { AccordionSummaryProps } from '@mui/material/AccordionSummary'
 
 //Imported Components
+import AssigneeDialog from './components/snapshot/AssigneeDialog'
 import StatusDialog from './components/snapshot/StatusDialog'
+import PersonalDialog from './components/snapshot/PersonalDialog'
 
 //Icon Import
 import Icon from 'src/@core/components/icon'
@@ -35,7 +37,6 @@ import { useAppSelector } from 'src/store/hooks'
 import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
 import { useGetEnrollmentQuery } from 'src/store/api/apiHooks'
 import { Button, Fade, Menu, MenuItem } from '@mui/material'
-import PersonalDialog from './components/snapshot/PersonalDialog'
 
 import { useConfirm } from 'material-ui-confirm'
 
@@ -85,8 +86,6 @@ export default function ProfileSnapshot({ data }: Props) {
     profileCustomFields
   } = data
 
-  console.log(profileLabels)
-
   //status dictionary
   const statusDictionary = [
     'secondary',
@@ -103,8 +102,10 @@ export default function ProfileSnapshot({ data }: Props) {
   ]
 
   //Enrollment info
-  useGetEnrollmentQuery(profileId, { skip: profileId === null })
+  useGetEnrollmentQuery(profileId, { skip: !profileId })
   const enrollmentData = useAppSelector(state => selectEnrollmentByProfileId(state, profileId))
+
+  console.log(data)
 
   // returns date in mm/dd/yyyy form
   const DateConverter = (date: string | undefined) => {
@@ -122,24 +123,25 @@ export default function ProfileSnapshot({ data }: Props) {
     return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(money))
   }
 
-  // states for accordion toggle
-  const [personal, setPersonal] = useState<boolean>(true)
-  const [enrollment, setEnrollment] = useState<boolean>(false)
-  const [additional, setAdditional] = useState<boolean>(false)
+  //Edit Assignee
+  const [assigneeDialog, setAssigneeDialog] = useState<boolean>(false)
+  const [assignee, setAssignee] = useState<{
+    assigneeId: string
+    assigneeName: string
+    employeeAlias: string
+    employeeId: string
+  }>({
+    assigneeId: '',
+    assigneeName: '',
+    employeeId: '',
+    employeeAlias: ''
+  })
 
-  // handles toggle logic for accordion
-  const toggleAccordion = (panel: string) => (event: SyntheticEvent) => {
-    if (panel === 'personal') {
-      setPersonal(!personal)
-    }
+  const closeAssignee = () => setAssigneeDialog(false)
 
-    if (panel === 'enrollment') {
-      setEnrollment(!enrollment)
-    }
-
-    if (panel === 'additional') {
-      setAdditional(!additional)
-    }
+  const editAssignee = (assigneeId: string, employeeAlias: string, assigneeName: string, employeeId: string) => {
+    setAssignee({ assigneeId, assigneeName, employeeAlias, employeeId })
+    setAssigneeDialog(true)
   }
 
   //Stage/Status Edit Dialog
@@ -197,82 +199,6 @@ export default function ProfileSnapshot({ data }: Props) {
           break
       }
     })
-  }
-
-  //Generating Profiles
-  //Phone = 0, email = 1, fax = 2
-  const generatePhone = () => {
-    const contacts: ProfileContactType[] = profileContacts.filter(
-      (contact: ProfileContactType) => contact.contactType === 0
-    )
-
-    if (contacts.length === 0) {
-      return (
-        <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-          <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Phone:</Typography>
-          <Typography variant='body2'>N/A</Typography>
-        </Box>
-      )
-    }
-
-    const contactElement = contacts.map((contact: ProfileContactType, index: number) => {
-      return (
-        <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-          <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>
-            Phone{contacts.length === 1 ? null : ` ${index + 1}`}:
-          </Typography>
-          <Typography variant='body2'>{contact.value ?? 'N/A'}</Typography>
-        </Box>
-      )
-    })
-
-    return contactElement
-  }
-
-  const generateEmail = () => {
-    const contacts: ProfileContactType[] = profileContacts.filter(
-      (contact: ProfileContactType) => contact.contactType === 1
-    )
-
-    if (contacts.length === 0) {
-      return (
-        <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-          <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Email:</Typography>
-          <Typography variant='body2'>N/A</Typography>
-        </Box>
-      )
-    }
-
-    const contactElement = contacts.map((contact: ProfileContactType, index: number) => {
-      return (
-        <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-          <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>
-            Email{contacts.length === 1 ? null : ` ${index + 1}`}:
-          </Typography>
-          <Typography variant='body2'>{contact.value ?? 'N/A'}</Typography>
-        </Box>
-      )
-    })
-
-    return contactElement
-  }
-  const generateFax = () => {
-    const contacts: ProfileContactType[] = profileContacts.filter(
-      (contact: ProfileContactType) => contact.contactType === 0
-    )
-
-    const contactElement = contacts.map((contact: ProfileContactType, index: number) => {
-      return (
-        <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-          <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>
-            Fax{contacts.length === 1 ? null : ` ${index + 1}`}:
-          </Typography>
-          <Typography variant='body2'>{contact.value ?? 'N/A'}</Typography>
-        </Box>
-      )
-    })
-
-    return contactElement
   }
 
   return (
@@ -355,10 +281,12 @@ export default function ProfileSnapshot({ data }: Props) {
               <Box sx={{ pb: 1 }}>
                 <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                   <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Labels:</Typography>
-                  {profileLabels.length > 0 ? (
+                  {profileLabels.filter((label: any) => label.value !== 'N/A').length > 0 ? (
                     <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
-                      {profileLabels.map(label => {
-                        return <CustomChip skin='light' label={String(label.name)} color='primary' />
+                      {profileLabels.map((label, index) => {
+                        return (
+                          <CustomChip key={'label' + index} skin='light' label={String(label.name)} color='primary' />
+                        )
                       })}
                     </Box>
                   ) : (
@@ -388,30 +316,35 @@ export default function ProfileSnapshot({ data }: Props) {
                     {campaignName ?? 'N/A'}
                   </Typography>
                 </Box>
-                <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Account Manager:</Typography>
-                  <Typography variant='body2' align='right'>
-                    {profileAssignees[0]?.assigneeName ?? 'Unassigned'}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Servicing Company:</Typography>
-                  <Typography variant='body2' align='right'>
-                    {profileAssignees[0]?.assigneeCompanyLabel ?? 'N/A'}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Marketing Agent:</Typography>
-                  <Typography variant='body2' align='right'>
-                    {profileAssignees[0]?.employeeAlias ?? 'Unassigned'}
-                  </Typography>
-                </Box>
-                <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Marketing Company:</Typography>
-                  <Typography variant='body2' align='right'>
-                    {profileAssignees[0]?.companyName ?? 'N/A'}
-                  </Typography>
-                </Box>
+                {profileAssignees.map((assignee: any, index: number) => {
+                  return (
+                    <>
+                      <Box
+                        key={'assignee' + index}
+                        sx={{ display: 'flex', mb: 2, justifyContent: 'space-between', alignItems: 'center' }}
+                      >
+                        <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>
+                          {assignee.assigneeName}
+                        </Typography>
+                        <Button
+                          size='small'
+                          color='info'
+                          onClick={() => editAssignee(assignee.assigneeId, assignee.companyId, assignee.assigneeName)}
+                        >
+                          {assignee.employeeAlias === 'N/A' ? 'Unassigned' : assignee.employeeAlias}
+                        </Button>
+                      </Box>
+                      <Box key={'assignees' + index} sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                        <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>
+                          {assignee.assigneeCompanyLabel}
+                        </Typography>
+                        <Typography variant='body2' align='right'>
+                          {assignee.companyName}
+                        </Typography>
+                      </Box>
+                    </>
+                  )
+                })}
               </Box>
               <Box sx={{ display: 'flex', mt: 1, justifyContent: 'space-evenly' }}>
                 {status === 0 ? (
@@ -434,7 +367,7 @@ export default function ProfileSnapshot({ data }: Props) {
                     Enroll
                   </Button>
                 ) : null}
-                {status === 0 ? (
+                {status === 2 ? (
                   <>
                     <Button size='small' color='secondary' variant='contained' onClick={() => handleClick('pause')}>
                       Pause
@@ -455,7 +388,7 @@ export default function ProfileSnapshot({ data }: Props) {
         </Grid>
         {/* Personal Info Accordion */}
         <Grid item xs={12}>
-          <Accordion expanded={personal} onChange={toggleAccordion('personal')}>
+          <Accordion defaultExpanded>
             <AccordionSummary
               id='controlled-panel-header-1'
               aria-controls='controlled-panel-content-1'
@@ -480,20 +413,41 @@ export default function ProfileSnapshot({ data }: Props) {
                   <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Gender:</Typography>
                   <Typography variant='body2'>{genderName ?? 'N/A'}</Typography>
                 </Box>
-                {generatePhone()}
-                {generateEmail()}
-                {generateFax()}
-                <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
-                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Mailing Address:</Typography>
-                  <Box sx={{ textAlign: 'right' }}>
-                    <Typography variant='body2'>
-                      {profileAddresses[0]?.address1 ?? ''} {profileAddresses[0]?.address2 ?? ''}
-                    </Typography>
-                    <Typography variant='body2'>
-                      {profileAddresses[0]?.city}, {profileAddresses[0]?.state} {profileAddresses[0]?.zipCode}
-                    </Typography>
-                  </Box>
-                </Box>
+                {profileContacts.map((contact, index: number) => {
+                  return (
+                    <Box key={'contacts' + index} sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                      <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>
+                        {contact.contactName}
+                      </Typography>
+                      <Typography variant='body2'>{contact.value}</Typography>
+                    </Box>
+                  )
+                })}
+                {profileAddresses.map((address: any, index: number) => {
+                  return (
+                    <Box key={'address' + index} sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                      <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>
+                        {address.addressName}
+                      </Typography>
+                      <Box>
+                        {address.address1 !== 'N/A' ? (
+                          <>
+                            <Typography align='right' variant='body2'>
+                              {address.address1 + (` ${address.address2}` ?? '')}
+                            </Typography>
+                            <Typography align='right' variant='body2'>
+                              {address.city}, {address.state} {address.zipCode}
+                            </Typography>
+                          </>
+                        ) : (
+                          <Typography align='right' variant='body2'>
+                            N/A
+                          </Typography>
+                        )}
+                      </Box>
+                    </Box>
+                  )
+                })}
               </Box>
               <Box sx={{ display: 'flex', justifyContent: 'center' }}>
                 <Button onClick={togglePersonal} size='small'>
@@ -505,7 +459,7 @@ export default function ProfileSnapshot({ data }: Props) {
         </Grid>
         {/* Enrollment Accordion */}
         <Grid item xs={12}>
-          <Accordion expanded={enrollment} onChange={toggleAccordion('enrollment')}>
+          <Accordion>
             <AccordionSummary
               id='controlled-panel-header-1'
               aria-controls='controlled-panel-content-1'
@@ -573,7 +527,7 @@ export default function ProfileSnapshot({ data }: Props) {
         {/* Additional Info Accordion */}
         {profileCustomFields.length > 0 ? (
           <Grid item xs={12}>
-            <Accordion expanded={additional} onChange={toggleAccordion('additional')}>
+            <Accordion>
               <AccordionSummary
                 id='controlled-panel-header-1'
                 aria-controls='controlled-panel-content-1'
@@ -603,7 +557,185 @@ export default function ProfileSnapshot({ data }: Props) {
         ) : null}
       </Grid>
       <StatusDialog open={statusDialog} toggle={toggleStatus} stage={stage} status={status} />
-      <PersonalDialog open={personalDialog} toggle={togglePersonal} data={enrollmentData} />
+      <PersonalDialog open={personalDialog} toggle={togglePersonal} data={data} />
+      <AssigneeDialog open={assigneeDialog} data={assignee} toggle={closeAssignee} />
     </>
+  )
+}
+
+type PersonalProps = {}
+
+const PersonalInfo = ({}: PersonalProps): ReactElement => {
+  return (
+    <Card>
+      <CardContent>
+        <Box sx={{ display: 'flex', justifyContent: 'end', mb: 1 }}>
+          <IconButton size='small' aria-label='profile-dropdown' aria-controls='profile-controls' onClick={menuClick}>
+            <Icon icon='mdi:dots-vertical' />
+          </IconButton>
+          <Menu
+            id='profile-controls'
+            TransitionComponent={Fade}
+            anchorEl={anchor}
+            open={Boolean(anchor)}
+            onClose={menuClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right'
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right'
+            }}
+          >
+            <MenuItem sx={{ minWidth: '150px' }} onClick={() => handleClick('delete')}>
+              Delete
+            </MenuItem>
+            <MenuItem>Reenroll</MenuItem>
+          </Menu>
+        </Box>
+        <Typography mb={2} variant='h4'>
+          {firstName ?? ''} {lastName ?? ''}
+        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Typography variant='h6'>ID: {profileId}</Typography>
+          <CustomChip
+            skin='light'
+            label={statusName?.toUpperCase() ?? ''}
+            color={statusDictionary[status ?? 0]}
+          ></CustomChip>
+        </Box>
+      </CardContent>
+
+      <CardContent>
+        <Box sx={{ display: 'flex', gap: 3, alignItems: 'end' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: 1 }}>
+            <Typography variant='caption'>Stage</Typography>
+            <CustomChip skin='light' label={stageName ?? 'None'} color='primary' />
+          </Box>
+          <Box>
+            <Icon icon='material-symbols:arrow-right-alt' />
+          </Box>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: 1 }}>
+            <Typography variant='caption'>Status</Typography>
+            <CustomChip skin='light' label={stageStatusName ?? 'None'} color='warning' />
+          </Box>
+        </Box>
+      </CardContent>
+
+      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+        <Button variant='contained' size='small' onClick={toggleStatus}>
+          Change Stage/Status
+        </Button>
+      </Box>
+
+      <CardContent>
+        <Typography mb={2} variant='h6'>
+          Details
+        </Typography>
+        <Divider sx={{ mb: 2 }} />
+        <Box sx={{ pb: 1 }}>
+          <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+            <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Labels:</Typography>
+            {profileLabels.filter((label: any) => label.value !== 'N/A').length > 0 ? (
+              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                {profileLabels.map((label, index) => {
+                  return <CustomChip key={'label' + index} skin='light' label={String(label.name)} color='primary' />
+                })}
+              </Box>
+            ) : (
+              <Typography variant='body2' align='right'>
+                None
+              </Typography>
+            )}
+          </Box>
+          <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+            <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Created By:</Typography>
+            <Box sx={{ textAlign: 'right' }}>
+              <Typography variant='body2'>{createdByName ?? 'N/A'}</Typography>
+              <Typography variant='body2' sx={{ fontSize: '0.625rem' }}>
+                {format(new Date(createdAt), 'PPp')}
+              </Typography>
+            </Box>
+          </Box>
+          <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+            <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Data Point:</Typography>
+            <Typography variant='body2' align='right'>
+              {createdCompanyName ?? 'N/A'}
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+            <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Campaign:</Typography>
+            <Typography variant='body2' align='right'>
+              {campaignName ?? 'N/A'}
+            </Typography>
+          </Box>
+          {profileAssignees.map((assignee: any, index: number) => {
+            return (
+              <>
+                <Box
+                  key={'assignee' + index}
+                  sx={{ display: 'flex', mb: 2, justifyContent: 'space-between', alignItems: 'center' }}
+                >
+                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>{assignee.assigneeName}</Typography>
+                  <Button
+                    size='small'
+                    color='info'
+                    onClick={() => editAssignee(assignee.assigneeId, assignee.companyId, assignee.assigneeName)}
+                  >
+                    {assignee.employeeAlias === 'N/A' ? 'Unassigned' : assignee.employeeAlias}
+                  </Button>
+                </Box>
+                <Box key={'assignees' + index} sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                  <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>
+                    {assignee.assigneeCompanyLabel}
+                  </Typography>
+                  <Typography variant='body2' align='right'>
+                    {assignee.companyName}
+                  </Typography>
+                </Box>
+              </>
+            )
+          })}
+        </Box>
+        <Box sx={{ display: 'flex', mt: 1, justifyContent: 'space-evenly' }}>
+          {status === 0 ? (
+            <Button size='small' color='primary' variant='contained' onClick={() => handleClick('submit')}>
+              Submit
+            </Button>
+          ) : null}
+          {status === 1 ? (
+            <Button size='small' color='info' variant='contained' onClick={() => handleClick('approve')}>
+              Approve
+            </Button>
+          ) : null}
+          {status === 1 ? (
+            <Button size='small' color='warning' variant='contained' onClick={() => handleClick('reject')}>
+              Reject
+            </Button>
+          ) : null}
+          {status === 7 ? (
+            <Button size='small' color='success' variant='contained' onClick={() => handleClick('enroll')}>
+              Enroll
+            </Button>
+          ) : null}
+          {status === 2 ? (
+            <>
+              <Button size='small' color='secondary' variant='contained' onClick={() => handleClick('pause')}>
+                Pause
+              </Button>
+              <Button size='small' color='error' variant='contained' onClick={() => handleClick('cancel')}>
+                Cancel
+              </Button>
+            </>
+          ) : null}
+          {status === 6 ? (
+            <Button size='small' color='primary' variant='contained' onClick={() => handleClick('resume')}>
+              Resume
+            </Button>
+          ) : null}
+        </Box>
+      </CardContent>
+    </Card>
   )
 }
