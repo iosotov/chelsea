@@ -1,6 +1,6 @@
 import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit'
 
-import { BudgetType, ProfileBudget } from './api/profileBudgetApiSlice'
+import { BudgetSettingType, ProfileBudget } from './api/profileBudgetApiSlice'
 import { RootState } from './store'
 
 const profileBudgetAdapter = createEntityAdapter({
@@ -8,7 +8,7 @@ const profileBudgetAdapter = createEntityAdapter({
 })
 
 const budgetAdapter = createEntityAdapter({
-  selectId: (budget: BudgetType) => budget.budgetId
+  selectId: (budget: BudgetSettingType) => budget.budgetId
 })
 
 const initialState = {
