@@ -263,7 +263,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
 
         return res.success
       },
-      async onQueryStarted(params, { queryFulfilled }) {
+      async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
         } catch (err) {

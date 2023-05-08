@@ -42,13 +42,14 @@ import { CardStatsHorizontalProps } from 'src/@core/components/card-statistics/t
 
 // ** Custom Table Components Imports
 import { useAppDispatch, useAppSelector } from 'src/store/hooks'
-import { useGetProfilesQuery } from 'src/store/api/profileApiSlice'
 import { ProfileInfoType } from 'src/store/api/profileApiSlice'
 import { selectAllProfiles } from 'src/store/profileSlice'
+
 // import SidebarAddUser from 'src/views/pages/user/list/AddUserDrawer'
 // import TableHeader from 'src/views/pages/user/list/TableHeader'
 import { useGetBudgetsQuery, useGetProfileBudgetsQuery } from 'src/store/api/profileBudgetApiSlice'
 import { selectAllBudgets, selectAllProfileBudgets } from 'src/store/profileBudgetSlice'
+import { useGetProfilesQuery } from 'src/store/api/apiHooks'
 
 interface UserRoleType {
   [key: string]: { icon: string; color: string }
@@ -68,7 +69,7 @@ interface UserStatusType {
 // }
 
 interface CellType {
-  row: ContactType
+  row: ProfileInfoType
 }
 
 const userStatusObj: UserStatusType = {
@@ -120,9 +121,7 @@ const renderClient = (row: ProfileInfoType) => {
 }
 
 // action column
-const RowOptions = ({ id }: { id: number | string }) => {
-  // ** Hooks
-  const dispatch = useAppDispatch()
+const RowOptions = ({ profileId }: { profileId: number | string }) => {
 
   // ** State
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
@@ -296,25 +295,21 @@ const columns = [
 ]
 
 const ProfileList = () => {
-  // ** State
+
   // state for search filters
   const [role, setRole] = useState<string>('')
   const [plan, setPlan] = useState<string>('')
   const [status, setStatus] = useState<string>('')
-  const [data, setData] = useState<ProfileInfoType[] | {}>({})
+
+  // global state for profiles
   const profiles = useAppSelector(selectAllProfiles)
-  const budgets = useAppSelector(selectAllBudgets)
-  const profileBudgets = useAppSelector(selectAllProfileBudgets)
+  useGetProfilesQuery({})
 
   // val stores state for header filters
   const [value, setValue] = useState<string>('')
 
-  useGetProfilesQuery(data)
-  useGetProfileBudgetsQuery('1327485548')
-  useGetBudgetsQuery({})
 
-  console.log(profileBudgets, budgets)
-
+  // state for UI
   const [pageSize, setPageSize] = useState<number>(10)
   const [addUserOpen, setAddUserOpen] = useState<boolean>(false)
 
