@@ -21,6 +21,7 @@ import DatePicker from 'react-datepicker'
 import FormGroup from '@mui/material/FormGroup'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import Switch from '@mui/material/Switch'
+import Checkbox from '@mui/material/Checkbox'
 
 // ** Types
 
@@ -120,6 +121,7 @@ const ProfileTasks = ({ id }: any) => {
 
   //State Management
   //set selectedTask type to taskType
+  const [checkedValues, setCheckedValues] = useState([])
   const [selectedTask, setSelectedTask] = useState<any>({})
   const [focus, setFocus] = useState<Focused>()
   const [openAddTask, setOpenAddTask] = useState<boolean>(false)
@@ -130,6 +132,8 @@ const ProfileTasks = ({ id }: any) => {
   const [triggerUpdate, { isSuccess: editApiSuccess }] = usePutUpdateTaskMutation()
   const [triggerDelete, { isSuccess: deleteApiSuccess }] = useDeleteTaskMutation()
   const [triggerBulkUpdate, { isSuccess: bulkUpdateApiSuccess }] = usePutBulkUpdateTasksMutation()
+
+  const label = { inputProps: { 'aria-label': 'Checkbox demo' } }
 
   const { isLoading, isSuccess, isError } = useGetProfileTasksQuery(profileId)
   console.log(isLoading, isSuccess, isError)
@@ -260,15 +264,18 @@ const ProfileTasks = ({ id }: any) => {
   }
 
   async function handleBulkUpdateClick() {
+    console.log(checkedValues)
     const testEditData = {
-      taskId: selectedTask.taskId,
-      taskName: taskName,
+      taskIds: selectedTask.taskId,
+
+      // taskName: taskName,
 
       dueDate: paymentDate,
 
       // dueDate: '2023-03-09',
       assignedTo: 'b12557c2-3a35-4ce6-9e52-959c07e13ce5',
-      assignType: 2,
+
+      // assignType: 2,
       notes: note,
       status: 1
     }
@@ -356,20 +363,45 @@ const ProfileTasks = ({ id }: any) => {
   }
 
   //generate button for editById
+  // const renderEditTaskButton = params => {
+  //   return (
+  //     <strong>
+  //       <IconButton
+  //         sx={{ color: '#497ce2' }}
+  //         onClick={() => {
+  //           handleGetTaskById(params)
+  //         }}
+  //       >
+  //         {/* {params.row.taskId} */}
+  //         <Icon icon='mdi:edit' />
+  //       </IconButton>
+  //     </strong>
+  //   )
+  // }
+
+  // const pushSelected = value => {
+  //   const copySelected = selectedList
+  //   console.log(copySelected)
+  //   copySelected.push(value)
+  //   console.log(copySelected)
+  //   console.log(selectedList)
+  //   console.log(value)
+  // }
+
+  const handleCheckboxChange = event => {
+    console.log(event)
+    const value = event.target.value
+    if (event.target.checked) {
+      setCheckedValues([...checkedValues, value])
+    } else {
+      setCheckedValues(checkedValues.filter(item => item !== value))
+    }
+    console.log(checkedValues)
+  }
   const renderEditTaskButton = params => {
-    return (
-      <strong>
-        <IconButton
-          sx={{ color: '#497ce2' }}
-          onClick={() => {
-            handleGetTaskById(params)
-          }}
-        >
-          {/* {params.row.taskId} */}
-          <Icon icon='mdi:edit' />
-        </IconButton>
-      </strong>
-    )
+    console.log(params)
+
+    return <Checkbox {...label} value={params.row.taskId} onChange={handleCheckboxChange} />
   }
 
   const columns: GridColDef[] = [
