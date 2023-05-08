@@ -1,8 +1,8 @@
 import { setCompanies, updateCompanies } from '../companySlice'
 import { apiSlice } from './apiSlice'
+import { LunaResponseType, SearchFilterType } from './sharedTypes'
 
-export type UpdateCompanyType = {
-  companyId?: string
+export type CompanyCreateType = {
   name: string
   phone: string
   email?: string
@@ -11,8 +11,22 @@ export type UpdateCompanyType = {
   city?: string
   state?: string
   zipcode?: string
-  parentCompanyId?: string
-  sharedPercentage?: string
+  parentCompanyId?: string | null
+  sharedPercentage?: number | null
+}
+
+export type CompanyUpdateType = {
+  companyId: string
+  name: string
+  phone: string
+  email?: string
+  address1?: string
+  address2?: string
+  city?: string
+  state?: string
+  zipcode?: string
+  parentCompanyId?: string | null
+  sharedPercentage?: number | null
 }
 
 export type CompanyType = {
@@ -36,7 +50,7 @@ export const companyApiSlice = apiSlice.injectEndpoints({
         url: `/company/${companyId}/info`,
         method: 'GET'
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching company')
         console.log(res.data)
 
@@ -58,13 +72,13 @@ export const companyApiSlice = apiSlice.injectEndpoints({
         return result ? [{ type: 'COMPANY', id: result.companyId }] : []
       }
     }),
-    getCompanies: builder.query<CompanyType[], Record<string, any>>({
+    getCompanies: builder.query<CompanyType[], SearchFilterType>({
       query: body => ({
         url: `/company/search`,
         method: 'POST',
         body
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching companies')
         console.log(res.data)
 
@@ -89,7 +103,7 @@ export const companyApiSlice = apiSlice.injectEndpoints({
         ]
       }
     }),
-    createCompany: builder.mutation<string, UpdateCompanyType>({
+    createCompany: builder.mutation<string, CompanyCreateType>({
       query: body => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
@@ -101,7 +115,7 @@ export const companyApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error creating company')
         console.log(res.data)
 
@@ -119,7 +133,7 @@ export const companyApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: res => (res ? [{ type: 'COMPANY', id: 'LIST' }] : [])
     }),
-    updateCompany: builder.mutation<boolean, UpdateCompanyType>({
+    updateCompany: builder.mutation<boolean, CompanyUpdateType>({
       query: params => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { companyId, ...body } = params
@@ -131,7 +145,7 @@ export const companyApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error updating company')
 
         return res.success
@@ -156,7 +170,7 @@ export const companyApiSlice = apiSlice.injectEndpoints({
           method: 'PUT'
         }
       },
-      transformResponse: (res: Record<string, any>, meta, arg) => {
+      transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error enabling company')
 
         return arg
@@ -181,7 +195,7 @@ export const companyApiSlice = apiSlice.injectEndpoints({
           method: 'PUT'
         }
       },
-      transformResponse: (res: Record<string, any>, meta, arg) => {
+      transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error disabling company')
 
         return arg

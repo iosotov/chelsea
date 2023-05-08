@@ -1,6 +1,8 @@
 import { updateEnrollments } from '../enrollmentSlice'
 import { setPayments, updatePayments } from '../paymentSlice'
 import { apiSlice } from './apiSlice'
+import { EnrollmentDefaultModel } from './defaultValues'
+import { LunaResponseType, SearchFilterType } from './sharedTypes'
 
 export enum EnrollmentPaymentMethod {
   'ach',
@@ -211,7 +213,6 @@ export type EnrollmentPreviewType = {
 }
 
 export type PaymentCreateType = {
-  paymentId?: string
   profileId: string
   processedDate?: string
   clearedDate?: string
@@ -223,11 +224,32 @@ export type PaymentCreateType = {
   paymentType?: PaymentType
 }
 
+export type PaymentUpdateType = {
+  paymentId: string
+  profileId: string
+  processedDate?: string
+  clearedDate?: string
+  amount?: number
+  memo?: string
+  processor: string
+  paymentName?: string
+  description?: string
+  paymentType?: PaymentType
+}
+
+export type AdditionalFeesType = {
+  feeName: string
+  feeType: FeeType
+  amount: number
+  feeStart: number
+  feeEnd: number
+}
+
 export type EnrollmentCreateType = {
   profileId: string
   paymentMethod: EnrollmentPaymentMethod
   basePlan: string
-  serviceFeeType: FeeType
+  serviceFeeType: FeeType | null
   recurringType?: RecurringType
   enrollmentFee: number
   programLength: number
@@ -235,15 +257,7 @@ export type EnrollmentCreateType = {
   firstPaymentDate: string
   recurringPaymentDate?: string
   initialFeeAmount?: number
-  additionalFees?: [
-    {
-      feeName: string
-      feeType: FeeType
-      amount: number
-      feeStart: number
-      feeEnd: number
-    }
-  ]
+  additionalFees?: AdditionalFeesType[]
 }
 
 // Enrollment Cancel api/Enrollment/{profileId}/profile/cancel
@@ -259,10 +273,10 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
         url: `/enrollment/${profileId}/profile`,
         method: 'GET'
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error fetching enrollment details')
 
-        return res.data
+        return res.data ? res.data : { ...EnrollmentDefaultModel, profileId: arg }
       },
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
@@ -291,7 +305,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error creating enrollment')
 
         console.log(res.data)
@@ -329,7 +343,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>, meta, arg) => {
+      transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error updating enrollment')
 
         return arg.profileId
@@ -360,7 +374,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           method: 'GET'
         }
       },
-      transformResponse: (res: Record<string, any>, meta, arg) => {
+      transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error updating enrollment')
         const newPayments = res.data.map((payment: PaymentDetailInfoModel) => ({ ...payment, profileId: arg }))
 
@@ -392,7 +406,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching enrollment info')
 
         return res.data
@@ -420,7 +434,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           method: 'GET'
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error updating enrollment')
 
         return res.data
@@ -450,7 +464,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error creating payment')
 
         return res.success
@@ -474,7 +488,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
             ]
           : []
     }),
-    putUpdatePayment: builder.mutation<boolean, PaymentCreateType>({
+    putUpdatePayment: builder.mutation<boolean, PaymentUpdateType>({
       query: params => {
         const { profileId, paymentId, ...body } = params
 
@@ -484,7 +498,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error creating payment')
 
         return res.success
@@ -510,7 +524,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
     }),
 
     // NOT IMPLEMENTED IN LUNA
-    postSearchEnrollment: builder.query<EnrollmentSearchResultModel[], Record<string, any>>({
+    postSearchEnrollment: builder.query<EnrollmentSearchResultModel[], SearchFilterType>({
       query: body => {
         return {
           url: `/enrollment/search`,
@@ -518,7 +532,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error searching enrollment')
 
         return res.data
@@ -542,7 +556,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           method: 'POST'
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error pausing enrollment')
 
         return res.success
@@ -573,7 +587,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           method: 'POST'
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error resuming enrollment')
 
         return res.success
@@ -607,7 +621,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error cancelling enrollment')
 
         return res.success

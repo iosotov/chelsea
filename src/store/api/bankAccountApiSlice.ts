@@ -1,20 +1,6 @@
 import { setBankAccounts } from '../bankAccountSlice'
 import { apiSlice } from './apiSlice'
-
-export type UpdateBankAccountType = {
-  bankAccountId: string
-  bankRoutingNumber: string
-  bankName: string
-  bankAccountNumber: string
-  phoneNumber?: string
-  bankAccountType: number
-  address?: string
-  address2?: string
-  city?: string
-  zipcode?: string
-  state?: string
-  accountName: string
-}
+import { LunaResponseType } from './sharedTypes'
 
 export type BankAccountType = {
   bankAccountId: string
@@ -36,7 +22,7 @@ export type BankAccountType = {
   lastName: string | null
 }
 
-export type NewBankAccountType = {
+export type BankAccountCreateType = {
   bankRoutingNumber: string
   bankName: string
   bankAccountNumber: string
@@ -47,10 +33,23 @@ export type NewBankAccountType = {
   city?: string
   zipcode?: string
   state?: string
-  accountName: string
+  accountName?: string
   profileId: string
-  firstName: string | null
-  lastName: string | null
+}
+
+export type BankAccountUpdateType = {
+  bankAccountId: string
+  bankRoutingNumber: string
+  bankName: string
+  bankAccountNumber: string
+  phoneNumber?: string
+  bankAccountType: BankAccountType
+  address?: string
+  address2?: string
+  city?: string
+  zipcode?: string
+  state?: string
+  accountName?: string
 }
 
 export const bankAccountApiSlice = apiSlice.injectEndpoints({
@@ -60,7 +59,7 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
         url: `/bankaccount/${profileId}/profile`,
         method: 'GET'
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching bank accounts')
         console.log(res.data)
 
@@ -87,7 +86,7 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
         ]
       }
     }),
-    createBankAccount: builder.mutation<string, NewBankAccountType>({
+    createBankAccount: builder.mutation<string, BankAccountCreateType>({
       query: params => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { profileId, ...body } = params
@@ -100,7 +99,7 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error creating bank account')
         console.log(res.data)
 
@@ -118,7 +117,7 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'BANKACCOUNT', id: arg.profileId }] : [])
     }),
-    updateBankAccount: builder.mutation<string, UpdateBankAccountType>({
+    updateBankAccount: builder.mutation<string, BankAccountUpdateType>({
       query: params => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { bankAccountId, ...body } = params
@@ -130,7 +129,7 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>, meta, arg) => {
+      transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error updating bank account information')
 
         console.log(arg.bankAccountId)
@@ -157,7 +156,7 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
           method: 'DELETE'
         }
       },
-      transformResponse: (res: Record<string, any>, meta, arg) => {
+      transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error updating bank account information')
 
         return arg

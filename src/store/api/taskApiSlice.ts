@@ -1,6 +1,7 @@
 import { deleteTask } from '../taskSlice'
 import { setTasks, updateTasks } from '../taskSlice'
 import { apiSlice } from './apiSlice'
+import { LunaResponseType, SearchFilterType } from './sharedTypes'
 
 export type TaskType = {
   taskId: string
@@ -26,11 +27,24 @@ export type TaskCreateType = {
   taskName: string
   dueDate: string
   assignedTo: string
-  assignType: number
-  notes: string
-  liabilityId: string
+  assignType?: number
+  notes?: string
+  liabilityId?: string
   profileId: string
-  taskId?: string
+}
+
+export type TaskUpdateType = {
+  taskId: string
+  taskName: string
+  taskStatus: TaskStatusEnum
+  dueDate: string
+  assignedTo: string
+  assignType?: number
+  notes?: string
+  liabilityId?: string
+  profileId: string
+  completedDate?: string
+  rescheduleDate?: string
 }
 
 export type TaskBulkUpdateType = {
@@ -41,6 +55,13 @@ export type TaskBulkUpdateType = {
   assignedTo: string
 }
 
+export enum TaskStatusEnum {
+  'Open',
+  'Attempted',
+  'Completed',
+  'Closed'
+}
+
 export const taskApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
     getTask: builder.query<TaskType, string>({
@@ -48,7 +69,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
         url: `/task/${taskId}/info`,
         method: 'GET'
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching task')
 
         return res.data
@@ -75,7 +96,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
         url: `/task/${profileId}/profile`,
         method: 'GET'
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching profile tasks')
 
         return res.data
@@ -109,7 +130,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error creating task')
 
         return res.data
@@ -133,7 +154,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
             ]
           : []
     }),
-    postSearchTask: builder.query<TaskType[], Record<string, any>>({
+    postSearchTask: builder.query<TaskType[], SearchFilterType>({
       query: body => {
         return {
           url: `/task/search`,
@@ -141,7 +162,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error creating task')
 
         return res.data.data
@@ -162,7 +183,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       providesTags: res =>
         res ? [{ type: 'TASK', id: 'LIST' }, ...res.map(task => ({ type: 'TASK' as const, id: task.taskId }))] : []
     }),
-    putUpdateTask: builder.mutation<boolean, TaskCreateType>({
+    putUpdateTask: builder.mutation<boolean, TaskUpdateType>({
       query: params => {
         const { taskId, ...body } = params
 
@@ -172,7 +193,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error updating task')
         console.log(res.data)
 
@@ -203,7 +224,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
           method: 'DELETE'
         }
       },
-      transformResponse: (res: Record<string, any>, meta, arg) => {
+      transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error updating task')
         console.log(res.data)
 
@@ -236,13 +257,13 @@ export const taskApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error bulk updating tasks')
         console.log(res.data)
 
         return res.success
       },
-      async onQueryStarted(params, { queryFulfilled }) {
+      async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
         } catch (err) {

@@ -1,6 +1,6 @@
 import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit'
 
-import { BudgetType, ProfileBudget } from './api/profileBudgetApiSlice'
+import { BudgetSettingType, ProfileBudget } from './api/profileBudgetApiSlice'
 import { RootState } from './store'
 
 const profileBudgetAdapter = createEntityAdapter({
@@ -8,7 +8,7 @@ const profileBudgetAdapter = createEntityAdapter({
 })
 
 const budgetAdapter = createEntityAdapter({
-  selectId: (budget: BudgetType) => budget.budgetId
+  selectId: (budget: BudgetSettingType) => budget.budgetId
 })
 
 const initialState = {
@@ -69,3 +69,35 @@ export const selectProfileBudgetsByProfileId = createSelector(
     return profileBudgets.filter(profileBudget => profileBudget.profileId === profileId)
   }
 )
+
+export const selectIncomeBudgetsByProfileId = createSelector(
+  selectAllProfileBudgets,
+  (_: RootState, profileId: string) => profileId,
+  (profileBudgets, profileId) => {
+    return profileBudgets.filter(
+      profileBudget => profileBudget.profileId === profileId && profileBudget.budgetType === 0
+    )
+  }
+)
+
+export const selectExpenseBudgetsByProfileId = createSelector(
+  selectAllProfileBudgets,
+  (_: RootState, profileId: string) => profileId,
+  (profileBudgets, profileId) => {
+    return profileBudgets.filter(
+      profileBudget => profileBudget.profileId === profileId && profileBudget.budgetType === 1
+    )
+  }
+)
+
+export const selectIncomeTotalByProfileId = createSelector(selectIncomeBudgetsByProfileId, profileBudgets => {
+  return profileBudgets.reduce((totalAmount, profileBudget) => {
+    return totalAmount + profileBudget.amount
+  }, 0)
+})
+
+export const selectExpenseTotalByProfileId = createSelector(selectExpenseBudgetsByProfileId, profileBudgets => {
+  return profileBudgets.reduce((totalAmount, profileBudget) => {
+    return totalAmount + profileBudget.amount
+  }, 0)
+})

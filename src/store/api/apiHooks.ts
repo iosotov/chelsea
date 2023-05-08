@@ -338,5 +338,59 @@ export const {
   usePutAssigneeDisableMutation,
 
   // GET setting/assignees/assigneeId/datasource
-  useGetAssigneeDatasourceQuery
+  useGetAssigneeDatasourceQuery,
+
+  // GET setting/contacts/contactId/info
+  useGetContactQuery,
+
+  // POST setting/contacts/search
+  usePostContactSearchQuery,
+
+  // POST setting/contacts
+  usePostContactMutation,
+
+  // PUT setting/contacts/contactId
+  usePutContactMutation,
+
+  // PUT setting/contacts/contactId/enable
+  usePutContactEnableMutation,
+
+  // PUT setting/contacts/contactId/disable
+  usePutContactDisableMutation,
+
+  // GET setting/customFields/customFieldId/info
+  useGetCustomFieldQuery,
+
+  // POST setting/customFields/search
+  usePostCustomFieldSearchQuery,
+
+  // POST setting/customFields
+  usePostCustomFieldMutation,
+
+  // PUT setting/customFields/customFieldId
+  usePutCustomFieldMutation,
+
+  // PUT setting/customFields/customFieldId/enable
+  usePutCustomFieldEnableMutation,
+
+  // PUT setting/customFields/customFieldId/disable
+  usePutCustomFieldDisableMutation,
+
+  // GET setting/labels/labelId/info
+  useGetLabelQuery,
+
+  // POST setting/labels/search
+  usePostLabelSearchQuery,
+
+  // POST setting/labels
+  usePostLabelMutation,
+
+  // PUT setting/labels/labelId
+  usePutLabelMutation,
+
+  // PUT setting/labels/labelId/enable
+  usePutLabelEnableMutation,
+
+  // PUT setting/labels/labelId/disable
+  usePutLabelDisableMutation
 } = settingApiSlice
