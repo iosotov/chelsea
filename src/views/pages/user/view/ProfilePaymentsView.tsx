@@ -444,10 +444,12 @@ function Overview({ data }: any) {
           <CardContent>
             <Grid container spacing={4} mb={2}>
               <Grid item xs={12} md={6}>
-                <Typography mb={2} variant='body2'>
-                  Current enrollment fee:{' '}
-                  <Typography component='span' sx={{ fontWeight: 600 }}>
-                    {'40.00%' ?? 'N/A'}
+                <Box mb={2}>
+                  <Typography variant='body2'>
+                    Current enrollment fee:{' '}
+                    <Typography component='span' sx={{ fontWeight: 600 }}>
+                      {'40.00%' ?? 'N/A'}
+                    </Typography>
                   </Typography>
                   <Typography variant='body2'>
                     Enrollment Plan Duration:{' '}
@@ -455,11 +457,13 @@ function Overview({ data }: any) {
                       {24 ?? 'N/A'} months
                     </Typography>
                   </Typography>
-                </Typography>
-                <Typography mb={2} variant='body2'>
-                  Number of Enrolled Debts:{' '}
-                  <Typography component='span' sx={{ fontWeight: 600 }}>
-                    {5 ?? 'N/A'}
+                </Box>
+                <Box mb={2}>
+                  <Typography variant='body2'>
+                    Number of Enrolled Debts:{' '}
+                    <Typography component='span' sx={{ fontWeight: 600 }}>
+                      {5 ?? 'N/A'}
+                    </Typography>
                   </Typography>
                   <Typography variant='body2'>
                     Total Enrolled Balance:{' '}
@@ -467,11 +471,13 @@ function Overview({ data }: any) {
                       {'$' + 28000.0 ?? 'N/A'}
                     </Typography>
                   </Typography>
-                </Typography>
-                <Typography mb={2} variant='body2'>
-                  Next Payment Date:{' '}
-                  <Typography component='span' sx={{ fontWeight: 600 }}>
-                    {'March 23, 2024' ?? 'N/A'}
+                </Box>
+                <Box mb={2}>
+                  <Typography variant='body2'>
+                    Next Payment Date:{' '}
+                    <Typography component='span' sx={{ fontWeight: 600 }}>
+                      {'March 23, 2024' ?? 'N/A'}
+                    </Typography>
                   </Typography>
                   <Typography variant='body2'>
                     Next Payment Amount:{' '}
@@ -479,15 +485,7 @@ function Overview({ data }: any) {
                       {'$' + 304.14 ?? 'N/A'}
                     </Typography>
                   </Typography>
-                </Typography>
-                {/* <Typography variant='body1' sx={{ color: 'text.primary', fontWeight: 600 }}>
-                  <Typography variant='body2'>Next Payment Date: </Typography>
-                  March 23, 2024
-                </Typography>
-                <Typography variant='body1' sx={{ color: 'text.primary', fontWeight: 600 }}>
-                  <Typography variant='body2'>Next Payment Amount: </Typography>
-                  $304.14
-                </Typography> */}
+                </Box>
               </Grid>
               <Grid item xs={12} md={6}>
                 {alert ? (

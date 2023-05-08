@@ -114,14 +114,16 @@ const stateOptions = [
 ]
 
 export default function PersonalDialog({ open, toggle, data }: Props): ReactElement {
+  //assign basevalue of empty string rather than null for react hook forms
+
   const {
-    campaignId,
-    firstName,
-    lastName,
-    middleName,
-    birthdate,
-    ssn,
-    gender,
+    campaignId = '',
+    firstName = '',
+    lastName = '',
+    middleName = '',
+    birthdate = '',
+    ssn = '',
+    gender = '',
     profileContacts,
     profileAddresses,
     profileCustomFields

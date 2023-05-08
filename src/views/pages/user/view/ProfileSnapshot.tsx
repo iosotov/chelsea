@@ -54,6 +54,7 @@ type ProfileInfoProps = {
   statusName: string
   stage: number
   stageName: string
+  stageStatus: number
   stageStatusName: string
   createdAt: string
   createdByName: string
@@ -76,7 +77,7 @@ type ProfileStageStatusProps = {
   stageName: string
   stageStatusName: string
   stage: number
-  status: number
+  stageStatus: number
 }
 
 type ProfileDetailsProps = {
@@ -153,11 +154,15 @@ export default function ProfileSnapshot({ data }: Props) {
     statusName,
     stage,
     stageName,
+    stageStatus,
     stageStatusName,
     profileAssignees,
     profileLabels,
     profileCustomFields
   } = data
+
+  console.log(data)
+
   return (
     <>
       <Grid container spacing={6}>
@@ -171,6 +176,7 @@ export default function ProfileSnapshot({ data }: Props) {
             statusName={statusName}
             stage={stage}
             stageName={stageName}
+            stageStatus={stageStatus}
             stageStatusName={stageStatusName}
             createdAt={createdAt}
             createdByName={createdByName}
@@ -203,6 +209,7 @@ const ProfileInfo = ({
   statusName,
   stage,
   stageName,
+  stageStatus,
   stageStatusName,
   createdAt,
   createdByName,
@@ -259,7 +266,12 @@ const ProfileInfo = ({
         statusName={statusName}
         status={status}
       />
-      <ProfileStageStatus stageName={stageName} stageStatusName={stageStatusName} stage={stage} status={status} />
+      <ProfileStageStatus
+        stageName={stageName}
+        stageStatusName={stageStatusName}
+        stage={stage}
+        stageStatus={stageStatus}
+      />
       <ProfileDetails
         profileLabels={profileLabels}
         profileAssignees={profileAssignees}
@@ -347,7 +359,7 @@ const ProfileTitle = ({
   )
 }
 
-const ProfileStageStatus = ({ stageName, stageStatusName, stage, status }: ProfileStageStatusProps) => {
+const ProfileStageStatus = ({ stageName, stageStatusName, stage, stageStatus }: ProfileStageStatusProps) => {
   const [statusDialog, setStatusDialog] = useState<boolean>(false)
   const toggleStatus = () => setStatusDialog(!statusDialog)
 
@@ -357,25 +369,22 @@ const ProfileStageStatus = ({ stageName, stageStatusName, stage, status }: Profi
         <Box sx={{ display: 'flex', gap: 3, alignItems: 'end' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: 1 }}>
             <Typography variant='caption'>Stage</Typography>
-            <CustomChip skin='light' label={stageName ?? 'None'} color='primary' />
+            <Button onClick={toggleStatus} size='medium' variant='outlined' color='primary'>
+              {stageName ?? 'None'}
+            </Button>
           </Box>
           <Box>
             <Icon icon='material-symbols:arrow-right-alt' />
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'start', gap: 1 }}>
             <Typography variant='caption'>Status</Typography>
-            <CustomChip skin='light' label={stageStatusName ?? 'None'} color='warning' />
+            <Button onClick={toggleStatus} size='medium' variant='outlined' color='warning'>
+              {stageStatusName ?? 'None'}{' '}
+            </Button>
           </Box>
         </Box>
       </CardContent>
-
-      <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-        <Button variant='contained' size='small' onClick={toggleStatus}>
-          Change Stage/Status
-        </Button>
-      </Box>
-
-      <StatusDialog open={statusDialog} toggle={toggleStatus} stage={stage} status={status} />
+      <StatusDialog open={statusDialog} toggle={toggleStatus} stage={stage} stageStatus={stageStatus} />
     </>
   )
 }

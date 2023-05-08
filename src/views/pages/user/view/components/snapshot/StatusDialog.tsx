@@ -20,50 +20,38 @@ import { useAppSelector } from 'src/store/hooks'
 type Props = {
   open: boolean
   toggle: () => void
-  stage: number
-  status: number
+  stage: number | null
+  stageStatus: number | null
 }
 
 const statusOptions = [
   {
-    value: 0,
-    label: 'Status One'
-  },
-  {
-    value: 1,
-    label: 'Status Two'
-  },
-  {
-    value: 2,
-    label: 'Status Three'
+    value: '',
+    label: 'Select One...',
+    disabled: true
   }
 ]
 
 const stageOptions = [
   {
-    value: 0,
-    label: 'Stage One'
-  },
-  {
-    value: 1,
-    label: 'Stage Two'
-  },
-  {
-    value: 2,
-    label: 'Stage Three'
+    value: '',
+    label: 'Select One...',
+    disabled: true
   }
 ]
 
-export default function StatusDialog({ open, toggle, stage, status }: Props): ReactElement {
+export default function StatusDialog({ open, toggle, stage, stageStatus }: Props): ReactElement {
   // call api for status/stage
 
-  const statusForm = useForm()
+  const statusForm = useForm({ defaultValues: { stage: stage ?? '', stageStatus: stageStatus ?? '' } })
   const {
     formState: { errors },
     control,
     watch,
     reset
   } = statusForm
+
+  console.log(stage, stageStatus)
 
   const onClose = () => {
     toggle()
@@ -75,11 +63,11 @@ export default function StatusDialog({ open, toggle, stage, status }: Props): Re
     console.log(data)
   }
 
-  useEffect(() => {
-    if (stage !== watch('stage')) {
-      reset({ stage: watch('stage'), status: status })
-    }
-  }, [watch])
+  // useEffect(() => {
+  //   if (stage !== watch('stage')) {
+  //     reset({ stage: watch('stage'), status: status })
+  //   }
+  // }, [watch])
   return (
     <Dialog open={open} maxWidth='xs' fullWidth onClose={toggle} aria-labelledby='form-dialog-title'>
       <DialogTitle id='form-dialog-title'>
@@ -99,7 +87,6 @@ export default function StatusDialog({ open, toggle, stage, status }: Props): Re
             <Grid container spacing={6}>
               <Grid item xs={12}>
                 <SingleSelect
-                  defaultValue={stage ?? 0}
                   name='stage'
                   label='Stage'
                   options={stageOptions}
@@ -110,14 +97,13 @@ export default function StatusDialog({ open, toggle, stage, status }: Props): Re
               </Grid>
               <Grid item xs={12}>
                 <SingleSelect
-                  defaultValue={status ?? 0}
-                  name='status'
+                  name='stageStatus'
                   label='Status'
                   options={statusOptions}
                   control={control}
                   errors={errors}
                   required
-                  disabled={!watch('stage')}
+                  disabled={statusForm.getValues('stage') === ''}
                 />
               </Grid>
             </Grid>

@@ -97,8 +97,7 @@ export default function AssigneeDialog({ data, toggle, open }: Props): ReactElem
             <Grid container spacing={6}>
               <Grid item xs={12}>
                 <SingleSelect
-                  defaultValue={employeeId}
-                  placeholder={employeeId ? `Active: ${employeeAlias}` : `Unassigned`}
+                  defaultValue={employeeId === 'N/A' ? '' : employeeId}
                   name='assignee'
                   label={assigneeName}
                   options={assigneeList}
