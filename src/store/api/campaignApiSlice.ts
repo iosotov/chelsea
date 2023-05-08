@@ -1,15 +1,24 @@
 import { setCampaigns, updateCampaigns } from '../campaignSlice'
 import { apiSlice } from './apiSlice'
+import { LunaResponseType, SearchFilterType } from './sharedTypes'
 
-export type UpdateCampaignType = {
-  campaignId?: string
+export type CampaignCreateType = {
   campaignName: string
-  description: string
+  description?: string
   phone: string
   email?: string
   displayName?: string
-  companyId?: string
-  companyName: string
+  companyId: string
+}
+
+export type CampaignUpdateType = {
+  campaignId: string
+  campaignName: string
+  description?: string
+  phone: string
+  email?: string
+  displayName?: string
+  companyId: string
 }
 
 export type CampaignType = {
@@ -17,8 +26,8 @@ export type CampaignType = {
   campaignName: string
   description: string
   phone: string
-  email?: string
-  displayName?: string
+  email: string
+  displayName: string
   companyId: string
   companyName: string
 }
@@ -30,7 +39,7 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
         url: `/campaign/${campaignId}/info`,
         method: 'GET'
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching campaign')
         console.log(res.data)
 
@@ -52,13 +61,13 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
         return result ? [{ type: 'CAMPAIGN', id: result.campaignId }] : []
       }
     }),
-    getCampaigns: builder.query<CampaignType[], Record<string, any>>({
+    getCampaigns: builder.query<CampaignType[], SearchFilterType>({
       query: body => ({
         url: `/campaign/search`,
         method: 'POST',
         body
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching campaigns')
         console.log(res.data)
 
@@ -83,7 +92,7 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
         ]
       }
     }),
-    createCampaign: builder.mutation<string, UpdateCampaignType>({
+    createCampaign: builder.mutation<string, CampaignCreateType>({
       query: body => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
@@ -95,7 +104,7 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error creating campaign')
         console.log(res.data)
 
@@ -113,7 +122,7 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: res => (res ? [{ type: 'CAMPAIGN', id: 'LIST' }] : [])
     }),
-    updateCampaign: builder.mutation<boolean, UpdateCampaignType>({
+    updateCampaign: builder.mutation<boolean, CampaignUpdateType>({
       query: params => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { campaignId, ...body } = params
@@ -125,7 +134,7 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error updating campaign')
 
         return res.success
@@ -150,7 +159,7 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
           method: 'DELETE'
         }
       },
-      transformResponse: (res: Record<string, any>, meta, arg) => {
+      transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error deleting campaign')
 
         return arg

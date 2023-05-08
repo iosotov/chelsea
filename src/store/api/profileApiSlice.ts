@@ -1,6 +1,7 @@
 import { addProfile, deleteProfile, updateProfiles, updateStatus } from '../profileSlice'
 import SolApi from './SolApi'
 import { apiSlice } from './apiSlice'
+import { LunaResponseType, SearchFilterType } from './sharedTypes'
 
 export type ProfileInfoType = {
   profileId: string
@@ -104,7 +105,6 @@ export type AddressType = {
 }
 
 export type ProfileCreateType = {
-  profileId: string
   firstName: string
   lastName: string
   middleName?: string
@@ -112,7 +112,7 @@ export type ProfileCreateType = {
   birthdate?: string
   ssn?: string
   parentProfileId?: string
-  campaignId?: string
+  campaignId: string
   profileContacts?: ProfileContactCreateType[]
   profileAddresses?: ProfileAddressCreateType[]
   profileAssignees?: ProfileAssigneeCreateType[]
@@ -124,6 +124,21 @@ export type ProfileCreateType = {
   approvedDate?: string
   pausedDate?: string
   cancelledDate?: string
+}
+
+type ProfileUpdateType = {
+  profileId: string
+  firstName: string
+  lastName: string
+  middleName?: string
+  gender: number
+  birthdate?: string
+  ssn?: string
+  parentProfileId?: string
+  campaignId: string
+  profileContacts?: ProfileContactCreateType[]
+  profileAddresses?: ProfileAddressCreateType[]
+  profileCustomFields?: ProfileCustomFieldCreateType[]
 }
 
 export type ProfileStatusType = {
@@ -249,13 +264,13 @@ export type ProfileBasicType = {
 export const profileApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
     // PROFILE SEARCH
-    getProfiles: builder.query<ProfileInfoType[], Record<string, any>>({
+    getProfiles: builder.query<ProfileInfoType[], SearchFilterType>({
       query: searchParams => ({
         url: `/profile/search`,
         method: 'POST',
         body: searchParams
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching profiles')
 
         return res.data.data
@@ -282,7 +297,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         url: `/profile/${profileId}/info`,
         method: 'GET'
       }),
-      transformResponse: async (res: Record<string, any>) => {
+      transformResponse: async (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching profile')
 
         const profileInfo: ProfileInfoType = { ...res.data }
@@ -456,7 +471,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         url: `/profile/${profileId}/basic`,
         method: 'GET'
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching profile')
 
         return res.data
@@ -481,7 +496,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         url: `/profile/${profileId}/status-summary`,
         method: 'GET'
       }),
-      transformResponse: (res: Record<string, any>, meta, arg) => {
+      transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error fetching profile')
 
         const newStatus = { ...res.data, profileId: arg }
@@ -513,7 +528,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         url: `/profile/quicksearch/${keyword}`,
         method: 'GET'
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching profileS')
 
         return res.data
@@ -527,7 +542,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body
       }),
-      transformResponse: async (res: Record<string, any>) => {
+      transformResponse: async (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error creating profile')
 
         const newUserRes = await SolApi.GetProfile(res.data)
@@ -562,12 +577,12 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: async (res: Record<string, any>, meta, arg) => {
+      transformResponse: async (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error assigning profile')
 
         return arg
       },
-      async onQueryStarted(body, { queryFulfilled }) {
+      async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
         } catch (err) {
@@ -591,7 +606,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           body: customFields
         }
       },
-      transformResponse: async (res: Record<string, any>, meta, arg) => {
+      transformResponse: async (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error adding custom field to profile')
 
         return arg
@@ -617,7 +632,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           method: 'POST'
         }
       },
-      transformResponse: async (res: Record<string, any>) => {
+      transformResponse: async (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error updating profile status')
 
         return res.success
@@ -643,7 +658,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           method: 'POST'
         }
       },
-      transformResponse: async (res: Record<string, any>) => {
+      transformResponse: async (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error updating profile status')
 
         return res.success
@@ -669,7 +684,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           method: 'POST'
         }
       },
-      transformResponse: async (res: Record<string, any>) => {
+      transformResponse: async (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error updating profile status')
 
         return res.success
@@ -695,7 +710,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           method: 'POST'
         }
       },
-      transformResponse: async (res: Record<string, any>) => {
+      transformResponse: async (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error updating profile status')
 
         return res.success
@@ -728,7 +743,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: async (res: Record<string, any>) => {
+      transformResponse: async (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error updating profile authentication')
 
         return res.success
@@ -755,7 +770,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           method: 'POST'
         }
       },
-      transformResponse: async (res: Record<string, any>) => {
+      transformResponse: async (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error updating profile authentication')
 
         return res.success
@@ -784,7 +799,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: async (res: Record<string, any>) => {
+      transformResponse: async (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error updating profile status')
 
         return res.success
@@ -810,7 +825,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
     }),
 
     // PUT UPDATE PROFILE
-    putUpdateProfile: builder.mutation<boolean, ProfileCreateType>({
+    putUpdateProfile: builder.mutation<boolean, ProfileUpdateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -820,7 +835,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: async (res: Record<string, any>) => {
+      transformResponse: async (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error updating profile')
 
         return res.success
@@ -848,7 +863,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           method: 'PUT'
         }
       },
-      transformResponse: async (res: Record<string, any>) => {
+      transformResponse: async (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error deleting profile')
 
         return res.success
@@ -867,7 +882,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
     }),
 
     // POST EXPORT PROFILE
-    postExportProfiles: builder.mutation<Promise<Blob>, Record<string, any>>({
+    postExportProfiles: builder.mutation<Promise<Blob>, SearchFilterType>({
       query: body => {
         return {
           url: `/profile/export`,
@@ -889,7 +904,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           method: 'GET'
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching profile labels')
 
         return res.data
@@ -926,7 +941,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching profile labels')
 
         return res.success

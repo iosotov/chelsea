@@ -1,5 +1,6 @@
 import { removeBudget, setBudget, updateBudget, updateProfileBudget } from '../profileBudgetSlice'
 import { apiSlice } from './apiSlice'
+import { LunaResponseType } from './sharedTypes'
 import SolApi from './SolApi'
 
 export type ProfileBudget = {
@@ -18,7 +19,7 @@ export enum BudgetEnum {
 
 export type ProfileBudgetObj = {
   profile: ProfileBudget[] | []
-  budget: BudgetType[] | []
+  budget: BudgetSettingType[] | []
 }
 
 export type ProfileBudgeUpdateType = {
@@ -27,13 +28,19 @@ export type ProfileBudgeUpdateType = {
 }
 
 export type BudgetCreateType = {
-  budgetId?: string
   name: string
-  description: string
+  description?: string
   budgetType: number
 }
 
-export type BudgetType = {
+export type BudgetUpdateType = {
+  budgetId: string
+  name: string
+  description?: string
+  budgetType?: number
+}
+
+export type BudgetSettingType = {
   budgetId: string
   name: string
   budgetType: BudgetEnum
@@ -48,11 +55,11 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
         url: `/profile/${profileId}/budget`,
         method: 'GET'
       }),
-      transformResponse: async (res: any, meta, arg) => {
+      transformResponse: async (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error fetching profile budgets')
 
         const result = await SolApi.GetBudgets()
-        const budget: BudgetType[] = result.data
+        const budget: BudgetSettingType[] = result.data
         const profile: ProfileBudget[] = budget.map(budget => {
           const profileBudget = res.data.find((pb: ProfileBudget) => pb.budgetId === budget.budgetId)
           let resp = {
@@ -74,7 +81,7 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
 
         return returnResult
       },
-      async onQueryStarted(body, { dispatch, queryFulfilled }) {
+      async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
           console.log('dispatch')
@@ -105,7 +112,7 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: async (res: Record<string, any>, meta, arg) => {
+      transformResponse: async (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error fetching profile budgets')
 
         return arg.profileId
@@ -123,12 +130,12 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: res => (res ? [{ type: 'PROFILE-BUDGET', id: res }] : [])
     }),
 
-    getBudgets: builder.query<BudgetType[], undefined>({
+    getBudgets: builder.query<BudgetSettingType[], undefined>({
       query: () => ({
         url: `/setting/budgets`,
         method: 'GET'
       }),
-      transformResponse: async (res: any) => {
+      transformResponse: async (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching budgets')
 
         return res.data
@@ -148,7 +155,7 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
         return [
           { type: 'BUDGET', id: 'LIST' },
           ...((result &&
-            result.map((budget: BudgetType) => ({
+            result.map((budget: BudgetSettingType) => ({
               type: 'BUDGET' as const,
               id: budget.budgetId
             }))) ||
@@ -157,13 +164,13 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    postBudgets: builder.mutation<boolean, Record<string, any>>({
+    postBudgets: builder.mutation<boolean, BudgetCreateType>({
       query: body => ({
         url: `/setting/budgets`,
         method: 'POST',
         body
       }),
-      transformResponse: async (res: Record<string, any>) => {
+      transformResponse: async (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error creating profile budgets')
 
         return res.data
@@ -181,12 +188,12 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: res => (res ? [{ type: 'BUDGET', id: 'LIST' }] : [])
     }),
 
-    getBudgetInfo: builder.query<BudgetType, string>({
+    getBudgetInfo: builder.query<BudgetSettingType, string>({
       query: budgetId => ({
         url: `/setting/budgets/${budgetId}/info`,
         method: 'GET'
       }),
-      transformResponse: async (res: Record<string, any>) => {
+      transformResponse: async (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching budget info')
 
         return res.data
@@ -205,7 +212,7 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
       providesTags: (res, error, arg) => (res ? [{ type: 'BUDGET', id: arg }] : [])
     }),
 
-    putUpdateBudget: builder.mutation<boolean, BudgetCreateType>({
+    putUpdateBudget: builder.mutation<boolean, BudgetUpdateType>({
       query: params => {
         const { budgetId, ...body } = params
 
@@ -215,7 +222,7 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: async (res: Record<string, any>) => {
+      transformResponse: async (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error updating budget')
 
         return res.success
@@ -246,7 +253,7 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
           method: 'PUT'
         }
       },
-      transformResponse: async (res: Record<string, any>, meta, arg) => {
+      transformResponse: async (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error disabling budget')
 
         return arg
@@ -278,7 +285,7 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
           method: 'PUT'
         }
       },
-      transformResponse: async (res: Record<string, any>, meta, arg) => {
+      transformResponse: async (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error disabling budget')
 
         return arg

@@ -12,6 +12,7 @@ import {
 } from '../settingSlice'
 import { apiSlice } from './apiSlice'
 import { CustomFieldType, ProfileInfoType } from './profileApiSlice'
+import { LunaResponseType, SearchFilterType } from './sharedTypes'
 
 export type AddressSettingType = {
   addressId: string
@@ -28,7 +29,12 @@ export type AssigneeDatasourceType = {
 
 export type AddressCreateType = {
   name: string
-  addressId?: string
+  order?: number
+}
+
+export type AddressUpdateType = {
+  addressId: string
+  name: string
   order?: number
 }
 
@@ -42,37 +48,24 @@ export type AssigneeSettingType = {
   order: number
 }
 
-export type SearchFilterColumnsType = {
-  index: number
-  displayName: string
-  columnName: string
-  search: {
-    value: string
-    operator: string
-  }
-}
-
-export type SearchFilterOrderType = {
-  columnName: string
-  direction: string
-}
-
-export type SearchFilterType = {
-  start?: number
-  length?: number
-  columns?: SearchFilterColumnsType[]
-  order?: SearchFilterOrderType[]
-  columnsExport: string
-}
-
 export type AssigneeCreateType = {
-  assigneeId?: string
   name: string
-  filters: {
+  filters?: {
     dataSourceType: string
     filters: SearchFilterType
   }
-  description: string
+  description?: string
+  companyName: string
+}
+
+export type AssigneeUpdateType = {
+  assigneeId: string
+  name: string
+  filters?: {
+    dataSourceType: string
+    filters: SearchFilterType
+  }
+  description?: string
   companyName: string
 }
 
@@ -99,7 +92,12 @@ export type ContactSettingType = {
 }
 
 export type ContactCreateType = {
-  contactId?: string
+  name: string
+  type: number
+}
+
+export type ContactUpdateType = {
+  contactId: string
   name: string
   type: number
 }
@@ -120,7 +118,17 @@ export type CustomFieldSettingType = {
 }
 
 export type CustomFieldCreateType = {
-  customFieldId?: string
+  fieldName: string
+  fieldType: number
+  label: string
+  defaultValue?: string
+  isVisible: boolean
+  datasources?: string
+  profileCustomFields?: ProfileCustomFieldType
+}
+
+export type CustomFieldUpdateType = {
+  customFieldId: string
   fieldName: string
   fieldType: number
   label: string
@@ -150,7 +158,12 @@ export type LabelSettingType = {
 }
 
 export type LabelCreateType = {
-  labelId?: string
+  name: string
+  type: string
+}
+
+export type LabelUpdateType = {
+  labelId: string
   name: string
   type: string
 }
@@ -164,7 +177,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         url: `/setting/addresses/${addressId}/info`,
         method: 'GET'
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching setting')
 
         return res.data
@@ -192,7 +205,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         url: `/setting/addresses`,
         method: 'GET'
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching address setting')
 
         return res.data
@@ -226,7 +239,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error creating address setting')
 
         return res.data
@@ -245,13 +258,13 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    postAddressSearch: builder.query<AddressSettingType[], Record<string, any>>({
+    postAddressSearch: builder.query<AddressSettingType[], SearchFilterType>({
       query: body => ({
         url: `/setting/addresses/search`,
         method: 'POST',
         body
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching address setting')
 
         return res.data.data
@@ -276,7 +289,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    putAddress: builder.mutation<boolean, Record<string, any>>({
+    putAddress: builder.mutation<boolean, AddressUpdateType>({
       query: body => {
         const { addressId } = body
 
@@ -286,7 +299,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error updating address setting')
 
         return res.success
@@ -310,7 +323,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         url: `/setting/addresses/${addressId}/enable`,
         method: 'PUT'
       }),
-      transformResponse: (res: Record<string, any>, meta, arg) => {
+      transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error enabling address setting')
 
         return arg
@@ -339,7 +352,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         url: `/setting/addresses/${addressId}/disable`,
         method: 'PUT'
       }),
-      transformResponse: (res: Record<string, any>, meta, arg) => {
+      transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error disabling address setting')
 
         return arg
@@ -370,7 +383,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         url: `/setting/assignees/${assigneeId}/info`,
         method: 'GET'
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching assignee setting')
 
         return res.data
@@ -418,7 +431,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         url: `/setting/assignees`,
         method: 'GET'
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching assignee settings')
 
         return res.data
@@ -452,7 +465,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error creating assignee setting')
 
         return res.data
@@ -471,7 +484,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    putAssignee: builder.mutation<boolean, AssigneeCreateType>({
+    putAssignee: builder.mutation<boolean, AssigneeUpdateType>({
       query: body => {
         const { assigneeId } = body
 
@@ -481,7 +494,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error updating assignee setting')
 
         return res.success
@@ -505,7 +518,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         url: `/setting/assignees/${assigneeId}/enable`,
         method: 'PUT'
       }),
-      transformResponse: (res: Record<string, any>, meta, arg) => {
+      transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error enabling assignee setting')
 
         return arg
@@ -534,7 +547,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         url: `/setting/assignees/${assigneeId}/disable`,
         method: 'PUT'
       }),
-      transformResponse: (res: Record<string, any>, meta, arg) => {
+      transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error disabling assignee setting')
 
         return arg
@@ -563,7 +576,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         url: `/setting/assignees/${assigneeId}/datasource`,
         method: 'GET'
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error disabling assignee setting')
 
         console.log(res.data)
@@ -588,7 +601,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         url: `/setting/contacts/${contactId}/info`,
         method: 'GET'
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching contact setting')
 
         return res.data
@@ -620,7 +633,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching contact settings')
 
         return res.data.data
@@ -654,7 +667,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error creating contact setting')
 
         return res.data
@@ -673,7 +686,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    putContact: builder.mutation<boolean, ContactCreateType>({
+    putContact: builder.mutation<boolean, ContactUpdateType>({
       query: body => {
         const { contactId } = body
 
@@ -683,7 +696,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error updating contact setting')
 
         return res.success
@@ -707,7 +720,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         url: `/setting/contacts/${contactId}/enable`,
         method: 'PUT'
       }),
-      transformResponse: (res: Record<string, any>, meta, arg) => {
+      transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error enabling contact setting')
 
         return arg
@@ -736,7 +749,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         url: `/setting/contacts/${contactId}/disable`,
         method: 'PUT'
       }),
-      transformResponse: (res: Record<string, any>, meta, arg) => {
+      transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error disabling contact setting')
 
         return arg
@@ -767,7 +780,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         url: `/setting/customFields/${customFieldId}/info`,
         method: 'GET'
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching custom field setting')
 
         return res.data
@@ -799,7 +812,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching custom field settings')
 
         return res.data.data
@@ -833,7 +846,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error creating custom field setting')
 
         return res.data
@@ -852,7 +865,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    putCustomField: builder.mutation<boolean, CustomFieldCreateType>({
+    putCustomField: builder.mutation<boolean, CustomFieldUpdateType>({
       query: body => {
         const { customFieldId } = body
 
@@ -862,7 +875,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error updating custom field setting')
 
         return res.success
@@ -886,7 +899,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         url: `/setting/customFields/${customFieldId}/enable`,
         method: 'PUT'
       }),
-      transformResponse: (res: Record<string, any>, meta, arg) => {
+      transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error enabling custom field setting')
 
         return arg
@@ -915,7 +928,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         url: `/setting/customFields/${customFieldId}/disable`,
         method: 'PUT'
       }),
-      transformResponse: (res: Record<string, any>, meta, arg) => {
+      transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error disabling custom field setting')
 
         return arg
@@ -946,7 +959,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         url: `/setting/labels/${labelId}/info`,
         method: 'GET'
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching label setting')
 
         return res.data
@@ -978,7 +991,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching label settings')
 
         return res.data.data
@@ -1012,7 +1025,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         method: 'POST',
         body
       }),
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error creating label setting')
 
         return res.data
@@ -1031,7 +1044,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    putLabel: builder.mutation<boolean, LabelCreateType>({
+    putLabel: builder.mutation<boolean, LabelUpdateType>({
       query: body => {
         const { labelId } = body
 
@@ -1041,7 +1054,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: Record<string, any>) => {
+      transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error updating label setting')
 
         return res.success
@@ -1065,7 +1078,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         url: `/setting/labels/${labelId}/enable`,
         method: 'PUT'
       }),
-      transformResponse: (res: Record<string, any>, meta, arg) => {
+      transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error enabling label setting')
 
         return arg
@@ -1094,7 +1107,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         url: `/setting/labels/${labelId}/disable`,
         method: 'PUT'
       }),
-      transformResponse: (res: Record<string, any>, meta, arg) => {
+      transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error disabling label setting')
 
         return arg

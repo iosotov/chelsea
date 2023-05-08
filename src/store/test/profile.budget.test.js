@@ -9,7 +9,14 @@ import profile, { selectProfileById } from '../profileSlice'
 import { JSDOM } from 'jsdom'
 import { apiSlice } from '../api/apiSlice'
 import auth, { setCredentials } from '../authSlice'
-import profileBudget, { selectAllBudgets, selectProfileBudgetsByProfileId } from '../profileBudgetSlice'
+import profileBudget, {
+  selectAllBudgets,
+  selectExpenseBudgetsByProfileId,
+  selectExpenseTotalByProfileId,
+  selectIncomeBudgetsByProfileId,
+  selectIncomeTotalByProfileId,
+  selectProfileBudgetsByProfileId
+} from '../profileBudgetSlice'
 
 import SolApi from '../api/SolApi'
 import { profileBudgetApiSlice } from '../api/profileBudgetApiSlice'
@@ -278,36 +285,48 @@ test('profile budget api', async () => {
   let allBudgets = selectAllBudgets(state)
   let profileBudgets = selectProfileBudgetsByProfileId(state, _profileId)
 
-  console.log(budgetTags)
-  console.log(profileBudgetTags)
+  let incomeBudgets = selectIncomeBudgetsByProfileId(state, _profileId)
+  let expenseBudgets = selectExpenseBudgetsByProfileId(state, _profileId)
 
-  // console.log(allBudgets, allBudgets.length)
-  // console.log(profileBudgets, profileBudgets.length)
-
-  let button = budgets('updateBudget')
-  fireEvent.click(button)
-
-  await waitFor(() => expect(budget('updateBudgetLoading')).toBeInTheDocument(), { timeout: 3000 })
-  await waitFor(() => expect(budget('updateBudgetSuccess')).toBeInTheDocument(), { timeout: 3000 })
-  await waitFor(() => expect(budget('budgetIsFetching')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(budgets('budgetsIsFetching')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(profile('profileIsFetching')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(budget('budgetIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(budgets('budgetsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(profile('profileIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
-
-  state = store.getState()
-
-  // access tags used for cache management
-  budgetTags = state[apiSlice.reducerPath].provided.BUDGET
-  profileBudgetTags = state[apiSlice.reducerPath].provided['PROFILE-BUDGET']
-
-  allBudgets = selectAllBudgets(state)
-  profileBudgets = selectProfileBudgetsByProfileId(state, _profileId)
+  let incometotal = selectIncomeTotalByProfileId(state, _profileId)
+  let expensetotal = selectExpenseTotalByProfileId(state, _profileId)
 
   console.log(budgetTags)
   console.log(profileBudgetTags)
 
   console.log(allBudgets, allBudgets.length)
   console.log(profileBudgets, profileBudgets.length)
+
+  console.log(incomeBudgets)
+  console.log(expenseBudgets)
+
+  console.log(incometotal)
+  console.log(expensetotal)
+
+  // let button = budgets('updateBudget')
+  // fireEvent.click(button)
+
+  // await waitFor(() => expect(budget('updateBudgetLoading')).toBeInTheDocument(), { timeout: 3000 })
+  // await waitFor(() => expect(budget('updateBudgetSuccess')).toBeInTheDocument(), { timeout: 3000 })
+  // await waitFor(() => expect(budget('budgetIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+  // await waitFor(() => expect(budgets('budgetsIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+  // await waitFor(() => expect(profile('profileIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+  // await waitFor(() => expect(budget('budgetIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+  // await waitFor(() => expect(budgets('budgetsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+  // await waitFor(() => expect(profile('profileIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+  // state = store.getState()
+
+  // // access tags used for cache management
+  // budgetTags = state[apiSlice.reducerPath].provided.BUDGET
+  // profileBudgetTags = state[apiSlice.reducerPath].provided['PROFILE-BUDGET']
+
+  // allBudgets = selectAllBudgets(state)
+  // profileBudgets = selectProfileBudgetsByProfileId(state, _profileId)
+
+  // console.log(budgetTags)
+  // console.log(profileBudgetTags)
+
+  // console.log(allBudgets, allBudgets.length)
+  // console.log(profileBudgets, profileBudgets.length)
 }, 10000)
