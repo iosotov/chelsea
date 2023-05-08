@@ -46,7 +46,8 @@ import TransactionDialog from './components/payments/TransactionDialog'
 import { useAppSelector } from 'src/store/hooks'
 import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
 import { EnrollmentInfoModel, EnrollmentListItemModel } from 'src/store/api/enrollmentApiSlice'
-import { selectAllBankAccounts } from 'src/store/bankAccountSlice'
+import { selectAllBankAccounts, selectBankAccountsByProfileId } from 'src/store/bankAccountSlice'
+import { selectAllCreditCards, selectCreditCardsByProfileId } from 'src/store/creditCardSlice'
 
 type Order = 'asc' | 'desc'
 
@@ -428,16 +429,23 @@ const EnhancedTable = ({ data }: any) => {
   )
 }
 
-function Overview({ data }: any) {
+function Overview({ enrollmentData, paymentData }: any) {
+  //toggles alert
   const [alert, setAlert] = useState<boolean>(true)
+
+  //toggles for type of alert
   const [error, setError] = useState<boolean>(false)
 
-  useEffect(() => {}, [data])
+  useEffect(() => {
+    if ((enrollmentData && enrollmentData.enrollmentId === null) || Object.keys(paymentData).length === 0) {
+      setError(true)
+    } else {
+      setError(false)
+    }
+  }, [enrollmentData, paymentData])
 
   const [enrollmentModal, setEnrollmentModal] = useState<boolean>(false)
   const toggleEnrollment = () => setEnrollmentModal(!enrollmentModal)
-
-  const AlertType = 'Paused'
   return (
     <>
       <Grid item xs={12}>
@@ -446,7 +454,7 @@ function Overview({ data }: any) {
             title='Overview'
             action={
               <Button variant='contained' onClick={toggleEnrollment} size='small' sx={{ '& svg': { mr: 1 } }}>
-                {data ? 'Update' : 'Create'} Plan
+                {enrollmentData ? 'Update' : 'Create'} Plan
               </Button>
             }
           />
@@ -457,13 +465,13 @@ function Overview({ data }: any) {
                   <Typography variant='body2'>
                     Current enrollment fee:{' '}
                     <Typography component='span' sx={{ fontWeight: 600 }}>
-                      {'40.00%' ?? 'N/A'}
+                      {enrollmentData?.enrollmentFee ?? 'N/A'}
                     </Typography>
                   </Typography>
                   <Typography variant='body2'>
                     Enrollment Plan Duration:{' '}
                     <Typography component='span' sx={{ fontWeight: 600 }}>
-                      {24 ?? 'N/A'} months
+                      {enrollmentData?.programLength ? enrollmentData.programLength + ' months' : 'N/A'}
                     </Typography>
                   </Typography>
                 </Box>
@@ -485,13 +493,13 @@ function Overview({ data }: any) {
                   <Typography variant='body2'>
                     Next Payment Date:{' '}
                     <Typography component='span' sx={{ fontWeight: 600 }}>
-                      {'March 23, 2024' ?? 'N/A'}
+                      {enrollmentData?.nextPaymentDate ?? 'N/A'}
                     </Typography>
                   </Typography>
                   <Typography variant='body2'>
                     Next Payment Amount:{' '}
                     <Typography component='span' sx={{ fontWeight: 600 }}>
-                      {'$' + 304.14 ?? 'N/A'}
+                      {enrollmentData?.nextPaymentAmount ? enrollmentData?.nextPaymentAmount : 'N/A'}
                     </Typography>
                   </Typography>
                 </Box>
@@ -499,7 +507,7 @@ function Overview({ data }: any) {
               <Grid item xs={12} md={6}>
                 <Collapse in={alert}>
                   <Alert
-                    severity={!error ? 'warning' : 'success'}
+                    severity={error ? 'warning' : 'success'}
                     action={
                       <IconButton size='small' color='inherit' aria-label='close' onClick={() => setAlert(false)}>
                         <Icon icon='mdi:close' fontSize='inherit' />
@@ -510,10 +518,37 @@ function Overview({ data }: any) {
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <AlertTitle>{error ? 'Attention' : 'Success'}!</AlertTitle>
                     </Box>
-                    Payment status is currently{' '}
+                    {error ? (
+                      <>
+                        {enrollmentData?.enrollmentId === null ? (
+                          <Typography variant='body2' color='inherit'>
+                            Enrollment plan not found.
+                          </Typography>
+                        ) : null}
+                        {paymentData ? (
+                          <Typography variant='body2' color='inherit'>
+                            Payment method missing.
+                          </Typography>
+                        ) : null}
+                        {enrollmentData?.cancelledDate || enrollmentData?.pausedDate ? (
+                          <Typography variant='body2' color='inherit'>
+                            Payments are currently{' '}
+                            <Typography
+                              component='span'
+                              sx={{ fontSize: 'inherit', color: 'inherit', fontWeight: 600 }}
+                            >
+                              {enrollmentData.cancelledDate ? 'Cancelled' : 'Paused'}
+                            </Typography>
+                          </Typography>
+                        ) : null}
+                      </>
+                    ) : (
+                      'No issues with account payments.'
+                    )}
+                    {/* Payment status is currently{' '}
                     <Typography component='span' sx={{ fontSize: 'inherit', color: 'inherit', fontWeight: 600 }}>
                       {AlertType}
-                    </Typography>
+                    </Typography> */}
                   </Alert>
                 </Collapse>
                 <Box>
@@ -532,7 +567,7 @@ function Overview({ data }: any) {
           </CardContent>
         </Card>
       </Grid>
-      <EnrollmentDialog open={enrollmentModal} handleClose={toggleEnrollment} data={data} />
+      <EnrollmentDialog open={enrollmentModal} handleClose={toggleEnrollment} data={enrollmentData} />
     </>
   )
 }
@@ -758,18 +793,21 @@ type ProfileProps = {
   id: string
 }
 
-export default function ProfilePayments({ id }: ProfileProps) {
-  console.log(id)
+export default function ProfilePayments({ id: profileId }: ProfileProps) {
+  console.log(profileId)
   //Enrollment Data
-  const enrollmentData = useAppSelector(state => selectEnrollmentByProfileId(state, id))
+  const enrollmentData = useAppSelector(state => selectEnrollmentByProfileId(state, profileId))
   //Payment Data
-  const bankData = useAppSelector(state => selectAllBankAccounts(state, id))
+  const bankData = useAppSelector(state => selectBankAccountsByProfileId(state, profileId))
+  const cardData = useAppSelector(state => selectCreditCardsByProfileId(state, profileId))
   const [paymentData, setPaymentData] = useState({})
+
+  console.log({ bankData, cardData })
 
   return (
     <>
       <Grid container spacing={4}>
-        <Overview data={enrollmentData} />
+        <Overview enrollmentData={enrollmentData} paymentData={paymentData} />
         <PaymentMethod data={paymentData} />
         <EnhancedTable data={enrollmentData} />
       </Grid>
