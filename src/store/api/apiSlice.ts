@@ -32,6 +32,7 @@ export const apiSlice = createApi({
     'COMPANY-SETTING-ESIGN',
     'COMPANY-SETTING-STORAGE',
     'CREDITCARD',
+    'CREDITREPORT',
     'DOCUMENT',
     'DOCUMENT-LIABILITY',
     'DOCUMENT-PREVIEW',

@@ -3,6 +3,7 @@ import { campaignApiSlice } from './campaignApiSlice'
 import { companyApiSlice } from './companyApiSlice'
 import { companySettingApiSlice } from './companySettingApiSlice'
 import { creditCardApiSlice } from './creditCardApiSlice'
+import { creditReportApiSlice } from './creditReportApiSlice'
 import { documentApiSlice } from './documentApiSlice'
 import { enrollmentApiSlice } from './enrollmentApiSlice'
 import { liabilityApiSlice } from './liabilityApiSlice'
@@ -107,6 +108,19 @@ export const {
   // DELETE creditcard/creditcardId
   useDeleteCreditCardMutation
 } = creditCardApiSlice
+
+// ********************************************** CREDIT REPORT
+
+export const {
+  // GET creditreport/profileId/profile
+  useGetCreditReportsQuery,
+
+  // POST creditreport/profileId/profile/request
+  usePostProfileCreditReportMutation,
+
+  // POST creditreport/request
+  usePostCreditReportMutation
+} = creditReportApiSlice
 
 // ********************************************** DOCUMENT
 
