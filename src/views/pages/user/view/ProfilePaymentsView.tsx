@@ -2,6 +2,7 @@ import { ChangeEvent, MouseEvent, useState, useEffect } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
+import Collapse from '@mui/material/Collapse'
 import Grid from '@mui/material/Grid'
 import ButtonGroup from '@mui/material/ButtonGroup'
 import CardContent from '@mui/material/CardContent'
@@ -41,6 +42,11 @@ import { ThemeColor } from 'src/@core/layouts/types'
 
 import CustomChip from 'src/@core/components/mui/chip'
 import TransactionDialog from './components/payments/TransactionDialog'
+
+import { useAppSelector } from 'src/store/hooks'
+import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
+import { EnrollmentInfoModel, EnrollmentListItemModel } from 'src/store/api/enrollmentApiSlice'
+import { selectAllBankAccounts } from 'src/store/bankAccountSlice'
 
 type Order = 'asc' | 'desc'
 
@@ -424,6 +430,9 @@ const EnhancedTable = ({ data }: any) => {
 
 function Overview({ data }: any) {
   const [alert, setAlert] = useState<boolean>(true)
+  const [error, setError] = useState<boolean>(false)
+
+  useEffect(() => {}, [data])
 
   const [enrollmentModal, setEnrollmentModal] = useState<boolean>(false)
   const toggleEnrollment = () => setEnrollmentModal(!enrollmentModal)
@@ -488,17 +497,25 @@ function Overview({ data }: any) {
                 </Box>
               </Grid>
               <Grid item xs={12} md={6}>
-                {alert ? (
-                  <Alert icon={false} severity='warning' sx={{ mb: 4 }}>
+                <Collapse in={alert}>
+                  <Alert
+                    severity={!error ? 'warning' : 'success'}
+                    action={
+                      <IconButton size='small' color='inherit' aria-label='close' onClick={() => setAlert(false)}>
+                        <Icon icon='mdi:close' fontSize='inherit' />
+                      </IconButton>
+                    }
+                    sx={{ mb: 4 }}
+                  >
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <AlertTitle>Attention!</AlertTitle>
+                      <AlertTitle>{error ? 'Attention' : 'Success'}!</AlertTitle>
                     </Box>
-                    Payment is currently{' '}
+                    Payment status is currently{' '}
                     <Typography component='span' sx={{ fontSize: 'inherit', color: 'inherit', fontWeight: 600 }}>
                       {AlertType}
                     </Typography>
                   </Alert>
-                ) : null}
+                </Collapse>
                 <Box>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
                     <Typography sx={{ fontWeight: 600, color: 'text.primary' }} variant='body2'>
@@ -744,8 +761,9 @@ type ProfileProps = {
 export default function ProfilePayments({ id }: ProfileProps) {
   console.log(id)
   //Enrollment Data
-  const [enrollmentData, setEnrollmentData] = useState({})
+  const enrollmentData = useAppSelector(state => selectEnrollmentByProfileId(state, id))
   //Payment Data
+  const bankData = useAppSelector(state => selectAllBankAccounts(state, id))
   const [paymentData, setPaymentData] = useState({})
 
   return (
