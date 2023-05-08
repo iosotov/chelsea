@@ -2,6 +2,7 @@ import { bankAccountApiSlice } from './bankAccountApiSlice'
 import { campaignApiSlice } from './campaignApiSlice'
 import { companyApiSlice } from './companyApiSlice'
 import { companySettingApiSlice } from './companySettingApiSlice'
+import { creditCardApiSlice } from './creditCardApiSlice'
 import { documentApiSlice } from './documentApiSlice'
 import { enrollmentApiSlice } from './enrollmentApiSlice'
 import { liabilityApiSlice } from './liabilityApiSlice'
@@ -12,7 +13,8 @@ import { taskApiSlice } from './taskApiSlice'
 
 // SOL REDUX API POINTS
 
-// BANK ACCOUNT
+// ********************************************* BANK ACCOUNT
+
 export const {
   // GET bankaccount/profileId/profile
   useGetBankAccountsQuery,
@@ -27,7 +29,8 @@ export const {
   useDeleteBankAccountMutation
 } = bankAccountApiSlice
 
-// CAMPAIGN
+// ********************************************** CAMPAIGN
+
 export const {
   // GET campaign/id/info
   useGetCampaignQuery,
@@ -45,7 +48,8 @@ export const {
   useDeleteCampaignMutation
 } = campaignApiSlice
 
-// COMPANY
+// ********************************************** COMPANY
+
 export const {
   // POST company/search
   useGetCompaniesQuery,
@@ -66,7 +70,8 @@ export const {
   useDisableCompanyMutation
 } = companyApiSlice
 
-// COMPANY SETTINGS
+// ********************************************** COMPANY SETTING
+
 export const {
   // GET company/companyId/setting/creditreport
   useGetCompanySettingCreditReportQuery,
@@ -87,7 +92,24 @@ export const {
   useCreateCompanySettingStorageMutation
 } = companySettingApiSlice
 
-// DOCUMENTS
+// ********************************************** CREDIT CARD
+
+export const {
+  // GET creditcard/profileId/profile
+  useGetCreditCardsQuery,
+
+  // POST creditcard/profileId/profile
+  useCreateCreditCardMutation,
+
+  // PUT creditcard/creditcardId
+  useUpdateCreditCardMutation,
+
+  // DELETE creditcard/creditcardId
+  useDeleteCreditCardMutation
+} = creditCardApiSlice
+
+// ********************************************** DOCUMENT
+
 export const {
   // GET document/profileId/profile
   useGetDocumentsQuery,
@@ -116,6 +138,8 @@ export const {
   // POST document/profileId/profile/liabilityId/liability/esign/send
   usePostEsignLiabilityDocumentMutation
 } = documentApiSlice
+
+// ********************************************************************** ENROLLMENT
 
 export const {
   // GET enrollment/profileId/profile
@@ -158,7 +182,8 @@ export const {
   useGetEnrollmentPreviewMutation
 } = enrollmentApiSlice
 
-// LIABILITY
+// ********************************************** LIABILITY
+
 export const {
   // GET liability/liabilityId/basic
   useGetLiabilityQuery,
@@ -182,7 +207,8 @@ export const {
   usePutWithdrawLiabilitiesMutation
 } = liabilityApiSlice
 
-// PROFILE
+// ********************************************** PROFILE
+
 export const {
   // GET profile/profileId/info
   useGetProfileInfoQuery,
@@ -245,7 +271,8 @@ export const {
   usePutDeleteProfileMutation
 } = profileApiSlice
 
-// PROFILE BUDGET
+// ********************************************** PROFILE BUDGET
+
 export const {
   // GET profile/profileId/budget
   useGetProfileBudgetsQuery,
@@ -272,7 +299,8 @@ export const {
   usePutUpdateBudgetMutation
 } = profileBudgetApiSlice
 
-// TASKS
+// ********************************************** TASKS
+
 export const {
   // GET task/taskId/info
   useGetTaskQuery,
@@ -296,7 +324,8 @@ export const {
   useDeleteTaskMutation
 } = taskApiSlice
 
-// SETTINGS
+// ********************************************** SETTINGS
+
 export const {
   // GET setting/addresses/addressId/info
   useGetAddressQuery,
