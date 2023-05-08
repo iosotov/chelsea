@@ -16,6 +16,8 @@ import IconButton from '@mui/material/IconButton'
 import { useAppSelector } from 'src/store/hooks'
 import { ProfileInfoType } from 'src/store/api/profileApiSlice'
 
+import format from 'date-fns/format'
+
 import Icon from 'src/@core/components/icon'
 
 type Props = {
@@ -112,24 +114,51 @@ const stateOptions = [
 ]
 
 export default function PersonalDialog({ open, toggle, data }: Props): ReactElement {
-  // call api for status/stage
-  const statusForm = useForm()
+  const {
+    campaignId,
+    firstName,
+    lastName,
+    middleName,
+    birthdate,
+    ssn,
+    gender,
+    profileContacts,
+    profileAddresses,
+    profileCustomFields
+  } = data
+
+  // call api for
+  const personalForm = useForm({
+    defaultValues: {
+      campaign: campaignId,
+      firstName,
+      lastName,
+      middleName,
+      ssn,
+      gender,
+      birthdate: new Date(birthdate)
+    }
+  })
+
   const {
     formState: { errors },
     control,
     watch,
     reset
-  } = statusForm
+  } = personalForm
 
   const onClose = () => {
     toggle()
-    statusForm.reset()
+    reset()
   }
 
   const onSubmit = () => {
-    const data = statusForm.getValues()
-    console.log(data)
+    const data = personalForm.getValues()
+    onClose()
   }
+
+  //need api for campaign list
+
   return (
     <Dialog open={open} maxWidth='xl' fullWidth onClose={toggle} aria-labelledby='profile-personal-dialog'>
       <DialogTitle id='profile-personal-dialog'>
