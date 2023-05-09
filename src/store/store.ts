@@ -15,6 +15,7 @@ import task from './taskSlice'
 import setting from './settingSlice'
 import creditCard from './creditCardSlice'
 import creditReport from './creditReportSlice'
+import employee from './employeeSlice'
 
 export const store = configureStore({
   reducer: {
@@ -33,7 +34,8 @@ export const store = configureStore({
     task,
     setting,
     creditCard,
-    creditReport
+    creditReport,
+    employee
   },
   middleware: getDefaultMiddleware => getDefaultMiddleware().concat(apiSlice.middleware),
   devTools: true

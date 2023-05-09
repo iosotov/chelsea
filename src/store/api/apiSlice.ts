@@ -36,6 +36,7 @@ export const apiSlice = createApi({
     'DOCUMENT',
     'DOCUMENT-LIABILITY',
     'DOCUMENT-PREVIEW',
+    'EMPLOYEE',
     'ENROLLMENT',
     'ENROLLMENT-PAYMENT',
     'LIABILITY',
