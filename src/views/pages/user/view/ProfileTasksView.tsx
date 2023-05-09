@@ -121,7 +121,9 @@ const ProfileTasks = ({ id }: any) => {
 
   //State Management
   //set selectedTask type to taskType
+
   const [checkedValues, setCheckedValues] = useState<any>([])
+
   const [selectedTask, setSelectedTask] = useState<any>({})
   const [focus, setFocus] = useState<Focused>()
   const [openAddTask, setOpenAddTask] = useState<boolean>(false)
@@ -282,8 +284,10 @@ const ProfileTasks = ({ id }: any) => {
     }
     console.log(testEditData)
 
+
     const bulkUpdateResponse = await triggerBulkUpdate(testEditData).unwrap()
     console.log(bulkUpdateResponse)
+
   }
 
   const handleEditTaskOpen = () => {
@@ -430,7 +434,9 @@ const ProfileTasks = ({ id }: any) => {
   // }
 
   const handleCheckboxChange = event => {
+
     // checkbox not rendered need to persist
+
     console.log(event)
     const value = event.target.value
     if (event.target.checked) {
@@ -555,8 +561,10 @@ const ProfileTasks = ({ id }: any) => {
             variant='contained'
             color='secondary'
             sx={{ mb: 7, position: 'absolute', right: '24%' }}
+
             // onClick={() => handleBulkEditTaskOpen()}
             onClick={actionChecker}
+
           >
             Bulk Update Task
           </Button>
