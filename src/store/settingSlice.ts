@@ -1,4 +1,4 @@
-import { createEntityAdapter, createSlice } from '@reduxjs/toolkit'
+import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit'
 
 import { RootState } from './store'
 import {
@@ -6,7 +6,8 @@ import {
   AssigneeSettingType,
   ContactSettingType,
   CustomFieldSettingType,
-  LabelSettingType
+  LabelSettingType,
+  SettingType
 } from './api/settingApiSlice'
 
 const addressAdapter = createEntityAdapter({
@@ -29,12 +30,17 @@ const labelAdapter = createEntityAdapter({
   selectId: (label: LabelSettingType) => label.labelId
 })
 
+const settingAdapter = createEntityAdapter({
+  selectId: (setting: SettingType) => setting.id
+})
+
 const initialState = {
   address: addressAdapter.getInitialState(),
   assignee: assigneeAdapter.getInitialState(),
   contact: contactAdapter.getInitialState(),
   customField: customFieldAdapter.getInitialState(),
-  label: labelAdapter.getInitialState()
+  label: labelAdapter.getInitialState(),
+  setting: settingAdapter.getInitialState()
 }
 
 const settingSlice = createSlice({
@@ -73,6 +79,12 @@ const settingSlice = createSlice({
     },
     updateLabels: (state, action) => {
       labelAdapter.upsertMany(state.label, action.payload)
+    },
+    setSettings: (state, action) => {
+      settingAdapter.setAll(state.setting, action.payload)
+    },
+    updateSettings: (state, action) => {
+      settingAdapter.upsertMany(state.setting, action.payload)
     }
   }
 })
@@ -88,7 +100,9 @@ export const {
   updateContacts,
   updateCustomFields,
   updateLabels,
-  removeAssignee
+  removeAssignee,
+  setSettings,
+  updateSettings
 } = settingSlice.actions
 
 export default settingSlice.reducer
@@ -122,3 +136,25 @@ export const {
   selectById: selectLabelById,
   selectIds: selectLabelIds
 } = labelAdapter.getSelectors((state: RootState) => state.setting.label)
+
+export const {
+  selectAll: selectAllSettings,
+  selectById: selectSettingById,
+  selectIds: selectSettingIds
+} = settingAdapter.getSelectors((state: RootState) => state.setting.setting)
+
+export const selectSettingByType = createSelector(
+  selectAllSettings,
+  (_: RootState, type: number) => type,
+  (settings, type) => {
+    return settings.filter(setting => setting.type === type)
+  }
+)
+
+export const selectSettingByParentValue = createSelector(
+  selectAllSettings,
+  (_: RootState, parentValue: string) => parentValue,
+  (settings, parentValue) => {
+    return settings.filter(setting => setting.parentValue === parentValue)
+  }
+)

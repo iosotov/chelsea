@@ -41,6 +41,7 @@ export const apiSlice = createApi({
     'ENROLLMENT-PAYMENT',
     'LIABILITY',
     'TASK',
+    'SETTING',
     'SETTING-ADDRESS',
     'SETTING-ASSIGNEE',
     'SETTING-CONTACT',
