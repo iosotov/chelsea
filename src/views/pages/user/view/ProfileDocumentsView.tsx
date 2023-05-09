@@ -41,6 +41,12 @@ import GenerateSidebar from './components/document/generateSidebar'
 import { SyntheticEvent } from 'react-draft-wysiwyg'
 import TableColumns from './components/document/table'
 
+//API calls
+import { useAppSelector } from 'src/store/hooks'
+import { selectDocumentsByProfileId } from 'src/store/documentSlice'
+import { DocumentType } from 'src/store/api/documentApiSlice'
+import { useGetDocumentsQuery } from 'src/store/api/apiHooks'
+
 const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
   '& .MuiTabs-indicator': {
     display: 'none'
@@ -57,31 +63,36 @@ const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
   }
 }))
 
-export default function ProfileDocuments() {
+export default function ProfileDocuments({ id }: { id: string | string[] }) {
   const [openUploadDialog, setUploadDialog] = useState<boolean>(false)
   const [openGenerateDrawer, setUploadDrawer] = useState<boolean>(false)
   const [tab, setTab] = useState<string>('esign')
   const [tabLoading, setTabLoading] = useState<boolean>(false)
 
   //rows for tables
-  const [data, setData] = useState([])
-  const [esign, setEsign] = useState([])
-  const [generated, setGenerated] = useState([])
-  const [uploaded, setUploaded] = useState([])
+
+  useGetDocumentsQuery(String(id))
+  const data = useAppSelector(state => selectDocumentsByProfileId(state, String(id)))
+
+  const [esign, setEsign] = useState<DocumentType[]>([])
+  const [generated, setGenerated] = useState<DocumentType[]>([])
+  const [uploaded, setUploaded] = useState<DocumentType[]>([])
+
+  console.log(data)
 
   // filter out the data
-  // useEffect(() => {
-  //   if (data.length) {
-  //     const eSignEntries = data.filter(e => e.status === 1)
-  //     setEsign(eSignEntries)
+  useEffect(() => {
+    if (data.length) {
+      const eSignEntries = data.filter(e => e.type === 1)
+      setEsign(eSignEntries)
 
-  //     const generatedEntries = data.filter(e => e.status === 2)
-  //     setGenerated(generatedEntries)
+      const generatedEntries = data.filter(e => e.type === 2)
+      setGenerated(generatedEntries)
 
-  //     const uploadedEntries = data.filter(e => e.status === 3)
-  //     setLoaded(uploadedSignEntries)
-  //   }
-  // }, [data])
+      const uploadedEntries = data.filter(e => e.type === 3)
+      setUploaded(uploadedEntries)
+    }
+  }, [data])
 
   //toggles Upload Dialog
   const toggleDialog = () => setUploadDialog(!openUploadDialog)
@@ -271,11 +282,7 @@ const UploadDialog = ({ open, toggle }: DialogProps) => {
               <Stepper connector={<></>} activeStep={activeStep} orientation='vertical'>
                 {steps.map((step, index) => {
                   return (
-                    <Step
-                      key={index}
-                      onClick={() => setActiveStep(index)}
-                      sx={{ '&.Mui-completed + svg': { color: 'primary.main' } }}
-                    >
+                    <Step key={index} sx={{ '&.Mui-completed + svg': { color: 'primary.main' } }}>
                       <StepLabel StepIconComponent={StepperCustomDot}>
                         <div className='step-label'>
                           <div>

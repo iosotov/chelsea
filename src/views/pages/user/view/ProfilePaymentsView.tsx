@@ -48,6 +48,13 @@ import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
 import { EnrollmentInfoModel, EnrollmentListItemModel } from 'src/store/api/enrollmentApiSlice'
 import { selectAllBankAccounts, selectBankAccountsByProfileId } from 'src/store/bankAccountSlice'
 import { selectAllCreditCards, selectCreditCardsByProfileId } from 'src/store/creditCardSlice'
+import { useGetBankAccountsQuery, useGetCreditCardsQuery, useGetProfileLiabilitiesQuery } from 'src/store/api/apiHooks'
+import { BankAccountType } from 'src/store/api/bankAccountApiSlice'
+import { CreditCardType } from 'src/store/api/creditCardApiSlice'
+import { selectLiabilityByProfileId } from 'src/store/liabilitySlice'
+
+import MoneyConverter from 'src/views/shared/utils/money-converter'
+import DateConverter from 'src/views/shared/utils/date-converter'
 
 type Order = 'asc' | 'desc'
 
@@ -90,37 +97,7 @@ const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
   borderRadius: 5
 }))
 
-const createData = (
-  number: number,
-  processDate: string,
-  amount: number,
-  clearedDate: string,
-  status: string,
-  memo: string,
-  description: string,
-  paymentMethod: string
-) => {
-  return { number, processDate, amount, clearedDate, status, memo, description, paymentMethod }
-}
-const rows = [
-  createData(1, '5/18/2023', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(2, '6/18/2023', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(3, '7/18/2023', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(4, '8/18/2023', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(5, '9/18/2023', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(6, '10/18/2023', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(7, '11/18/2023', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(8, '12/18/2023', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(9, '1/18/2024', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(10, '2/18/2024', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(11, '3/18/2024', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(12, '4/18/2024', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(13, '5/18/2024', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(14, '6/18/2024', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(15, '7/18/2024', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(16, '8/18/2024', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(17, '9/18/2024', 304.14, '', 'Open', '', '', 'ACH')
-]
+const rows = []
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -429,12 +406,18 @@ const EnhancedTable = ({ data }: any) => {
   )
 }
 
-function Overview({ enrollmentData, paymentData }: any) {
+function Overview({ enrollmentData, paymentData, id }: any) {
   //toggles alert
   const [alert, setAlert] = useState<boolean>(true)
 
   //toggles for type of alert
   const [error, setError] = useState<boolean>(false)
+
+  useGetProfileLiabilitiesQuery(id)
+  const debts = useAppSelector(state => selectLiabilityByProfileId(state, id))
+
+  console.log(debts)
+  console.log(enrollmentData)
 
   useEffect(() => {
     if ((enrollmentData && enrollmentData.enrollmentId === null) || Object.keys(paymentData).length === 0) {
@@ -453,8 +436,14 @@ function Overview({ enrollmentData, paymentData }: any) {
           <CardHeader
             title='Overview'
             action={
-              <Button variant='contained' onClick={toggleEnrollment} size='small' sx={{ '& svg': { mr: 1 } }}>
-                {enrollmentData ? 'Update' : 'Create'} Plan
+              <Button
+                variant='contained'
+                disabled={!enrollmentData?.enrollmentId}
+                onClick={toggleEnrollment}
+                size='small'
+                sx={{ '& svg': { mr: 1 } }}
+              >
+                {enrollmentData?.enrollmentId ? 'Update' : 'Create'} Plan
               </Button>
             }
           />
@@ -465,7 +454,10 @@ function Overview({ enrollmentData, paymentData }: any) {
                   <Typography variant='body2'>
                     Current enrollment fee:{' '}
                     <Typography component='span' sx={{ fontWeight: 600 }}>
-                      {enrollmentData?.enrollmentFee ?? 'N/A'}
+                      {MoneyConverter(
+                        (enrollmentData?.enrollmentFee * Number(enrollmentData?.enrolledBalance)) /
+                          enrollmentData?.programLength
+                      )}
                     </Typography>
                   </Typography>
                   <Typography variant='body2'>
@@ -479,13 +471,13 @@ function Overview({ enrollmentData, paymentData }: any) {
                   <Typography variant='body2'>
                     Number of Enrolled Debts:{' '}
                     <Typography component='span' sx={{ fontWeight: 600 }}>
-                      {5 ?? 'N/A'}
+                      {debts?.filter(debt => debt.enrolled).length ?? 'N/A'}
                     </Typography>
                   </Typography>
                   <Typography variant='body2'>
                     Total Enrolled Balance:{' '}
                     <Typography component='span' sx={{ fontWeight: 600 }}>
-                      {'$' + 28000.0 ?? 'N/A'}
+                      {MoneyConverter(enrollmentData?.enrolledBalance)}
                     </Typography>
                   </Typography>
                 </Box>
@@ -493,13 +485,13 @@ function Overview({ enrollmentData, paymentData }: any) {
                   <Typography variant='body2'>
                     Next Payment Date:{' '}
                     <Typography component='span' sx={{ fontWeight: 600 }}>
-                      {enrollmentData?.nextPaymentDate ?? 'N/A'}
+                      {DateConverter(enrollmentData?.nextPaymentDate)}
                     </Typography>
                   </Typography>
                   <Typography variant='body2'>
                     Next Payment Amount:{' '}
                     <Typography component='span' sx={{ fontWeight: 600 }}>
-                      {enrollmentData?.nextPaymentAmount ? enrollmentData?.nextPaymentAmount : 'N/A'}
+                      {MoneyConverter(enrollmentData?.nextPaymentAmount)}
                     </Typography>
                   </Typography>
                 </Box>
@@ -507,6 +499,7 @@ function Overview({ enrollmentData, paymentData }: any) {
               <Grid item xs={12} md={6}>
                 <Collapse in={alert}>
                   <Alert
+                    icon={false}
                     severity={error ? 'warning' : 'success'}
                     action={
                       <IconButton size='small' color='inherit' aria-label='close' onClick={() => setAlert(false)}>
@@ -516,19 +509,33 @@ function Overview({ enrollmentData, paymentData }: any) {
                     sx={{ mb: 4 }}
                   >
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <AlertTitle>{error ? 'Attention' : 'Success'}!</AlertTitle>
+                      <AlertTitle>{error ? 'Attention!' : 'No Attention Needed'}</AlertTitle>
                     </Box>
                     {error ? (
                       <>
+                        {debts?.length === 0 ? (
+                          <Box sx={{ display: 'flex', alignContent: 'center' }}>
+                            <Icon icon='ph:dot-outline-fill' />
+                            <Typography variant='body2' color='inherit'>
+                              Add an enrolled debt to continue.
+                            </Typography>
+                          </Box>
+                        ) : null}
                         {enrollmentData?.enrollmentId === null ? (
-                          <Typography variant='body2' color='inherit'>
-                            Enrollment plan not found.
-                          </Typography>
+                          <Box sx={{ display: 'flex', alignContent: 'center' }}>
+                            <Icon icon='ph:dot-outline-fill' />
+                            <Typography variant='body2' color='inherit'>
+                              Enrollment plan not found.
+                            </Typography>
+                          </Box>
                         ) : null}
                         {paymentData ? (
-                          <Typography variant='body2' color='inherit'>
-                            Payment method missing.
-                          </Typography>
+                          <Box sx={{ display: 'flex', alignContent: 'center' }}>
+                            <Icon icon='ph:dot-outline-fill' />
+                            <Typography variant='body2' color='inherit'>
+                              Payment method missing.
+                            </Typography>
+                          </Box>
                         ) : null}
                         {enrollmentData?.cancelledDate || enrollmentData?.pausedDate ? (
                           <Typography variant='body2' color='inherit'>
@@ -552,15 +559,18 @@ function Overview({ enrollmentData, paymentData }: any) {
                   </Alert>
                 </Collapse>
                 <Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 4 }}>
                     <Typography sx={{ fontWeight: 600, color: 'text.primary' }} variant='body2'>
                       Payments
                     </Typography>
                     <Typography sx={{ fontWeight: 600, color: 'text.primary' }} variant='body2'>
-                      {7 ?? 0} of {24 ?? 0}
+                      {enrollmentData?.clearedPayments ?? 0} of {enrollmentData?.totalPayments ?? 0}
                     </Typography>
                   </Box>
-                  <BorderLinearProgress variant='determinate' value={(7 / 24) * 100 ?? 0} />
+                  <BorderLinearProgress
+                    variant='determinate'
+                    value={(enrollmentData?.clearedPayments / enrollmentData?.totalPayments) * 100 ?? 0}
+                  />
                 </Box>
               </Grid>
             </Grid>
@@ -572,50 +582,12 @@ function Overview({ enrollmentData, paymentData }: any) {
   )
 }
 
-function PaymentMethod({ data }: { data: any }) {
+function PaymentMethod({ data, enrollmentData }: { data: any; enrollmentData: any }) {
   const [paymentModal, setPaymentModal] = useState<boolean>(false)
   const [editModal, setEditModal] = useState<boolean>(false)
   const [dialogData, setDialogData] = useState(data)
 
-  type Bank = {
-    bankAccountId: string | null | undefined
-    bankRoutingNumber: string | null | undefined
-    bankName: string | null | undefined
-    bankAccountNumber: string | null | undefined
-    phoneNumber: string | null | undefined
-    bankAccountType: number | null | undefined
-    bankAccountTypeName: string | null | undefined
-    address: string | null | undefined
-    address2: string | null | undefined
-    city: string | null | undefined
-    zipcode: string | null | undefined
-    state: string | null | undefined
-    accountName: string | null | undefined
-    createdAt: string | null | undefined
-    profileId: string | null | undefined
-    firstName: string | null | undefined
-    lastName: string | null | undefined
-  }
-
-  type Card = {
-    creditCardId: string
-    name: string
-    type: number
-    creditCardTypeName: string
-    cardNumber: string
-    expirationMonth: string
-    expirationYear: string
-    securityCode: string
-    address: string
-    address2: string
-    city: string
-    state: string
-    zipcode: string
-    profileId: string
-    firstName: string
-    lastName: string
-    expYear: string
-  }
+  console.log(data)
 
   interface CardDataType {
     name: string
@@ -700,7 +672,13 @@ function PaymentMethod({ data }: { data: any }) {
           <CardHeader
             title='Payment Methods'
             action={
-              <Button variant='contained' size='small' onClick={handleAdd} sx={{ '& svg': { mr: 1 } }}>
+              <Button
+                variant='contained'
+                size='small'
+                disabled={!enrollmentData?.enrollmentId}
+                onClick={handleAdd}
+                sx={{ '& svg': { mr: 1 } }}
+              >
                 <Icon icon='mdi:plus' fontSize='1.125rem' />
                 Add Payment Method
               </Button>
@@ -794,21 +772,26 @@ type ProfileProps = {
 }
 
 export default function ProfilePayments({ id: profileId }: ProfileProps) {
-  console.log(profileId)
   //Enrollment Data
   const enrollmentData = useAppSelector(state => selectEnrollmentByProfileId(state, profileId))
   //Payment Data
   const bankData = useAppSelector(state => selectBankAccountsByProfileId(state, profileId))
   const cardData = useAppSelector(state => selectCreditCardsByProfileId(state, profileId))
-  const [paymentData, setPaymentData] = useState({})
+  useGetBankAccountsQuery(profileId)
+  useGetCreditCardsQuery(profileId)
+  const [paymentData, setPaymentData] = useState<(BankAccountType | CreditCardType)[]>([])
 
-  console.log({ bankData, cardData })
+  useEffect(() => {
+    if (bankData && cardData) {
+      setPaymentData([...bankData, ...cardData])
+    }
+  }, [bankData, cardData])
 
   return (
     <>
       <Grid container spacing={4}>
-        <Overview enrollmentData={enrollmentData} paymentData={paymentData} />
-        <PaymentMethod data={paymentData} />
+        <Overview enrollmentData={enrollmentData} paymentData={paymentData} id={profileId} />
+        <PaymentMethod data={paymentData} enrollmentData={enrollmentData} />
         <EnhancedTable data={enrollmentData} />
       </Grid>
     </>

@@ -12,6 +12,8 @@ import SingleSelect from 'src/views/shared/form-input/single-select'
 import ToggleSwitch from 'src/views/shared/form-input/toggle-switch'
 import CreditCard from 'src/views/shared/form-input/credit-card'
 import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+import Icon from 'src/@core/components/icon'
 
 type EditPaymentDialogProps = {
   data: any
@@ -131,7 +133,16 @@ export default function EditPaymentDialog({ data, open, handleClose }: EditPayme
 
   return (
     <Dialog open={open} maxWidth='md' fullWidth onClose={onClose} aria-labelledby='form-dialog-title'>
-      <DialogTitle id='form-dialog-title'>{data ? 'Update' : 'Create New'} Payment Method</DialogTitle>
+      <DialogTitle id='form-dialog-title'>
+        {data ? 'Update' : 'Create New'} Payment Method
+        <IconButton
+          aria-label='close'
+          onClick={onClose}
+          sx={{ top: 10, right: 10, position: 'absolute', color: 'grey.500' }}
+        >
+          <Icon icon='mdi:close' />
+        </IconButton>
+      </DialogTitle>
       <DialogContent>
         <Grid container spacing={4}>
           <Grid item xs={12}>

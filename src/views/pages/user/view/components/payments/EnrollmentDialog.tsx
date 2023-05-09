@@ -14,6 +14,7 @@ import TableRow from '@mui/material/TableRow'
 import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
+import IconButton from '@mui/material/IconButton'
 
 //MUI Custom Props
 import { styled } from '@mui/material/styles'
@@ -29,6 +30,7 @@ import DialogActions from '@mui/material/DialogActions'
 import SelectDate from 'src/views/shared/form-input/date-picker'
 import SingleSelect from 'src/views/shared/form-input/single-select'
 import TextInput from 'src/views/shared/form-input/text-input'
+import Icon from 'src/@core/components/icon'
 
 //Third-Party Packages
 import { addWeeks, addMonths } from 'date-fns'
@@ -85,7 +87,6 @@ const rows = [
 ]
 
 const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => {
-  console.log('enrollment rendered')
   const defaultValues = {
     paymentMethod: 'ach',
     maintenanceFee: 80.0,
@@ -230,7 +231,16 @@ const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => 
 
   return (
     <Dialog open={open} maxWidth='xl' fullWidth onClose={handleClose} aria-labelledby='form-dialog-title'>
-      <DialogTitle id='form-dialog-title'>{data ? 'Update' : 'Create New'} Enrollment Plan</DialogTitle>
+      <DialogTitle id='form-dialog-title'>
+        {data ? 'Update' : 'Create New'} Enrollment Plan
+        <IconButton
+          aria-label='close'
+          onClick={handleClose}
+          sx={{ top: 10, right: 10, position: 'absolute', color: 'grey.500' }}
+        >
+          <Icon icon='mdi:close' />
+        </IconButton>
+      </DialogTitle>
       <DialogContent sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
         <CardContainer>
           <form>

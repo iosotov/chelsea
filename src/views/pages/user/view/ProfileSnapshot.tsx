@@ -31,6 +31,8 @@ import { ProfileCustomFieldType } from 'src/store/api/profileApiSlice'
 
 //Utils
 import { format } from 'date-fns'
+import MoneyConverter from 'src/views/shared/utils/money-converter'
+import DateConverter from 'src/views/shared/utils/date-converter'
 
 //API Calls
 import { useAppSelector } from 'src/store/hooks'
@@ -124,22 +126,6 @@ const AccordionSummary = styled(MuiAccordionSummary)<AccordionSummaryProps>(({ t
     margin: '10px 0'
   }
 }))
-
-// returns date in mm/dd/yyyy form
-const DateConverter = (date: string | undefined) => {
-  if (!date) {
-    return 'N/A'
-  }
-  return new Date(date).toLocaleDateString('en-US')
-}
-
-// returns money in $xx.xx form
-const MoneyConverter = (money: string | number | undefined) => {
-  if (!money || money === 'N/A') {
-    return 'N/A'
-  }
-  return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(Number(money))
-}
 
 export default function ProfileSnapshot({ data }: Props) {
   const {
@@ -319,34 +305,36 @@ const ProfileTitle = ({
 
   return (
     <CardContent>
-      <Box sx={{ display: 'flex', justifyContent: 'end', mb: 1 }}>
-        <IconButton size='small' aria-label='profile-dropdown' aria-controls='profile-controls' onClick={menuClick}>
-          <Icon icon='mdi:dots-vertical' />
-        </IconButton>
-        <Menu
-          id='profile-controls'
-          TransitionComponent={Fade}
-          anchorEl={anchor}
-          open={Boolean(anchor)}
-          onClose={menuClose}
-          anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right'
-          }}
-          transformOrigin={{
-            vertical: 'top',
-            horizontal: 'right'
-          }}
-        >
-          <MenuItem sx={{ minWidth: '150px' }} onClick={() => handleClick('delete')}>
-            Delete
-          </MenuItem>
-          <MenuItem>Reenroll</MenuItem>
-        </Menu>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+        <Typography mb={2} variant='h4' sx={{ overflowWrap: 'break-word' }}>
+          {firstName ?? ''} {lastName ?? ''}
+        </Typography>
+        <Box>
+          <IconButton size='small' aria-label='profile-dropdown' aria-controls='profile-controls' onClick={menuClick}>
+            <Icon icon='mdi:dots-vertical' />
+          </IconButton>
+          <Menu
+            id='profile-controls'
+            TransitionComponent={Fade}
+            anchorEl={anchor}
+            open={Boolean(anchor)}
+            onClose={menuClose}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right'
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right'
+            }}
+          >
+            <MenuItem sx={{ minWidth: '150px' }} onClick={() => handleClick('delete')}>
+              Delete
+            </MenuItem>
+            <MenuItem>Reenroll</MenuItem>
+          </Menu>
+        </Box>
       </Box>
-      <Typography mb={2} variant='h4'>
-        {firstName ?? ''} {lastName ?? ''}
-      </Typography>
       <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Typography variant='h6'>ID: {profileId}</Typography>
         <CustomChip
@@ -430,7 +418,7 @@ const ProfileDetails = ({
         <Box sx={{ pb: 1 }}>
           <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
             <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Labels:</Typography>
-            {profileLabels.filter((label: any) => label.value !== 'N/A').length > 0 ? (
+            {profileLabels?.filter((label: any) => label.value !== 'N/A').length > 0 ? (
               <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
                 {profileLabels.map((label, index) => {
                   return <CustomChip key={'label' + index} skin='light' label={String(label.name)} color='primary' />
@@ -577,7 +565,7 @@ const PersonalInfo = ({ data }: PersonalInfoProps): ReactElement => {
                 </Box>
               )
             })}
-            {profileAddresses.map((address: any, index: number) => {
+            {profileAddresses?.map((address: any, index: number) => {
               return (
                 <Box key={'address' + index} sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                   <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>{address.addressName}</Typography>
@@ -616,8 +604,6 @@ const PersonalInfo = ({ data }: PersonalInfoProps): ReactElement => {
 const EnrollmentInfo = ({ profileId }: EnrollmentInfoProps): ReactElement => {
   useGetEnrollmentQuery(profileId, { skip: !profileId })
   const enrollmentData = useAppSelector(state => selectEnrollmentByProfileId(state, profileId))
-
-  console.log(enrollmentData)
 
   return (
     <Accordion>
@@ -690,7 +676,7 @@ const EnrollmentInfo = ({ profileId }: EnrollmentInfoProps): ReactElement => {
 const ProfileCustomFields = ({ profileCustomFields }: ProfileCustomFieldsProps) => {
   return (
     <>
-      {profileCustomFields.length > 0 ? (
+      {profileCustomFields?.length > 0 ? (
         <Grid item xs={12}>
           <Accordion>
             <AccordionSummary
@@ -705,9 +691,9 @@ const ProfileCustomFields = ({ profileCustomFields }: ProfileCustomFieldsProps) 
             <AccordionDetails>
               <Divider sx={{ mb: 4 }} />
               <Box>
-                {profileCustomFields.map((field: ProfileCustomFieldType) => {
+                {profileCustomFields.map((field: ProfileCustomFieldType, index: number) => {
                   return (
-                    <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
+                    <Box key={'custom ' + index} sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
                       <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>{field.fieldName}</Typography>
                       <Typography variant='body2' align='right'>
                         {field.value}

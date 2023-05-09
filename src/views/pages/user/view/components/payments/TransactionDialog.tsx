@@ -11,6 +11,8 @@ import TextInput from 'src/views/shared/form-input/text-input'
 import SingleSelect from 'src/views/shared/form-input/single-select'
 import Button from '@mui/material/Button'
 import SelectDate from 'src/views/shared/form-input/date-picker'
+import IconButton from '@mui/material/IconButton'
+import Icon from 'src/@core/components/icon'
 
 type TransactionDialogProps = {
   data: any
@@ -54,7 +56,16 @@ export default function TransactionDialog({ data, open, toggle }: TransactionDia
       onClose={toggle}
       aria-labelledby='form-dialog-title'
     >
-      <DialogTitle id='form-dialog-title'>{data ? 'Update' : 'Create New'} Payment</DialogTitle>
+      <DialogTitle id='form-dialog-title'>
+        {data ? 'Update' : 'Create New'} Payment
+        <IconButton
+          aria-label='close'
+          onClick={onClose}
+          sx={{ top: 10, right: 10, position: 'absolute', color: 'grey.500' }}
+        >
+          <Icon icon='mdi:close' />
+        </IconButton>
+      </DialogTitle>
       <DialogContent>
         <Box my={2}>
           <form>

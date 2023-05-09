@@ -10,6 +10,7 @@ import Step from '@mui/material/Step'
 import Stepper from '@mui/material/Stepper'
 import StepLabel from '@mui/material/StepLabel'
 import Typography from '@mui/material/Typography'
+import IconButton from '@mui/material/IconButton'
 
 //Dialog Components
 import Dialog from '@mui/material/Dialog'
@@ -206,6 +207,13 @@ const PaymentDialog = ({ open, handleClose, data }: PaymentDialogProps): ReactEl
         }}
       >
         Add New Payment Method
+        <IconButton
+          aria-label='close'
+          onClick={handleClose}
+          sx={{ top: 10, right: 10, position: 'absolute', color: 'grey.500' }}
+        >
+          <Icon icon='mdi:close' />
+        </IconButton>
       </DialogTitle>
       <DialogContent sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
         <StepperHeaderContainer>
