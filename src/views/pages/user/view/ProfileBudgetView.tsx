@@ -75,7 +75,7 @@ export default function ProfileBudget({ id }: any) {
   const expenseTotal = useAppSelector(state => selectExpenseTotalByProfileId(state, profileId))
   console.log(expenseTotal)
 
-  const allTotal = incomeTotal + expenseTotal
+  const allTotal = incomeTotal - expenseTotal
 
   //   const {getIsLoading} =  useAppSelector(state => selectProfileBudgetsByProfileId(state, profileId))
   //  console.log(getIsLoading)

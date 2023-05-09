@@ -88,7 +88,6 @@ const CustomPaymentInput = forwardRef(({ ...props }, ref: ForwardedRef<HTMLEleme
 
 const ProfileTasks = ({ id }: any) => {
   // console.log(data)
-  console.log(id)
 
   // const Transition = forwardRef(function Transition(
   //   props: FadeProps & { children?: ReactElement<any, any> },
@@ -300,7 +299,7 @@ const ProfileTasks = ({ id }: any) => {
   }
 
   const handleEditTaskOpen = () => {
-    setDrawerTitle('Edit')
+    // setDrawerTitle('Edit')
 
     setTaskName(selectedTask.taskName ?? '')
 
@@ -338,7 +337,7 @@ const ProfileTasks = ({ id }: any) => {
 
   const handleAddTaskOpen = () => {
     // actionChecker()
-    setDrawerTitle('Create')
+    // setDrawerTitle('Create')
     setTaskName('')
     setSelectedGroup('')
     setPaymentDate('')
@@ -350,7 +349,7 @@ const ProfileTasks = ({ id }: any) => {
   }
 
   const handleBulkEditTaskOpen = () => {
-    setDrawerTitle('Bulk Update')
+    // setDrawerTitle('Bulk Update')
 
     setTaskName('')
     setSelectedGroup('')
@@ -491,7 +490,8 @@ const ProfileTasks = ({ id }: any) => {
 
   const resetForm = () => {
     console.log('Resetting Drawer')
-    setDrawerTitle('Add')
+
+    // setDrawerTitle('Create')
     setTaskName('')
     setSelectedGroup('')
     setPaymentDate('')
@@ -530,13 +530,19 @@ const ProfileTasks = ({ id }: any) => {
             sx={{ mb: 7, position: 'absolute', right: '12%' }}
             // onClick={handleAddTaskOpen}
             onClick={actionChecker}
+
+            // disabled={checkedValues.length > 1}
           >
-            {drawerTitle} Task
+            {checkedValues.length > 1 && <div>{drawerTitle + ' ' + checkedValues.length} Tasks</div>}
+            {checkedValues.length < 1 && <div>{drawerTitle} Task</div>}
+            {checkedValues.length == 1 && <div>{drawerTitle + ' ' + checkedValues.length} Task</div>}
+            {/* {drawerTitle + ' ' + checkedValues.length} Task */}
           </Button>
           {/* </Box> */}
           {/* </Grid>
         <Grid item xs={12}> */}
-          <Button
+          {/* BULKUPDATE BUTTON */}
+          {/* <Button
             size='medium'
             type='submit'
             variant='contained'
@@ -547,7 +553,7 @@ const ProfileTasks = ({ id }: any) => {
             disabled={checkedValues.length <= 1}
           >
             Bulk Update Task
-          </Button>
+          </Button> */}
         </Grid>
         <Grid item xs={12}>
           <Box sx={{ height: 400, width: '100%' }}>
@@ -747,7 +753,7 @@ const ProfileTasks = ({ id }: any) => {
 
               <div>
                 {/* conditional rendering button */}
-                {drawerTitle === 'Add' && (
+                {drawerTitle === 'Create' && (
                   <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleCreateClick()}>
                     Create
                   </Button>
@@ -757,7 +763,7 @@ const ProfileTasks = ({ id }: any) => {
                     Update
                   </Button>
                 )}
-                {drawerTitle === 'Bulk Edit' && (
+                {drawerTitle === 'Bulk Update' && (
                   <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleBulkUpdateClick()}>
                     Bulk Update
                   </Button>

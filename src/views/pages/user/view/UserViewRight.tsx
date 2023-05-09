@@ -21,6 +21,7 @@ import ProfileNotes from './ProfileNotesView'
 import ProfileTasks from './ProfileTasksView'
 import ProfileActivity from './ProfileActivityView'
 import ProfileBudget from './ProfileBudgetView'
+import ProfileEmail from './ProfileEmailView'
 
 type Props = {
   id: string | string[] | undefined
@@ -57,6 +58,7 @@ export default function UserViewLeft({ id, tab }: Props) {
           <Tab label='Tasks' value='tasks' />
           <Tab label='Budget' value='budget' />
           <Tab label='Activity' value='activity' />
+          <Tab label='Email' value='email' />
         </TabList>
       </Box>
       {/* Add tab views here */}
@@ -91,6 +93,9 @@ export default function UserViewLeft({ id, tab }: Props) {
             </TabPanel>
             <TabPanel value='activity'>
               <ProfileActivity id={id} />
+            </TabPanel>
+            <TabPanel value='email'>
+              <ProfileEmail id={id} />
             </TabPanel>
           </>
         )}
