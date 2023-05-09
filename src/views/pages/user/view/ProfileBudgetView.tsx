@@ -37,7 +37,11 @@ import { Profile, selectAllProfiles, useGetProfilesQuery } from 'src/store/api/p
 import {
   selectAllBudgets,
   selectAllProfileBudgets,
-  selectProfileBudgetsByProfileId
+  selectProfileBudgetsByProfileId,
+  selectIncomeBudgetsByProfileId,
+  selectExpenseBudgetsByProfileId,
+  selectIncomeTotalByProfileId,
+  selectExpenseTotalByProfileId
 } from 'src/store/profileBudgetSlice'
 import { left } from '@popperjs/core'
 import { ValidationError } from 'yup'
@@ -59,6 +63,20 @@ export default function ProfileBudget({ id }: any) {
   const profileBudgets = useAppSelector(state => selectProfileBudgetsByProfileId(state, profileId))
   console.log(profileBudgets)
 
+  const incomeBudgets = useAppSelector(state => selectIncomeBudgetsByProfileId(state, profileId))
+  console.log(incomeBudgets)
+
+  const expenseBudgets = useAppSelector(state => selectExpenseBudgetsByProfileId(state, profileId))
+  console.log(expenseBudgets)
+
+  const incomeTotal = useAppSelector(state => selectIncomeTotalByProfileId(state, profileId))
+  console.log(incomeTotal)
+
+  const expenseTotal = useAppSelector(state => selectExpenseTotalByProfileId(state, profileId))
+  console.log(expenseTotal)
+
+  const allTotal = incomeTotal + expenseTotal
+
   //   const {getIsLoading} =  useAppSelector(state => selectProfileBudgetsByProfileId(state, profileId))
   //  console.log(getIsLoading)
 
@@ -75,42 +93,42 @@ export default function ProfileBudget({ id }: any) {
   // const [incomeList, setIncomeList] = useState<any>([])
   // const [expenseList, setExpenseList] = useState<any>([])
 
-  const [income, setIncome] = useState<any>([])
-  const [expense, setExpense] = useState<any>([])
+  // const [income, setIncome] = useState<any>(incomeTotal)
+  // const [expense, setExpense] = useState<any>(expenseTotal)
   const [incomeSnap, setIncomeSnap] = useState<any>(null)
   const [expenseSnap, setExpenseSnap] = useState<any>(null)
-  const [totalFunds, setTotalFunds] = useState<any>(null)
   const [cashflow, setCashflow] = useState<any>(null)
   const [totalBalance, setTotalBalance] = useState<any>(null)
+  console.log(incomeTotal, expenseTotal)
 
   // const a = useGetProfileBudgetsQueryMock(profileId)
 
   // console.log(budgets)
 
+  //GET BY IDS, GET TOTAL FROM PROIFILE, DELETE OTHER UNEEDED, NEED USE STATE?
+
   // //api mock
   const [trigger, { isSuccess: triggerSuccess }] = usePostProfileBudgetsMutation()
 
   async function handleClick() {
+    //need to configure values to set
     const testData = {
       profileId,
       budgets: [
         {
-          budgetId: '9da97f8e-6e71-4091-b590-ed22be4cddb2',
-          amount: 10
-        },
-        {
-          budgetId: 'a7028bfb-c866-4938-90c0-f245c5909683',
-          amount: 20
+          budgetId: 'b3f1d85d-b49a-4f06-b168-4600f2244e0d',
+          amount: 1241
         }
       ]
     }
 
     // console.log(testData)
 
-    // await trigger(testData).unwrap()
+    await trigger(testData).unwrap()
+
     // getTotalIncome()
     // getTotalExpense()
-    getTotals()
+    // getTotals()
   }
 
   // const { data: newProfile } = useGetProfileBudgetsQuery(id)
@@ -136,60 +154,63 @@ export default function ProfileBudget({ id }: any) {
   //   }
   // }, [newProfile, allBudgets])
 
-  const dataDivider = () => {
-    if (profileBudgets) {
-      console.log(profileBudgets)
-      const incomeList: any = []
-      const expenseList: any = []
-      let i = 0
-      for (i = 0; i < profileBudgets.length; i++) {
-        // if (profileBudgets[i].active) {
+  // const dataDivider = () => {
+  //   if (profileBudgets) {
+  //     console.log(profileBudgets)
+  //     const incomeList: any = []
+  //     const expenseList: any = []
+  //     let i = 0
+  //     for (i = 0; i < profileBudgets.length; i++) {
+  //       // if (profileBudgets[i].active) {
 
-        // }
-        if (profileBudgets[i].budgetType == 0) {
-          // const choiceId = profileBudgets[i].budgetId
-          //   const filteredIncome = profileBudgets.find(filteredIncome => filteredIncome.budgetId == choiceId)
+  //       // }
+  //       if (profileBudgets[i].budgetType == 0) {
+  //         // const choiceId = profileBudgets[i].budgetId
+  //         //   const filteredIncome = profileBudgets.find(filteredIncome => filteredIncome.budgetId == choiceId)
 
-          incomeList.push(profileBudgets[i])
+  //         incomeList.push(profileBudgets[i])
 
-          // setIncome(incomeList)
+  //         // setIncome(incomeList)
 
-          //  else {
-          //   const notFound = { budgetId: choiceId, amount: 0 }
+  //         //  else {
+  //         //   const notFound = { budgetId: choiceId, amount: 0 }
 
-          //   //                 console.log(notFound)
-          //   //                 incomeList.push(notFound)
-          //   incomeList.push(notFound)
-          // }
-        } else {
-          // const choiceId = budgetTypes[i].budgetId
-          // const filteredExpense = allBudgets.find(filteredExpense => filteredExpense.budgetId == choiceId)
+  //         //   //                 console.log(notFound)
+  //         //   //                 incomeList.push(notFound)
+  //         //   incomeList.push(notFound)
+  //         // }
+  //       } else {
+  //         // const choiceId = budgetTypes[i].budgetId
+  //         // const filteredExpense = allBudgets.find(filteredExpense => filteredExpense.budgetId == choiceId)
 
-          expenseList.push(profileBudgets[i])
+  //         expenseList.push(profileBudgets[i])
 
-          // else {
-          //   const notFound = { budgetId: choiceId, amount: 0 }
+  //         // else {
+  //         //   const notFound = { budgetId: choiceId, amount: 0 }
 
-          //   //                 console.log(notFound)
-          //   //                 incomeList.push(notFound)
-          //   expenseList.push(notFound)
-          // }
-          // setExpense(expenseList)
-        }
-      }
+  //         //   //                 console.log(notFound)
+  //         //   //                 incomeList.push(notFound)
+  //         //   expenseList.push(notFound)
+  //         // }
+  //         // setExpense(expenseList)
+  //       }
+  //     }
 
-      // console.log(income, expense)
+  //     // console.log(income, expense)
 
-      return [incomeList, expenseList]
-    }
-  }
-  console.log(dataDivider())
+  //     return [incomeList, expenseList]
+  //   }
+  // }
+  // console.log(dataDivider())
 
-  const incomeDiv = dataDivider()[0]
-  console.log(incomeDiv)
+  // const incomeDiv = dataDivider()[0]
+  // const incomeDiv = incomeBudgets
+  // console.log(incomeDiv)
 
-  const expenseDiv = dataDivider()[1]
-  console.log(expenseDiv)
+  // // const expenseDiv = dataDivider()[1]
+
+  // const expenseDiv = expenseBudgets
+  // console.log(expenseDiv)
 
   // if (!isLoading) {
   //   console.log(dataDivider())
@@ -340,72 +361,61 @@ export default function ProfileBudget({ id }: any) {
   }
 
   //api calls
-  const createBudget = () => {
-    console.log(allBudgets)
-    console.log(budgetTypes)
-    console.log(income)
-    console.log(expense)
-
-    //combine income and expense for payload
-    //send profile Id?
-
-    const payload = income.concat(expense)
-
-    // console.log(joined)
-  }
 
   // LoadData()
 
   // budgetSeparator()
 
   //Snap cards summary functions
-  const getTotalIncome = () => {
-    console.log(income)
+  // const getTotalIncome = () => {
+  //   console.log(incomeTotal)
+  //   setIncomeSnap(incomeTotal)
 
-    let _totalIncome = 0
-    if (income != null && income.length > 0) {
-      console.log(income)
-      income.map(entry => {
-        _totalIncome += entry.amount
-      })
-    }
-    console.log(_totalIncome)
-    setIncomeSnap(_totalIncome)
-    getTotalFunds()
-  }
-  const getTotalExpense = () => {
-    console.log(expense)
+  //   // let _totalIncome = 0
+  //   // if (income != null && income.length > 0) {
+  //   //   console.log(income)
+  //   //   income.map(entry => {
+  //   //     _totalIncome += entry.amount
+  //   //   })
+  //   // }
+  //   // console.log(_totalIncome)
+  //   // setIncomeSnap(_totalIncome)
+  //   // getTotalFunds()
+  // }
 
-    let _totalExpense = 0
-    if (expense != null && expense.length > 0) {
-      console.log(expense)
-      expense.map(entry => {
-        _totalExpense += entry.amount
-      })
-    }
-    console.log(_totalExpense)
-    setExpenseSnap(_totalExpense)
-    getTotalFunds()
-  }
+  // const getTotalExpense = () => {
+  //   console.log(expense)
 
-  const getTotals = () => {
-    console.log('Totals')
-    getTotalBalance()
-    getTotalIncome()
-    getTotalExpense()
+  //   let _totalExpense = 0
+  //   if (expense != null && expense.length > 0) {
+  //     console.log(expense)
+  //     expense.map(entry => {
+  //       _totalExpense += entry.amount
+  //     })
+  //   }
+  //   console.log(_totalExpense)
+  //   setExpenseSnap(_totalExpense)
+  //   getTotalFunds()
+  // }
 
-    // getTotalFunds()
+  // const getTotals = () => {
+  //   console.log('Totals')
+  //   getTotalBalance()
+  //   getTotalIncome()
+  //   getTotalExpense()
 
-    // let _totalExpense = 0
-    // if (expense != null && expense.length > 0) {
-    //   console.log(expense)
-    //   expense.map(entry => {
-    //     _totalExpense += entry.amount
-    //   })
-    // }
-    // console.log(_totalExpense)
-    // setIncomeSnap(_totalIncome)
-  }
+  //   // getTotalFunds()
+
+  //   // let _totalExpense = 0
+  //   // if (expense != null && expense.length > 0) {
+  //   //   console.log(expense)
+  //   //   expense.map(entry => {
+  //   //     _totalExpense += entry.amount
+  //   //   })
+  //   // }
+  //   // console.log(_totalExpense)
+  //   // setIncomeSnap(_totalIncome)
+  // }
 
   const getTotalFunds = () => {
     const sum = incomeSnap - expenseSnap
@@ -448,9 +458,10 @@ export default function ProfileBudget({ id }: any) {
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-                    <Typography variant='h6'>${totalFunds ?? 'No Funds'}</Typography>
-                    <Typography variant='body2'>{incomeSnap}</Typography>
-                    <Typography variant='body2'>{expenseSnap}</Typography>
+                    {/* <Typography variant='h6'>${totalFunds ?? 'No Funds'}</Typography> */}
+                    {/* <Typography variant='body2'>{incomeSnap}</Typography> */}
+                    <Typography variant='body2'>${incomeTotal ?? ''}</Typography>
+                    <Typography variant='body2'>${expenseTotal ?? ''}</Typography>
                     {/* <Typography variant='body2' sx={{ color: 'primary.main', textDecoration: 'none' }}>
                     Edit Role
                   </Typography> */}
@@ -465,8 +476,8 @@ export default function ProfileBudget({ id }: any) {
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-                    <Typography variant='h6'>{totalBalance ?? 'No Balance'}</Typography>
-                    <Typography variant='h6'> </Typography>
+                    {/* <Typography variant='h6'>{totalBalance ?? 'No Balance'}</Typography> */}
+                    <Typography variant='h6'>${allTotal}</Typography>
                     {/* <Typography variant='body2'>""</Typography>
                     <Typography variant='h6'>""</Typography> */}
 
@@ -492,7 +503,7 @@ export default function ProfileBudget({ id }: any) {
         <Grid item xs={12}>
           {/* //make sure data coming in isnt object, map */}
           {/* <IncomeTable budgetTypes={budgetTypes} budgetList={allBudgets} income={income}></IncomeTable> */}
-          <IncomeTable income={incomeDiv}></IncomeTable>
+          <IncomeTable income={incomeBudgets}></IncomeTable>
           {/* <BudgetTableGenerator
             budgetTypes={profileBudgets}
             budgetList={budgets}
@@ -502,7 +513,7 @@ export default function ProfileBudget({ id }: any) {
           {/* <BudgetTableGenerator budgetList={allBudgets} budgetTypes={budgetTypes}></BudgetTableGenerator> */}
         </Grid>
         <Grid item xs={12}>
-          <ExpenseTable expense={expenseDiv}></ExpenseTable>
+          <ExpenseTable expense={expenseBudgets}></ExpenseTable>
           {/* <ExpenseTable budgetTypes={budgetTypes} budgetList={allBudgets} expense={expense}></ExpenseTable> */}
         </Grid>
         <Grid item xs={12} textAlign={'right'}>
