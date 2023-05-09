@@ -1,3 +1,6 @@
+import { useRef, Ref, useState, ChangeEvent, useEffect, forwardRef, ReactElement, ForwardedRef } from 'react'
+import Cards, { Focused } from 'react-credit-cards'
+
 // ** MUI Imports
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
@@ -7,10 +10,19 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TextField from '@mui/material/TextField'
+import Button from '@mui/material/Button'
 
 const ExpenseTable = (data: any) => {
   console.log(data)
   const dataSource = data.expense
+  const [selectedBudget, setSelectedBudget] = useState<any>({})
+  const [focus, setFocus] = useState<Focused>()
+  const amountRef = useRef(null)
+
+  const handleClearForm = () => {
+    console.log(amountRef)
+    amountRef.current.value = 0
+  }
 
   const getBudgetById = choice => {
     console.log(choice)
@@ -27,6 +39,25 @@ const ExpenseTable = (data: any) => {
 
       // return budgetAmount.amount
     }
+  }
+
+  const handleBlur = () => setFocus(undefined)
+
+  const handleBudgetInputChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
+    //can do formatting here
+    console.log(target)
+
+    // target.value = formatCreditCardNumber(target.value, Payment)
+    console.log('BUDGET INPUT CHANGE')
+
+    console.log(target.id)
+    const editBudget = dataSource.find(budget => budget.budgetId == target.id)
+    console.log(editBudget)
+    editBudget.amount == 0
+    console.log(editBudget)
+
+    // setSelectedBudget(editBudget)
+    // console.log(selectedBudget)
   }
 
   return (
@@ -52,12 +83,27 @@ const ExpenseTable = (data: any) => {
                 {getBudgetById(budget.budgetId)}
               </TableCell>
               <TableCell align='right'>
-                <TextField fullWidth label='Amount' defaultValue={budget.amount} placeholder='Amount'></TextField>
+                <TextField
+                  name='Amount'
+                  fullWidth
+                  ref={amountRef}
+                  label='Amount'
+                  placeholder='Amount'
+                  id={budget.budgetId}
+                  value={budget.amount ?? ''}
+                  onBlur={handleBlur}
+                  onChange={handleBudgetInputChange}
+                  inputProps={{ maxLength: 1000 }}
+                  onFocus={e => setFocus(e.target.value as Focused)}
+                ></TextField>
               </TableCell>
             </TableRow>
           ))}
         </TableBody>
       </Table>
+      <Button variant='outlined' color='secondary' sx={{ mr: 4 }} onClick={handleClearForm}>
+        Clear Form
+      </Button>
     </TableContainer>
   )
 }
