@@ -36,13 +36,11 @@ export type TaskCreateType = {
 export type TaskUpdateType = {
   taskId: string
   taskName: string
-  taskStatus: TaskStatusEnum
+  status: TaskStatusEnum
   dueDate: string
   assignedTo: string
   assignType?: number
   notes?: string
-  liabilityId?: string
-  profileId: string
   completedDate?: string
   rescheduleDate?: string
 }
