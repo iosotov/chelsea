@@ -25,6 +25,17 @@ import Box from '@mui/material/Box'
 // import DialogActions from '@mui/material/DialogActions'
 // import FormControlLabel from '@mui/material/FormControlLabel'
 
+import {
+  useGetNoteQuery,
+  useGetProfileNotesQuery,
+  usePostNoteCreateMutation,
+  usePutNoteUpdateMutation,
+  useDeleteNoteMutation
+} from 'src/store/api/apiHooks'
+
+import { useAppSelector } from 'src/store/hooks'
+import { selectNotesByProfileId } from 'src/store/noteSlice'
+
 // ** Third Party Imports
 import { useForm, Controller } from 'react-hook-form'
 
@@ -38,7 +49,7 @@ const defaultValues = {
   billingEmail: ''
 }
 
-const ProfileNotes = () => {
+const ProfileNotes = ({ id }: any) => {
   // const Transition = forwardRef(function Transition(
   //   props: FadeProps & { children?: ReactElement<any, any> },
   //   ref: Ref<unknown>
@@ -47,6 +58,9 @@ const ProfileNotes = () => {
   // })
 
   //mock Data
+  console.log(id)
+  const profileId = id
+  const profileNotes = useAppSelector(state => selectNotesByProfileId(state, profileId))
 
   const myNotes = [
     {
@@ -75,9 +89,22 @@ const ProfileNotes = () => {
   const [notifyUsers, setNotifyUsers] = useState<string>('')
   const [noteEmails, setNoteEmails] = useState<string>('')
   const [message, setMessage] = useState<string>('')
+  const [important, setImportant] = useState<boolean>(false)
+
+  //state
+  const [selectedNote, setSelectedNote] = useState<any>(null)
 
   //hooks for loading dropdown lists
   const [templateDrop, setTemplateDrop] = useState<any>(myNotes)
+
+  let rows = []
+  const { isLoading, isSuccess, isError } = useGetProfileNotesQuery(profileId)
+  console.log(profileNotes)
+  const dataWithIndex = profileNotes.map((obj, index) => {
+    return { ...obj, id: index }
+  })
+  rows = dataWithIndex
+  console.log(rows)
 
   // console.log(templateDrop)
 
@@ -91,23 +118,34 @@ const ProfileNotes = () => {
     return
   }
 
+  //API CALLS
+  const [triggerCreate, { isSuccess: triggerSuccess }] = usePostNoteCreateMutation()
+
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'ID', width: 90 },
     {
-      field: 'typeName',
-      headerName: 'Type',
+      field: 'content',
+      headerName: 'content',
       width: 150,
       editable: true
     },
     {
-      field: 'createdBy',
-      headerName: 'Created By ',
+      field: 'createdAt',
+      headerName: 'createdAt',
       width: 150,
       editable: true
     },
     {
-      field: 'description',
-      headerName: 'Age',
+      field: 'createdByName',
+      headerName: 'created By Name',
+
+      // type: 'text',
+      width: 110,
+      editable: true
+    },
+    {
+      field: 'important',
+      headerName: 'Important',
 
       // type: 'text',
       width: 110,
@@ -124,17 +162,17 @@ const ProfileNotes = () => {
     // }
   ]
 
-  const rows = [
-    { id: 1, type: 'Snow', createdBy: 'Jon', description: 35 },
-    { id: 2, type: 'Lannister', createdBy: 'Cersei', description: 42 },
-    { id: 3, type: 'Lannister', createdBy: 'Jaime', description: 45 },
-    { id: 4, type: 'Stark', createdBy: 'Arya', description: 16 },
-    { id: 5, type: 'Targaryen', createdBy: 'Daenerys', description: null },
-    { id: 6, type: 'Melisandre', createdBy: null, description: 150 },
-    { id: 7, type: 'Clifford', createdBy: 'Ferrara', description: 44 },
-    { id: 8, type: 'Frances', createdBy: 'Rossini', description: 36 },
-    { id: 9, type: 'Roxie', createdBy: 'Harvey', description: 65 }
-  ]
+  // const rows = [
+  //   { id: 1, type: 'Snow', createdBy: 'Jon', description: 35 },
+  //   { id: 2, type: 'Lannister', createdBy: 'Cersei', description: 42 },
+  //   { id: 3, type: 'Lannister', createdBy: 'Jaime', description: 45 },
+  //   { id: 4, type: 'Stark', createdBy: 'Arya', description: 16 },
+  //   { id: 5, type: 'Targaryen', createdBy: 'Daenerys', description: null },
+  //   { id: 6, type: 'Melisandre', createdBy: null, description: 150 },
+  //   { id: 7, type: 'Clifford', createdBy: 'Ferrara', description: 44 },
+  //   { id: 8, type: 'Frances', createdBy: 'Rossini', description: 36 },
+  //   { id: 9, type: 'Roxie', createdBy: 'Harvey', description: 65 }
+  // ]
 
   // const handleChange = event => {
   //   setNoteType(event.target.value)
@@ -178,6 +216,17 @@ const ProfileNotes = () => {
       //   setPaymentDate(target.value)
       // }
     }
+
+    // else if (target.name === 'notes-important') {
+    //   // target.value = formatExpirationDate(target.value)
+    //   setMessage(target.value)
+    //   console.log('same users')
+
+    //   // else if (target.name === 'task-paymentDate') {
+
+    //   //   setPaymentDate(target.value)
+    //   // }
+    // }
   }
 
   const resetForm = () => {
@@ -202,8 +251,63 @@ const ProfileNotes = () => {
     console.log(payload)
   }
 
+  async function handleCreateClick(props) {
+    console.log(props)
+    const payload = {
+      profileId,
+      content: props.message,
+      mentionedEmails: props.noteEmails,
+      important: props.important
+    }
+    console.log(payload)
+
+    // const testData = {
+    //   profileId,
+    //   taskName: taskName,
+    //   dueDate: paymentDate,
+    //   assignedTo: 'b12557c2-3a35-4ce6-9e52-959c07e13ce5',
+    //   assignType: 2,
+    //   notes: note
+    // }
+
+    const postResponse = await triggerCreate(payload).unwrap()
+    console.log(postResponse)
+  }
+
+  async function handleUpdateClick(props) {
+    console.log(props)
+    const payload = {
+      noteId,
+      content: props.message,
+      mentionedEmails: props.noteEmails,
+      important: props.important
+    }
+    console.log(payload)
+
+    // const testData = {
+    //   profileId,
+    //   taskName: taskName,
+    //   dueDate: paymentDate,
+    //   assignedTo: 'b12557c2-3a35-4ce6-9e52-959c07e13ce5',
+    //   assignType: 2,
+    //   notes: note
+    // }
+
+    const postResponse = await triggerCreate(payload).unwrap()
+    console.log(postResponse)
+  }
+
   //init data load, call get request for data set
-  loadData()
+  // loadData()
+
+  // const renderEditNoteButton = () => {
+  //   <IconButton value={params.row.taskId} onChange={handleCheckboxChange}>
+  //     <Icon>
+
+  //     </Icon>
+  //   </IconButton>
+  //   return <Checkbox {...label}  />
+  // }
 
   return (
     <>
@@ -313,7 +417,7 @@ const ProfileNotes = () => {
               type='submit'
               variant='contained'
               sx={{ mr: 4 }}
-              onClick={() => createNote({ message, notifyUsers, noteType, noteTemplate, noteEmails })}
+              onClick={() => handleCreateClick({ message, notifyUsers, noteType, noteTemplate, noteEmails, important })}
 
               //remove payload,
             >
@@ -328,8 +432,8 @@ const ProfileNotes = () => {
 
       <br></br>
       <Box sx={{ height: 400, width: '100%' }}>
-        {/* <DataGrid rows={rows} columns={columns} checkboxSelection sx={{ mt: 7 }} /> */}
-        <NotesTable></NotesTable>
+        <DataGrid rows={rows} columns={columns} checkboxSelection sx={{ mt: 7 }} />
+        {/* <NotesTable></NotesTable> */}
       </Box>
     </>
   )
