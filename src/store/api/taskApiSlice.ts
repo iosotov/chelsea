@@ -41,8 +41,6 @@ export type TaskUpdateType = {
   assignedTo: string
   assignType?: number
   notes?: string
-  liabilityId?: string
-  profileId: string
   completedDate?: string
   rescheduleDate?: string
 }
