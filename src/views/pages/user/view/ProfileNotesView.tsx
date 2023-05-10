@@ -16,6 +16,10 @@ import FormControl from '@mui/material/FormControl'
 import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
 
+import IconButton from '@mui/material/IconButton'
+
+import Icon from 'src/@core/components/icon'
+
 import Fade, { FadeProps } from '@mui/material/Fade'
 import DialogContent from '@mui/material/DialogContent'
 
@@ -120,47 +124,6 @@ const ProfileNotes = ({ id }: any) => {
 
   //API CALLS
   const [triggerCreate, { isSuccess: triggerSuccess }] = usePostNoteCreateMutation()
-
-  const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 90 },
-    {
-      field: 'content',
-      headerName: 'content',
-      width: 150,
-      editable: true
-    },
-    {
-      field: 'createdAt',
-      headerName: 'createdAt',
-      width: 150,
-      editable: true
-    },
-    {
-      field: 'createdByName',
-      headerName: 'created By Name',
-
-      // type: 'text',
-      width: 110,
-      editable: true
-    },
-    {
-      field: 'important',
-      headerName: 'Important',
-
-      // type: 'text',
-      width: 110,
-      editable: true
-    }
-
-    // {
-    //   field: 'fullName',
-    //   headerName: 'Full name',
-    //   description: 'This column has a value getter and is not sortable.',
-    //   sortable: false,
-    //   width: 160,
-    //   valueGetter: (params: GridValueGetterParams) => `${params.row.firstName || ''} ${params.row.lastName || ''}`
-    // }
-  ]
 
   // const rows = [
   //   { id: 1, type: 'Snow', createdBy: 'Jon', description: 35 },
@@ -293,21 +256,56 @@ const ProfileNotes = ({ id }: any) => {
     //   notes: note
     // }
 
-    const postResponse = await triggerCreate(payload).unwrap()
-    console.log(postResponse)
+    // const postResponse = await triggerCreate(payload).unwrap()
+    // console.log(postResponse)
+  }
+
+  const handleEditButtonById = event => {
+    console.log(event.target.value)
   }
 
   //init data load, call get request for data set
   // loadData()
 
-  // const renderEditNoteButton = () => {
-  //   <IconButton value={params.row.taskId} onChange={handleCheckboxChange}>
-  //     <Icon>
+  const renderEditNoteButton = params => {
+    return (
+      <IconButton size='small' sx={{ color: 'text.primary' }} value={params.row.noteId} onClick={handleEditButtonById}>
+        <Icon icon='mdi:edit' />
+      </IconButton>
+    )
+  }
 
-  //     </Icon>
-  //   </IconButton>
-  //   return <Checkbox {...label}  />
-  // }
+  const columns: GridColDef[] = [
+    { field: 'id', headerName: 'ID', width: 90, renderCell: renderEditNoteButton },
+    {
+      field: 'content',
+      headerName: 'content',
+      width: 150,
+      editable: true
+    },
+    {
+      field: 'createdAt',
+      headerName: 'createdAt',
+      width: 150,
+      editable: true
+    },
+    {
+      field: 'createdByName',
+      headerName: 'created By Name',
+
+      // type: 'text',
+      width: 110,
+      editable: true
+    },
+    {
+      field: 'important',
+      headerName: 'Important',
+
+      // type: 'text',
+      width: 110,
+      editable: true
+    }
+  ]
 
   return (
     <>
@@ -432,7 +430,7 @@ const ProfileNotes = ({ id }: any) => {
 
       <br></br>
       <Box sx={{ height: 400, width: '100%' }}>
-        <DataGrid rows={rows} columns={columns} checkboxSelection sx={{ mt: 7 }} />
+        <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }} />
         {/* <NotesTable></NotesTable> */}
       </Box>
     </>
