@@ -18,6 +18,7 @@ import creditReport from './creditReportSlice'
 import employee from './employeeSlice'
 import email from './emailSlice'
 import note from './noteSlice'
+import group from './groupSlice'
 
 export const store = configureStore({
   reducer: {
@@ -39,7 +40,8 @@ export const store = configureStore({
     creditReport,
     employee,
     email,
-    note
+    note,
+    group
   },
   middleware: getDefaultMiddleware => getDefaultMiddleware().concat(apiSlice.middleware),
   devTools: true

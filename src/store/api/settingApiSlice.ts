@@ -269,7 +269,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    postAddress: builder.mutation<string, AddressCreateType>({
+    postAddressCreate: builder.mutation<string, AddressCreateType>({
       query: body => ({
         url: `/setting/addresses`,
         method: 'POST',
@@ -325,7 +325,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    putAddress: builder.mutation<boolean, AddressUpdateType>({
+    putAddressUpdate: builder.mutation<boolean, AddressUpdateType>({
       query: body => {
         const { addressId } = body
 
@@ -495,7 +495,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    postAssignee: builder.mutation<string, AssigneeCreateType>({
+    postAssigneeCreate: builder.mutation<string, AssigneeCreateType>({
       query: body => ({
         url: `/setting/assignees`,
         method: 'POST',
@@ -520,7 +520,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    putAssignee: builder.mutation<boolean, AssigneeUpdateType>({
+    putAssigneeUpdate: builder.mutation<boolean, AssigneeUpdateType>({
       query: body => {
         const { assigneeId } = body
 
@@ -697,7 +697,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    postContact: builder.mutation<string, ContactCreateType>({
+    postContactCreate: builder.mutation<string, ContactCreateType>({
       query: body => ({
         url: `/setting/contacts`,
         method: 'POST',
@@ -722,7 +722,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    putContact: builder.mutation<boolean, ContactUpdateType>({
+    putContactUpdate: builder.mutation<boolean, ContactUpdateType>({
       query: body => {
         const { contactId } = body
 
@@ -876,7 +876,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    postCustomField: builder.mutation<string, CustomFieldCreateType>({
+    postCustomFieldCreate: builder.mutation<string, CustomFieldCreateType>({
       query: body => ({
         url: `/setting/customFields`,
         method: 'POST',
@@ -901,7 +901,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    putCustomField: builder.mutation<boolean, CustomFieldUpdateType>({
+    putCustomFieldUpdate: builder.mutation<boolean, CustomFieldUpdateType>({
       query: body => {
         const { customFieldId } = body
 
@@ -1055,7 +1055,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    postLabel: builder.mutation<string, LabelCreateType>({
+    postLabelCreate: builder.mutation<string, LabelCreateType>({
       query: body => ({
         url: `/setting/labels`,
         method: 'POST',
@@ -1080,7 +1080,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    putLabel: builder.mutation<boolean, LabelUpdateType>({
+    putLabelUpdate: builder.mutation<boolean, LabelUpdateType>({
       query: body => {
         const { labelId } = body
 
@@ -1231,7 +1231,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    postSetting: builder.mutation<string, SettingCreateType>({
+    postSettingCreate: builder.mutation<string, SettingCreateType>({
       query: body => ({
         url: `/setting`,
         method: 'POST',
@@ -1256,7 +1256,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    putSetting: builder.mutation<boolean, SettingUpdateType>({
+    putSettingUpdate: builder.mutation<boolean, SettingUpdateType>({
       query: params => {
         const { id, ...body } = params
 

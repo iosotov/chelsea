@@ -119,7 +119,7 @@ export const noteApiSlice = apiSlice.injectEndpoints({
           : []
       }
     }),
-    createNote: builder.mutation<string, NoteCreateType>({
+    postNoteCreate: builder.mutation<string, NoteCreateType>({
       query: body => {
         return {
           url: `/note/${body.profileId}/profile`,
@@ -145,7 +145,7 @@ export const noteApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'NOTE', id: arg.profileId }] : [])
     }),
-    updateNote: builder.mutation<string, NoteUpdateType>({
+    putNoteUpdate: builder.mutation<string, NoteUpdateType>({
       query: params => {
         const { noteId, ...body } = params
         console.log(body)

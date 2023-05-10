@@ -63,11 +63,9 @@ export const companySettingApiSlice = apiSlice.injectEndpoints({
     }),
 
     // POST COMPANY CREDIT REPORT
-    createCompanySettingCreditReport: builder.mutation<string, CompanySettingCreditReportType>({
+    postCompanySettingCreditReportCreate: builder.mutation<string, CompanySettingCreditReportType>({
       query: params => {
         const { companyId, ...body } = params
-
-        console.log(body)
 
         return {
           url: `/company/${companyId}/setting/creditreport`,
@@ -129,11 +127,9 @@ export const companySettingApiSlice = apiSlice.injectEndpoints({
     }),
 
     // POST COMPANY SETTING ESIGN
-    createCompanySettingEsign: builder.mutation<string, CompanySettingEsignType>({
+    postCompanySettingEsignCreate: builder.mutation<string, CompanySettingEsignType>({
       query: params => {
         const { companyId, ...body } = params
-
-        console.log(body)
 
         return {
           url: `/company/${companyId}/setting/esign`,
@@ -195,11 +191,9 @@ export const companySettingApiSlice = apiSlice.injectEndpoints({
     }),
 
     // POST COMPANY SETTING STORAGE
-    createCompanySettingStorage: builder.mutation<string, CompanySettingStorageType>({
+    postCompanySettingStorageCreate: builder.mutation<string, CompanySettingStorageType>({
       query: params => {
         const { companyId, ...body } = params
-
-        console.log(body)
 
         return {
           url: `/company/${companyId}/setting/storage`,

@@ -24,10 +24,10 @@ export const {
   useGetBankAccountsQuery,
 
   // POST bankaccount/profileId/profile
-  useCreateBankAccountMutation,
+  usePostBankAccountCreateMutation,
 
   // PUT bankaccount/bankaccountId
-  useUpdateBankAccountMutation,
+  usePutBankAccountUpdateMutation,
 
   // DELETE bankaccount/bankaccountId
   useDeleteBankAccountMutation
@@ -43,10 +43,10 @@ export const {
   useGetCampaignsQuery,
 
   // POST campaign
-  useCreateCampaignMutation,
+  usePostCampaignCreateMutation,
 
   // PUT campaign/campaignId
-  useUpdateCampaignMutation,
+  usePutCampaignUpdateMutation,
 
   // DELETE campaign/campaignId
   useDeleteCampaignMutation
@@ -62,16 +62,16 @@ export const {
   useGetCompanyQuery,
 
   // POST company
-  useCreateCompanyMutation,
+  usePostCompanyCreateMutation,
 
   // PUT company/companyId
-  useUpdateCompanyMutation,
+  usePutCompanyUpdateMutation,
 
   // PUT company/companyId/enable
-  useEnableCompanyMutation,
+  usePutCompanyEnableMutation,
 
   // PUT company/companyId/disable
-  useDisableCompanyMutation
+  usePutCompanyDisableMutation
 } = companyApiSlice
 
 // ********************************************** COMPANY SETTING
@@ -81,19 +81,19 @@ export const {
   useGetCompanySettingCreditReportQuery,
 
   // POST company/companyId/setting/creditreport
-  useCreateCompanySettingCreditReportMutation,
+  usePostCompanySettingCreditReportCreateMutation,
 
   // GET company/companyId/setting/esign
   useGetCompanySettingEsignQuery,
 
   // POST company/companyId/setting/esign
-  useCreateCompanySettingEsignMutation,
+  usePostCompanySettingEsignCreateMutation,
 
   // GET company/companyId/setting/storage
   useGetCompanySettingStorageQuery,
 
   // POST company/companyId/setting/storage
-  useCreateCompanySettingStorageMutation
+  usePostCompanySettingStorageCreateMutation
 } = companySettingApiSlice
 
 // ********************************************** CREDIT CARD
@@ -103,10 +103,10 @@ export const {
   useGetCreditCardsQuery,
 
   // POST creditcard/profileId/profile
-  useCreateCreditCardMutation,
+  usePostCreditCardCreateMutation,
 
   // PUT creditcard/creditcardId
-  useUpdateCreditCardMutation,
+  usePutCreditCardUpdateMutation,
 
   // DELETE creditcard/creditcardId
   useDeleteCreditCardMutation
@@ -138,22 +138,22 @@ export const {
   useGetDocumentPreviewQuery,
 
   // POST document/profileId/profile/generate
-  usePostGenerateDocumentMutation,
+  usePostDocumentGenerateMutation,
 
   // POST document/profileId/profile/liabilityId/liability/generate
-  usePostGenerateLiabilityDocumentMutation,
+  usePostLiabilityDocumentGenerateMutation,
 
   // POST document/profileId/profile/upload
-  usePostUploadDocumentMutation,
+  usePostDocumentUploadMutation,
 
   // POST document/profileId/profile/liabilityId/liability/upload
-  usePostUploadLiabilityDocumentMutation,
+  usePostLiabilityDocumentUploadMutation,
 
   // POST document/profileId/profile/esign/send
-  usePostEsignDocumentMutation,
+  usePostDocumentEsignMutation,
 
   // POST document/profileId/profile/liabilityId/liability/esign/send
-  usePostEsignLiabilityDocumentMutation
+  usePostLiabilityDocumentEsignMutation
 } = documentApiSlice
 
 // ********************************************** EMAIL
@@ -216,10 +216,10 @@ export const {
   useGetEnrollmentQuery,
 
   // POST enrollment/profileId/profile
-  usePostCreateEnrollmentMutation,
+  usePostEnrollmentCreateMutation,
 
   // PUT enrollment/profileId/profile
-  usePutUpdateEnrollmentMutation,
+  usePutEnrollmentUpdateMutation,
 
   // GET enrollment/profileId/profile/payments
   useGetProfilePaymentsQuery,
@@ -228,22 +228,22 @@ export const {
   useGetProfilePaymentInfoQuery,
 
   // POST enrollment/profileId/profile/payment
-  usePostCreatePaymentMutation,
+  usePostPaymentCreateMutation,
 
   // PUT enrollment/profileId/profile/payment
-  usePutUpdatePaymentMutation,
+  usePutPaymentUpdateMutation,
 
   // POST enrollment/search
-  usePostSearchEnrollmentQuery,
+  usePostEnrollmentSearchQuery,
 
   // POST enrollment/profileId/profile/cancel
-  usePostCancelEnrollmentMutation,
+  usePostEnrollmentCancelMutation,
 
   // POST enrollment/profileId/profile/pause
-  usePostPauseEnrollmentMutation,
+  usePostEnrollmentPauseMutation,
 
   // POST enrollment/profileId/profile/resume
-  usePostResumeEnrollmentMutation,
+  usePostEnrollmentResumeMutation,
 
   // POST enrollment/profileId/preview
   useGetEnrollmentPreviewMutation
@@ -259,19 +259,19 @@ export const {
   useGetProfileLiabilitiesQuery,
 
   // POST liability/profileId/profile
-  usePostCreateLiabilityMutation,
+  usePostLiabilityCreateMutation,
 
   // POST liability/search
-  usePostSearchLiabilitiesQuery,
+  usePostLiabilitiesSearchQuery,
 
   // PUT liability/liabilityId
-  usePutUpdateLiabilityMutation,
+  usePutLiabilityUpdateMutation,
 
   // PUT liability/enroll
-  usePutEnrollLiabilitiesMutation,
+  usePutLiabilitiesEnrollMutation,
 
   // PUT liability/withdraw
-  usePutWithdrawLiabilitiesMutation
+  usePutLiabilitiesWithdrawMutation
 } = liabilityApiSlice
 
 // ********************************************** NOTES
@@ -284,10 +284,10 @@ export const {
   useGetProfileNotesQuery,
 
   // POST note/profileId/profile
-  useCreateNoteMutation,
+  usePostNoteCreateMutation,
 
   // PUT note/noteId
-  useUpdateNoteMutation,
+  usePutNoteUpdateMutation,
 
   // DELETE note/creditcardId
   useDeleteNoteMutation
@@ -300,7 +300,7 @@ export const {
   useGetProfileInfoQuery,
 
   // POST profile/search
-  useGetProfilesQuery,
+  usePostProfilesSearchQuery,
 
   // GET profile/profileId/basic
   useGetProfileBasicQuery,
@@ -309,25 +309,25 @@ export const {
   useGetProfileStatusQuery,
 
   // GET profile/quicksearch/keyword
-  useProfileQuickSearchQuery,
+  useGetProfileQuickSearchQuery,
 
   // GET profile/profileId/labels
   useGetProfileLabelsQuery,
 
   // POST profile/profileId/labels
-  usePostProfileLabelsMutation,
+  usePostProfileLabelCreateMutation,
 
   // POST profile/profileId/customField
-  useCreateProfileCustomFieldMutation,
+  usePostProfileCustomFieldCreateMutation,
 
   // POST profile
-  useCreateProfileMutation,
+  usePostProfileCreateMutation,
 
   // POST profile/profileId/assign
-  useAssignProfileMutation,
+  usePostProfileAssignMutation,
 
   // POST profile/export
-  usePostExportProfilesMutation,
+  usePostProfilesExportMutation,
 
   // POST profile/profileId/approve
   usePostProfileApproveMutation,
@@ -342,19 +342,19 @@ export const {
   usePostProfileSubmitMutation,
 
   // POST profile/profileId/disable-auth
-  useProfileDisableAuthMutation,
+  usePostProfileDisableAuthMutation,
 
   // POST profile/profileId/grant-auth
-  useProfileGrantAuthMutation,
+  usePostProfileGrantAuthMutation,
 
   // PUT profile/profileId/stage
-  usePutUpdateProfileStatusMutation,
+  usePutProfileStatusUpdateMutation,
 
   // PUT profile/profileId
-  usePutUpdateProfileMutation,
+  usePutProfileUpdateMutation,
 
   // PUT profile/profileId/delete
-  usePutDeleteProfileMutation
+  usePutProfileDeleteMutation
 } = profileApiSlice
 
 // ********************************************** PROFILE BUDGET
@@ -370,19 +370,19 @@ export const {
   useGetBudgetInfoQuery,
 
   // PUT profile/profileId/budget
-  usePostProfileBudgetsMutation,
+  usePutProfileBudgetsUpdateMutation,
 
   // POST setting/budgets
-  usePostBudgetsMutation,
+  usePostBudgetCreateMutation,
 
   // POST setting/budgets/budgetId/disable
-  usePutDisableBudgetMutation,
+  usePutBudgetDisableMutation,
 
   // POST setting/budgets/budgetId/enable
-  usePutEnableBudgetMutation,
+  usePutBudgetEnableMutation,
 
   // POST setting/budgets/budgetId
-  usePutUpdateBudgetMutation
+  usePutBudgetUpdateMutation
 } = profileBudgetApiSlice
 
 // ********************************************** TASKS
@@ -395,16 +395,16 @@ export const {
   useGetProfileTasksQuery,
 
   // PUT task/taskId
-  usePutUpdateTaskMutation,
+  usePutTaskUpdateMutation,
 
   // PUT task/bulk-update
-  usePutBulkUpdateTasksMutation,
+  usePutTasksBulkUpdateMutation,
 
   // POST task/profileId/profile
-  usePostCreateTaskMutation,
+  usePostTaskCreateMutation,
 
   // POST task/search
-  usePostSearchTaskQuery,
+  usePostTaskSearchQuery,
 
   // DELETE task/taskId/
   useDeleteTaskMutation
@@ -420,13 +420,13 @@ export const {
   useGetAddressesQuery,
 
   // POST setting/addresses
-  usePostAddressMutation,
+  usePostAddressCreateMutation,
 
   // POST setting/addresses/search
   usePostAddressSearchQuery,
 
   // PUT setting/addresses/addressId
-  usePutAddressMutation,
+  usePutAddressUpdateMutation,
 
   // PUT setting/addresses/addressId/enable
   usePutAddressEnableMutation,
@@ -441,10 +441,10 @@ export const {
   useGetAssigneesQuery,
 
   // POST setting/assignees
-  usePostAssigneeMutation,
+  usePostAssigneeCreateMutation,
 
   // PUT setting/assignees/assigneeId
-  usePutAssigneeMutation,
+  usePutAssigneeUpdateMutation,
 
   // PUT setting/assignees/assigneeId/enable
   usePutAssigneeEnableMutation,
@@ -462,10 +462,10 @@ export const {
   usePostContactSearchQuery,
 
   // POST setting/contacts
-  usePostContactMutation,
+  usePostContactCreateMutation,
 
   // PUT setting/contacts/contactId
-  usePutContactMutation,
+  usePutContactUpdateMutation,
 
   // PUT setting/contacts/contactId/enable
   usePutContactEnableMutation,
@@ -480,10 +480,10 @@ export const {
   usePostCustomFieldSearchQuery,
 
   // POST setting/customFields
-  usePostCustomFieldMutation,
+  usePostCustomFieldCreateMutation,
 
   // PUT setting/customFields/customFieldId
-  usePutCustomFieldMutation,
+  usePutCustomFieldUpdateMutation,
 
   // PUT setting/customFields/customFieldId/enable
   usePutCustomFieldEnableMutation,
@@ -498,10 +498,10 @@ export const {
   usePostLabelSearchQuery,
 
   // POST setting/labels
-  usePostLabelMutation,
+  usePostLabelCreateMutation,
 
   // PUT setting/labels/labelId
-  usePutLabelMutation,
+  usePutLabelUpdateMutation,
 
   // PUT setting/labels/labelId/enable
   usePutLabelEnableMutation,
@@ -516,10 +516,10 @@ export const {
   usePostSettingSearchQuery,
 
   // POST setting
-  usePostSettingMutation,
+  usePostSettingCreateMutation,
 
   // PUT setting/id
-  usePutSettingMutation,
+  usePutSettingUpdateMutation,
 
   // PUT setting/id/delete
   usePutSettingDeleteMutation

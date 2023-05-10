@@ -171,7 +171,7 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
       },
       providesTags: (res, error, arg) => (res ? [{ type: 'LIABILITY', id: arg }] : [])
     }),
-    postCreateLiability: builder.mutation<string, LiabilityCreateType>({
+    postLiabilityCreate: builder.mutation<string, LiabilityCreateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -199,7 +199,7 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'LIABILITY', id: arg.profileId }] : [])
     }),
-    postSearchLiabilities: builder.query<LiabilityType[], SearchFilterType>({
+    postLiabilitiesSearch: builder.query<LiabilityType[], SearchFilterType>({
       query: body => {
         return {
           url: `/liability/search`,
@@ -224,7 +224,7 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
       },
       providesTags: res => (res ? res.map(liability => ({ type: 'LIABILITY', id: liability.liabilityId })) : [])
     }),
-    putUpdateLiability: builder.mutation<boolean, LiabilityUpdateType>({
+    putLiabilityUpdate: builder.mutation<boolean, LiabilityUpdateType>({
       query: params => {
         const { liabilityId, ...body } = params
 
@@ -258,7 +258,7 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
             ]
           : []
     }),
-    putWithdrawLiabilities: builder.mutation<boolean, LiabilityEnrollType>({
+    putLiabilitiesWithdraw: builder.mutation<boolean, LiabilityEnrollType>({
       query: params => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { profileId, ...body } = params
@@ -289,7 +289,7 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
           ? [{ type: 'LIABILITY', id: arg.profileId }, ...arg.ids.map(id => ({ type: 'LIABILITY' as const, id }))]
           : []
     }),
-    putEnrollLiabilities: builder.mutation<boolean, LiabilityEnrollType>({
+    putLiabilitiesEnroll: builder.mutation<boolean, LiabilityEnrollType>({
       query: params => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { profileId, ...body } = params

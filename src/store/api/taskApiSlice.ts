@@ -121,7 +121,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
           : []
       }
     }),
-    postCreateTask: builder.mutation<string, TaskCreateType>({
+    postTaskCreate: builder.mutation<string, TaskCreateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -155,7 +155,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
             ]
           : []
     }),
-    postSearchTask: builder.query<TaskType[], SearchFilterType>({
+    postTaskSearch: builder.query<TaskType[], SearchFilterType>({
       query: body => {
         return {
           url: `/task/search`,
@@ -184,7 +184,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       providesTags: res =>
         res ? [{ type: 'TASK', id: 'LIST' }, ...res.map(task => ({ type: 'TASK' as const, id: task.taskId }))] : []
     }),
-    putUpdateTask: builder.mutation<boolean, TaskUpdateType>({
+    putTaskUpdate: builder.mutation<boolean, TaskUpdateType>({
       query: params => {
         const { taskId, ...body } = params
 
@@ -250,7 +250,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
             ]
           : []
     }),
-    putBulkUpdateTasks: builder.mutation<boolean, TaskBulkUpdateType>({
+    putTasksBulkUpdate: builder.mutation<boolean, TaskBulkUpdateType>({
       query: body => {
         return {
           url: `/task/bulk-update`,
