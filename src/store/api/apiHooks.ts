@@ -5,6 +5,7 @@ import { companySettingApiSlice } from './companySettingApiSlice'
 import { creditCardApiSlice } from './creditCardApiSlice'
 import { creditReportApiSlice } from './creditReportApiSlice'
 import { documentApiSlice } from './documentApiSlice'
+import { emailApiSlice } from './emailApiSlice'
 import { employeeApiSlice } from './employeeApiSlice'
 import { enrollmentApiSlice } from './enrollmentApiSlice'
 import { liabilityApiSlice } from './liabilityApiSlice'
@@ -153,6 +154,28 @@ export const {
   // POST document/profileId/profile/liabilityId/liability/esign/send
   usePostEsignLiabilityDocumentMutation
 } = documentApiSlice
+
+// ********************************************** EMAIL
+
+export const {
+  // GET email/emailId/info
+  useGetEmailQuery,
+
+  // GET email/profileId/profile
+  useGetProfileEmailsQuery,
+
+  // GET email/profileId/profile/liabilityId/liability
+  useGetProfileLiabilityEmailsQuery,
+
+  // POST email/profileId/profile/send
+  usePostProfileEmailMutation,
+
+  // POST email/profileId/profile/liabilityId/liability/send
+  usePostProfileLiabilityEmailMutation,
+
+  // POST email/profileId/profile/send-attachment
+  usePostEmailAttachmentMutation
+} = emailApiSlice
 
 // ********************************************************************** EMPLOYEE
 
