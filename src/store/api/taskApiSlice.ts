@@ -41,6 +41,9 @@ export type TaskUpdateType = {
   assignedTo: string
   assignType?: number
   notes?: string
+
+  // I need profile ID to invalidate the proper tags
+  profileId: string
   completedDate?: string
   rescheduleDate?: string
 }

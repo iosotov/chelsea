@@ -9,6 +9,7 @@ import { emailApiSlice } from './emailApiSlice'
 import { employeeApiSlice } from './employeeApiSlice'
 import { enrollmentApiSlice } from './enrollmentApiSlice'
 import { liabilityApiSlice } from './liabilityApiSlice'
+import { noteApiSlice } from './noteApiSlice'
 import { profileApiSlice } from './profileApiSlice'
 import { profileBudgetApiSlice } from './profileBudgetApiSlice'
 import { settingApiSlice } from './settingApiSlice'
@@ -272,6 +273,25 @@ export const {
   // PUT liability/withdraw
   usePutWithdrawLiabilitiesMutation
 } = liabilityApiSlice
+
+// ********************************************** NOTES
+
+export const {
+  // GET note/noteId/info
+  useGetNoteQuery,
+
+  // GET note/profileId/profile
+  useGetProfileNotesQuery,
+
+  // POST note/profileId/profile
+  useCreateNoteMutation,
+
+  // PUT note/noteId
+  useUpdateNoteMutation,
+
+  // DELETE note/creditcardId
+  useDeleteNoteMutation
+} = noteApiSlice
 
 // ********************************************** PROFILE
 
