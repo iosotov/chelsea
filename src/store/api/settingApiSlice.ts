@@ -4,11 +4,13 @@ import {
   setContacts,
   setCustomFields,
   setLabels,
+  setSettings,
   updateAddresses,
   updateAssignees,
   updateContacts,
   updateCustomFields,
-  updateLabels
+  updateLabels,
+  updateSettings
 } from '../settingSlice'
 import { apiSlice } from './apiSlice'
 import { CustomFieldType, ProfileInfoType } from './profileApiSlice'
@@ -166,6 +168,40 @@ export type LabelUpdateType = {
   labelId: string
   name: string
   type: string
+}
+
+export type SettingType = {
+  id: string
+  name: string
+  value: string
+  parentValue: string
+  order: number
+  displayColor: string | null
+  type: number
+  typeName: string
+  sharingTargets: string | null
+  additionConfiguration: string | null
+}
+
+export type SettingUpdateType = {
+  id: string
+  name: string
+  value: string
+  parentValue?: string
+  order?: number
+  displayColor?: string | null
+  sharingTargets?: string | null
+  additionConfiguration?: string | null
+}
+
+export type SettingCreateType = {
+  name: string
+  value: string
+  parentValue?: string
+  displayColor?: string | null
+  type?: number
+  sharingTargets?: string | null
+  additionConfiguration?: string | null
 }
 
 export const settingApiSlice = apiSlice.injectEndpoints({
@@ -1126,6 +1162,153 @@ export const settingApiSlice = apiSlice.injectEndpoints({
           ? [
               { type: 'SETTING-LABEL', id: result },
               { type: 'SETTING-LABEL', id: 'LIST' }
+            ]
+          : []
+      }
+    }),
+
+    // ***************** SETTING **************************************************************
+
+    getSetting: builder.query<SettingType, string>({
+      query: id => ({
+        url: `/setting/${id}/info`,
+        method: 'GET'
+      }),
+      transformResponse: (res: LunaResponseType) => {
+        if (!res.success) throw new Error('There was an error fetching setting')
+
+        return res.data
+      },
+      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+
+          dispatch(updateSettings([data]))
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+          console.log(err)
+        }
+      },
+      providesTags: (result, error, arg) => {
+        return result
+          ? [
+              { type: 'SETTING', id: arg },
+              { type: 'SETTING', id: 'LIST' }
+            ]
+          : []
+      }
+    }),
+
+    postSettingSearch: builder.query<SettingType[], SearchFilterType | {}>({
+      query: body => ({
+        url: `/setting/search`,
+        method: 'POST',
+        body
+      }),
+      transformResponse: (res: LunaResponseType) => {
+        if (!res.success) throw new Error('There was an error fetching settings')
+
+        return res.data.data
+      },
+      async onQueryStarted(body, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+
+          console.log(data)
+
+          dispatch(setSettings(data))
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+          console.log(err)
+        }
+      },
+      providesTags: result => {
+        return result
+          ? [{ type: 'SETTING', id: 'LIST' }, ...result.map(s => ({ type: 'SETTING' as const, id: s.id }))]
+          : []
+      }
+    }),
+
+    postSetting: builder.mutation<string, SettingCreateType>({
+      query: body => ({
+        url: `/setting`,
+        method: 'POST',
+        body
+      }),
+      transformResponse: (res: LunaResponseType) => {
+        if (!res.success) throw new Error('There was an error creating setting')
+
+        return res.data
+      },
+      async onQueryStarted(body, { queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+          console.log(err)
+        }
+      },
+      invalidatesTags: result => {
+        return result ? [{ type: 'SETTING', id: 'LIST' }] : []
+      }
+    }),
+
+    putSetting: builder.mutation<boolean, SettingUpdateType>({
+      query: params => {
+        const { id, ...body } = params
+
+        return {
+          url: `/setting/${id}`,
+          method: 'PUT',
+          body
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        if (!res.success) throw new Error('There was an error updating setting')
+
+        return res.success
+      },
+      async onQueryStarted(params, { queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+          console.log(err)
+        }
+      },
+      invalidatesTags: (result, error, arg) => {
+        return result ? [{ type: 'SETTING', id: arg.id }] : []
+      }
+    }),
+
+    putSettingDelete: builder.mutation<string, string>({
+      query: id => ({
+        url: `/setting/${id}`,
+        method: 'DELETE'
+      }),
+      transformResponse: (res: LunaResponseType, meta, arg) => {
+        if (!res.success) throw new Error('There was an error deleting setting')
+
+        return arg
+      },
+      async onQueryStarted(id, { queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+          console.log(err)
+        }
+      },
+      invalidatesTags: result => {
+        return result
+          ? [
+              { type: 'SETTING', id: result },
+              { type: 'SETTING', id: 'LIST' }
             ]
           : []
       }

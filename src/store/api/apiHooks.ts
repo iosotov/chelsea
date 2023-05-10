@@ -3,7 +3,9 @@ import { campaignApiSlice } from './campaignApiSlice'
 import { companyApiSlice } from './companyApiSlice'
 import { companySettingApiSlice } from './companySettingApiSlice'
 import { creditCardApiSlice } from './creditCardApiSlice'
+import { creditReportApiSlice } from './creditReportApiSlice'
 import { documentApiSlice } from './documentApiSlice'
+import { employeeApiSlice } from './employeeApiSlice'
 import { enrollmentApiSlice } from './enrollmentApiSlice'
 import { liabilityApiSlice } from './liabilityApiSlice'
 import { profileApiSlice } from './profileApiSlice'
@@ -108,6 +110,19 @@ export const {
   useDeleteCreditCardMutation
 } = creditCardApiSlice
 
+// ********************************************** CREDIT REPORT
+
+export const {
+  // GET creditreport/profileId/profile
+  useGetCreditReportsQuery,
+
+  // POST creditreport/profileId/profile/request
+  usePostProfileCreditReportMutation,
+
+  // POST creditreport/request
+  usePostCreditReportMutation
+} = creditReportApiSlice
+
 // ********************************************** DOCUMENT
 
 export const {
@@ -138,6 +153,37 @@ export const {
   // POST document/profileId/profile/liabilityId/liability/esign/send
   usePostEsignLiabilityDocumentMutation
 } = documentApiSlice
+
+// ********************************************************************** EMPLOYEE
+
+export const {
+  // GET employee/employeeId/info
+  useGetEmployeeInfoQuery,
+
+  // GET employee/employeeId/basic
+  useGetEmployeeBasicQuery,
+
+  // GET employee/employeeId/snapshot
+  useGetEmployeeSnapshotQuery,
+
+  // POST employee/search
+  usePostEmployeeSearchQuery,
+
+  // POST employee/employeeId/grant-auth
+  usePostEmployeeGrantAuthMutation,
+
+  // POST employee
+  usePostEmployeeCreateMutation,
+
+  // PUT employee/employeeId
+  usePutEmployeeUpdateMutation,
+
+  // PUT employee/employeeId/enable
+  usePutEmployeeEnableMutation,
+
+  // PUT employee/employeeId/disable
+  usePutEmployeeDisableMutation
+} = employeeApiSlice
 
 // ********************************************************************** ENROLLMENT
 
@@ -418,5 +464,20 @@ export const {
   usePutLabelEnableMutation,
 
   // PUT setting/labels/labelId/disable
-  usePutLabelDisableMutation
+  usePutLabelDisableMutation,
+
+  // GET setting/id/info
+  useGetSettingQuery,
+
+  // POST setting/search
+  usePostSettingSearchQuery,
+
+  // POST setting
+  usePostSettingMutation,
+
+  // PUT setting/id
+  usePutSettingMutation,
+
+  // PUT setting/id/delete
+  usePutSettingDeleteMutation
 } = settingApiSlice
