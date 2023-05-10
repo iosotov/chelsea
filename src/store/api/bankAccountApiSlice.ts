@@ -86,7 +86,7 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
         ]
       }
     }),
-    createBankAccount: builder.mutation<string, BankAccountCreateType>({
+    postBankAccountCreate: builder.mutation<string, BankAccountCreateType>({
       query: params => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { profileId, ...body } = params
@@ -117,7 +117,7 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'BANKACCOUNT', id: arg.profileId }] : [])
     }),
-    updateBankAccount: builder.mutation<string, BankAccountUpdateType>({
+    putBankAccountUpdate: builder.mutation<string, BankAccountUpdateType>({
       query: params => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { bankAccountId, ...body } = params

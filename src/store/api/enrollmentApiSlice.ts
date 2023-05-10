@@ -296,7 +296,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
         return result ? [{ type: 'ENROLLMENT', id: arg }] : []
       }
     }),
-    postCreateEnrollment: builder.mutation<string, EnrollmentCreateType>({
+    postEnrollmentCreate: builder.mutation<string, EnrollmentCreateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -334,7 +334,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
             ]
           : []
     }),
-    putUpdateEnrollment: builder.mutation<string, EnrollmentCreateType>({
+    putEnrollmentUpdate: builder.mutation<string, EnrollmentCreateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -455,7 +455,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
       },
       providesTags: (res, error, arg) => (res ? [{ type: 'ENROLLMENT-PAYMENT', id: arg.paymentId }] : [])
     }),
-    postCreatePayment: builder.mutation<boolean, PaymentCreateType>({
+    postPaymentCreate: builder.mutation<boolean, PaymentCreateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -489,7 +489,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
             ]
           : []
     }),
-    putUpdatePayment: builder.mutation<boolean, PaymentUpdateType>({
+    putPaymentUpdate: builder.mutation<boolean, PaymentUpdateType>({
       query: params => {
         const { profileId, paymentId, ...body } = params
 
@@ -525,7 +525,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
     }),
 
     // NOT IMPLEMENTED IN LUNA
-    postSearchEnrollment: builder.query<EnrollmentSearchResultModel[], SearchFilterType>({
+    postEnrollmentSearch: builder.query<EnrollmentSearchResultModel[], SearchFilterType>({
       query: body => {
         return {
           url: `/enrollment/search`,
@@ -550,7 +550,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
         }
       }
     }),
-    postPauseEnrollment: builder.mutation<boolean, string>({
+    postEnrollmentPause: builder.mutation<boolean, string>({
       query: profileId => {
         return {
           url: `/enrollment/${profileId}/profile/pause`,
@@ -581,7 +581,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
             ]
           : []
     }),
-    postResumeEnrollment: builder.mutation<boolean, string>({
+    postEnrollmentResume: builder.mutation<boolean, string>({
       query: profileId => {
         return {
           url: `/enrollment/${[profileId]}/profile/resume`,
@@ -612,7 +612,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
             ]
           : []
     }),
-    postCancelEnrollment: builder.mutation<boolean, EnrollmentCancelModel>({
+    postEnrollmentCancel: builder.mutation<boolean, EnrollmentCancelModel>({
       query: params => {
         const { profileId, ...body } = params
 

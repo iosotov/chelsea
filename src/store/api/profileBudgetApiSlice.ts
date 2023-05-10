@@ -102,7 +102,7 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
           : []
       }
     }),
-    postProfileBudgets: builder.mutation<string, ProfileBudgeUpdateType>({
+    putProfileBudgetsUpdate: builder.mutation<string, ProfileBudgeUpdateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -164,7 +164,7 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    postBudgets: builder.mutation<boolean, BudgetCreateType>({
+    postBudgetCreate: builder.mutation<boolean, BudgetCreateType>({
       query: body => ({
         url: `/setting/budgets`,
         method: 'POST',
@@ -212,7 +212,7 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
       providesTags: (res, error, arg) => (res ? [{ type: 'BUDGET', id: arg }] : [])
     }),
 
-    putUpdateBudget: builder.mutation<boolean, BudgetUpdateType>({
+    putBudgetUpdate: builder.mutation<boolean, BudgetUpdateType>({
       query: params => {
         const { budgetId, ...body } = params
 
@@ -246,7 +246,7 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
           : []
     }),
 
-    putDisableBudget: builder.mutation<string, string>({
+    putBudgetDisable: builder.mutation<string, string>({
       query: budgetId => {
         return {
           url: `/setting/budgets/${budgetId}/disable`,
@@ -278,7 +278,7 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
           : []
     }),
 
-    putEnableBudget: builder.mutation<string, string>({
+    putBudgetEnable: builder.mutation<string, string>({
       query: budgetId => {
         return {
           url: `/setting/budgets/${budgetId}/enable`,
