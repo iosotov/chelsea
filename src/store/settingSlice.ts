@@ -147,7 +147,24 @@ export const selectSettingByType = createSelector(
   selectAllSettings,
   (_: RootState, type: number) => type,
   (settings, type) => {
-    return settings.filter(setting => setting.type === type)
+    console.log(settings)
+    return settings.filter(setting => setting.type === type && setting.active === true)
+  }
+)
+
+export const selectSettingByTypeOptions = createSelector(
+  selectAllSettings,
+  (_: RootState, type: number) => type,
+  (settings, type) => {
+    console.log(settings)
+    return settings
+      .filter(setting => setting.type === type && setting.active === true)
+      .map(option => {
+        return {
+          label: option.value,
+          value: option.id
+        }
+      })
   }
 )
 

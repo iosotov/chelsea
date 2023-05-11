@@ -182,6 +182,7 @@ export type SettingType = {
   typeName: string
   sharingTargets: string | null
   additionConfiguration: string | null
+  active: boolean
 }
 
 export type SettingUpdateType = {
@@ -641,7 +642,9 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error disabling assignee setting')
 
-        console.log(res.data)
+        const data: SingleSelectOption[] = res.data.map((entry: AssigneeDatasourceType) => {
+          return { value: entry.key, label: entry.value }
+        })
 
         return data
       },

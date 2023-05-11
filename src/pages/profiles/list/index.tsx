@@ -48,7 +48,7 @@ import { selectAllProfiles } from 'src/store/profileSlice'
 // import TableHeader from 'src/views/pages/user/list/TableHeader'
 // import { useGetBudgetsQuery, useGetProfileBudgetsQuery } from 'src/store/api/profileBudgetApiSlice'
 import { selectAllBudgets, selectAllProfileBudgets } from 'src/store/profileBudgetSlice'
-import { useGetProfilesQuery } from 'src/store/api/apiHooks'
+import { usePostProfilesSearchQuery } from 'src/store/api/apiHooks'
 
 interface UserRoleType {
   [key: string]: { icon: string; color: string }
@@ -300,7 +300,7 @@ const ProfileList = () => {
 
   // global state for profiles
   const profiles = useAppSelector(selectAllProfiles)
-  useGetProfilesQuery({})
+  usePostProfilesSearchQuery({})
 
   // val stores state for header filters
   const [value, setValue] = useState<string>('')

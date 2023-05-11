@@ -15,7 +15,9 @@ import IconButton from '@mui/material/IconButton'
 
 import Icon from 'src/@core/components/icon'
 
+import { useAppSelector } from 'src/store/hooks'
 import { usePostSettingSearchQuery } from 'src/store/api/apiHooks'
+import { selectSettingByType, selectSettingByTypeOptions } from 'src/store/settingSlice'
 
 type Props = {
   open: boolean
@@ -32,64 +34,16 @@ const statusOptions = [
   }
 ]
 
-const stageOptions = [
-  {
-    value: '',
-    label: 'Select One...',
-    disabled: true
-  }
-]
+// const stageOptions = [
+//   {
+//     value: '',
+//     label: 'Select One...',
+//     disabled: true
+//   }
+// ]
 
 export default function StatusDialog({ open, toggle, stage, stageStatus }: Props): ReactElement {
   // call api for status/stage
-
-  const { data: stages } = usePostSettingSearchQuery(
-    {
-      columns: [
-        {
-          columnName: 'type',
-          displayName: 'type',
-          index: 0,
-          search: {
-            operator: 0,
-            value: '2'
-          }
-        }
-      ],
-      order: [
-        {
-          columnName: 'order',
-          direction: 0
-        }
-      ]
-    },
-    { skip: !open }
-  )
-
-  const { data: stageStatuses } = usePostSettingSearchQuery(
-    {
-      columns: [
-        {
-          columnName: 'type',
-          displayName: 'type',
-          index: 0,
-          search: {
-            operator: 0,
-            value: '1'
-          }
-        }
-      ],
-      order: [
-        {
-          columnName: 'order',
-          direction: 0
-        }
-      ]
-    },
-    { skip: !open }
-  )
-
-  console.log({ stage, stageStatuses })
 
   const statusForm = useForm({ defaultValues: { stage: stage ?? '', stageStatus: stageStatus ?? '' } })
   const {
@@ -110,6 +64,17 @@ export default function StatusDialog({ open, toggle, stage, stageStatus }: Props
     const data = statusForm.getValues()
     console.log(data)
   }
+
+  usePostSettingSearchQuery({ length: 10000 })
+
+  const stageOptions = [
+    {
+      value: '',
+      label: 'Select One...',
+      disabled: true
+    },
+    ...useAppSelector(state => selectSettingByTypeOptions(state, 2))
+  ]
 
   // useEffect(() => {
   //   if (stage !== watch('stage')) {
