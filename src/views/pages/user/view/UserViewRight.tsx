@@ -21,7 +21,9 @@ import ProfileNotes from './ProfileNotesView'
 import ProfileTasks from './ProfileTasksView'
 import ProfileActivity from './ProfileActivityView'
 import ProfileBudget from './ProfileBudgetView'
-import ProfileEmail from './ProfileEmailView'
+
+// import ProfileEmail from './ProfileEmailView'
+import ProfileEmail from './ProfileEmail'
 
 type Props = {
   id: string | string[] | undefined
