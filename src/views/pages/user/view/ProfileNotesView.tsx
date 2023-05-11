@@ -38,7 +38,7 @@ import {
 } from 'src/store/api/apiHooks'
 
 import { useAppSelector } from 'src/store/hooks'
-import { selectNotesByProfileId } from 'src/store/noteSlice'
+import { selectNotesByProfileId, selectNoteById } from 'src/store/noteSlice'
 
 // ** Third Party Imports
 import { useForm, Controller } from 'react-hook-form'
@@ -260,8 +260,11 @@ const ProfileNotes = ({ id }: any) => {
     // console.log(postResponse)
   }
 
-  const handleEditButtonById = event => {
-    console.log(event.target.value)
+  const handleEditButtonById = myNote => {
+    console.log(myNote)
+
+    // const notesById = useAppSelector(state => selectNoteById(state, myNote))
+    // console.log(notesById)
   }
 
   //init data load, call get request for data set
@@ -269,9 +272,15 @@ const ProfileNotes = ({ id }: any) => {
 
   const renderEditNoteButton = params => {
     return (
-      <IconButton size='small' sx={{ color: 'text.primary' }} value={params.row.noteId} onClick={handleEditButtonById}>
-        <Icon icon='mdi:edit' />
-      </IconButton>
+      // <IconButton
+      //   size='small'
+      //   sx={{ color: 'text.primary' }}
+      //   value={params.row.noteId}
+      //   onClick={handleEditButtonById(params.row.noteId)}
+      // >
+      //   <Icon icon='mdi:edit' />
+      // </IconButton>
+      <></>
     )
   }
 

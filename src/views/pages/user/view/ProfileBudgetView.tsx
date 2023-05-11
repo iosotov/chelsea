@@ -45,7 +45,16 @@ import {
 } from 'src/store/profileBudgetSlice'
 import { left } from '@popperjs/core'
 import { ValidationError } from 'yup'
-import { useGetProfileBudgetsQuery, useGetBudgetsQuery, usePostProfileBudgetsMutation } from 'src/store/api/apiHooks'
+import {
+  useGetProfileBudgetsQuery,
+  useGetBudgetsQuery,
+  useGetBudgetInfoQuery,
+  usePutProfileBudgetsUpdateMutation,
+  usePostBudgetCreateMutation,
+  usePutBudgetDisableMutation,
+  usePutBudgetEnableMutation,
+  usePutBudgetUpdateMutation
+} from 'src/store/api/apiHooks'
 import { gridColumnPositionsSelector } from '@mui/x-data-grid'
 
 export default function ProfileBudget({ id }: any) {
@@ -108,7 +117,7 @@ export default function ProfileBudget({ id }: any) {
   //GET BY IDS, GET TOTAL FROM PROIFILE, DELETE OTHER UNEEDED, NEED USE STATE?
 
   // //api mock
-  const [trigger, { isSuccess: triggerSuccess }] = usePostProfileBudgetsMutation()
+  const [trigger, { isSuccess: triggerSuccess }] = usePostBudgetCreateMutation()
 
   async function handleClick() {
     //need to configure values to set
