@@ -10,7 +10,7 @@ export type SearchFilterColumnsType = {
 
 export type SearchFilterOrderType = {
   columnName: string
-  direction: string
+  direction: number
 }
 
 export type SearchFilterType = {
@@ -18,7 +18,7 @@ export type SearchFilterType = {
   length?: number
   columns?: SearchFilterColumnsType[]
   order?: SearchFilterOrderType[]
-  columnsExport: string
+  columnsExport?: string
 }
 
 export type LunaResponseType = {

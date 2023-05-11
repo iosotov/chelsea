@@ -1,4 +1,4 @@
-import { ReactElement, useEffect } from 'react'
+import { ReactElement, useEffect, useState } from 'react'
 
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -20,29 +20,16 @@ import format from 'date-fns/format'
 
 import Icon from 'src/@core/components/icon'
 
+import { useGetCampaignsQuery } from 'src/store/api/apiHooks'
+import { selectAllCampaigns } from 'src/store/campaignSlice'
+import { CampaignType } from 'src/store/api/campaignApiSlice'
+import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
+
 type Props = {
   open: boolean
   toggle: () => void
   data: ProfileInfoType
 }
-const campaignOptions = [
-  {
-    label: 'Campaign A',
-    value: '1'
-  },
-  {
-    label: 'Campaign B',
-    value: '2'
-  },
-  {
-    label: 'Campaign C',
-    value: '3'
-  },
-  {
-    label: 'Campaign D',
-    value: '4'
-  }
-]
 
 const genderOptions = [
   {
@@ -115,6 +102,38 @@ const stateOptions = [
 
 export default function PersonalDialog({ open, toggle, data }: Props): ReactElement {
   //assign basevalue of empty string rather than null for react hook forms
+
+  const campaigns = useAppSelector(state => selectAllCampaigns(state))
+
+  useGetCampaignsQuery(
+    {
+      length: 10000,
+      order: [
+        {
+          columnName: 'campaignName',
+          direction: 0
+        }
+      ],
+      start: 0
+    },
+    { skip: !open }
+  )
+
+  const [campaignOptions, setCampaignOptions] = useState<SingleSelectOption[]>([])
+
+  useEffect(() => {
+    if (campaigns.length > 0) {
+      const mappedCampaigns = campaigns.map((campaign: CampaignType) => {
+        const { displayName, campaignId, companyName } = campaign
+        return {
+          label: `${displayName} - ${companyName}`,
+          value: campaignId
+        }
+      })
+      console.log(mappedCampaigns)
+      setCampaignOptions(mappedCampaigns)
+    }
+  }, [campaigns])
 
   const {
     campaignId = '',

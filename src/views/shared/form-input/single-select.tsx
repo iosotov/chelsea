@@ -34,7 +34,7 @@ export default function SingleSelect({
 
     return options.map(option => {
       return (
-        <MenuItem key={option.value} value={option.value} disabled={option.disabled ?? false}>
+        <MenuItem key={`${option.label}-${option.value}`} value={option.value} disabled={option.disabled ?? false}>
           {option.label}
         </MenuItem>
       )

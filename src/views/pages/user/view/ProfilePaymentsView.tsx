@@ -451,6 +451,8 @@ function Overview({ enrollmentData, paymentData, id }: any) {
     }
   }, [enrollmentData, paymentData])
 
+  console.log(paymentData)
+
   const [enrollmentModal, setEnrollmentModal] = useState<boolean>(false)
   const toggleEnrollment = () => setEnrollmentModal(!enrollmentModal)
   return (
@@ -704,7 +706,9 @@ function PaymentMethod({ paymentData, enrollmentData }: { paymentData: any; enro
                       Delete
                     </Button>
                     <Typography variant='caption' sx={{ mt: 4, display: 'block' }}>
-                      {item.paymentType === 'card' ? `Card expires at ${item.expirationDate}` : null}
+                      {item.paymentType === 'card'
+                        ? `Card expires at ${item.expirationMonth}/${item.expirationYear}`
+                        : null}
                     </Typography>
                   </Box>
                 </Box>
@@ -746,6 +750,8 @@ export default function ProfilePayments({ id: profileId }: ProfileProps) {
   useGetBankAccountsQuery(profileId, { skip: !profileId })
   useGetCreditCardsQuery(profileId, { skip: !profileId })
   const [paymentData, setPaymentData] = useState<(BankAccountType | CreditCardType)[]>([])
+
+  console.log('rerendering..')
 
   useEffect(() => {
     if (bankData && cardData) {

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import Divider from '@mui/material/Divider'
 import Box from '@mui/material/Box'
@@ -15,6 +15,11 @@ import TextInput from 'src/views/shared/form-input/text-input'
 
 import { useForm } from 'react-hook-form'
 import SelectDate from 'src/views/shared/form-input/date-picker'
+import { useGetCampaignsQuery } from 'src/store/api/apiHooks'
+import { useAppSelector } from 'src/store/hooks'
+import { selectAllCampaigns } from 'src/store/campaignSlice'
+import { CampaignType } from 'src/store/api/campaignApiSlice'
+import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
 
 const campaignOptions = [
   {
@@ -117,7 +122,34 @@ export default function CreateProfile() {
     console.log(data)
   }
 
-  console.log('rerendered')
+  const campaigns = useAppSelector(state => selectAllCampaigns(state))
+
+  useGetCampaignsQuery({
+    length: 10000,
+    order: [
+      {
+        columnName: 'campaignName',
+        direction: 0
+      }
+    ],
+    start: 0
+  })
+
+  const [campaignOptions, setCampaignOptions] = useState<SingleSelectOption[]>([])
+
+  useEffect(() => {
+    if (campaigns.length > 0) {
+      const mappedCampaigns = campaigns.map((campaign: CampaignType) => {
+        const { displayName, campaignId, companyName } = campaign
+        return {
+          label: `${displayName} - ${companyName}`,
+          value: campaignId
+        }
+      })
+      console.log(mappedCampaigns)
+      setCampaignOptions(mappedCampaigns)
+    }
+  }, [campaigns])
 
   return (
     <Card>
