@@ -49,10 +49,11 @@ import { SettingsContext } from 'src/@core/context/settingsContext'
 import {
   useGetTaskQuery,
   useGetProfileTasksQuery,
-  usePutUpdateTaskMutation,
-  usePostCreateTaskMutation,
+  usePutTaskUpdateMutation,
+  usePostTaskCreateMutation,
+  usePostTaskSearchQuery,
   useDeleteTaskMutation,
-  usePutBulkUpdateTasksMutation
+  usePutTasksBulkUpdateMutation
 } from 'src/store/api/apiHooks'
 import { useAppSelector } from 'src/store/hooks'
 import { selectTaskByProfileId } from 'src/store/taskSlice'
@@ -129,10 +130,10 @@ const ProfileTasks = ({ id }: any) => {
   const [openEditTask, setOpenEditTask] = useState<boolean>(false)
 
   //Api Calls
-  const [triggerCreate, { isSuccess: triggerSuccess }] = usePostCreateTaskMutation()
-  const [triggerUpdate, { isSuccess: editApiSuccess }] = usePutUpdateTaskMutation()
+  const [triggerCreate, { isSuccess: triggerSuccess }] = usePostTaskCreateMutation()
+  const [triggerUpdate, { isSuccess: editApiSuccess }] = usePutTaskUpdateMutation()
   const [triggerDelete, { isSuccess: deleteApiSuccess }] = useDeleteTaskMutation()
-  const [triggerBulkUpdate, { isSuccess: bulkUpdateApiSuccess }] = usePutBulkUpdateTasksMutation()
+  const [triggerBulkUpdate, { isSuccess: bulkUpdateApiSuccess }] = usePutTasksBulkUpdateMutation()
 
   const label = { inputProps: { 'aria-label': 'Checkbox demo' } }
 
