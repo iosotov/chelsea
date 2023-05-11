@@ -48,7 +48,13 @@ import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
 import { EnrollmentInfoModel, EnrollmentListItemModel } from 'src/store/api/enrollmentApiSlice'
 import { selectAllBankAccounts, selectBankAccountsByProfileId } from 'src/store/bankAccountSlice'
 import { selectAllCreditCards, selectCreditCardsByProfileId } from 'src/store/creditCardSlice'
-import { useGetBankAccountsQuery, useGetCreditCardsQuery, useGetProfileLiabilitiesQuery } from 'src/store/api/apiHooks'
+import { selectPaymentByProfileId } from 'src/store/paymentSlice'
+import {
+  useGetBankAccountsQuery,
+  useGetCreditCardsQuery,
+  useGetProfileLiabilitiesQuery,
+  useGetProfilePaymentsQuery
+} from 'src/store/api/apiHooks'
 import { BankAccountType } from 'src/store/api/bankAccountApiSlice'
 import { CreditCardType } from 'src/store/api/creditCardApiSlice'
 import { selectLiabilityByProfileId } from 'src/store/liabilitySlice'
@@ -56,22 +62,27 @@ import { selectLiabilityByProfileId } from 'src/store/liabilitySlice'
 import MoneyConverter from 'src/views/shared/utils/money-converter'
 import DateConverter from 'src/views/shared/utils/date-converter'
 
+import { PaymentDetailInfoModel } from 'src/store/api/enrollmentApiSlice'
+
+//test
+import { DataGridPro, GridColDef, GridValueFormatterParams, GridRowSelectionModel } from '@mui/x-data-grid-pro'
+
+//Table Types
 type Order = 'asc' | 'desc'
 
-interface Data {
-  number: number
-  processDate: string
+interface TableData {
+  processedDate: string
   amount: number
   clearedDate: number
   status: string
   memo: string
   description: string
-  paymentMethod: string
+  paymentTypeName: string
 }
 
 interface HeadCell {
   disablePadding: boolean
-  id: keyof Data
+  id: keyof TableData
   label: string
   numeric: boolean
 }
@@ -88,16 +99,9 @@ interface EnhancedTableToolbarProps {
   numSelected: number
   handleAdd: () => void
   handleEdit: () => void
+  payments: number | undefined
+  enrollmentId: string
 }
-
-//styled components
-
-const BorderLinearProgress = styled(LinearProgress)(({ theme }) => ({
-  height: 8,
-  borderRadius: 5
-}))
-
-const rows = []
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
   if (b[orderBy] < a[orderBy]) {
@@ -135,13 +139,7 @@ function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) 
 
 const headCells: readonly HeadCell[] = [
   {
-    id: 'number',
-    numeric: true,
-    disablePadding: true,
-    label: '#'
-  },
-  {
-    id: 'processDate',
+    id: 'processedDate',
     numeric: true,
     disablePadding: false,
     label: 'Process Date'
@@ -177,7 +175,7 @@ const headCells: readonly HeadCell[] = [
     label: 'Description'
   },
   {
-    id: 'paymentMethod',
+    id: 'paymentTypeName',
     numeric: false,
     disablePadding: false,
     label: 'Payment Method'
@@ -220,7 +218,7 @@ function EnhancedTableHead(props: EnhancedTableProps) {
 
 const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
   // ** Prop
-  const { numSelected, handleAdd, handleEdit } = props
+  const { numSelected, handleAdd, handleEdit, payments, enrollmentId } = props
 
   return (
     <Toolbar
@@ -239,7 +237,7 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
       ) : (
         <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
           <Typography variant='h5'>Payments</Typography>
-          <Button variant='contained' size='small' onClick={handleAdd}>
+          <Button variant='contained' disabled={!(payments && enrollmentId)} size='small' onClick={handleAdd}>
             New Payment
           </Button>
         </Box>
@@ -264,27 +262,38 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
   )
 }
 
-const EnhancedTable = ({ data }: any) => {
+const EnhancedTable = ({
+  enrollmentData,
+  paymentData,
+  id
+}: {
+  enrollmentData: any
+  paymentData: number
+  id: string
+}) => {
   // ** States
   const [page, setPage] = useState<number>(0)
   const [order, setOrder] = useState<Order>('asc')
   const [rowsPerPage, setRowsPerPage] = useState<number>(10)
-  const [orderBy, setOrderBy] = useState<keyof Data>('number')
-  const [selected, setSelected] = useState<readonly number[]>([])
+  const [orderBy, setOrderBy] = useState<keyof PaymentDetailInfoModel>('processedDate')
+  const [selected, setSelected] = useState<readonly string[]>([])
   const [transData, setTransData] = useState(null)
 
   const [transDialog, setTransDialog] = useState<boolean>(false)
 
   const toggleDialog = () => setTransDialog(!transDialog)
 
+  const { isLoading } = useGetProfilePaymentsQuery(id)
+
+  const rows = useAppSelector(state => selectPaymentByProfileId(state, id))
+  console.log({ isLoading, rows })
+
   const handleAdd = () => {
-    console.log(transDialog)
     setTransData(null)
     toggleDialog()
   }
 
   const handleEdit = () => {
-    console.log('handle edit')
     setTransData({})
     // setTransData(data[index])
     toggleDialog()
@@ -292,7 +301,7 @@ const EnhancedTable = ({ data }: any) => {
 
   const handleSelectAllClick = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.checked) {
-      const newSelecteds = rows.map(n => n.number)
+      const newSelecteds = rows.map(n => n.enrollmentDetailId)
       setSelected(newSelecteds)
 
       return
@@ -300,9 +309,9 @@ const EnhancedTable = ({ data }: any) => {
     setSelected([])
   }
 
-  const handleClick = (event: MouseEvent<unknown>, name: number) => {
+  const handleClick = (event: MouseEvent<unknown>, name: string) => {
     const selectedIndex = selected.indexOf(name)
-    let newSelected: readonly number[] = []
+    let newSelected: readonly string[] = []
 
     if (selectedIndex === -1) {
       newSelected = newSelected.concat(selected, name)
@@ -325,7 +334,7 @@ const EnhancedTable = ({ data }: any) => {
     setPage(0)
   }
 
-  const isSelected = (name: number) => selected.indexOf(name) !== -1
+  const isSelected = (name: string) => selected.indexOf(name) !== -1
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0
@@ -335,9 +344,15 @@ const EnhancedTable = ({ data }: any) => {
       <Grid item xs={12}>
         <Card>
           <CardContent>
-            <EnhancedTableToolbar numSelected={selected.length} handleAdd={handleAdd} handleEdit={handleEdit} />
+            <EnhancedTableToolbar
+              numSelected={selected.length}
+              handleAdd={handleAdd}
+              handleEdit={handleEdit}
+              payments={paymentData}
+              enrollmentId={enrollmentData?.enrollmentId}
+            />
             <TableContainer component={Paper}>
-              <Table sx={{ minWidth: 750 }} aria-labelledby='tableTitle'>
+              <Table sx={{ minWidth: 750 }} aria-labelledby='paymentsTable'>
                 <EnhancedTableHead
                   order={order}
                   orderBy={orderBy}
@@ -349,31 +364,28 @@ const EnhancedTable = ({ data }: any) => {
                   {stableSort(rows, getComparator(order, orderBy))
                     .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                     .map((row, index) => {
-                      const isItemSelected = isSelected(row.number)
+                      const isItemSelected = isSelected(row.enrollmentDetailId)
                       const labelId = `enhanced-table-checkbox-${index}`
                       return (
                         <TableRow
                           hover
                           tabIndex={-1}
-                          key={row.number}
+                          key={row.enrollmentDetailId}
                           role='checkbox'
                           selected={isItemSelected}
                           aria-checked={isItemSelected}
-                          onClick={event => handleClick(event, row.number)}
+                          onClick={event => handleClick(event, row.enrollmentDetailId)}
                         >
                           <TableCell padding='checkbox'>
                             <Checkbox checked={isItemSelected} inputProps={{ 'aria-labelledby': labelId }} />
                           </TableCell>
-                          <TableCell component='th' align='center' id={labelId} scope='row' padding='none'>
-                            {row.number}
-                          </TableCell>
-                          <TableCell align='right'>{row.processDate}</TableCell>
-                          <TableCell align='right'>{row.amount}</TableCell>
-                          <TableCell align='right'>{row.clearedDate}</TableCell>
+                          <TableCell align='right'>{DateConverter(row.processedDate)}</TableCell>
+                          <TableCell align='right'>{MoneyConverter(row.amount)}</TableCell>
+                          <TableCell align='right'>{DateConverter(row.clearedDate)}</TableCell>
                           <TableCell align='center'>{row.status}</TableCell>
                           <TableCell align='center'>{row.memo}</TableCell>
                           <TableCell align='center'>{row.description}</TableCell>
-                          <TableCell align='center'>{row.paymentMethod}</TableCell>
+                          <TableCell align='center'>{row.paymentTypeName}</TableCell>
                         </TableRow>
                       )
                     })}
@@ -389,6 +401,21 @@ const EnhancedTable = ({ data }: any) => {
                 </TableBody>
               </Table>
             </TableContainer>
+            {rows.length === 0 && !isLoading && (
+              <Box
+                sx={{
+                  py: 10,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center'
+                }}
+              >
+                <Typography variant='caption' mb={2}>
+                  No Payments Found.
+                </Typography>
+                <Typography variant='body1'>Create an enrollment plan</Typography>
+              </Box>
+            )}
             <TablePagination
               page={page}
               component='div'
@@ -415,9 +442,6 @@ function Overview({ enrollmentData, paymentData, id }: any) {
 
   useGetProfileLiabilitiesQuery(id)
   const debts = useAppSelector(state => selectLiabilityByProfileId(state, id))
-
-  console.log(debts)
-  console.log(enrollmentData)
 
   useEffect(() => {
     if ((enrollmentData && enrollmentData.enrollmentId === null) || Object.keys(paymentData).length === 0) {
@@ -567,9 +591,14 @@ function Overview({ enrollmentData, paymentData, id }: any) {
                       {enrollmentData?.clearedPayments ?? 0} of {enrollmentData?.totalPayments ?? 0}
                     </Typography>
                   </Box>
-                  <BorderLinearProgress
+                  <LinearProgress
+                    sx={{ height: 8, borderRadius: 5 }}
                     variant='determinate'
-                    value={(enrollmentData?.clearedPayments / enrollmentData?.totalPayments) * 100 ?? 0}
+                    value={
+                      enrollmentData?.clearedPayments && enrollmentData?.totalPayments
+                        ? (enrollmentData.clearedPayments / enrollmentData.totalPayments) * 100
+                        : 0
+                    }
                   />
                 </Box>
               </Grid>
@@ -582,74 +611,12 @@ function Overview({ enrollmentData, paymentData, id }: any) {
   )
 }
 
-function PaymentMethod({ data, enrollmentData }: { data: any; enrollmentData: any }) {
+function PaymentMethod({ paymentData, enrollmentData }: { paymentData: any; enrollmentData: any }) {
   const [paymentModal, setPaymentModal] = useState<boolean>(false)
   const [editModal, setEditModal] = useState<boolean>(false)
-  const [dialogData, setDialogData] = useState(data)
+  const [dialogData, setDialogData] = useState(paymentData)
 
-  console.log(data)
-
-  interface CardDataType {
-    name: string
-    type: number
-    securityCode: string
-    expirationDate: string
-    cardNumber: string
-    status?: string
-    badgeColor?: ThemeColor
-    paymentType: 'card'
-    address: string
-    address2?: string
-    city: string
-    state: string
-    zipCode: string
-  }
-  interface BankDataType {
-    bankAccountNumber: string
-    bankName: string
-    bankRoutingNumber: string
-    bankAccountName: string
-    bankAccountType: number
-    status?: string
-    badgeColor?: ThemeColor
-    paymentType: 'ach'
-    address: string
-    address2?: string
-    city: string
-    state: string
-    zipCode: string
-  }
-  // const paymentData = ''
-  const paymentData: (CardDataType | BankDataType)[] = [
-    {
-      securityCode: '587',
-      name: 'Tom McBride',
-      type: 0,
-      expirationDate: '12/24',
-      badgeColor: 'primary',
-      status: 'Primary',
-      cardNumber: '1234 5679 1234 5678',
-      paymentType: 'card',
-      address: '123 Test Street',
-      city: 'Test City',
-      state: 'CA',
-      zipCode: '12345'
-    },
-    {
-      bankAccountNumber: '1234567890',
-      bankName: 'Chase Bank',
-      bankRoutingNumber: '12959102',
-      bankAccountName: 'Mildred Wagner',
-      bankAccountType: 1,
-      paymentType: 'ach',
-      status: 'Secondary',
-      badgeColor: 'secondary',
-      address: '234 Test Way',
-      city: 'Blue City',
-      state: 'WA',
-      zipCode: '56789'
-    }
-  ]
+  console.log('rerender')
 
   const togglePayment = () => setPaymentModal(!paymentModal)
 
@@ -685,10 +652,10 @@ function PaymentMethod({ data, enrollmentData }: { data: any; enrollmentData: an
             }
           />
           <CardContent>
-            {paymentData ? (
-              paymentData.map((item: CardDataType | BankDataType, index: number) => (
+            {paymentData?.length > 0 ? (
+              paymentData.map((item: CreditCardType | BankAccountType, index: number) => (
                 <Box
-                  key={index}
+                  key={'payments ' + index}
                   sx={{
                     p: 5,
                     display: 'flex',
@@ -706,14 +673,12 @@ function PaymentMethod({ data, enrollmentData }: { data: any; enrollmentData: an
                         icon={item.paymentType === 'card' ? 'material-symbols:credit-card-outline' : 'mdi:bank-outline'}
                       />
                       <Typography component='h6'>
-                        {item.paymentType === 'card'
-                          ? 'Card'
-                          : `Bank - ${item.bankAccountType ? 'Checking' : 'Savings'} Account`}
+                        {item.paymentType === 'card' ? 'Card' : `${item.bankName} - ${item.bankAccountTypeName}`}
                       </Typography>
                     </Box>
                     <Box sx={{ mt: 1, mb: 2.5, display: 'flex', alignItems: 'center' }}>
                       <Typography sx={{ fontWeight: 600 }}>
-                        {item.paymentType === 'card' ? item.name : item.bankAccountName}
+                        {item.paymentType === 'card' ? item.name : item.accountName}
                       </Typography>
                       {item.status ? (
                         <CustomChip
@@ -750,12 +715,13 @@ function PaymentMethod({ data, enrollmentData }: { data: any; enrollmentData: an
                   py: 10,
                   display: 'flex',
                   flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center'
+                  alignItems: 'center'
                 }}
               >
-                <Typography variant='caption'>It's empty in here...</Typography>
-                <Typography variant='body1'>Add a payment to start!</Typography>
+                <Typography variant='caption' mb={2}>
+                  It's empty in here...
+                </Typography>
+                <Typography variant='body1'>Add a payment method to start</Typography>
               </Box>
             )}
           </CardContent>
@@ -777,8 +743,8 @@ export default function ProfilePayments({ id: profileId }: ProfileProps) {
   //Payment Data
   const bankData = useAppSelector(state => selectBankAccountsByProfileId(state, profileId))
   const cardData = useAppSelector(state => selectCreditCardsByProfileId(state, profileId))
-  useGetBankAccountsQuery(profileId)
-  useGetCreditCardsQuery(profileId)
+  useGetBankAccountsQuery(profileId, { skip: !profileId })
+  useGetCreditCardsQuery(profileId, { skip: !profileId })
   const [paymentData, setPaymentData] = useState<(BankAccountType | CreditCardType)[]>([])
 
   useEffect(() => {
@@ -791,9 +757,182 @@ export default function ProfilePayments({ id: profileId }: ProfileProps) {
     <>
       <Grid container spacing={4}>
         <Overview enrollmentData={enrollmentData} paymentData={paymentData} id={profileId} />
-        <PaymentMethod data={paymentData} enrollmentData={enrollmentData} />
-        <EnhancedTable data={enrollmentData} />
+        <PaymentMethod paymentData={paymentData} enrollmentData={enrollmentData} />
+        {/* <EnhancedTable enrollmentData={enrollmentData} paymentData={paymentData?.length ?? 0} id={profileId} /> */}
+        <TestTable enrollmentData={enrollmentData} paymentData={paymentData?.length ?? 0} id={profileId} />
       </Grid>
+    </>
+  )
+}
+
+const TestTable = ({ id, enrollmentData, paymentData }: { enrollmentData: any; paymentData: number; id: string }) => {
+  useGetProfilePaymentsQuery(id)
+  const rows = useAppSelector(state => selectPaymentByProfileId(state, id))
+  const [selected, setSelected] = useState<GridRowSelectionModel[]>([])
+
+  const [paginationModel, setPaginationModel] = useState({ pageSize: 10, page: 0 })
+
+  const [transData, setTransData] = useState<PaymentDetailInfoModel | null>(null)
+
+  const [transDialog, setTransDialog] = useState<boolean>(false)
+
+  const toggleDialog = () => setTransDialog(!transDialog)
+
+  const handleAdd = () => {
+    setTransData(null)
+    toggleDialog()
+  }
+
+  const handleEdit = () => {
+    const [paymentId] = selected
+    const [selectedPayment] = rows.filter(payment => payment.enrollmentDetailId === String(paymentId))
+    console.log(selectedPayment)
+    setTransData(selectedPayment)
+    toggleDialog()
+  }
+
+  const chipDictionary: string[] = [
+    'info',
+    'primary',
+    'success',
+    'error',
+    'warning',
+    'error',
+    'error',
+    'error',
+    'error',
+    'error',
+    'error'
+  ]
+
+  const columns: GridColDef[] = [
+    {
+      field: 'processedDate',
+      headerName: 'Process Date',
+      disableColumnMenu: true,
+      headerAlign: 'center',
+      align: 'center',
+      minWidth: 175,
+      valueGetter: params => {
+        return new Date(params.value)
+      },
+      valueFormatter: (params: GridValueFormatterParams<Date>) => {
+        return DateConverter(String(params.value))
+      },
+      pinnable: false
+    },
+    {
+      field: 'amount',
+      headerName: 'Amount',
+      headerAlign: 'right',
+      align: 'right',
+      flex: 1,
+      minWidth: 125,
+      valueGetter: params => {
+        return MoneyConverter(params.value)
+      },
+      pinnable: false
+    },
+    {
+      field: 'clearedDate',
+      headerName: 'Cleared Date',
+      headerAlign: 'center',
+      align: 'center',
+      sortable: false,
+      minWidth: 175,
+      valueGetter: params => {
+        return DateConverter(params.value)
+      },
+      pinnable: false
+    },
+    {
+      field: 'status',
+      headerName: 'Status',
+      headerAlign: 'center',
+      align: 'center',
+      minWidth: 175,
+      valueGetter: params => {
+        return params.row.statusName
+      },
+      renderCell: params => {
+        return (
+          <CustomChip
+            sx={{ width: '100%' }}
+            color={chipDictionary[params.row.status]}
+            skin='light'
+            label={params.value}
+          />
+        )
+      },
+      pinnable: false,
+      sortable: false
+    },
+    {
+      field: 'memo',
+      headerName: 'Memo',
+      headerAlign: 'center',
+      align: 'center',
+      minWidth: 175,
+      pinnable: false
+    },
+    {
+      field: 'description',
+      headerName: 'Description',
+      headerAlign: 'center',
+      align: 'center',
+      minWidth: 175,
+      pinnable: false
+    },
+    {
+      field: 'paymentTypeName',
+      headerName: 'Payment Type',
+      headerAlign: 'center',
+      align: 'center',
+      minWidth: 225,
+      pinnable: false
+    }
+  ]
+
+  return (
+    <>
+      <Grid item xs={12}>
+        <Card>
+          <CardContent>
+            <EnhancedTableToolbar
+              numSelected={selected.length}
+              handleAdd={handleAdd}
+              handleEdit={handleEdit}
+              payments={paymentData}
+              enrollmentId={enrollmentData?.enrollmentId}
+            />
+            <DataGridPro
+              sx={rows?.length === 0 ? { height: '250px' } : { height: '630px' }}
+              hideFooterRowCount
+              hideFooterSelectedRowCount
+              getRowId={row => row.enrollmentDetailId}
+              onRowSelectionModelChange={ids => {
+                setSelected(ids)
+              }}
+              checkboxSelection
+              pagination
+              paginationModel={paginationModel}
+              onPaginationModelChange={setPaginationModel}
+              pageSizeOptions={[5, 10, 25]}
+              columns={columns}
+              rows={rows}
+              initialState={{
+                sorting: {
+                  sortModel: [{ field: 'processedDate', sort: 'asc' }]
+                },
+                pagination: {
+                  paginationModel: { pageSize: 10 }
+                }
+              }}
+            />
+          </CardContent>
+        </Card>
+      </Grid>
+      <TransactionDialog open={transDialog} toggle={toggleDialog} data={transData} />
     </>
   )
 }

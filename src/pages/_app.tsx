@@ -43,6 +43,9 @@ import ReactHotToast from 'src/@core/styles/libs/react-hot-toast'
 // ** Utils Imports
 import { createEmotionCache } from 'src/@core/utils/create-emotion-cache'
 
+// Mui-Prop licensing
+import { LicenseInfo } from '@mui/x-license-pro'
+
 // ** Prismjs Styles
 import 'prismjs'
 import 'prismjs/themes/prism-tomorrow.css'
@@ -69,6 +72,9 @@ type GuardProps = {
   guestGuard: boolean
   children: ReactNode
 }
+
+//?? dont understand error
+LicenseInfo.setLicenseKey(process.env.NEXT_PUBLIC_MUI_LICENSE_KEY)
 
 const clientSideEmotionCache = createEmotionCache()
 

@@ -66,7 +66,7 @@ export default function TransactionDialog({ data, open, toggle }: TransactionDia
           <Icon icon='mdi:close' />
         </IconButton>
       </DialogTitle>
-      <DialogContent>
+      <DialogContent sx={{ overflow: 'visible' }}>
         <Box my={2}>
           <form>
             <Grid container spacing={4}>
@@ -80,10 +80,10 @@ export default function TransactionDialog({ data, open, toggle }: TransactionDia
                   required
                 />
               </Grid>
-              <Grid item xs={12}>
+              <Grid sx={{ overflow: 'visible' }} item xs={12}>
                 <SelectDate name='processDate' label='Process Date' control={control} errors={errors} required />
               </Grid>
-              <Grid item xs={12}>
+              <Grid sx={{ overflow: 'visible' }} item xs={12}>
                 <SelectDate name='clearedDate' label='Cleared Date' control={control} errors={errors} required />
               </Grid>
               <Grid item xs={12}>
