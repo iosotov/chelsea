@@ -15,7 +15,7 @@ import IconButton from '@mui/material/IconButton'
 
 import Icon from 'src/@core/components/icon'
 
-import { useAppSelector } from 'src/store/hooks'
+import { usePostSettingSearchQuery } from 'src/store/api/apiHooks'
 
 type Props = {
   open: boolean
@@ -42,6 +42,54 @@ const stageOptions = [
 
 export default function StatusDialog({ open, toggle, stage, stageStatus }: Props): ReactElement {
   // call api for status/stage
+
+  const { data: stages } = usePostSettingSearchQuery(
+    {
+      columns: [
+        {
+          columnName: 'type',
+          displayName: 'type',
+          index: 0,
+          search: {
+            operator: 0,
+            value: '2'
+          }
+        }
+      ],
+      order: [
+        {
+          columnName: 'order',
+          direction: 0
+        }
+      ]
+    },
+    { skip: !open }
+  )
+
+  const { data: stageStatuses } = usePostSettingSearchQuery(
+    {
+      columns: [
+        {
+          columnName: 'type',
+          displayName: 'type',
+          index: 0,
+          search: {
+            operator: 0,
+            value: '1'
+          }
+        }
+      ],
+      order: [
+        {
+          columnName: 'order',
+          direction: 0
+        }
+      ]
+    },
+    { skip: !open }
+  )
+
+  console.log({ stage, stageStatuses })
 
   const statusForm = useForm({ defaultValues: { stage: stage ?? '', stageStatus: stageStatus ?? '' } })
   const {

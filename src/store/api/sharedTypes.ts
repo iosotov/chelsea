@@ -4,13 +4,27 @@ export type SearchFilterColumnsType = {
   columnName: string
   search: {
     value: string
-    operator: string
+    operator: SearchOperator
   }
+}
+
+export enum SearchOperator {
+  equals,
+  notequals,
+  oneof,
+  notoneof,
+  inrange,
+  notinrange
 }
 
 export type SearchFilterOrderType = {
   columnName: string
-  direction: number
+  direction: Direction
+}
+
+export enum Direction {
+  asc,
+  desc
 }
 
 export type SearchFilterType = {

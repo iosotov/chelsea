@@ -169,6 +169,31 @@ export type LabelUpdateType = {
   type: string
 }
 
+export type SystemSettingListItem = {
+  id: string
+  name: string
+  value: string
+  parentValue: string
+  sharingTargets: string
+  additionConfiguration: string
+  order: number
+  active: boolean
+  createdByName: string
+  type: SystemSettingType
+}
+
+export enum SystemSettingType {
+  DebtEnrollmentValidation,
+  ProfileStatus,
+  ProfileStage,
+  NoteType,
+  SystemDebtType,
+  CancelReason,
+  ProfileStatusValidation,
+  IPWhiteListing,
+  DocumentType
+}
+
 export const settingApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
     // ***************** ADDRESS **************************************************************
@@ -1131,6 +1156,37 @@ export const settingApiSlice = apiSlice.injectEndpoints({
               { type: 'SETTING-LABEL', id: 'LIST' }
             ]
           : []
+      }
+    }),
+
+    // ***************** SETTING SEARCH **************************************************************
+
+    postSettingSearch: builder.query<SystemSettingListItem[], SearchFilterType>({
+      query: body => ({
+        url: `/setting/search`,
+        method: 'POST',
+        body
+      }),
+      transformResponse: (res: LunaResponseType) => {
+        if (!res.success) throw new Error('There was an error creating assignee setting')
+        console.log(res.data)
+
+        return res.data
+      },
+      async onQueryStarted(body, { queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+          console.log(err)
+        }
+      },
+      invalidatesTags: result => {
+        return [
+          { type: 'SETTING', id: 'LIST' },
+          ...((result && result.map(item => ({ type: 'SETTING' as const, id: item.id }))) || [])
+        ]
       }
     }),
 

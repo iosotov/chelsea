@@ -421,5 +421,8 @@ export const {
   usePutLabelEnableMutation,
 
   // PUT setting/labels/labelId/disable
-  usePutLabelDisableMutation
+  usePutLabelDisableMutation,
+
+  // POST setting/search
+  usePostSettingSearchQuery
 } = settingApiSlice
