@@ -5,9 +5,7 @@ import Box from '@mui/material/Box'
 import Tab from '@mui/material/Tab'
 import TabPanel from '@mui/lab/TabPanel'
 import TabContext from '@mui/lab/TabContext'
-import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
-import MuiTabList, { TabListProps } from '@mui/lab/TabList'
 import CircularProgress from '@mui/material/CircularProgress'
 import TabList from '@mui/lab/TabList'
 import { useRouter } from 'next/router'
@@ -30,7 +28,7 @@ type Props = {
   tab: string
 }
 
-export default function UserViewLeft({ id, tab }: Props) {
+export default function ProfileTabs({ id, tab }: Props) {
   const router = useRouter()
 
   const [activeTab, setActiveTab] = useState(tab ?? 'debts')
@@ -54,7 +52,6 @@ export default function UserViewLeft({ id, tab }: Props) {
         <TabList value={activeTab} variant='scrollable' scrollButtons='auto' onChange={handleChange}>
           <Tab label='Debts' value='debts' />
           <Tab label='Payments' value='payments' />
-          <Tab label='Billing' value='billing' />
           <Tab label='Documents' value='documents' />
           <Tab label='Notes' value='notes' />
           <Tab label='Tasks' value='tasks' />
@@ -77,9 +74,6 @@ export default function UserViewLeft({ id, tab }: Props) {
             </TabPanel>
             <TabPanel value='payments'>
               <ProfilePayments id={id} />
-            </TabPanel>
-            <TabPanel value='billing'>
-              <ProfileBilling id={id} />
             </TabPanel>
             <TabPanel value='documents'>
               <ProfileDocuments id={id} />

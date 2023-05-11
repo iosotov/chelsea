@@ -154,8 +154,7 @@ export type EnrollmentSearchResultModel = {
   nextPaymentAmount: number
   initialFeeAmount: number
   lastPaymentStatus: EnrollmentDetailStatus
-
-  // no lastpaymentstatusname?
+  lastPaymentStatusName: string
   lastPaymentDate: string
   lastPaymentAmount: number
   cancelledDate: string
@@ -376,10 +375,15 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
         }
       },
       transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error updating enrollment')
-        const newPayments = res.data.map((payment: PaymentDetailInfoModel) => ({ ...payment, profileId: arg }))
-
-        return newPayments
+        //temporary measure
+        // if (!res.success) throw new Error('There was an error updating enrollment')
+        if (res.success) {
+          const newPayments = res.data.map((payment: PaymentDetailInfoModel) => ({ ...payment, profileId: arg }))
+          console.log(res.data, newPayments)
+          return newPayments
+        } else {
+          return []
+        }
       },
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {

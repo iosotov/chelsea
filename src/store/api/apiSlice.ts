@@ -49,7 +49,8 @@ export const apiSlice = createApi({
     'SETTING-ASSIGNEE',
     'SETTING-CONTACT',
     'SETTING-CUSTOMFIELD',
-    'SETTING-LABEL'
+    'SETTING-LABEL',
+    'SETTING'
   ],
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

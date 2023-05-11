@@ -107,7 +107,6 @@ const columns: GridColumns = [
 
 const TableColumns = ({ rows }: any) => {
   // ** States
-  console.log('test')
 
   const [data] = useState<any[]>(rows)
   const [pageSize, setPageSize] = useState<number>(10)

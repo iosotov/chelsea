@@ -100,7 +100,6 @@ export const documentApiSlice = apiSlice.injectEndpoints({
       }),
       transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error fetching documents')
-
         return res.data
       },
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {

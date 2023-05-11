@@ -3,7 +3,6 @@ import { useState, useEffect, MouseEvent, useCallback } from 'react'
 
 // ** Next Imports
 import Link from 'next/link'
-import { GetStaticProps, InferGetStaticPropsType } from 'next/types'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -47,9 +46,9 @@ import { selectAllProfiles } from 'src/store/profileSlice'
 
 // import SidebarAddUser from 'src/views/pages/user/list/AddUserDrawer'
 // import TableHeader from 'src/views/pages/user/list/TableHeader'
-import { useGetBudgetsQuery, useGetProfileBudgetsQuery } from 'src/store/api/profileBudgetApiSlice'
+// import { useGetBudgetsQuery, useGetProfileBudgetsQuery } from 'src/store/api/profileBudgetApiSlice'
 import { selectAllBudgets, selectAllProfileBudgets } from 'src/store/profileBudgetSlice'
-import { useGetProfilesQuery } from 'src/store/api/apiHooks'
+import { usePostProfilesSearchQuery } from 'src/store/api/apiHooks'
 
 interface UserRoleType {
   [key: string]: { icon: string; color: string }
@@ -122,7 +121,6 @@ const renderClient = (row: ProfileInfoType) => {
 
 // action column
 const RowOptions = ({ profileId }: { profileId: number | string }) => {
-
   // ** State
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
@@ -295,7 +293,6 @@ const columns = [
 ]
 
 const ProfileList = () => {
-
   // state for search filters
   const [role, setRole] = useState<string>('')
   const [plan, setPlan] = useState<string>('')
@@ -303,11 +300,10 @@ const ProfileList = () => {
 
   // global state for profiles
   const profiles = useAppSelector(selectAllProfiles)
-  useGetProfilesQuery({})
+  usePostProfilesSearchQuery({})
 
   // val stores state for header filters
   const [value, setValue] = useState<string>('')
-
 
   // state for UI
   const [pageSize, setPageSize] = useState<number>(10)

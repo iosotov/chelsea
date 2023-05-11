@@ -10,7 +10,10 @@ import { useForm } from 'react-hook-form'
 import TextInput from 'src/views/shared/form-input/text-input'
 import SingleSelect from 'src/views/shared/form-input/single-select'
 import ToggleSwitch from 'src/views/shared/form-input/toggle-switch'
+import CreditCard from 'src/views/shared/form-input/credit-card'
 import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+import Icon from 'src/@core/components/icon'
 
 type EditPaymentDialogProps = {
   data: any
@@ -130,7 +133,16 @@ export default function EditPaymentDialog({ data, open, handleClose }: EditPayme
 
   return (
     <Dialog open={open} maxWidth='md' fullWidth onClose={onClose} aria-labelledby='form-dialog-title'>
-      <DialogTitle id='form-dialog-title'>{data ? 'Update' : 'Create New'} Enrollment Plan</DialogTitle>
+      <DialogTitle id='form-dialog-title'>
+        Update Payment Method
+        <IconButton
+          aria-label='close'
+          onClick={onClose}
+          sx={{ top: 10, right: 10, position: 'absolute', color: 'grey.500' }}
+        >
+          <Icon icon='mdi:close' />
+        </IconButton>
+      </DialogTitle>
       <DialogContent>
         <Grid container spacing={4}>
           <Grid item xs={12}>
@@ -202,42 +214,35 @@ export default function EditPaymentDialog({ data, open, handleClose }: EditPayme
                 <SingleSelect name='type' label='Card Type' options={cardOptions} control={control} errors={errors} />
               </Grid>
               <Grid item xs={12}>
-                <TextInput
+                <CreditCard
                   name='cardNumber'
                   label='Card Number'
                   placeholder='0000 0000 0000 0000'
-                  control={control}
                   errors={errors}
+                  control={control}
+                  type='number'
                   required
                 />
               </Grid>
               <Grid item xs={6}>
-                <TextInput
-                  name='expiryDate'
+                <CreditCard
+                  name='expirationDate'
                   label='Expiration Date'
-                  placeholder='MM/YYYY'
-                  control={control}
+                  placeholder='MM/YY'
                   errors={errors}
+                  control={control}
+                  type='expiry'
                   required
                 />
               </Grid>
               <Grid item xs={6}>
-                <TextInput
+                <CreditCard
                   name='securityCode'
                   label='CVC/CVV'
                   placeholder='000'
-                  control={control}
                   errors={errors}
-                  required
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextInput
-                  name='name'
-                  label='Cardholder Name'
-                  placeholder='ex: John Smith'
                   control={control}
-                  errors={errors}
+                  type='cvc'
                   required
                 />
               </Grid>

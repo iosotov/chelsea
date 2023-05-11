@@ -215,6 +215,9 @@ export const {
   // GET enrollment/profileId/profile
   useGetEnrollmentQuery,
 
+  // GET lazy enrollment/profileId/profile
+  useLazyGetEnrollmentQuery,
+
   // POST enrollment/profileId/profile
   usePostEnrollmentCreateMutation,
 

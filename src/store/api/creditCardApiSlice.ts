@@ -20,6 +20,7 @@ export type CreditCardType = {
   firstName: string
   lastName: string
   expYear: string
+  paymentType?: 'card'
 }
 
 export enum CreditCardTypeEnum {
@@ -68,7 +69,11 @@ export const creditCardApiSlice = apiSlice.injectEndpoints({
         if (!res.success) throw new Error('There was an error fetching credit cards for this profile')
         console.log(res.data)
 
-        return res.data
+        const data = res.data.map((card: CreditCardType) => {
+          return { ...card, paymentType: 'card' }
+        })
+
+        return data
       },
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {

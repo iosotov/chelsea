@@ -147,7 +147,24 @@ export const selectSettingByType = createSelector(
   selectAllSettings,
   (_: RootState, type: number) => type,
   (settings, type) => {
-    return settings.filter(setting => setting.type === type)
+    console.log(settings)
+    return settings.filter(setting => setting.type === type && setting.active === true)
+  }
+)
+
+export const selectSettingByTypeOptions = createSelector(
+  selectAllSettings,
+  (_: RootState, type: number) => type,
+  (settings, type) => {
+    console.log(settings)
+    return settings
+      .filter(setting => setting.type === type && setting.active === true)
+      .map(option => {
+        return {
+          label: option.value,
+          value: option.id
+        }
+      })
   }
 )
 
@@ -156,5 +173,20 @@ export const selectSettingByParentValue = createSelector(
   (_: RootState, parentValue: string) => parentValue,
   (settings, parentValue) => {
     return settings.filter(setting => setting.parentValue === parentValue)
+  }
+)
+
+export const selectSettingByParentValueOptions = createSelector(
+  selectAllSettings,
+  (_: RootState, parentValue: string) => parentValue,
+  (settings, parentValue) => {
+    return settings
+      .filter(setting => setting.parentValue === parentValue)
+      .map(option => {
+        return {
+          label: option.value,
+          value: option.id
+        }
+      })
   }
 )

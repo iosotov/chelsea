@@ -7,22 +7,19 @@ import { Router } from 'next/router'
 import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
 
-
-
-
-
+import { ConfirmProvider } from 'material-ui-confirm'
 // ** Loader Import
 import NProgress from 'nprogress'
 
 // ** Emotion Imports
 import { CacheProvider } from '@emotion/react'
 import type { EmotionCache } from '@emotion/cache'
+import createCache from '@emotion/cache'
 
 // ** Config Imports
 
 import { defaultACLObj } from 'src/configs/acl'
 import themeConfig from 'src/configs/themeConfig'
-
 
 // ** Third Party Import
 import { Toaster } from 'react-hot-toast'
@@ -46,6 +43,9 @@ import ReactHotToast from 'src/@core/styles/libs/react-hot-toast'
 
 // ** Utils Imports
 import { createEmotionCache } from 'src/@core/utils/create-emotion-cache'
+
+// Mui-Prop licensing
+import { LicenseInfo } from '@mui/x-license-pro'
 
 // ** Prismjs Styles
 import 'prismjs'
@@ -73,6 +73,14 @@ type GuardProps = {
   guestGuard: boolean
   children: ReactNode
 }
+
+//?? dont understand error
+LicenseInfo.setLicenseKey(process.env.NEXT_PUBLIC_MUI_LICENSE_KEY)
+
+const errorCache = createCache({
+  key: 'css',
+  prepend: true
+})
 
 const clientSideEmotionCache = createEmotionCache()
 
@@ -116,9 +124,7 @@ const App = (props: ExtendedAppProps) => {
 
   const aclAbilities = Component.acl ?? defaultACLObj
 
-
   return (
-
     <CacheProvider value={emotionCache}>
       <Head>
         <title>{`${themeConfig.templateName} - Material Design React Admin Template`}</title>
@@ -138,7 +144,7 @@ const App = (props: ExtendedAppProps) => {
                 <ThemeComponent settings={settings}>
                   <Guard authGuard={authGuard} guestGuard={guestGuard}>
                     <AclGuard aclAbilities={aclAbilities} guestGuard={guestGuard} authGuard={authGuard}>
-                      {getLayout(<Component {...pageProps} />)}
+                      <ConfirmProvider>{getLayout(<Component {...pageProps} />)}</ConfirmProvider>
                     </AclGuard>
                   </Guard>
                   <ReactHotToast>
@@ -151,7 +157,6 @@ const App = (props: ExtendedAppProps) => {
         </SettingsProvider>
       </AuthProvider>
     </CacheProvider>
-
   )
 }
 

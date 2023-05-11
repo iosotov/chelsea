@@ -4,13 +4,27 @@ export type SearchFilterColumnsType = {
   columnName: string
   search: {
     value: string
-    operator: string
+    operator: SearchOperator
   }
+}
+
+export enum SearchOperator {
+  equals,
+  notequals,
+  oneof,
+  notoneof,
+  inrange,
+  notinrange
 }
 
 export type SearchFilterOrderType = {
   columnName: string
-  direction: string
+  direction: Direction
+}
+
+export enum Direction {
+  asc,
+  desc
 }
 
 export type SearchFilterType = {
@@ -18,7 +32,7 @@ export type SearchFilterType = {
   length?: number
   columns?: SearchFilterColumnsType[]
   order?: SearchFilterOrderType[]
-  columnsExport: string
+  columnsExport?: string
 }
 
 export type LunaResponseType = {

@@ -15,6 +15,7 @@ import {
 import { apiSlice } from './apiSlice'
 import { CustomFieldType, ProfileInfoType } from './profileApiSlice'
 import { LunaResponseType, SearchFilterType } from './sharedTypes'
+import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
 
 export type AddressSettingType = {
   addressId: string
@@ -181,6 +182,7 @@ export type SettingType = {
   typeName: string
   sharingTargets: string | null
   additionConfiguration: string | null
+  active: boolean
 }
 
 export type SettingUpdateType = {
@@ -202,6 +204,31 @@ export type SettingCreateType = {
   type?: number
   sharingTargets?: string | null
   additionConfiguration?: string | null
+}
+
+export type SystemSettingListItem = {
+  id: string
+  name: string
+  value: string
+  parentValue: string
+  sharingTargets: string
+  additionConfiguration: string
+  order: number
+  active: boolean
+  createdByName: string
+  type: SystemSettingType
+}
+
+export enum SystemSettingType {
+  DebtEnrollmentValidation,
+  ProfileStatus,
+  ProfileStage,
+  NoteType,
+  SystemDebtType,
+  CancelReason,
+  ProfileStatusValidation,
+  IPWhiteListing,
+  DocumentType
 }
 
 export const settingApiSlice = apiSlice.injectEndpoints({
@@ -607,7 +634,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    getAssigneeDatasource: builder.query<AssigneeDatasourceType, string>({
+    getAssigneeDatasource: builder.query<SingleSelectOption[], string>({
       query: assigneeId => ({
         url: `/setting/assignees/${assigneeId}/datasource`,
         method: 'GET'
@@ -615,9 +642,11 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error disabling assignee setting')
 
-        console.log(res.data)
+        const data: SingleSelectOption[] = res.data.map((entry: AssigneeDatasourceType) => {
+          return { value: entry.key, label: entry.value }
+        })
 
-        return res.data
+        return data
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
@@ -706,7 +735,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error creating contact setting')
 
-        return res.data
+        return data
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {

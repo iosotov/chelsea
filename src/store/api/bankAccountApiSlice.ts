@@ -20,6 +20,7 @@ export type BankAccountType = {
   profileId: string | null
   firstName: string | null
   lastName: string | null
+  paymentType?: string
 }
 
 export type BankAccountCreateType = {
@@ -63,7 +64,13 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
         if (!res.success) throw new Error('There was an error fetching bank accounts')
         console.log(res.data)
 
-        return res.data
+        const data = res.data.map((account: BankAccountType) => {
+          return { ...account, accountType: 'ach' }
+        })
+
+        console.log(data)
+
+        return data
       },
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
@@ -73,8 +80,6 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
         }
       },
       providesTags: (result, error, arg) => {
