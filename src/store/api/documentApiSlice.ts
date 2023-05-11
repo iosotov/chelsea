@@ -170,7 +170,7 @@ export const documentApiSlice = apiSlice.injectEndpoints({
       },
       providesTags: res => (res ? [{ type: 'DOCUMENT-PREVIEW', id: res.documentId }] : [])
     }),
-    postGenerateDocument: builder.mutation<string, DocumentGenerateType>({
+    postDocumentGenerate: builder.mutation<string, DocumentGenerateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -198,7 +198,7 @@ export const documentApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'DOCUMENT', id: arg.profileId }] : [])
     }),
-    postGenerateLiabilityDocument: builder.mutation<string, LiabilityDocumentGenerateType>({
+    postLiabilityDocumentGenerate: builder.mutation<string, LiabilityDocumentGenerateType>({
       query: params => {
         const { liabilityId, profileId, ...body } = params
 
@@ -226,7 +226,7 @@ export const documentApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'DOCUMENT', id: arg.profileId }] : [])
     }),
-    postUploadDocument: builder.mutation<string, DocumentUploadType>({
+    postDocumentUpload: builder.mutation<string, DocumentUploadType>({
       query: params => {
         const { profileId, data } = params
 
@@ -253,7 +253,7 @@ export const documentApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'DOCUMENT', id: arg.profileId }] : [])
     }),
-    postUploadLiabilityDocument: builder.mutation<string, LiabilityDocumentUploadType>({
+    postLiabilityDocumentUpload: builder.mutation<string, LiabilityDocumentUploadType>({
       query: params => {
         const { liabilityId, profileId, data } = params
 
@@ -280,7 +280,7 @@ export const documentApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'DOCUMENT', id: arg.profileId }] : [])
     }),
-    postEsignDocument: builder.mutation<boolean, DocumentEsignType>({
+    postDocumentEsign: builder.mutation<boolean, DocumentEsignType>({
       query: params => {
         console.log(params)
         const { profileId, ...body } = params
@@ -310,7 +310,7 @@ export const documentApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'DOCUMENT', id: arg.profileId }] : [])
     }),
-    postEsignLiabilityDocument: builder.mutation<string, LiabilityDocumentEsignType>({
+    postLiabilityDocumentEsign: builder.mutation<string, LiabilityDocumentEsignType>({
       query: params => {
         const { liabilityId, profileId, ...body } = params
 

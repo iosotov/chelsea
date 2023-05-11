@@ -103,10 +103,8 @@ export const companyApiSlice = apiSlice.injectEndpoints({
         ]
       }
     }),
-    createCompany: builder.mutation<string, CompanyCreateType>({
+    postCompanyCreate: builder.mutation<string, CompanyCreateType>({
       query: body => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-
         console.log(body)
 
         return {
@@ -133,9 +131,8 @@ export const companyApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: res => (res ? [{ type: 'COMPANY', id: 'LIST' }] : [])
     }),
-    updateCompany: builder.mutation<boolean, CompanyUpdateType>({
+    putCompanyUpdate: builder.mutation<boolean, CompanyUpdateType>({
       query: params => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { companyId, ...body } = params
         console.log(body)
 
@@ -162,9 +159,8 @@ export const companyApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'COMPANY', id: arg.companyId }] : [])
     }),
-    enableCompany: builder.mutation<string, string>({
+    putCompanyEnable: builder.mutation<string, string>({
       query: companyId => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         return {
           url: `/company/${companyId}/enable`,
           method: 'PUT'
@@ -187,7 +183,7 @@ export const companyApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'COMPANY', id: arg }] : [])
     }),
-    disableCompany: builder.mutation<string, string>({
+    putCompanyDisable: builder.mutation<string, string>({
       query: companyId => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         return {

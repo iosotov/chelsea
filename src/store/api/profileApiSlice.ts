@@ -269,7 +269,7 @@ export type ProfileBasicType = {
 export const profileApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
     // PROFILE SEARCH
-    getProfiles: builder.query<ProfileInfoType[], SearchFilterType>({
+    postProfilesSearch: builder.query<ProfileInfoType[], SearchFilterType>({
       query: searchParams => ({
         url: `/profile/search`,
         method: 'POST',
@@ -530,7 +530,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
     }),
 
     // PROFILE QUICKSEARCH
-    profileQuickSearch: builder.query<ProfileStatusType[], string>({
+    getProfileQuickSearch: builder.query<ProfileStatusType[], string>({
       query: keyword => ({
         url: `/profile/quicksearch/${keyword}`,
         method: 'GET'
@@ -543,7 +543,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
     }),
 
     // POST CREATE PROFILE
-    createProfile: builder.mutation<ProfileBasicType, ProfileCreateType>({
+    postProfileCreate: builder.mutation<ProfileBasicType, ProfileCreateType>({
       query: body => ({
         url: `/profile`,
         method: 'POST',
@@ -574,7 +574,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
     }),
 
     // POST ASSIGN PROFILE
-    assignProfile: builder.mutation<ProfileAssigneeCreateType, ProfileAssigneeCreateType>({
+    postProfileAssign: builder.mutation<ProfileAssigneeCreateType, ProfileAssigneeCreateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -603,7 +603,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
     }),
 
     // POST PROFILE CUSTOM FIELD
-    createProfileCustomField: builder.mutation<ProfileCustomFieldCreateType, ProfileCustomFieldCreateType>({
+    postProfileCustomFieldCreate: builder.mutation<ProfileCustomFieldCreateType, ProfileCustomFieldCreateType>({
       query: params => {
         const { profileId, ...customFields } = params
 
@@ -740,7 +740,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
     }),
 
     // POST PROFILE GRANT AUTH
-    profileGrantAuth: builder.mutation<boolean, ProfileGrantAuthCreateType>({
+    postProfileGrantAuth: builder.mutation<boolean, ProfileGrantAuthCreateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -770,7 +770,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
     }),
 
     // POST DISABLE GRANT AUTH
-    profileDisableAuth: builder.mutation<boolean, string>({
+    postProfileDisableAuth: builder.mutation<boolean, string>({
       query: profileId => {
         return {
           url: `/profile/${profileId}/disable-auth`,
@@ -796,7 +796,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
     }),
 
     // PUT UPDATE PROFILE STAGE/STATUS
-    putUpdateProfileStatus: builder.mutation<boolean, ProfileStatusUpdateType>({
+    putProfileStatusUpdate: builder.mutation<boolean, ProfileStatusUpdateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -832,7 +832,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
     }),
 
     // PUT UPDATE PROFILE
-    putUpdateProfile: builder.mutation<boolean, ProfileUpdateType>({
+    putProfileUpdate: builder.mutation<boolean, ProfileUpdateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -863,7 +863,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
     }),
 
     // PUT DELETE PROFILE
-    putDeleteProfile: builder.mutation<boolean, string>({
+    putProfileDelete: builder.mutation<boolean, string>({
       query: profileId => {
         return {
           url: `/profile/${profileId}/delete`,
@@ -889,7 +889,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
     }),
 
     // POST EXPORT PROFILE
-    postExportProfiles: builder.mutation<Promise<Blob>, SearchFilterType>({
+    postProfilesExport: builder.mutation<Promise<Blob>, SearchFilterType>({
       query: body => {
         return {
           url: `/profile/export`,
@@ -938,7 +938,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
     }),
 
     // POST CREATE PROFILE LABELS
-    postProfileLabels: builder.mutation<boolean, ProfileLabelCreateType>({
+    postProfileLabelCreate: builder.mutation<boolean, ProfileLabelCreateType>({
       query: params => {
         const { profileId, ...body } = params
 

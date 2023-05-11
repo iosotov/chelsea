@@ -4,11 +4,13 @@ import {
   setContacts,
   setCustomFields,
   setLabels,
+  setSettings,
   updateAddresses,
   updateAssignees,
   updateContacts,
   updateCustomFields,
-  updateLabels
+  updateLabels,
+  updateSettings
 } from '../settingSlice'
 import { apiSlice } from './apiSlice'
 import { CustomFieldType, ProfileInfoType } from './profileApiSlice'
@@ -169,6 +171,40 @@ export type LabelUpdateType = {
   type: string
 }
 
+export type SettingType = {
+  id: string
+  name: string
+  value: string
+  parentValue: string
+  order: number
+  displayColor: string | null
+  type: number
+  typeName: string
+  sharingTargets: string | null
+  additionConfiguration: string | null
+}
+
+export type SettingUpdateType = {
+  id: string
+  name: string
+  value: string
+  parentValue?: string
+  order?: number
+  displayColor?: string | null
+  sharingTargets?: string | null
+  additionConfiguration?: string | null
+}
+
+export type SettingCreateType = {
+  name: string
+  value: string
+  parentValue?: string
+  displayColor?: string | null
+  type?: number
+  sharingTargets?: string | null
+  additionConfiguration?: string | null
+}
+
 export type SystemSettingListItem = {
   id: string
   name: string
@@ -259,7 +295,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    postAddress: builder.mutation<string, AddressCreateType>({
+    postAddressCreate: builder.mutation<string, AddressCreateType>({
       query: body => ({
         url: `/setting/addresses`,
         method: 'POST',
@@ -315,7 +351,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    putAddress: builder.mutation<boolean, AddressUpdateType>({
+    putAddressUpdate: builder.mutation<boolean, AddressUpdateType>({
       query: body => {
         const { addressId } = body
 
@@ -485,7 +521,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    postAssignee: builder.mutation<string, AssigneeCreateType>({
+    postAssigneeCreate: builder.mutation<string, AssigneeCreateType>({
       query: body => ({
         url: `/setting/assignees`,
         method: 'POST',
@@ -510,7 +546,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    putAssignee: builder.mutation<boolean, AssigneeUpdateType>({
+    putAssigneeUpdate: builder.mutation<boolean, AssigneeUpdateType>({
       query: body => {
         const { assigneeId } = body
 
@@ -605,9 +641,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: LunaResponseType) => {
         if (!res.success) throw new Error('There was an error disabling assignee setting')
 
-        const data: SingleSelectOption[] = res.data.map((entry: AssigneeDatasourceType) => {
-          return { value: entry.key, label: entry.value }
-        })
+        console.log(res.data)
 
         return data
       },
@@ -689,7 +723,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    postContact: builder.mutation<string, ContactCreateType>({
+    postContactCreate: builder.mutation<string, ContactCreateType>({
       query: body => ({
         url: `/setting/contacts`,
         method: 'POST',
@@ -714,7 +748,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    putContact: builder.mutation<boolean, ContactUpdateType>({
+    putContactUpdate: builder.mutation<boolean, ContactUpdateType>({
       query: body => {
         const { contactId } = body
 
@@ -868,7 +902,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    postCustomField: builder.mutation<string, CustomFieldCreateType>({
+    postCustomFieldCreate: builder.mutation<string, CustomFieldCreateType>({
       query: body => ({
         url: `/setting/customFields`,
         method: 'POST',
@@ -893,7 +927,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    putCustomField: builder.mutation<boolean, CustomFieldUpdateType>({
+    putCustomFieldUpdate: builder.mutation<boolean, CustomFieldUpdateType>({
       query: body => {
         const { customFieldId } = body
 
@@ -1047,7 +1081,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    postLabel: builder.mutation<string, LabelCreateType>({
+    postLabelCreate: builder.mutation<string, LabelCreateType>({
       query: body => ({
         url: `/setting/labels`,
         method: 'POST',
@@ -1072,7 +1106,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    putLabel: builder.mutation<boolean, LabelUpdateType>({
+    putLabelUpdate: builder.mutation<boolean, LabelUpdateType>({
       query: body => {
         const { labelId } = body
 
@@ -1159,88 +1193,57 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    // ***************** SETTING SEARCH **************************************************************
+    // ***************** SETTING **************************************************************
 
-    postSettingSearch: builder.query<SystemSettingListItem[], SearchFilterType>({
+    getSetting: builder.query<SettingType, string>({
+      query: id => ({
+        url: `/setting/${id}/info`,
+        method: 'GET'
+      }),
+      transformResponse: (res: LunaResponseType) => {
+        if (!res.success) throw new Error('There was an error fetching setting')
+
+        return res.data
+      },
+      async onQueryStarted(id, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+
+          dispatch(updateSettings([data]))
+        } catch (err) {
+          // ************************
+          // NEED TO CREATE ERROR HANDLING
+          console.log(err)
+        }
+      },
+      providesTags: (result, error, arg) => {
+        return result
+          ? [
+              { type: 'SETTING', id: arg },
+              { type: 'SETTING', id: 'LIST' }
+            ]
+          : []
+      }
+    }),
+
+    postSettingSearch: builder.query<SettingType[], SearchFilterType | {}>({
       query: body => ({
         url: `/setting/search`,
         method: 'POST',
         body
       }),
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating assignee setting')
-        console.log(res.data)
-
-        return res.data
-      },
-      async onQueryStarted(body, { queryFulfilled }) {
-        try {
-          await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-          console.log(err)
-        }
-      },
-      invalidatesTags: result => {
-        return [
-          { type: 'SETTING', id: 'LIST' },
-          ...((result && result.map(item => ({ type: 'SETTING' as const, id: item.id }))) || [])
-        ]
-      }
-    }),
-
-    // ***************** CONTACT **************************************************************
-
-    getContact: builder.query<ContactSettingType, string>({
-      query: contactId => ({
-        url: `/setting/contacts/${contactId}/info`,
-        method: 'GET'
-      }),
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching contact setting')
-
-        return res.data
-      },
-      async onQueryStarted(contactId, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled
-
-          dispatch(updateContacts([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-          console.log(err)
-        }
-      },
-      providesTags: (result, error, arg) => {
-        return result
-          ? [
-              { type: 'SETTING-CONTACT', id: arg },
-              { type: 'SETTING-CONTACT', id: 'LIST' }
-            ]
-          : []
-      }
-    }),
-
-    postContactSearch: builder.query<ContactSettingType[], SearchFilterType>({
-      query: body => ({
-        url: `/setting/contacts/search`,
-        method: 'POST',
-        body
-      }),
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching contact settings')
+        if (!res.success) throw new Error('There was an error fetching settings')
 
         return res.data.data
       },
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+      async onQueryStarted(body, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
 
           console.log(data)
 
-          dispatch(setContacts(data))
+          dispatch(setSettings(data))
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
@@ -1249,22 +1252,19 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       },
       providesTags: result => {
         return result
-          ? [
-              { type: 'SETTING-CONTACT', id: 'LIST' },
-              ...result.map(c => ({ type: 'SETTING-CONTACT' as const, id: c.contactId }))
-            ]
+          ? [{ type: 'SETTING', id: 'LIST' }, ...result.map(s => ({ type: 'SETTING' as const, id: s.id }))]
           : []
       }
     }),
 
-    postContact: builder.mutation<string, ContactCreateType>({
+    postSettingCreate: builder.mutation<string, SettingCreateType>({
       query: body => ({
-        url: `/setting/contacts`,
+        url: `/setting`,
         method: 'POST',
         body
       }),
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating contact setting')
+        if (!res.success) throw new Error('There was an error creating setting')
 
         return res.data
       },
@@ -1278,26 +1278,26 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         }
       },
       invalidatesTags: result => {
-        return result ? [{ type: 'SETTING-CONTACT', id: 'LIST' }] : []
+        return result ? [{ type: 'SETTING', id: 'LIST' }] : []
       }
     }),
 
-    putContact: builder.mutation<boolean, ContactUpdateType>({
-      query: body => {
-        const { contactId } = body
+    putSettingUpdate: builder.mutation<boolean, SettingUpdateType>({
+      query: params => {
+        const { id, ...body } = params
 
         return {
-          url: `/setting/contacts/${contactId}`,
+          url: `/setting/${id}`,
           method: 'PUT',
           body
         }
       },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error updating contact setting')
+        if (!res.success) throw new Error('There was an error updating setting')
 
         return res.success
       },
-      async onQueryStarted(body, { queryFulfilled }) {
+      async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
         } catch (err) {
@@ -1307,21 +1307,21 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         }
       },
       invalidatesTags: (result, error, arg) => {
-        return result ? [{ type: 'SETTING-CONTACT', id: arg.contactId }] : []
+        return result ? [{ type: 'SETTING', id: arg.id }] : []
       }
     }),
 
-    putContactEnable: builder.mutation<string, string>({
-      query: contactId => ({
-        url: `/setting/contacts/${contactId}/enable`,
-        method: 'PUT'
+    putSettingDelete: builder.mutation<string, string>({
+      query: id => ({
+        url: `/setting/${id}`,
+        method: 'DELETE'
       }),
       transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error enabling contact setting')
+        if (!res.success) throw new Error('There was an error deleting setting')
 
         return arg
       },
-      async onQueryStarted(body, { queryFulfilled }) {
+      async onQueryStarted(id, { queryFulfilled }) {
         try {
           await queryFulfilled
         } catch (err) {
@@ -1333,395 +1333,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
       invalidatesTags: result => {
         return result
           ? [
-              { type: 'SETTING-CONTACT', id: result },
-              { type: 'SETTING-CONTACT', id: 'LIST' }
-            ]
-          : []
-      }
-    }),
-
-    putContactDisable: builder.mutation<string, string>({
-      query: contactId => ({
-        url: `/setting/contacts/${contactId}/disable`,
-        method: 'PUT'
-      }),
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error disabling contact setting')
-
-        return arg
-      },
-      async onQueryStarted(body, { queryFulfilled }) {
-        try {
-          await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-          console.log(err)
-        }
-      },
-      invalidatesTags: result => {
-        return result
-          ? [
-              { type: 'SETTING-CONTACT', id: result },
-              { type: 'SETTING-CONTACT', id: 'LIST' }
-            ]
-          : []
-      }
-    }),
-
-    // ***************** CUSTOM FIELD **************************************************************
-
-    getCustomField: builder.query<CustomFieldSettingType, string>({
-      query: customFieldId => ({
-        url: `/setting/customFields/${customFieldId}/info`,
-        method: 'GET'
-      }),
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching custom field setting')
-
-        return res.data
-      },
-      async onQueryStarted(customFieldId, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled
-
-          dispatch(updateCustomFields([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-          console.log(err)
-        }
-      },
-      providesTags: (result, error, arg) => {
-        return result
-          ? [
-              { type: 'SETTING-CUSTOMFIELD', id: arg },
-              { type: 'SETTING-CUSTOMFIELD', id: 'LIST' }
-            ]
-          : []
-      }
-    }),
-
-    postCustomFieldSearch: builder.query<CustomFieldSettingType[], SearchFilterType>({
-      query: body => ({
-        url: `/setting/customFields/search`,
-        method: 'POST',
-        body
-      }),
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching custom field settings')
-
-        return res.data.data
-      },
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled
-
-          console.log(data)
-
-          dispatch(setCustomFields(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-          console.log(err)
-        }
-      },
-      providesTags: result => {
-        return result
-          ? [
-              { type: 'SETTING-CUSTOMFIELD', id: 'LIST' },
-              ...result.map(c => ({ type: 'SETTING-CUSTOMFIELD' as const, id: c.customFieldId }))
-            ]
-          : []
-      }
-    }),
-
-    postCustomField: builder.mutation<string, CustomFieldCreateType>({
-      query: body => ({
-        url: `/setting/customFields`,
-        method: 'POST',
-        body
-      }),
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating custom field setting')
-
-        return res.data
-      },
-      async onQueryStarted(body, { queryFulfilled }) {
-        try {
-          await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-          console.log(err)
-        }
-      },
-      invalidatesTags: result => {
-        return result ? [{ type: 'SETTING-CUSTOMFIELD', id: 'LIST' }] : []
-      }
-    }),
-
-    putCustomField: builder.mutation<boolean, CustomFieldUpdateType>({
-      query: body => {
-        const { customFieldId } = body
-
-        return {
-          url: `/setting/customFields/${customFieldId}`,
-          method: 'PUT',
-          body
-        }
-      },
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error updating custom field setting')
-
-        return res.success
-      },
-      async onQueryStarted(body, { queryFulfilled }) {
-        try {
-          await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-          console.log(err)
-        }
-      },
-      invalidatesTags: (result, error, arg) => {
-        return result ? [{ type: 'SETTING-CUSTOMFIELD', id: arg.customFieldId }] : []
-      }
-    }),
-
-    putCustomFieldEnable: builder.mutation<string, string>({
-      query: customFieldId => ({
-        url: `/setting/customFields/${customFieldId}/enable`,
-        method: 'PUT'
-      }),
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error enabling custom field setting')
-
-        return arg
-      },
-      async onQueryStarted(body, { queryFulfilled }) {
-        try {
-          await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-          console.log(err)
-        }
-      },
-      invalidatesTags: result => {
-        return result
-          ? [
-              { type: 'SETTING-CUSTOMFIELD', id: result },
-              { type: 'SETTING-CUSTOMFIELD', id: 'LIST' }
-            ]
-          : []
-      }
-    }),
-
-    putCustomFieldDisable: builder.mutation<string, string>({
-      query: customFieldId => ({
-        url: `/setting/customFields/${customFieldId}/disable`,
-        method: 'PUT'
-      }),
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error disabling custom field setting')
-
-        return arg
-      },
-      async onQueryStarted(body, { queryFulfilled }) {
-        try {
-          await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-          console.log(err)
-        }
-      },
-      invalidatesTags: result => {
-        return result
-          ? [
-              { type: 'SETTING-CUSTOMFIELD', id: result },
-              { type: 'SETTING-CUSTOMFIELD', id: 'LIST' }
-            ]
-          : []
-      }
-    }),
-
-    // ***************** LABEL **************************************************************
-
-    getLabel: builder.query<LabelSettingType, string>({
-      query: labelId => ({
-        url: `/setting/labels/${labelId}/info`,
-        method: 'GET'
-      }),
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching label setting')
-
-        return res.data
-      },
-      async onQueryStarted(labelId, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled
-
-          dispatch(updateLabels([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-          console.log(err)
-        }
-      },
-      providesTags: (result, error, arg) => {
-        return result
-          ? [
-              { type: 'SETTING-LABEL', id: arg },
-              { type: 'SETTING-LABEL', id: 'LIST' }
-            ]
-          : []
-      }
-    }),
-
-    postLabelSearch: builder.query<LabelSettingType[], SearchFilterType>({
-      query: body => ({
-        url: `/setting/labels/search`,
-        method: 'POST',
-        body
-      }),
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching label settings')
-
-        return res.data.data
-      },
-      async onQueryStarted(arg, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled
-
-          console.log(data)
-
-          dispatch(setLabels(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-          console.log(err)
-        }
-      },
-      providesTags: result => {
-        return result
-          ? [
-              { type: 'SETTING-LABEL', id: 'LIST' },
-              ...result.map(c => ({ type: 'SETTING-LABEL' as const, id: c.labelId }))
-            ]
-          : []
-      }
-    }),
-
-    postLabel: builder.mutation<string, LabelCreateType>({
-      query: body => ({
-        url: `/setting/labels`,
-        method: 'POST',
-        body
-      }),
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating label setting')
-
-        return res.data
-      },
-      async onQueryStarted(body, { queryFulfilled }) {
-        try {
-          await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-          console.log(err)
-        }
-      },
-      invalidatesTags: result => {
-        return result ? [{ type: 'SETTING-LABEL', id: 'LIST' }] : []
-      }
-    }),
-
-    putLabel: builder.mutation<boolean, LabelUpdateType>({
-      query: body => {
-        const { labelId } = body
-
-        return {
-          url: `/setting/labels/${labelId}`,
-          method: 'PUT',
-          body
-        }
-      },
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error updating label setting')
-
-        return res.success
-      },
-      async onQueryStarted(body, { queryFulfilled }) {
-        try {
-          await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-          console.log(err)
-        }
-      },
-      invalidatesTags: (result, error, arg) => {
-        return result ? [{ type: 'SETTING-LABEL', id: arg.labelId }] : []
-      }
-    }),
-
-    putLabelEnable: builder.mutation<string, string>({
-      query: labelId => ({
-        url: `/setting/labels/${labelId}/enable`,
-        method: 'PUT'
-      }),
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error enabling label setting')
-
-        return arg
-      },
-      async onQueryStarted(body, { queryFulfilled }) {
-        try {
-          await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-          console.log(err)
-        }
-      },
-      invalidatesTags: result => {
-        return result
-          ? [
-              { type: 'SETTING-LABEL', id: result },
-              { type: 'SETTING-LABEL', id: 'LIST' }
-            ]
-          : []
-      }
-    }),
-
-    putLabelDisable: builder.mutation<string, string>({
-      query: labelId => ({
-        url: `/setting/labels/${labelId}/disable`,
-        method: 'PUT'
-      }),
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error disabling label setting')
-
-        return arg
-      },
-      async onQueryStarted(body, { queryFulfilled }) {
-        try {
-          await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-          console.log(err)
-        }
-      },
-      invalidatesTags: result => {
-        return result
-          ? [
-              { type: 'SETTING-LABEL', id: result },
-              { type: 'SETTING-LABEL', id: 'LIST' }
+              { type: 'SETTING', id: result },
+              { type: 'SETTING', id: 'LIST' }
             ]
           : []
       }

@@ -92,7 +92,7 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
         ]
       }
     }),
-    createCampaign: builder.mutation<string, CampaignCreateType>({
+    postCampaignCreate: builder.mutation<string, CampaignCreateType>({
       query: body => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
@@ -122,7 +122,7 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: res => (res ? [{ type: 'CAMPAIGN', id: 'LIST' }] : [])
     }),
-    updateCampaign: builder.mutation<boolean, CampaignUpdateType>({
+    putCampaignUpdate: builder.mutation<boolean, CampaignUpdateType>({
       query: params => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { campaignId, ...body } = params

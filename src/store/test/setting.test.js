@@ -14,7 +14,10 @@ import setting, {
   selectAllAssignees,
   selectAllContacts,
   selectAllCustomFields,
-  selectAllLabels
+  selectAllLabels,
+  selectAllSettings,
+  selectSettingByParentValue,
+  selectSettingByType
 } from '../settingSlice'
 
 import SolApi from '../api/SolApi'
@@ -68,45 +71,39 @@ afterAll(async () => {
   delete global.document
 })
 
-test('LABEL', async () => {
-  let _settingId = '3e23e714-d251-4de8-b627-a2de696a08e7'
+test('SETTING', async () => {
+  let _settingId = '4168f31f-07b1-4199-a8b0-16de76dcbaec'
 
   let _createData = {
-    name: 'REDUX',
-    type: 0
+    name: 'REDUX SETTING',
+    value: 'Testing',
+    type: 5
   }
 
   let _updateData = {
-    labelId: _settingId,
+    id: _settingId,
     name: 'REDUX UPDATE',
-    type: 0
+    value: 'Testing UPDATE'
   }
 
-  const useGetLabelQueryMock = jest.spyOn(settingApiSlice, 'useGetLabelQuery')
-  const usePostLabelSearchQueryMock = jest.spyOn(settingApiSlice, 'usePostLabelSearchQuery')
-  const usePostLabelMutationMock = jest.spyOn(settingApiSlice, 'usePostLabelMutation')
-  const usePutLabelMutationMock = jest.spyOn(settingApiSlice, 'usePutLabelMutation')
-  const usePutLabelEnableMutationMock = jest.spyOn(settingApiSlice, 'usePutLabelEnableMutation')
-  const usePutLabelDisableMutationMock = jest.spyOn(settingApiSlice, 'usePutLabelDisableMutation')
+  const useGetSettingQueryMock = jest.spyOn(settingApiSlice, 'useGetSettingQuery')
+  const usePostSettingSearchQueryMock = jest.spyOn(settingApiSlice, 'usePostSettingSearchQuery')
+  const usePostSettingMutationMock = jest.spyOn(settingApiSlice, 'usePostSettingMutation')
+  const usePutSettingMutationMock = jest.spyOn(settingApiSlice, 'usePutSettingMutation')
+  const usePutSettingDeleteMutationMock = jest.spyOn(settingApiSlice, 'usePutSettingDeleteMutation')
 
   const ListWrapper = storeWrapper(() => {
     const {
       isLoading: settingsIsLoading,
       isSuccess: settingsIsSuccess,
       isFetching: settingsIsFetching
-    } = usePostLabelSearchQueryMock({})
+    } = usePostSettingSearchQueryMock({})
 
-    const [create, { isSuccess: createSuccess, isLoading: createLoading }] = usePostLabelMutationMock()
-    const [enable, { isSuccess: enableSuccess, isLoading: enableLoading }] = usePutLabelEnableMutationMock()
-    const [disable, { isSuccess: disableSuccess, isLoading: disableLoading }] = usePutLabelDisableMutationMock()
+    const [create, { isSuccess: createSuccess, isLoading: createLoading }] = usePostSettingMutationMock()
+    const [disable, { isSuccess: disableSuccess, isLoading: disableLoading }] = usePutSettingDeleteMutationMock()
 
     async function handleCreate() {
       const data = await create(_createData).unwrap()
-      console.log(data)
-    }
-
-    async function handleEnable() {
-      const data = await enable(_settingId).unwrap()
       console.log(data)
     }
 
@@ -136,12 +133,6 @@ test('LABEL', async () => {
 
         {/* ////////////////////////////////////////////////// */}
 
-        <div>{enableLoading && 'enableLoading'}</div>
-
-        <div>{enableSuccess && 'enableSuccess'}</div>
-
-        {/* ////////////////////////////////////////////////// */}
-
         <div>{disableLoading && 'disableLoading'}</div>
 
         <div>{disableSuccess && 'disableSuccess'}</div>
@@ -149,8 +140,6 @@ test('LABEL', async () => {
         {/* ////////////////////////////////////////////////// */}
 
         <button onClick={handleCreate}>create</button>
-
-        <button onClick={handleEnable}>enable</button>
 
         <button onClick={handleDisable}>disable</button>
       </>
@@ -163,11 +152,11 @@ test('LABEL', async () => {
       isLoading: settingIsLoading,
       isSuccess: settingIsSuccess,
       isFetching: settingIsFetching
-    } = useGetLabelQueryMock(settingId)
+    } = useGetSettingQueryMock(settingId)
 
     console.log(data)
 
-    const [update, { isLoading: updateLoading, isSuccess: updateSuccess }] = usePutLabelMutationMock()
+    const [update, { isLoading: updateLoading, isSuccess: updateSuccess }] = usePutSettingMutationMock()
 
     async function handleUpdate() {
       const data = await update(_updateData)
@@ -214,187 +203,18 @@ test('LABEL', async () => {
   let state = store.getState()
 
   // access tags used for cache management
-  let settingTags = state[apiSlice.reducerPath].provided['SETTING-LABEL']
+  let settingTags = state[apiSlice.reducerPath].provided['SETTING']
 
-  let allSettings = selectAllLabels(state)
+  let allSettings = selectAllSettings(state)
 
-  console.log(settingTags)
-  console.log(allSettings)
+  let cancelReason = selectSettingByType(state, 5)
 
-  let button = settings('disable')
-  fireEvent.click(button)
-
-  await waitFor(() => expect(settings('disableLoading')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(settings('disableSuccess')).toBeInTheDocument(), { timeout: 5000 })
-
-  // await waitFor(() => expect(setting('settingIsFetching')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(settings('settingsIsFetching')).toBeInTheDocument(), { timeout: 5000 })
-
-  // await waitFor(() => expect(setting('settingIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(settings('settingsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
-
-  state = store.getState()
-
-  settingTags = state[apiSlice.reducerPath].provided['SETTING-LABEL']
-
-  allSettings = selectAllLabels(state)
+  let parentValue = selectSettingByParentValue(state, '9212ea41-12fb-48cc-9867-58731eef71dd')
 
   console.log(settingTags)
-  console.log(allSettings)
-}, 10000)
-
-test('contact', async () => {
-  let _settingId = 'd45631a2-5cfc-44f2-bcfc-0a8c43469447'
-
-  let _createData = {
-    name: 'Work Phone',
-    type: 0
-  }
-
-  let _updateData = {
-    contactId: _settingId,
-    name: 'Employer Phone',
-    type: 0
-  }
-
-  const useGetContactQueryMock = jest.spyOn(settingApiSlice, 'useGetContactQuery')
-  const usePostContactSearchQueryMock = jest.spyOn(settingApiSlice, 'usePostContactSearchQuery')
-  const usePostContactMutationMock = jest.spyOn(settingApiSlice, 'usePostContactMutation')
-  const usePutContactMutationMock = jest.spyOn(settingApiSlice, 'usePutContactMutation')
-  const usePutContactEnableMutationMock = jest.spyOn(settingApiSlice, 'usePutContactEnableMutation')
-  const usePutContactDisableMutationMock = jest.spyOn(settingApiSlice, 'usePutContactDisableMutation')
-
-  const ListWrapper = storeWrapper(() => {
-    const {
-      isLoading: settingsIsLoading,
-      isSuccess: settingsIsSuccess,
-      isFetching: settingsIsFetching
-    } = usePostContactSearchQueryMock({})
-
-    const [create, { isSuccess: createSuccess, isLoading: createLoading }] = usePostContactMutationMock()
-    const [enable, { isSuccess: enableSuccess, isLoading: enableLoading }] = usePutContactEnableMutationMock()
-    const [disable, { isSuccess: disableSuccess, isLoading: disableLoading }] = usePutContactDisableMutationMock()
-
-    async function handleCreate() {
-      const data = await create(_createData).unwrap()
-      console.log(data)
-    }
-
-    async function handleEnable() {
-      const data = await enable(_settingId).unwrap()
-      console.log(data)
-    }
-
-    async function handleDisable() {
-      const data = await disable(_settingId).unwrap()
-      console.log(data)
-    }
-
-    return (
-      <>
-        {/* ////////////////////////////////////////////////// */}
-
-        <div>{settingsIsLoading && 'settingsIsLoading'}</div>
-
-        <div>{settingsIsFetching && 'settingsIsFetching'}</div>
-
-        <div>
-          {settingsIsFetching && 'settingsIsFetching'}
-          {settingsIsSuccess && 'settingsIsSuccess'}
-        </div>
-
-        {/* ////////////////////////////////////////////////// */}
-
-        <div>{createLoading && 'createLoading'}</div>
-
-        <div>{createSuccess && 'createSuccess'}</div>
-
-        {/* ////////////////////////////////////////////////// */}
-
-        <div>{enableLoading && 'enableLoading'}</div>
-
-        <div>{enableSuccess && 'enableSuccess'}</div>
-
-        {/* ////////////////////////////////////////////////// */}
-
-        <div>{disableLoading && 'disableLoading'}</div>
-
-        <div>{disableSuccess && 'disableSuccess'}</div>
-
-        {/* ////////////////////////////////////////////////// */}
-
-        <button onClick={handleCreate}>create</button>
-
-        <button onClick={handleEnable}>enable</button>
-
-        <button onClick={handleDisable}>disable</button>
-      </>
-    )
-  })
-
-  const SettingWrapper = storeWrapper(({ settingId }) => {
-    const {
-      data,
-      isLoading: settingIsLoading,
-      isSuccess: settingIsSuccess,
-      isFetching: settingIsFetching
-    } = useGetContactQueryMock(settingId)
-
-    console.log(data)
-
-    const [update, { isLoading: updateLoading, isSuccess: updateSuccess }] = usePutContactMutationMock()
-
-    async function handleUpdate() {
-      const data = await update(_updateData)
-      console.log(data.error)
-    }
-
-    return (
-      <>
-        {/* ////////////////////////////////////////////////// */}
-
-        <div>{settingIsLoading && 'settingIsLoading'}</div>
-
-        <div>{settingIsFetching && 'settingIsFetching'}</div>
-
-        <div>
-          {settingIsFetching && 'settingIsFetching'}
-          {settingIsSuccess && 'settingIsSuccess'}
-        </div>
-
-        {/* ////////////////////////////////////////////////// */}
-
-        <div>{updateLoading && 'updateLoading'}</div>
-
-        <div>{updateSuccess && 'updateSuccess'}</div>
-
-        {/* ////////////////////////////////////////////////// */}
-
-        <button onClick={handleUpdate}>update</button>
-      </>
-    )
-  })
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-
-  // const { getByText: setting } = render(<SettingWrapper settingId={_settingId} />)
-  const { getByText: settings } = render(<ListWrapper />)
-
-  // await waitFor(() => expect(setting('settingIsLoading')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(settings('settingsIsLoading')).toBeInTheDocument(), { timeout: 5000 })
-
-  // await waitFor(() => expect(setting('settingIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(settings('settingsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
-
-  let state = store.getState()
-
-  // access tags used for cache management
-  let settingTags = state[apiSlice.reducerPath].provided['SETTING-CONTACT']
-
-  let allSettings = selectAllContacts(state)
-
-  console.log(settingTags)
-  console.log(allSettings)
+  console.log(allSettings, allSettings.length)
+  console.log(cancelReason, cancelReason.length)
+  console.log(parentValue)
 
   let button = settings('disable')
   fireEvent.click(button)
@@ -411,457 +231,988 @@ test('contact', async () => {
   state = store.getState()
 
   // access tags used for cache management
-  settingTags = state[apiSlice.reducerPath].provided['SETTING-CONTACT']
+  settingTags = state[apiSlice.reducerPath].provided['SETTING']
 
-  allSettings = selectAllContacts(state)
+  allSettings = selectAllSettings(state)
+
+  cancelReason = selectSettingByType(state, 5)
+
+  parentValue = selectSettingByParentValue(state, '9212ea41-12fb-48cc-9867-58731eef71dd')
 
   console.log(settingTags)
-  console.log(allSettings)
+  console.log(allSettings, allSettings.length)
+  console.log(cancelReason, cancelReason.length)
+  console.log(parentValue)
 }, 10000)
 
-test('address', async () => {
-  let _settingId = '43916d1e-1461-493e-b170-c19c64409dfe'
+// test('LABEL', async () => {
+//   let _settingId = '3e23e714-d251-4de8-b627-a2de696a08e7'
 
-  let _createData = {
-    name: 'Redux Address'
-  }
+//   let _createData = {
+//     name: 'REDUX',
+//     type: 0
+//   }
 
-  let _updateData = {
-    addressId: _settingId,
-    name: 'REDUX update address'
-  }
+//   let _updateData = {
+//     labelId: _settingId,
+//     name: 'REDUX UPDATE',
+//     type: 0
+//   }
 
-  const useGetAddressQueryMock = jest.spyOn(settingApiSlice, 'useGetAddressQuery')
-  const useGetAddressesQueryMock = jest.spyOn(settingApiSlice, 'useGetAddressesQuery')
-  const usePostAddressMutationMock = jest.spyOn(settingApiSlice, 'usePostAddressMutation')
-  const usePostAddressSearchQueryMock = jest.spyOn(settingApiSlice, 'usePostAddressSearchQuery')
-  const usePutAddressMutationMock = jest.spyOn(settingApiSlice, 'usePutAddressMutation')
-  const usePutAddressEnableMutationMock = jest.spyOn(settingApiSlice, 'usePutAddressEnableMutation')
-  const usePutAddressDisableMutationMock = jest.spyOn(settingApiSlice, 'usePutAddressDisableMutation')
+//   const useGetLabelQueryMock = jest.spyOn(settingApiSlice, 'useGetLabelQuery')
+//   const usePostLabelSearchQueryMock = jest.spyOn(settingApiSlice, 'usePostLabelSearchQuery')
+//   const usePostLabelMutationMock = jest.spyOn(settingApiSlice, 'usePostLabelMutation')
+//   const usePutLabelMutationMock = jest.spyOn(settingApiSlice, 'usePutLabelMutation')
+//   const usePutLabelEnableMutationMock = jest.spyOn(settingApiSlice, 'usePutLabelEnableMutation')
+//   const usePutLabelDisableMutationMock = jest.spyOn(settingApiSlice, 'usePutLabelDisableMutation')
 
-  const ListWrapper = storeWrapper(() => {
-    const {
-      isLoading: settingsIsLoading,
-      isSuccess: settingsIsSuccess,
-      isFetching: settingsIsFetching
-    } = useGetAddressesQueryMock()
+//   const ListWrapper = storeWrapper(() => {
+//     const {
+//       isLoading: settingsIsLoading,
+//       isSuccess: settingsIsSuccess,
+//       isFetching: settingsIsFetching
+//     } = usePostLabelSearchQueryMock({})
 
-    const [create, { isSuccess: createSuccess, isLoading: createLoading }] = usePostAddressMutationMock()
-    const [enable, { isSuccess: enableSuccess, isLoading: enableLoading }] = usePutAddressEnableMutationMock()
-    const [disable, { isSuccess: disableSuccess, isLoading: disableLoading }] = usePutAddressDisableMutationMock()
+//     const [create, { isSuccess: createSuccess, isLoading: createLoading }] = usePostLabelMutationMock()
+//     const [enable, { isSuccess: enableSuccess, isLoading: enableLoading }] = usePutLabelEnableMutationMock()
+//     const [disable, { isSuccess: disableSuccess, isLoading: disableLoading }] = usePutLabelDisableMutationMock()
 
-    async function handleCreate() {
-      const data = await create(_createData).unwrap()
-      console.log(data)
-    }
+//     async function handleCreate() {
+//       const data = await create(_createData).unwrap()
+//       console.log(data)
+//     }
 
-    async function handleEnable() {
-      const data = await enable(_settingId).unwrap()
-      console.log(data)
-    }
+//     async function handleEnable() {
+//       const data = await enable(_settingId).unwrap()
+//       console.log(data)
+//     }
 
-    async function handleDisable() {
-      const data = await disable(_settingId).unwrap()
-      console.log(data)
-    }
+//     async function handleDisable() {
+//       const data = await disable(_settingId).unwrap()
+//       console.log(data)
+//     }
 
-    return (
-      <>
-        {/* ////////////////////////////////////////////////// */}
+//     return (
+//       <>
+//         {/* ////////////////////////////////////////////////// */}
 
-        <div>{settingsIsLoading && 'settingsIsLoading'}</div>
+//         <div>{settingsIsLoading && 'settingsIsLoading'}</div>
 
-        <div>{settingsIsFetching && 'settingsIsFetching'}</div>
+//         <div>{settingsIsFetching && 'settingsIsFetching'}</div>
 
-        <div>
-          {settingsIsFetching && 'settingsIsFetching'}
-          {settingsIsSuccess && 'settingsIsSuccess'}
-        </div>
+//         <div>
+//           {settingsIsFetching && 'settingsIsFetching'}
+//           {settingsIsSuccess && 'settingsIsSuccess'}
+//         </div>
 
-        {/* ////////////////////////////////////////////////// */}
+//         {/* ////////////////////////////////////////////////// */}
 
-        <div>{createLoading && 'createLoading'}</div>
+//         <div>{createLoading && 'createLoading'}</div>
 
-        <div>{createSuccess && 'createSuccess'}</div>
+//         <div>{createSuccess && 'createSuccess'}</div>
 
-        {/* ////////////////////////////////////////////////// */}
+//         {/* ////////////////////////////////////////////////// */}
 
-        <div>{enableLoading && 'enableLoading'}</div>
+//         <div>{enableLoading && 'enableLoading'}</div>
 
-        <div>{enableSuccess && 'enableSuccess'}</div>
+//         <div>{enableSuccess && 'enableSuccess'}</div>
 
-        {/* ////////////////////////////////////////////////// */}
+//         {/* ////////////////////////////////////////////////// */}
 
-        <div>{disableLoading && 'disableLoading'}</div>
+//         <div>{disableLoading && 'disableLoading'}</div>
 
-        <div>{disableSuccess && 'disableSuccess'}</div>
+//         <div>{disableSuccess && 'disableSuccess'}</div>
 
-        {/* ////////////////////////////////////////////////// */}
+//         {/* ////////////////////////////////////////////////// */}
 
-        <button onClick={handleCreate}>create</button>
+//         <button onClick={handleCreate}>create</button>
 
-        <button onClick={handleEnable}>enable</button>
+//         <button onClick={handleEnable}>enable</button>
 
-        <button onClick={handleDisable}>disable</button>
-      </>
-    )
-  })
-  const SearchWrapper = storeWrapper(() => {
-    const {
-      data,
-      isLoading: searchIsLoading,
-      isSuccess: searchIsSuccess,
-      isFetching: searchIsFetching
-    } = usePostAddressSearchQueryMock({})
+//         <button onClick={handleDisable}>disable</button>
+//       </>
+//     )
+//   })
 
-    console.log(data)
+//   const SettingWrapper = storeWrapper(({ settingId }) => {
+//     const {
+//       data,
+//       isLoading: settingIsLoading,
+//       isSuccess: settingIsSuccess,
+//       isFetching: settingIsFetching
+//     } = useGetLabelQueryMock(settingId)
 
-    return (
-      <>
-        {/* ////////////////////////////////////////////////// */}
+//     console.log(data)
 
-        <div>{searchIsLoading && 'searchIsLoading'}</div>
+//     const [update, { isLoading: updateLoading, isSuccess: updateSuccess }] = usePutLabelMutationMock()
 
-        <div>{searchIsFetching && 'searchIsFetching'}</div>
+//     async function handleUpdate() {
+//       const data = await update(_updateData)
+//       console.log(data.error)
+//     }
 
-        <div>
-          {searchIsFetching && 'searchIsFetching'}
-          {searchIsSuccess && 'searchIsSuccess'}
-        </div>
-      </>
-    )
-  })
-  const SettingWrapper = storeWrapper(({ settingId }) => {
-    const {
-      data,
-      isLoading: settingIsLoading,
-      isSuccess: settingIsSuccess,
-      isFetching: settingIsFetching
-    } = useGetAddressQueryMock(settingId)
+//     return (
+//       <>
+//         {/* ////////////////////////////////////////////////// */}
 
-    console.log(data)
+//         <div>{settingIsLoading && 'settingIsLoading'}</div>
 
-    const [update, { isLoading: updateLoading, isSuccess: updateSuccess }] = usePutAddressMutationMock()
+//         <div>{settingIsFetching && 'settingIsFetching'}</div>
 
-    async function handleUpdate() {
-      const data = await update(_updateData)
-      console.log(data.error)
-    }
+//         <div>
+//           {settingIsFetching && 'settingIsFetching'}
+//           {settingIsSuccess && 'settingIsSuccess'}
+//         </div>
 
-    return (
-      <>
-        {/* ////////////////////////////////////////////////// */}
+//         {/* ////////////////////////////////////////////////// */}
 
-        <div>{settingIsLoading && 'settingIsLoading'}</div>
+//         <div>{updateLoading && 'updateLoading'}</div>
 
-        <div>{settingIsFetching && 'settingIsFetching'}</div>
+//         <div>{updateSuccess && 'updateSuccess'}</div>
 
-        <div>
-          {settingIsFetching && 'settingIsFetching'}
-          {settingIsSuccess && 'settingIsSuccess'}
-        </div>
-
-        {/* ////////////////////////////////////////////////// */}
-
-        <div>{updateLoading && 'updateLoading'}</div>
-
-        <div>{updateSuccess && 'updateSuccess'}</div>
-
-        {/* ////////////////////////////////////////////////// */}
-
-        <button onClick={handleUpdate}>update</button>
-      </>
-    )
-  })
-
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-
-  const { getByText: search } = render(<SearchWrapper />)
-
-  // const { getByText: setting } = render(<SettingWrapper settingId={_settingId} />)
-  const { getByText: settings } = render(<ListWrapper />)
-
-  // await waitFor(() => expect(setting('settingIsLoading')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(settings('settingsIsLoading')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(search('searchIsLoading')).toBeInTheDocument(), { timeout: 5000 })
-
-  // await waitFor(() => expect(setting('settingIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(settings('settingsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(search('searchIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
-
-  let state = store.getState()
-
-  // access tags used for cache management
-  let settingTags = state[apiSlice.reducerPath].provided['SETTING-ADDRESS']
-
-  let allSettings = selectAllAddresses(state)
-
-  console.log(settingTags)
-  console.log(allSettings)
-
-  let button = settings('disable')
-  fireEvent.click(button)
-
-  await waitFor(() => expect(settings('disableLoading')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(settings('disableSuccess')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(settings('settingsIsFetching')).toBeInTheDocument(), { timeout: 5000 })
-
-  // await waitFor(() => expect(setting('settingIsFetching')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(search('searchIsFetching')).toBeInTheDocument(), { timeout: 5000 })
-
-  // await waitFor(() => expect(setting('settingIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(settings('settingsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(search('searchIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
-
-  state = store.getState()
-
-  // access tags used for cache management
-  settingTags = state[apiSlice.reducerPath].provided['SETTING-ADDRESS']
-
-  allSettings = selectAllAddresses(state)
-
-  console.log(settingTags)
-  console.log(allSettings)
-}, 10000)
-
-test('assignee', async () => {
-  let _settingId = '1b775b2e-66c5-45f3-bab0-f9dfe586720b'
-
-  let _createData = {
-    name: 'Account Manager 002',
-    filters: {
-      dataSourceType: 'systemsetting_datasource_employee',
-      filters: {
-        columns: [
-          {
-            index: 0,
-            displayName: 'RoleName',
-            columnName: 'RoleName',
-            search: {
-              value: 'SALES',
-              operator: 0
-            }
-          }
-        ],
-        order: [
-          {
-            columnName: 'EmployeeAlias',
-            direction: 0
-          }
-        ]
-      }
-    },
-    companyName: '920502EB-684B-43DB-BB03-0BEF5FE00CE0',
-    description: 'testing redux'
-  }
-
-  let _updateData = {
-    assigneeId: _settingId,
-    name: 'Account Manager 0003',
-    filters: {
-      dataSourceType: 'systemsetting_datasource_employee',
-      filters: {
-        columns: [
-          {
-            index: 0,
-            displayName: 'RoleName',
-            columnName: 'RoleName',
-            search: {
-              value: 'SALES',
-              operator: 0
-            }
-          }
-        ],
-        order: [
-          {
-            columnName: 'EmployeeAlias',
-            direction: 0
-          }
-        ]
-      }
-    },
-    companyName: '920502EB-684B-43DB-BB03-0BEF5FE00CE0',
-    description: 'testing redux updated'
-  }
-
-  const useGetAssigneeQueryMock = jest.spyOn(settingApiSlice, 'useGetAssigneeQuery')
-  const useGetAssigneesQueryMock = jest.spyOn(settingApiSlice, 'useGetAssigneesQuery')
-  const useGetAssigneeDatasourceQueryMock = jest.spyOn(settingApiSlice, 'useGetAssigneeDatasourceQuery')
-  const usePostAssigneeMutationMock = jest.spyOn(settingApiSlice, 'usePostAssigneeMutation')
-  const usePutAssigneeMutationMock = jest.spyOn(settingApiSlice, 'usePutAssigneeMutation')
-  const usePutAssigneeEnableMutationMock = jest.spyOn(settingApiSlice, 'usePutAssigneeEnableMutation')
-  const usePutAssigneeDisableMutationMock = jest.spyOn(settingApiSlice, 'usePutAssigneeDisableMutation')
-
-  const ListWrapper = storeWrapper(() => {
-    const {
-      isLoading: settingsIsLoading,
-      isSuccess: settingsIsSuccess,
-      isFetching: settingsIsFetching
-    } = useGetAssigneesQueryMock()
-
-    const [create, { isSuccess: createSuccess, isLoading: createLoading }] = usePostAssigneeMutationMock()
-    const [enable, { isSuccess: enableSuccess, isLoading: enableLoading }] = usePutAssigneeEnableMutationMock()
-    const [disable, { isSuccess: disableSuccess, isLoading: disableLoading }] = usePutAssigneeDisableMutationMock()
-
-    async function handleCreate() {
-      const data = await create(_createData).unwrap()
-      console.log(data)
-    }
-
-    async function handleEnable() {
-      const data = await enable(_settingId).unwrap()
-      console.log(data)
-    }
-
-    async function handleDisable() {
-      const data = await disable(_settingId).unwrap()
-      console.log(data)
-    }
-
-    return (
-      <>
-        {/* ////////////////////////////////////////////////// */}
-
-        <div>{settingsIsLoading && 'settingsIsLoading'}</div>
+//         {/* ////////////////////////////////////////////////// */}
 
-        <div>{settingsIsFetching && 'settingsIsFetching'}</div>
+//         <button onClick={handleUpdate}>update</button>
+//       </>
+//     )
+//   })
 
-        <div>
-          {settingsIsFetching && 'settingsIsFetching'}
-          {settingsIsSuccess && 'settingsIsSuccess'}
-        </div>
+//   // eslint-disable-next-line @typescript-eslint/no-unused-vars
 
-        {/* ////////////////////////////////////////////////// */}
-
-        <div>{createLoading && 'createLoading'}</div>
+//   // const { getByText: setting } = render(<SettingWrapper settingId={_settingId} />)
+//   const { getByText: settings } = render(<ListWrapper />)
 
-        <div>{createSuccess && 'createSuccess'}</div>
+//   // await waitFor(() => expect(setting('settingIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(settings('settingsIsLoading')).toBeInTheDocument(), { timeout: 5000 })
 
-        {/* ////////////////////////////////////////////////// */}
+//   // await waitFor(() => expect(setting('settingIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(settings('settingsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
 
-        <div>{enableLoading && 'enableLoading'}</div>
+//   let state = store.getState()
 
-        <div>{enableSuccess && 'enableSuccess'}</div>
+//   // access tags used for cache management
+//   let settingTags = state[apiSlice.reducerPath].provided['SETTING-LABEL']
 
-        {/* ////////////////////////////////////////////////// */}
+//   let allSettings = selectAllLabels(state)
 
-        <div>{disableLoading && 'disableLoading'}</div>
+//   console.log(settingTags)
+//   console.log(allSettings)
 
-        <div>{disableSuccess && 'disableSuccess'}</div>
+//   let button = settings('disable')
+//   fireEvent.click(button)
 
-        {/* ////////////////////////////////////////////////// */}
+//   await waitFor(() => expect(settings('disableLoading')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(settings('disableSuccess')).toBeInTheDocument(), { timeout: 5000 })
 
-        <button onClick={handleCreate}>create</button>
+//   // await waitFor(() => expect(setting('settingIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(settings('settingsIsFetching')).toBeInTheDocument(), { timeout: 5000 })
 
-        <button onClick={handleEnable}>enable</button>
+//   // await waitFor(() => expect(setting('settingIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(settings('settingsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
 
-        <button onClick={handleDisable}>disable</button>
-      </>
-    )
-  })
-  const SettingWrapper = storeWrapper(({ settingId }) => {
-    const {
-      data,
-      isLoading: settingIsLoading,
-      isSuccess: settingIsSuccess,
-      isFetching: settingIsFetching
-    } = useGetAssigneeQueryMock(settingId)
-    const {
-      data: datasource,
-      isLoading: datasourceIsLoading,
-      isSuccess: datasourceIsSuccess,
-      isFetching: datasourceIsFetching
-    } = useGetAssigneeDatasourceQueryMock(settingId)
+//   state = store.getState()
 
-    console.log(data)
-    console.log(datasource)
+//   settingTags = state[apiSlice.reducerPath].provided['SETTING-LABEL']
 
-    const [update, { isLoading: updateLoading, isSuccess: updateSuccess }] = usePutAssigneeMutationMock()
+//   allSettings = selectAllLabels(state)
 
-    async function handleUpdate() {
-      const data = await update(_updateData)
-      console.log(data.error)
-    }
+//   console.log(settingTags)
+//   console.log(allSettings)
+// }, 10000)
+// test('LABEL', async () => {
+//   let _settingId = '3e23e714-d251-4de8-b627-a2de696a08e7'
 
-    return (
-      <>
-        {/* ////////////////////////////////////////////////// */}
+//   let _createData = {
+//     name: 'REDUX',
+//     type: 0
+//   }
 
-        <div>{settingIsLoading && 'settingIsLoading'}</div>
+//   let _updateData = {
+//     labelId: _settingId,
+//     name: 'REDUX UPDATE',
+//     type: 0
+//   }
 
-        <div>{settingIsFetching && 'settingIsFetching'}</div>
+//   const useGetLabelQueryMock = jest.spyOn(settingApiSlice, 'useGetLabelQuery')
+//   const usePostLabelSearchQueryMock = jest.spyOn(settingApiSlice, 'usePostLabelSearchQuery')
+//   const usePostLabelMutationMock = jest.spyOn(settingApiSlice, 'usePostLabelMutation')
+//   const usePutLabelMutationMock = jest.spyOn(settingApiSlice, 'usePutLabelMutation')
+//   const usePutLabelEnableMutationMock = jest.spyOn(settingApiSlice, 'usePutLabelEnableMutation')
+//   const usePutLabelDisableMutationMock = jest.spyOn(settingApiSlice, 'usePutLabelDisableMutation')
 
-        <div>
-          {settingIsFetching && 'settingIsFetching'}
-          {settingIsSuccess && 'settingIsSuccess'}
-        </div>
+//   const ListWrapper = storeWrapper(() => {
+//     const {
+//       isLoading: settingsIsLoading,
+//       isSuccess: settingsIsSuccess,
+//       isFetching: settingsIsFetching
+//     } = usePostLabelSearchQueryMock({})
 
-        {/* ////////////////////////////////////////////////// */}
+//     const [create, { isSuccess: createSuccess, isLoading: createLoading }] = usePostLabelMutationMock()
+//     const [enable, { isSuccess: enableSuccess, isLoading: enableLoading }] = usePutLabelEnableMutationMock()
+//     const [disable, { isSuccess: disableSuccess, isLoading: disableLoading }] = usePutLabelDisableMutationMock()
 
-        <div>{datasourceIsLoading && 'datasourceIsLoading'}</div>
+//     async function handleCreate() {
+//       const data = await create(_createData).unwrap()
+//       console.log(data)
+//     }
 
-        <div>{datasourceIsFetching && 'datasourceIsFetching'}</div>
+//     async function handleEnable() {
+//       const data = await enable(_settingId).unwrap()
+//       console.log(data)
+//     }
 
-        <div>
-          {datasourceIsFetching && 'datasourceIsFetching'}
-          {datasourceIsSuccess && 'datasourceIsSuccess'}
-        </div>
+//     async function handleDisable() {
+//       const data = await disable(_settingId).unwrap()
+//       console.log(data)
+//     }
 
-        {/* ////////////////////////////////////////////////// */}
+//     return (
+//       <>
+//         {/* ////////////////////////////////////////////////// */}
 
-        <div>{updateLoading && 'updateLoading'}</div>
+//         <div>{settingsIsLoading && 'settingsIsLoading'}</div>
 
-        <div>{updateSuccess && 'updateSuccess'}</div>
+//         <div>{settingsIsFetching && 'settingsIsFetching'}</div>
 
-        {/* ////////////////////////////////////////////////// */}
+//         <div>
+//           {settingsIsFetching && 'settingsIsFetching'}
+//           {settingsIsSuccess && 'settingsIsSuccess'}
+//         </div>
 
-        <button onClick={handleUpdate}>update</button>
-      </>
-    )
-  })
+//         {/* ////////////////////////////////////////////////// */}
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+//         <div>{createLoading && 'createLoading'}</div>
 
-  const { getByText: setting } = render(<SettingWrapper settingId={_settingId} />)
-  const { getByText: settings } = render(<ListWrapper />)
+//         <div>{createSuccess && 'createSuccess'}</div>
 
-  await waitFor(() => expect(settings('settingsIsLoading')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(setting('settingIsLoading')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(setting('datasourceIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+//         {/* ////////////////////////////////////////////////// */}
 
-  await waitFor(() => expect(settings('settingsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(setting('settingIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
-  await waitFor(() => expect(setting('datasourceIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//         <div>{enableLoading && 'enableLoading'}</div>
 
-  let state = store.getState()
+//         <div>{enableSuccess && 'enableSuccess'}</div>
 
-  // access tags used for cache management
-  let settingTags = state[apiSlice.reducerPath].provided['SETTING-ASSIGNEE']
+//         {/* ////////////////////////////////////////////////// */}
 
-  let allSettings = selectAllAssignees(state)
+//         <div>{disableLoading && 'disableLoading'}</div>
 
-  console.log(settingTags)
-  console.log(allSettings)
+//         <div>{disableSuccess && 'disableSuccess'}</div>
 
-  // let button = settings('disable')
-  // fireEvent.click(button)
+//         {/* ////////////////////////////////////////////////// */}
 
-  // await waitFor(() => expect(settings('disableLoading')).toBeInTheDocument(), { timeout: 5000 })
-  // await waitFor(() => expect(settings('disableSuccess')).toBeInTheDocument(), { timeout: 5000 })
-  // await waitFor(() => expect(settings('settingsIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+//         <button onClick={handleCreate}>create</button>
 
-  // await waitFor(() => expect(setting('settingIsFetching')).toBeInTheDocument(), { timeout: 5000 })
-  // await waitFor(() => expect(settings('settingsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//         <button onClick={handleEnable}>enable</button>
 
-  // await waitFor(() => expect(setting('settingIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//         <button onClick={handleDisable}>disable</button>
+//       </>
+//     )
+//   })
 
-  // state = store.getState()
+//   const SettingWrapper = storeWrapper(({ settingId }) => {
+//     const {
+//       data,
+//       isLoading: settingIsLoading,
+//       isSuccess: settingIsSuccess,
+//       isFetching: settingIsFetching
+//     } = useGetLabelQueryMock(settingId)
 
-  // // access tags used for cache management
-  // settingTags = state[apiSlice.reducerPath].provided['SETTING-ASSIGNEE']
+//     console.log(data)
 
-  // allSettings = selectAllAssignees(state)
+//     const [update, { isLoading: updateLoading, isSuccess: updateSuccess }] = usePutLabelMutationMock()
 
-  // console.log(settingTags)
-  // console.log(allSettings)
-}, 10000)
+//     async function handleUpdate() {
+//       const data = await update(_updateData)
+//       console.log(data.error)
+//     }
+
+//     return (
+//       <>
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{settingIsLoading && 'settingIsLoading'}</div>
+
+//         <div>{settingIsFetching && 'settingIsFetching'}</div>
+
+//         <div>
+//           {settingIsFetching && 'settingIsFetching'}
+//           {settingIsSuccess && 'settingIsSuccess'}
+//         </div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{updateLoading && 'updateLoading'}</div>
+
+//         <div>{updateSuccess && 'updateSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <button onClick={handleUpdate}>update</button>
+//       </>
+//     )
+//   })
+
+//   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+//   // const { getByText: setting } = render(<SettingWrapper settingId={_settingId} />)
+//   const { getByText: settings } = render(<ListWrapper />)
+
+//   // await waitFor(() => expect(setting('settingIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(settings('settingsIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+
+//   // await waitFor(() => expect(setting('settingIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(settings('settingsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+//   let state = store.getState()
+
+//   // access tags used for cache management
+//   let settingTags = state[apiSlice.reducerPath].provided['SETTING-LABEL']
+
+//   let allSettings = selectAllLabels(state)
+
+//   console.log(settingTags)
+//   console.log(allSettings)
+
+//   let button = settings('disable')
+//   fireEvent.click(button)
+
+//   await waitFor(() => expect(settings('disableLoading')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(settings('disableSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+//   // await waitFor(() => expect(setting('settingIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(settings('settingsIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+
+//   // await waitFor(() => expect(setting('settingIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(settings('settingsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+//   state = store.getState()
+
+//   settingTags = state[apiSlice.reducerPath].provided['SETTING-LABEL']
+
+//   allSettings = selectAllLabels(state)
+
+//   console.log(settingTags)
+//   console.log(allSettings)
+// }, 10000)
+
+// test('contact', async () => {
+//   let _settingId = 'd45631a2-5cfc-44f2-bcfc-0a8c43469447'
+
+//   let _createData = {
+//     name: 'Work Phone',
+//     type: 0
+//   }
+
+//   let _updateData = {
+//     contactId: _settingId,
+//     name: 'Employer Phone',
+//     type: 0
+//   }
+
+//   const useGetContactQueryMock = jest.spyOn(settingApiSlice, 'useGetContactQuery')
+//   const usePostContactSearchQueryMock = jest.spyOn(settingApiSlice, 'usePostContactSearchQuery')
+//   const usePostContactMutationMock = jest.spyOn(settingApiSlice, 'usePostContactMutation')
+//   const usePutContactMutationMock = jest.spyOn(settingApiSlice, 'usePutContactMutation')
+//   const usePutContactEnableMutationMock = jest.spyOn(settingApiSlice, 'usePutContactEnableMutation')
+//   const usePutContactDisableMutationMock = jest.spyOn(settingApiSlice, 'usePutContactDisableMutation')
+
+//   const ListWrapper = storeWrapper(() => {
+//     const {
+//       isLoading: settingsIsLoading,
+//       isSuccess: settingsIsSuccess,
+//       isFetching: settingsIsFetching
+//     } = usePostContactSearchQueryMock({})
+
+//     const [create, { isSuccess: createSuccess, isLoading: createLoading }] = usePostContactMutationMock()
+//     const [enable, { isSuccess: enableSuccess, isLoading: enableLoading }] = usePutContactEnableMutationMock()
+//     const [disable, { isSuccess: disableSuccess, isLoading: disableLoading }] = usePutContactDisableMutationMock()
+
+//     async function handleCreate() {
+//       const data = await create(_createData).unwrap()
+//       console.log(data)
+//     }
+
+//     async function handleEnable() {
+//       const data = await enable(_settingId).unwrap()
+//       console.log(data)
+//     }
+
+//     async function handleDisable() {
+//       const data = await disable(_settingId).unwrap()
+//       console.log(data)
+//     }
+
+//     return (
+//       <>
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{settingsIsLoading && 'settingsIsLoading'}</div>
+
+//         <div>{settingsIsFetching && 'settingsIsFetching'}</div>
+
+//         <div>
+//           {settingsIsFetching && 'settingsIsFetching'}
+//           {settingsIsSuccess && 'settingsIsSuccess'}
+//         </div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{createLoading && 'createLoading'}</div>
+
+//         <div>{createSuccess && 'createSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{enableLoading && 'enableLoading'}</div>
+
+//         <div>{enableSuccess && 'enableSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{disableLoading && 'disableLoading'}</div>
+
+//         <div>{disableSuccess && 'disableSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <button onClick={handleCreate}>create</button>
+
+//         <button onClick={handleEnable}>enable</button>
+
+//         <button onClick={handleDisable}>disable</button>
+//       </>
+//     )
+//   })
+
+//   const SettingWrapper = storeWrapper(({ settingId }) => {
+//     const {
+//       data,
+//       isLoading: settingIsLoading,
+//       isSuccess: settingIsSuccess,
+//       isFetching: settingIsFetching
+//     } = useGetContactQueryMock(settingId)
+
+//     console.log(data)
+
+//     const [update, { isLoading: updateLoading, isSuccess: updateSuccess }] = usePutContactMutationMock()
+
+//     async function handleUpdate() {
+//       const data = await update(_updateData)
+//       console.log(data.error)
+//     }
+
+//     return (
+//       <>
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{settingIsLoading && 'settingIsLoading'}</div>
+
+//         <div>{settingIsFetching && 'settingIsFetching'}</div>
+
+//         <div>
+//           {settingIsFetching && 'settingIsFetching'}
+//           {settingIsSuccess && 'settingIsSuccess'}
+//         </div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{updateLoading && 'updateLoading'}</div>
+
+//         <div>{updateSuccess && 'updateSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <button onClick={handleUpdate}>update</button>
+//       </>
+//     )
+//   })
+
+//   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+//   // const { getByText: setting } = render(<SettingWrapper settingId={_settingId} />)
+//   const { getByText: settings } = render(<ListWrapper />)
+
+//   // await waitFor(() => expect(setting('settingIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(settings('settingsIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+
+//   // await waitFor(() => expect(setting('settingIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(settings('settingsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+//   let state = store.getState()
+
+//   // access tags used for cache management
+//   let settingTags = state[apiSlice.reducerPath].provided['SETTING-CONTACT']
+
+//   let allSettings = selectAllContacts(state)
+
+//   console.log(settingTags)
+//   console.log(allSettings)
+
+//   let button = settings('disable')
+//   fireEvent.click(button)
+
+//   await waitFor(() => expect(settings('disableLoading')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(settings('disableSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+//   // await waitFor(() => expect(setting('settingIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(settings('settingsIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+
+//   // await waitFor(() => expect(setting('settingIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(settings('settingsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+//   state = store.getState()
+
+//   // access tags used for cache management
+//   settingTags = state[apiSlice.reducerPath].provided['SETTING-CONTACT']
+
+//   allSettings = selectAllContacts(state)
+
+//   console.log(settingTags)
+//   console.log(allSettings)
+// }, 10000)
+
+// test('address', async () => {
+//   let _settingId = '43916d1e-1461-493e-b170-c19c64409dfe'
+
+//   let _createData = {
+//     name: 'Redux Address'
+//   }
+
+//   let _updateData = {
+//     addressId: _settingId,
+//     name: 'REDUX update address'
+//   }
+
+//   const useGetAddressQueryMock = jest.spyOn(settingApiSlice, 'useGetAddressQuery')
+//   const useGetAddressesQueryMock = jest.spyOn(settingApiSlice, 'useGetAddressesQuery')
+//   const usePostAddressMutationMock = jest.spyOn(settingApiSlice, 'usePostAddressMutation')
+//   const usePostAddressSearchQueryMock = jest.spyOn(settingApiSlice, 'usePostAddressSearchQuery')
+//   const usePutAddressMutationMock = jest.spyOn(settingApiSlice, 'usePutAddressMutation')
+//   const usePutAddressEnableMutationMock = jest.spyOn(settingApiSlice, 'usePutAddressEnableMutation')
+//   const usePutAddressDisableMutationMock = jest.spyOn(settingApiSlice, 'usePutAddressDisableMutation')
+
+//   const ListWrapper = storeWrapper(() => {
+//     const {
+//       isLoading: settingsIsLoading,
+//       isSuccess: settingsIsSuccess,
+//       isFetching: settingsIsFetching
+//     } = useGetAddressesQueryMock()
+
+//     const [create, { isSuccess: createSuccess, isLoading: createLoading }] = usePostAddressMutationMock()
+//     const [enable, { isSuccess: enableSuccess, isLoading: enableLoading }] = usePutAddressEnableMutationMock()
+//     const [disable, { isSuccess: disableSuccess, isLoading: disableLoading }] = usePutAddressDisableMutationMock()
+
+//     async function handleCreate() {
+//       const data = await create(_createData).unwrap()
+//       console.log(data)
+//     }
+
+//     async function handleEnable() {
+//       const data = await enable(_settingId).unwrap()
+//       console.log(data)
+//     }
+
+//     async function handleDisable() {
+//       const data = await disable(_settingId).unwrap()
+//       console.log(data)
+//     }
+
+//     return (
+//       <>
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{settingsIsLoading && 'settingsIsLoading'}</div>
+
+//         <div>{settingsIsFetching && 'settingsIsFetching'}</div>
+
+//         <div>
+//           {settingsIsFetching && 'settingsIsFetching'}
+//           {settingsIsSuccess && 'settingsIsSuccess'}
+//         </div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{createLoading && 'createLoading'}</div>
+
+//         <div>{createSuccess && 'createSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{enableLoading && 'enableLoading'}</div>
+
+//         <div>{enableSuccess && 'enableSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{disableLoading && 'disableLoading'}</div>
+
+//         <div>{disableSuccess && 'disableSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <button onClick={handleCreate}>create</button>
+
+//         <button onClick={handleEnable}>enable</button>
+
+//         <button onClick={handleDisable}>disable</button>
+//       </>
+//     )
+//   })
+//   const SearchWrapper = storeWrapper(() => {
+//     const {
+//       data,
+//       isLoading: searchIsLoading,
+//       isSuccess: searchIsSuccess,
+//       isFetching: searchIsFetching
+//     } = usePostAddressSearchQueryMock({})
+
+//     console.log(data)
+
+//     return (
+//       <>
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{searchIsLoading && 'searchIsLoading'}</div>
+
+//         <div>{searchIsFetching && 'searchIsFetching'}</div>
+
+//         <div>
+//           {searchIsFetching && 'searchIsFetching'}
+//           {searchIsSuccess && 'searchIsSuccess'}
+//         </div>
+//       </>
+//     )
+//   })
+//   const SettingWrapper = storeWrapper(({ settingId }) => {
+//     const {
+//       data,
+//       isLoading: settingIsLoading,
+//       isSuccess: settingIsSuccess,
+//       isFetching: settingIsFetching
+//     } = useGetAddressQueryMock(settingId)
+
+//     console.log(data)
+
+//     const [update, { isLoading: updateLoading, isSuccess: updateSuccess }] = usePutAddressMutationMock()
+
+//     async function handleUpdate() {
+//       const data = await update(_updateData)
+//       console.log(data.error)
+//     }
+
+//     return (
+//       <>
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{settingIsLoading && 'settingIsLoading'}</div>
+
+//         <div>{settingIsFetching && 'settingIsFetching'}</div>
+
+//         <div>
+//           {settingIsFetching && 'settingIsFetching'}
+//           {settingIsSuccess && 'settingIsSuccess'}
+//         </div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{updateLoading && 'updateLoading'}</div>
+
+//         <div>{updateSuccess && 'updateSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <button onClick={handleUpdate}>update</button>
+//       </>
+//     )
+//   })
+
+//   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+//   const { getByText: search } = render(<SearchWrapper />)
+
+//   // const { getByText: setting } = render(<SettingWrapper settingId={_settingId} />)
+//   const { getByText: settings } = render(<ListWrapper />)
+
+//   // await waitFor(() => expect(setting('settingIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(settings('settingsIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(search('searchIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+
+//   // await waitFor(() => expect(setting('settingIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(settings('settingsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(search('searchIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+//   let state = store.getState()
+
+//   // access tags used for cache management
+//   let settingTags = state[apiSlice.reducerPath].provided['SETTING-ADDRESS']
+
+//   let allSettings = selectAllAddresses(state)
+
+//   console.log(settingTags)
+//   console.log(allSettings)
+
+//   let button = settings('disable')
+//   fireEvent.click(button)
+
+//   await waitFor(() => expect(settings('disableLoading')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(settings('disableSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(settings('settingsIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+
+//   // await waitFor(() => expect(setting('settingIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(search('searchIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+
+//   // await waitFor(() => expect(setting('settingIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(settings('settingsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(search('searchIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+//   state = store.getState()
+
+//   // access tags used for cache management
+//   settingTags = state[apiSlice.reducerPath].provided['SETTING-ADDRESS']
+
+//   allSettings = selectAllAddresses(state)
+
+//   console.log(settingTags)
+//   console.log(allSettings)
+// }, 10000)
+
+// test('assignee', async () => {
+//   let _settingId = '1b775b2e-66c5-45f3-bab0-f9dfe586720b'
+
+//   let _createData = {
+//     name: 'Account Manager 002',
+//     filters: {
+//       dataSourceType: 'systemsetting_datasource_employee',
+//       filters: {
+//         columns: [
+//           {
+//             index: 0,
+//             displayName: 'RoleName',
+//             columnName: 'RoleName',
+//             search: {
+//               value: 'SALES',
+//               operator: 0
+//             }
+//           }
+//         ],
+//         order: [
+//           {
+//             columnName: 'EmployeeAlias',
+//             direction: 0
+//           }
+//         ]
+//       }
+//     },
+//     companyName: '920502EB-684B-43DB-BB03-0BEF5FE00CE0',
+//     description: 'testing redux'
+//   }
+
+//   let _updateData = {
+//     assigneeId: _settingId,
+//     name: 'Account Manager 0003',
+//     filters: {
+//       dataSourceType: 'systemsetting_datasource_employee',
+//       filters: {
+//         columns: [
+//           {
+//             index: 0,
+//             displayName: 'RoleName',
+//             columnName: 'RoleName',
+//             search: {
+//               value: 'SALES',
+//               operator: 0
+//             }
+//           }
+//         ],
+//         order: [
+//           {
+//             columnName: 'EmployeeAlias',
+//             direction: 0
+//           }
+//         ]
+//       }
+//     },
+//     companyName: '920502EB-684B-43DB-BB03-0BEF5FE00CE0',
+//     description: 'testing redux updated'
+//   }
+
+//   const useGetAssigneeQueryMock = jest.spyOn(settingApiSlice, 'useGetAssigneeQuery')
+//   const useGetAssigneesQueryMock = jest.spyOn(settingApiSlice, 'useGetAssigneesQuery')
+//   const useGetAssigneeDatasourceQueryMock = jest.spyOn(settingApiSlice, 'useGetAssigneeDatasourceQuery')
+//   const usePostAssigneeMutationMock = jest.spyOn(settingApiSlice, 'usePostAssigneeMutation')
+//   const usePutAssigneeMutationMock = jest.spyOn(settingApiSlice, 'usePutAssigneeMutation')
+//   const usePutAssigneeEnableMutationMock = jest.spyOn(settingApiSlice, 'usePutAssigneeEnableMutation')
+//   const usePutAssigneeDisableMutationMock = jest.spyOn(settingApiSlice, 'usePutAssigneeDisableMutation')
+
+//   const ListWrapper = storeWrapper(() => {
+//     const {
+//       isLoading: settingsIsLoading,
+//       isSuccess: settingsIsSuccess,
+//       isFetching: settingsIsFetching
+//     } = useGetAssigneesQueryMock()
+
+//     const [create, { isSuccess: createSuccess, isLoading: createLoading }] = usePostAssigneeMutationMock()
+//     const [enable, { isSuccess: enableSuccess, isLoading: enableLoading }] = usePutAssigneeEnableMutationMock()
+//     const [disable, { isSuccess: disableSuccess, isLoading: disableLoading }] = usePutAssigneeDisableMutationMock()
+
+//     async function handleCreate() {
+//       const data = await create(_createData).unwrap()
+//       console.log(data)
+//     }
+
+//     async function handleEnable() {
+//       const data = await enable(_settingId).unwrap()
+//       console.log(data)
+//     }
+
+//     async function handleDisable() {
+//       const data = await disable(_settingId).unwrap()
+//       console.log(data)
+//     }
+
+//     return (
+//       <>
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{settingsIsLoading && 'settingsIsLoading'}</div>
+
+//         <div>{settingsIsFetching && 'settingsIsFetching'}</div>
+
+//         <div>
+//           {settingsIsFetching && 'settingsIsFetching'}
+//           {settingsIsSuccess && 'settingsIsSuccess'}
+//         </div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{createLoading && 'createLoading'}</div>
+
+//         <div>{createSuccess && 'createSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{enableLoading && 'enableLoading'}</div>
+
+//         <div>{enableSuccess && 'enableSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{disableLoading && 'disableLoading'}</div>
+
+//         <div>{disableSuccess && 'disableSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <button onClick={handleCreate}>create</button>
+
+//         <button onClick={handleEnable}>enable</button>
+
+//         <button onClick={handleDisable}>disable</button>
+//       </>
+//     )
+//   })
+//   const SettingWrapper = storeWrapper(({ settingId }) => {
+//     const {
+//       data,
+//       isLoading: settingIsLoading,
+//       isSuccess: settingIsSuccess,
+//       isFetching: settingIsFetching
+//     } = useGetAssigneeQueryMock(settingId)
+//     const {
+//       data: datasource,
+//       isLoading: datasourceIsLoading,
+//       isSuccess: datasourceIsSuccess,
+//       isFetching: datasourceIsFetching
+//     } = useGetAssigneeDatasourceQueryMock(settingId)
+
+//     console.log(data)
+//     console.log(datasource)
+
+//     const [update, { isLoading: updateLoading, isSuccess: updateSuccess }] = usePutAssigneeMutationMock()
+
+//     async function handleUpdate() {
+//       const data = await update(_updateData)
+//       console.log(data.error)
+//     }
+
+//     return (
+//       <>
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{settingIsLoading && 'settingIsLoading'}</div>
+
+//         <div>{settingIsFetching && 'settingIsFetching'}</div>
+
+//         <div>
+//           {settingIsFetching && 'settingIsFetching'}
+//           {settingIsSuccess && 'settingIsSuccess'}
+//         </div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{datasourceIsLoading && 'datasourceIsLoading'}</div>
+
+//         <div>{datasourceIsFetching && 'datasourceIsFetching'}</div>
+
+//         <div>
+//           {datasourceIsFetching && 'datasourceIsFetching'}
+//           {datasourceIsSuccess && 'datasourceIsSuccess'}
+//         </div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <div>{updateLoading && 'updateLoading'}</div>
+
+//         <div>{updateSuccess && 'updateSuccess'}</div>
+
+//         {/* ////////////////////////////////////////////////// */}
+
+//         <button onClick={handleUpdate}>update</button>
+//       </>
+//     )
+//   })
+
+//   // eslint-disable-next-line @typescript-eslint/no-unused-vars
+
+//   const { getByText: setting } = render(<SettingWrapper settingId={_settingId} />)
+//   const { getByText: settings } = render(<ListWrapper />)
+
+//   await waitFor(() => expect(settings('settingsIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(setting('settingIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(setting('datasourceIsLoading')).toBeInTheDocument(), { timeout: 5000 })
+
+//   await waitFor(() => expect(settings('settingsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(setting('settingIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//   await waitFor(() => expect(setting('datasourceIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+//   let state = store.getState()
+
+//   // access tags used for cache management
+//   let settingTags = state[apiSlice.reducerPath].provided['SETTING-ASSIGNEE']
+
+//   let allSettings = selectAllAssignees(state)
+
+//   console.log(settingTags)
+//   console.log(allSettings)
+
+//   // let button = settings('disable')
+//   // fireEvent.click(button)
+
+//   // await waitFor(() => expect(settings('disableLoading')).toBeInTheDocument(), { timeout: 5000 })
+//   // await waitFor(() => expect(settings('disableSuccess')).toBeInTheDocument(), { timeout: 5000 })
+//   // await waitFor(() => expect(settings('settingsIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+
+//   // await waitFor(() => expect(setting('settingIsFetching')).toBeInTheDocument(), { timeout: 5000 })
+//   // await waitFor(() => expect(settings('settingsIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+//   // await waitFor(() => expect(setting('settingIsSuccess')).toBeInTheDocument(), { timeout: 5000 })
+
+//   // state = store.getState()
+
+//   // // access tags used for cache management
+//   // settingTags = state[apiSlice.reducerPath].provided['SETTING-ASSIGNEE']
+
+//   // allSettings = selectAllAssignees(state)
+
+//   // console.log(settingTags)
+//   // console.log(allSettings)
+// }, 10000)

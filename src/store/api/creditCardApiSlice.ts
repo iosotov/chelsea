@@ -94,7 +94,7 @@ export const creditCardApiSlice = apiSlice.injectEndpoints({
         ]
       }
     }),
-    createCreditCard: builder.mutation<string, CreditCardCreateType>({
+    postCreditCardCreate: builder.mutation<string, CreditCardCreateType>({
       query: body => {
         return {
           url: `/creditcard/${body.profileId}/profile`,
@@ -120,10 +120,9 @@ export const creditCardApiSlice = apiSlice.injectEndpoints({
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'CREDITCARD', id: arg.profileId }] : [])
     }),
-    updateCreditCard: builder.mutation<string, CreditCardUpdateType>({
+    putCreditCardUpdate: builder.mutation<string, CreditCardUpdateType>({
       query: params => {
         const { creditCardId, ...body } = params
-        console.log(body)
 
         return {
           url: `/creditcard/${creditCardId}`,

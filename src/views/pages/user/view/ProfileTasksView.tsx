@@ -49,10 +49,11 @@ import { SettingsContext } from 'src/@core/context/settingsContext'
 import {
   useGetTaskQuery,
   useGetProfileTasksQuery,
-  usePutUpdateTaskMutation,
-  usePostCreateTaskMutation,
+  usePutTaskUpdateMutation,
+  usePostTaskCreateMutation,
+  usePostTaskSearchQuery,
   useDeleteTaskMutation,
-  usePutBulkUpdateTasksMutation
+  usePutTasksBulkUpdateMutation
 } from 'src/store/api/apiHooks'
 import { useAppSelector } from 'src/store/hooks'
 import { selectTaskByProfileId } from 'src/store/taskSlice'
@@ -88,7 +89,6 @@ const CustomPaymentInput = forwardRef(({ ...props }, ref: ForwardedRef<HTMLEleme
 
 const ProfileTasks = ({ id }: any) => {
   // console.log(data)
-  console.log(id)
 
   // const Transition = forwardRef(function Transition(
   //   props: FadeProps & { children?: ReactElement<any, any> },
@@ -104,7 +104,7 @@ const ProfileTasks = ({ id }: any) => {
   const [data, setData] = useState<any>([])
 
   //Drawer Form variables
-  const [drawerTitle, setDrawerTitle] = useState<string>('Add')
+  const [drawerTitle, setDrawerTitle] = useState<string>('Create')
   const [group, setGroup] = useState<string>('Users')
   const [taskName, setTaskName] = useState<string>('')
   const profileTask = useAppSelector(state => selectTaskByProfileId(state, profileId))
@@ -121,30 +121,45 @@ const ProfileTasks = ({ id }: any) => {
 
   //State Management
   //set selectedTask type to taskType
-  const [checkedValues, setCheckedValues] = useState([])
+
+  const [checkedValues, setCheckedValues] = useState<any>([])
+
   const [selectedTask, setSelectedTask] = useState<any>({})
   const [focus, setFocus] = useState<Focused>()
   const [openAddTask, setOpenAddTask] = useState<boolean>(false)
   const [openEditTask, setOpenEditTask] = useState<boolean>(false)
 
   //Api Calls
-  const [triggerCreate, { isSuccess: triggerSuccess }] = usePostCreateTaskMutation()
-  const [triggerUpdate, { isSuccess: editApiSuccess }] = usePutUpdateTaskMutation()
+  const [triggerCreate, { isSuccess: triggerSuccess }] = usePostTaskCreateMutation()
+  const [triggerUpdate, { isSuccess: editApiSuccess }] = usePutTaskUpdateMutation()
   const [triggerDelete, { isSuccess: deleteApiSuccess }] = useDeleteTaskMutation()
-  const [triggerBulkUpdate, { isSuccess: bulkUpdateApiSuccess }] = usePutBulkUpdateTasksMutation()
+  const [triggerBulkUpdate, { isSuccess: bulkUpdateApiSuccess }] = usePutTasksBulkUpdateMutation()
 
   const label = { inputProps: { 'aria-label': 'Checkbox demo' } }
 
   const { isLoading, isSuccess, isError } = useGetProfileTasksQuery(profileId)
-  console.log(isLoading, isSuccess, isError)
 
-  console.log(profileTask)
+  // console.log(isLoading, isSuccess, isError)
 
   const dataWithIndex = profileTask.map((obj, index) => {
     return { ...obj, id: index }
   })
   rows = dataWithIndex
-  console.log(rows)
+  useEffect(() => {
+    if (checkedValues) {
+      if (checkedValues.length == 0) {
+        setDrawerTitle('Create')
+      }
+      if (checkedValues.length == 1) {
+        setDrawerTitle('Edit')
+      }
+      if (checkedValues.length > 1) {
+        setDrawerTitle('Bulk Update')
+      }
+    }
+
+    // setSelectedTask({})
+  }, [checkedValues])
 
   // const loadData = () => {
   //   rows = []
@@ -205,9 +220,10 @@ const ProfileTasks = ({ id }: any) => {
 
   //selected Task useeffect
 
-  useEffect(() => {
-    openEditDrawer()
-  }, [selectedTask])
+  // useEffect(() => {
+  //   openEditDrawer()
+  //   // openadd
+  // }, [selectedTask])
 
   function openEditDrawer() {
     console.log(selectedTask)
@@ -233,7 +249,6 @@ const ProfileTasks = ({ id }: any) => {
       assignType: 2,
       notes: note
     }
-    console.log(testData)
 
     const postResponse = await triggerCreate(testData).unwrap()
     console.log(postResponse)
@@ -254,19 +269,19 @@ const ProfileTasks = ({ id }: any) => {
     }
     console.log(testEditData)
 
-    // const putResponse = await triggerUpdate(testEditData).unwrap()
-    // console.log(putResponse)
+    const putResponse = await triggerUpdate(testEditData).unwrap()
+    console.log(putResponse)
   }
 
   async function handleDeleteClick() {
+    console.log(selectedTask)
     const delResponse = await triggerDelete(selectedTask.taskId).unwrap()
     console.log(delResponse)
   }
 
   async function handleBulkUpdateClick() {
-    console.log(checkedValues)
     const testEditData = {
-      taskIds: selectedTask.taskId,
+      taskIds: checkedValues,
 
       // taskName: taskName,
 
@@ -279,28 +294,51 @@ const ProfileTasks = ({ id }: any) => {
       notes: note,
       status: 1
     }
-    console.log(testEditData)
 
-    // const bulkUpdateResponse = await triggerBulkUpdate(testEditData).unwrap()
-    // console.log(bulkUpdateResponse)
+    const bulkUpdateResponse = await triggerBulkUpdate(testEditData).unwrap()
+    console.log(bulkUpdateResponse)
   }
 
   const handleEditTaskOpen = () => {
-    setDrawerTitle('Edit')
+    // setDrawerTitle('Edit')
 
     setTaskName(selectedTask.taskName ?? '')
+
+    // setTaskName(findEntry?.taskName ?? '')
     setSelectedGroup('')
 
     // setPaymentDate(new Date(selectedTask.dueDate ?? ''))
-    setPaymentDate(selectedTask.dueDate)
+    setPaymentDate(selectedTask.dueDate ?? '')
 
     // setPaymentDate('')
     setStatus('')
     setNote(selectedTask.notes ?? '')
+    setOpenAddTask(true)
+  }
+
+  const actionChecker = () => {
+    console.log(drawerTitle)
+    console.log(checkedValues)
+    console.log(openAddTask)
+
+    // setOpenAddTask(false)
+    if (checkedValues.length == 1) {
+      // const findEntry = profileTask.find(item => item.taskId !== checkedValues[0])
+      // setSelectedTask(findEntry)
+      // console.log(selectedTask)
+      handleEditTaskOpen()
+    }
+    if (checkedValues.length > 1) {
+      handleBulkEditTaskOpen()
+    }
+    if (checkedValues.length == 0) {
+      handleAddTaskOpen()
+    }
   }
 
   const handleAddTaskOpen = () => {
-    setDrawerTitle('Add')
+    // actionChecker()
+    // setDrawerTitle('Create')
     setTaskName('')
     setSelectedGroup('')
     setPaymentDate('')
@@ -310,6 +348,23 @@ const ProfileTasks = ({ id }: any) => {
     setNote('')
     setOpenAddTask(true)
   }
+
+  const handleBulkEditTaskOpen = () => {
+    // setDrawerTitle('Bulk Update')
+
+    setTaskName('')
+    setSelectedGroup('')
+
+    // setPaymentDate(new Date(selectedTask.dueDate ?? ''))
+    setPaymentDate('')
+
+    // setPaymentDate('')
+    setStatus('')
+    setNote('')
+    setOpenAddTask(true)
+  }
+
+  // const handleBulkEditTaskClose = () => {}
 
   const handleEditTaskClose = () => {
     console.log('Closing')
@@ -332,12 +387,11 @@ const ProfileTasks = ({ id }: any) => {
     //can do formatting here
     if (target.name === 'task-name') {
       // target.value = formatCreditCardNumber(target.value, Payment)
-      console.log('same name target')
+
       setTaskName(target.value)
     } else if (target.name === 'task-note') {
       // target.value = formatExpirationDate(target.value)
       setNote(target.value)
-      console.log('same name note')
     } else if (target.name === 'task-paymentDate') {
       setPaymentDate(target.value)
     }
@@ -362,50 +416,23 @@ const ProfileTasks = ({ id }: any) => {
     }
   }
 
-  //generate button for editById
-  // const renderEditTaskButton = params => {
-  //   return (
-  //     <strong>
-  //       <IconButton
-  //         sx={{ color: '#497ce2' }}
-  //         onClick={() => {
-  //           handleGetTaskById(params)
-  //         }}
-  //       >
-  //         {/* {params.row.taskId} */}
-  //         <Icon icon='mdi:edit' />
-  //       </IconButton>
-  //     </strong>
-  //   )
-  // }
-
-  // const pushSelected = value => {
-  //   const copySelected = selectedList
-  //   console.log(copySelected)
-  //   copySelected.push(value)
-  //   console.log(copySelected)
-  //   console.log(selectedList)
-  //   console.log(value)
-  // }
-
   const handleCheckboxChange = event => {
-    console.log(event)
+    // checkbox not rendered need to persist
     const value = event.target.value
     if (event.target.checked) {
       setCheckedValues([...checkedValues, value])
+      const findEntry = profileTask.find(item => item.taskId !== checkedValues[0])
+      setSelectedTask(findEntry)
     } else {
       setCheckedValues(checkedValues.filter(item => item !== value))
     }
-    console.log(checkedValues)
   }
-  const renderEditTaskButton = params => {
-    console.log(params)
-
+  const renderEditTaskCheckbox = params => {
     return <Checkbox {...label} value={params.row.taskId} onChange={handleCheckboxChange} />
   }
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 120, renderCell: renderEditTaskButton },
+    { field: 'id', headerName: 'ID', width: 120, renderCell: renderEditTaskCheckbox },
     {
       field: 'taskName',
       headerName: 'Task Name',
@@ -464,12 +491,14 @@ const ProfileTasks = ({ id }: any) => {
 
   const resetForm = () => {
     console.log('Resetting Drawer')
-    setDrawerTitle('Add')
+
+    // setDrawerTitle('Create')
     setTaskName('')
     setSelectedGroup('')
     setPaymentDate('')
     setStatus('')
     setNote('')
+    setCheckedValues([])
 
     // setOpenEditTask(false)
   }
@@ -491,30 +520,41 @@ const ProfileTasks = ({ id }: any) => {
     <>
       <Grid container spacing={6}>
         <Grid item xs={12}>
-          {/* <Box sx={{ height: 50, width: '100%' }}> */} <Typography variant='h5'>Tasks</Typography>
+          {/* <Box sx={{ height: 50, width: '100%' }}> */}
+          <Typography variant='h5'>Tasks</Typography>
+
           <Button
             size='medium'
             type='submit'
             variant='contained'
             color='secondary'
             sx={{ mb: 7, position: 'absolute', right: '12%' }}
-            onClick={handleAddTaskOpen}
+            // onClick={handleAddTaskOpen}
+            onClick={actionChecker}
+
+            // disabled={checkedValues.length > 1}
           >
-            Create Task
+            {checkedValues.length > 1 && <div>{drawerTitle + ' ' + checkedValues.length} Tasks</div>}
+            {checkedValues.length < 1 && <div>{drawerTitle} Task</div>}
+            {checkedValues.length == 1 && <div>{drawerTitle + ' ' + checkedValues.length} Task</div>}
+            {/* {drawerTitle + ' ' + checkedValues.length} Task */}
           </Button>
           {/* </Box> */}
-        </Grid>
-        <Grid item xs={12}>
-          <Button
+          {/* </Grid>
+        <Grid item xs={12}> */}
+          {/* BULKUPDATE BUTTON */}
+          {/* <Button
             size='medium'
             type='submit'
             variant='contained'
             color='secondary'
             sx={{ mb: 7, position: 'absolute', right: '24%' }}
-            onClick={() => handleBulkUpdateClick()}
+            // onClick={() => handleBulkEditTaskOpen()}
+            onClick={actionChecker}
+            disabled={checkedValues.length <= 1}
           >
             Bulk Update Task
-          </Button>
+          </Button> */}
         </Grid>
         <Grid item xs={12}>
           <Box sx={{ height: 400, width: '100%' }}>
@@ -542,9 +582,7 @@ const ProfileTasks = ({ id }: any) => {
             </Header>
 
             <Box sx={{ p: 5 }}>
-              <Box sx={{ mb: 6 }}>
-                <FormControl fullWidth>
-                  <TextField
+              {/* <TextField
                     fullWidth
                     name='task-name'
                     label='Task Name'
@@ -555,8 +593,45 @@ const ProfileTasks = ({ id }: any) => {
                     onChange={handleInputChange}
                     inputProps={{ maxLength: 100 }}
                     onFocus={e => setFocus(e.target.name as Focused)}
-                  />
-                  {/* <InputLabel htmlFor='payment-method'>Task Name</InputLabel>
+                  /> */}
+              {drawerTitle != 'Bulk Update' && (
+                <Box sx={{ mb: 6 }}>
+                  <FormControl fullWidth>
+                    <TextField
+                      fullWidth
+                      name='task-name'
+                      label='Task Name'
+                      value={taskName ?? ''}
+                      // defaultValue='hi'
+                      onBlur={handleBlur}
+                      placeholder='Task Name'
+                      onChange={handleInputChange}
+                      inputProps={{ maxLength: 100 }}
+                      onFocus={e => setFocus(e.target.name as Focused)}
+                    />
+                  </FormControl>
+                </Box>
+              )}
+              {drawerTitle === 'Bulk Update' && (
+                <Box sx={{ mb: 6 }}>
+                  <FormControl fullWidth>
+                    <TextField
+                      fullWidth
+                      name='task-name'
+                      label='Task Name'
+                      value={taskName ?? ''}
+                      // defaultValue='hi'
+                      onBlur={handleBlur}
+                      placeholder='Task Name'
+                      onChange={handleInputChange}
+                      inputProps={{ maxLength: 100 }}
+                      onFocus={e => setFocus(e.target.name as Focused)}
+                      disabled={true}
+                    />
+                  </FormControl>
+                </Box>
+              )}
+              {/* <InputLabel htmlFor='payment-method'>Task Name</InputLabel>
                   <Select
                     label='Task Name'
                     labelId='task-name'
@@ -569,16 +644,15 @@ const ProfileTasks = ({ id }: any) => {
                       Select Task Name
 
                     </MenuItem> */}
-                  {/* swtich to select if edit, else use textfield */}
-                  {/* {options.map(option => (
+              {/* swtich to select if edit, else use textfield */}
+              {/* {options.map(option => (
                 <MenuItem key={option.taskName} value={option.id}>
                   {option.taskName}
                 </MenuItem>
               ))} */}
 
-                  {/* </Select> */}
-                </FormControl>
-              </Box>
+              {/* </Select> */}
+
               {/* <Box sx={{ mb: 6 }}>
           <TextField
             fullWidth
@@ -680,7 +754,7 @@ const ProfileTasks = ({ id }: any) => {
 
               <div>
                 {/* conditional rendering button */}
-                {drawerTitle === 'Add' && (
+                {drawerTitle === 'Create' && (
                   <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleCreateClick()}>
                     Create
                   </Button>
@@ -688,6 +762,11 @@ const ProfileTasks = ({ id }: any) => {
                 {drawerTitle === 'Edit' && (
                   <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleEditClick()}>
                     Update
+                  </Button>
+                )}
+                {drawerTitle === 'Bulk Update' && (
+                  <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleBulkUpdateClick()}>
+                    Bulk Update
                   </Button>
                 )}
 
