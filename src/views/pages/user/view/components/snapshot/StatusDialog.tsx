@@ -17,7 +17,11 @@ import Icon from 'src/@core/components/icon'
 
 import { useAppSelector } from 'src/store/hooks'
 import { usePostSettingSearchQuery } from 'src/store/api/apiHooks'
-import { selectSettingByType, selectSettingByTypeOptions } from 'src/store/settingSlice'
+import {
+  selectSettingByParentValueOptions,
+  selectSettingByType,
+  selectSettingByTypeOptions
+} from 'src/store/settingSlice'
 
 type Props = {
   open: boolean
@@ -25,14 +29,6 @@ type Props = {
   stage: number | null
   stageStatus: number | null
 }
-
-const statusOptions = [
-  {
-    value: '',
-    label: 'Select One...',
-    disabled: true
-  }
-]
 
 // const stageOptions = [
 //   {
@@ -57,7 +53,7 @@ export default function StatusDialog({ open, toggle, stage, stageStatus }: Props
 
   const onClose = () => {
     toggle()
-    statusForm.reset()
+    reset()
   }
 
   const onSubmit = () => {
@@ -66,6 +62,8 @@ export default function StatusDialog({ open, toggle, stage, stageStatus }: Props
   }
 
   usePostSettingSearchQuery({ length: 10000 })
+
+  let statusOptions = []
 
   const stageOptions = [
     {
@@ -76,11 +74,8 @@ export default function StatusDialog({ open, toggle, stage, stageStatus }: Props
     ...useAppSelector(state => selectSettingByTypeOptions(state, 2))
   ]
 
-  // useEffect(() => {
-  //   if (stage !== watch('stage')) {
-  //     reset({ stage: watch('stage'), status: status })
-  //   }
-  // }, [watch])
+  statusOptions = useAppSelector(state => selectSettingByParentValueOptions(state, String(watch('stage'))))
+
   return (
     <Dialog open={open} maxWidth='xs' fullWidth onClose={toggle} aria-labelledby='form-dialog-title'>
       <DialogTitle id='form-dialog-title'>

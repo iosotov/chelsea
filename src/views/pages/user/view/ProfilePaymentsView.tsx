@@ -913,7 +913,6 @@ const TestTable = ({ id, enrollmentData, paymentData }: { enrollmentData: any; p
             />
             <DataGridPro
               sx={rows?.length === 0 ? { height: '250px' } : { height: '630px' }}
-              hideFooterRowCount
               hideFooterSelectedRowCount
               getRowId={row => row.enrollmentDetailId}
               onRowSelectionModelChange={ids => {

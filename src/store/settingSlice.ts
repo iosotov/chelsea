@@ -175,3 +175,18 @@ export const selectSettingByParentValue = createSelector(
     return settings.filter(setting => setting.parentValue === parentValue)
   }
 )
+
+export const selectSettingByParentValueOptions = createSelector(
+  selectAllSettings,
+  (_: RootState, parentValue: string) => parentValue,
+  (settings, parentValue) => {
+    return settings
+      .filter(setting => setting.parentValue === parentValue)
+      .map(option => {
+        return {
+          label: option.value,
+          value: option.id
+        }
+      })
+  }
+)

@@ -14,6 +14,7 @@ import NProgress from 'nprogress'
 // ** Emotion Imports
 import { CacheProvider } from '@emotion/react'
 import type { EmotionCache } from '@emotion/cache'
+import createCache from '@emotion/cache'
 
 // ** Config Imports
 
@@ -75,6 +76,11 @@ type GuardProps = {
 
 //?? dont understand error
 LicenseInfo.setLicenseKey(process.env.NEXT_PUBLIC_MUI_LICENSE_KEY)
+
+const errorCache = createCache({
+  key: 'css',
+  prepend: true
+})
 
 const clientSideEmotionCache = createEmotionCache()
 
