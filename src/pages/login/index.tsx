@@ -2,7 +2,6 @@
 
 import { useState, ReactNode, useEffect } from 'react'
 
-
 // ** Next Imports
 // import Link from 'next/link'
 
@@ -31,7 +30,6 @@ import Icon from 'src/@core/components/icon'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-
 
 // import useBgColor from 'src/@core/hooks/useBgColor'
 import { useSettings } from 'src/@core/hooks/useSettings'
@@ -99,11 +97,12 @@ const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(({ t
 
 const schema = yup.object().shape({
   email: yup.string().email().required(),
-  password: yup.string().min(5).required()
+  //add min back to password after
+  password: yup.string().required()
 })
 
 const defaultValues = {
-  password: 'Zaq!2wsx',
+  password: '123',
   email: 'celine@prime-logix.co'
 }
 
@@ -114,7 +113,6 @@ interface FormData {
 }
 
 const LoginPage = () => {
-
   const error = useAppSelector(selectAuthError)
   const [rememberMe, setRememberMe] = useState<boolean>(true)
   const [showPassword, setShowPassword] = useState<boolean>(false)
@@ -122,10 +120,8 @@ const LoginPage = () => {
   // ** Hooks
   const theme = useTheme()
 
-
   // ** Redux Hooks
   const dispatch = useAppDispatch()
-
 
   // const bgColors = useBgColor()
   const { settings } = useSettings()
@@ -146,22 +142,23 @@ const LoginPage = () => {
   })
 
   useEffect(() => {
-    if (error) setError('email', {
-      type: 'manual',
-      message: error
-    })
+    if (error)
+      setError('email', {
+        type: 'manual',
+        message: error
+      })
   }, [error, setError])
 
   const onSubmit = async (data: FormData) => {
     const { email, password } = data
 
-    dispatch(UserAuth({
-      email,
-      password,
-      rememberMe,
-    })).unwrap();
-
-
+    dispatch(
+      UserAuth({
+        email,
+        password,
+        rememberMe
+      })
+    ).unwrap()
   }
 
   // const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'
