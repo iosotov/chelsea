@@ -25,10 +25,8 @@ type Props = {
   open: boolean
 }
 
-export default function AssigneeDialog({ data, toggle, open }: Props): ReactElement {
-  //might need to check to make sure employeeId is a valid employee still (filter for active accounts)
-  //if not active, need to default to ''
-  const { assigneeId, assigneeName, employeeAlias, employeeId = '' } = data
+const AssigneeDialog = ({ data, toggle, open }: Props): ReactElement => {
+  const { assigneeId, assigneeName, employeeId = '', employeeAlias } = data
 
   // call api for status/stage
   const assigneeForm = useForm({ shouldUnregister: true })
