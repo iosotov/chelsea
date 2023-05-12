@@ -1,4 +1,4 @@
-import { ReactElement, useEffect } from 'react'
+import { ReactElement, useEffect, memo } from 'react'
 
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -20,46 +20,43 @@ import { useAppSelector } from 'src/store/hooks'
 import { useGetAssigneeDatasourceQuery } from 'src/store/api/apiHooks'
 
 type Props = {
-  data: { assigneeId: string; assigneeName: string; employeeAlias: string; employeeId: string }
+  data: { assigneeId: string; assigneeName: string; employeeId: string; employeeAlias: string }
   toggle: () => void
   open: boolean
 }
 
-export default function AssigneeDialog({ data, toggle, open }: Props): ReactElement {
-  //might need to check to make sure employeeId is a valid employee still (filter for active accounts)
-  //if not active, need to default to ''
-  const { assigneeId, assigneeName, employeeAlias, employeeId = '' } = data
+const AssigneeDialog = ({ data, toggle, open }: Props): ReactElement => {
+  const { assigneeId, assigneeName, employeeId = '', employeeAlias } = data
 
   // call api for status/stage
-  const assigneeForm = useForm()
+  const assigneeForm = useForm({ shouldUnregister: true })
   const {
     formState: { errors },
     control,
     handleSubmit,
-    setError,
-    clearErrors
+    getValues,
+    reset
   } = assigneeForm
 
   const onClose = () => {
     toggle()
-    assigneeForm.reset()
-    clearErrors()
+    reset()
   }
 
   const onSubmit = () => {
     const check = assigneeForm.getValues('assignee')
-    console.log(check, employeeId)
-    if (check === employeeId) {
-      setError('assignee', { type: 'required' }, { shouldFocus: true })
-      return
+    if (check !== employeeId) {
+      const data = getValues('assignee')
+      console.log(data)
     }
-    console.log(`Submitting: ${check}`)
     onClose()
   }
 
+  //temp measure until i find the right selector
   const { data: assigneeList } = useGetAssigneeDatasourceQuery(assigneeId, { skip: !assigneeId })
+  // use app selector to eventually select the right one
+  // const assigneeList = useAppSelector(state => selectAllAssignees(state))
 
-  console.log({ assigneeList, assigneeId, assigneeName, employeeAlias, employeeId })
   return (
     <Dialog open={open} maxWidth='xs' fullWidth onClose={onClose} aria-labelledby='form-dialog-title'>
       <DialogTitle id='form-dialog-title'>
@@ -104,3 +101,5 @@ export default function AssigneeDialog({ data, toggle, open }: Props): ReactElem
     </Dialog>
   )
 }
+
+export default AssigneeDialog

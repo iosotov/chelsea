@@ -31,8 +31,6 @@ type Props = {
 }
 
 export default function StatusDialog({ open, toggle, stage = '', stageStatus = '' }: Props): ReactElement {
-  // call api for status/stage
-
   const statusForm = useForm({ defaultValues: { stage, stageStatus } })
   const {
     formState: { errors },
