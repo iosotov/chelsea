@@ -46,21 +46,12 @@ import { useForm, Controller } from 'react-hook-form'
 // ** Styles Import
 import 'react-credit-cards/es/styles-compiled.css'
 
-import NotesTable from 'src/views/pages/user/view/components/notes/NotesTable'
-
 const defaultValues = {
   companyName: '',
   billingEmail: ''
 }
 
 const ProfileNotes = ({ id }: any) => {
-  // const Transition = forwardRef(function Transition(
-  //   props: FadeProps & { children?: ReactElement<any, any> },
-  //   ref: Ref<unknown>
-  // ) {
-  //   return <Fade ref={ref} {...props} />
-  // })
-
   //mock Data
   console.log(id)
   const profileId = id
@@ -97,6 +88,7 @@ const ProfileNotes = ({ id }: any) => {
 
   //state
   const [selectedNote, setSelectedNote] = useState<any>(null)
+  const [dialogMode, setDialogMode] = useState<any>('Create')
 
   //hooks for loading dropdown lists
   const [templateDrop, setTemplateDrop] = useState<any>(myNotes)
@@ -123,7 +115,8 @@ const ProfileNotes = ({ id }: any) => {
   }
 
   //API CALLS
-  const [triggerCreate, { isSuccess: triggerSuccess }] = usePostNoteCreateMutation()
+  const [triggerCreate, { isSuccess: triggerPostSuccess }] = usePostNoteCreateMutation()
+  const [triggerUpdate, { isSuccess: triggerPutSuccess }] = usePutNoteUpdateMutation()
 
   // const rows = [
   //   { id: 1, type: 'Snow', createdBy: 'Jon', description: 35 },
@@ -198,6 +191,7 @@ const ProfileNotes = ({ id }: any) => {
     setNoteEmails('')
     setNotifyUsers('')
     setMessage('')
+    setDialogMode('Create')
 
     console.log(noteTemplate)
     console.log(noteType)
@@ -237,31 +231,89 @@ const ProfileNotes = ({ id }: any) => {
     console.log(postResponse)
   }
 
-  async function handleUpdateClick(props) {
+  // async function handleUpdateClick(props) {
+  //   console.log(props)
+  //   const payload = {
+  //     // noteId: props.noteId,
+  //     profileId,
+  //     content: props.content,
+  //     mentionedEmails: props.noteEmails,
+  //     important: props.important
+  //   }
+  //   console.log(payload)
+
+  //   // const testData = {
+  //   //   profileId,
+  //   //   taskName: taskName,
+  //   //   dueDate: paymentDate,
+  //   //   assignedTo: 'b12557c2-3a35-4ce6-9e52-959c07e13ce5',
+  //   //   assignType: 2,
+  //   //   notes: note
+  //   // }
+
+  //   // const postResponse = await triggerCreate(payload).unwrap()
+  //   // console.log(postResponse)
+  // }
+
+  async function handleUpdateByIdClick(props) {
     console.log(props)
     const payload = {
-      noteId,
-      content: props.message,
-      mentionedEmails: props.noteEmails,
+      noteId: props.noteId,
+
+      // profileId,
+      content: props.content,
+      mentionedEmails: props.mentionedEmails,
       important: props.important
     }
     console.log(payload)
 
-    // const testData = {
-    //   profileId,
-    //   taskName: taskName,
-    //   dueDate: paymentDate,
-    //   assignedTo: 'b12557c2-3a35-4ce6-9e52-959c07e13ce5',
-    //   assignType: 2,
-    //   notes: note
-    // }
-
-    // const postResponse = await triggerCreate(payload).unwrap()
-    // console.log(postResponse)
+    const putResponse = await triggerUpdate(payload).unwrap()
+    console.log(putResponse)
   }
 
-  const handleEditButtonById = myNote => {
+  async function handleEditButtonById(params) {
+    console.log(params)
+
+    //ONLY USE FOR UPDATING IMPORTANT MIGHT CHANGE LATER
+    //SET FIELDS TO UPDATED AND MAKE DISABLED BUT SHOW PIN OR NOT
+    //SEND SAME PAYLOAD BUT CHANGE IMPORTANT TAG
+    //check if params, to know edit/create, conditional api call and  button rendering
+    //set update or edit to know which button to create
+    const myNote = profileNotes.find(note => note.noteId == params)
     console.log(myNote)
+    if (myNote) {
+      setNoteEmails(myNote.mentionedEmails)
+
+      // setTemplate()
+      // setNotifyUsers()
+
+      // setCreatedAt(myNote.createdAt)
+      setMessage(myNote.content)
+      setImportant(myNote.important)
+      setDialogMode('Edit')
+    }
+
+    handleUpdateByIdClick(myNote)
+
+    // handleUpdateClick()
+
+    // if (myNote) {
+    //   setSelectedNote(myNote)
+    // }
+    // console.log(myNote)
+    // console.log(selectedNote)
+    // if (selectedNote == myNote) {
+    //   console.log(selectedNote)
+    //   handleUpdateById()
+    // }
+
+    // if (myNote != null) {
+
+    //   console.log(myNote)
+    //   console.log(selectedNote)
+    // }
+
+    // selectedNote
 
     // const notesById = useAppSelector(state => selectNoteById(state, myNote))
     // console.log(notesById)
@@ -270,22 +322,55 @@ const ProfileNotes = ({ id }: any) => {
   //init data load, call get request for data set
   // loadData()
 
-  const renderEditNoteButton = params => {
-    return (
-      // <IconButton
-      //   size='small'
-      //   sx={{ color: 'text.primary' }}
-      //   value={params.row.noteId}
-      //   onClick={handleEditButtonById(params.row.noteId)}
-      // >
-      //   <Icon icon='mdi:edit' />
-      // </IconButton>
-      <></>
-    )
-  }
+  // const renderEditNoteButton = params => {
+  //   console.log(params)
+
+  //   return (
+  //     <>
+  //       <IconButton
+  //         size='small'
+  //         sx={{ color: 'text.primary' }}
+  //         value={params.row.noteId}
+  //         onClick={handleEditButtonById(params.row.noteId)}
+  //       >
+  //         <Icon icon='mdi:edit' />
+  //       </IconButton>
+  //     </>
+  //   )
+  // }
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 90, renderCell: renderEditNoteButton },
+    {
+      field: 'id',
+      headerName: 'ID',
+      width: 90,
+      renderCell: params => (
+        <IconButton
+          size='small'
+          sx={{ color: 'text.primary' }}
+          value={params.row.noteId}
+          onClick={() => handleEditButtonById(params.row.noteId)}
+        >
+          <Icon icon='mdi:edit' />
+        </IconButton>
+      )
+    },
+
+    // {
+    //   field: 'id',
+    //   headerName: 'ID',
+    //   width: 90,
+    //   renderCell: params => (
+    //     <IconButton
+    //       size='small'
+    //       sx={{ color: 'text.primary' }}
+    //       value={params.row.noteId}
+    //       onClick={() => setSelectedNote(profileNotes.find(note => note.noteId == params.row.noteId))}
+    //     >
+    //       <Icon icon='mdi:edit' />
+    //     </IconButton>
+    //   )
+    // },
     {
       field: 'content',
       headerName: 'content',
@@ -398,7 +483,7 @@ const ProfileNotes = ({ id }: any) => {
               fullWidth
               name='notes-email'
               label='CC Emails'
-              value={noteEmails}
+              value={noteEmails ?? ''}
               placeholder='Emails'
               onChange={handleChange}
 
@@ -420,7 +505,60 @@ const ProfileNotes = ({ id }: any) => {
           </Grid>
 
           <Grid item xs={12} textAlign={'right'}>
-            <Button
+            {dialogMode === 'Create' && (
+              <Button
+                size='large'
+                variant='contained'
+                sx={{ mr: 4 }}
+                onClick={() =>
+                  handleCreateClick({ message, notifyUsers, noteType, noteTemplate, noteEmails, important })
+                }
+              >
+                Create
+              </Button>
+            )}
+            {dialogMode === 'Edit' && (
+              <Button
+                size='large'
+                variant='contained'
+                sx={{ mr: 4 }}
+                onClick={() =>
+                  handleUpdateByIdClick({ message, notifyUsers, noteType, noteTemplate, noteEmails, important })
+                }
+              >
+                Update
+              </Button>
+            )}
+            {/* {dialogMode === 'Create' ?? (
+              <Button
+                type='submit'
+                variant='contained'
+                sx={{ mr: 4 }}
+                onClick={() =>
+                  handleCreateClick({ message, notifyUsers, noteType, noteTemplate, noteEmails, important })
+                }
+
+                //remove payload,
+              >
+                {dialogMode} Note
+              </Button>
+            )}
+            {dialogMode === 'Edit' ?? (
+              <Button
+                type='submit'
+                variant='contained'
+                sx={{ mr: 4 }}
+                onClick={() =>
+                  handleUpdateByIdClick({ message, notifyUsers, noteType, noteTemplate, noteEmails, important })
+                }
+
+                //remove payload,
+              >
+                {dialogMode} Note
+              </Button>
+            )} */}
+
+            {/* <Button
               type='submit'
               variant='contained'
               sx={{ mr: 4 }}
@@ -428,8 +566,8 @@ const ProfileNotes = ({ id }: any) => {
 
               //remove payload,
             >
-              Create Note
-            </Button>
+              {dialogMode} Note
+            </Button> */}
             <Button variant='outlined' color='secondary' onClick={() => resetForm()}>
               Clear Form
             </Button>

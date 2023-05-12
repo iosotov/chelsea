@@ -29,6 +29,10 @@ import Dialog from '@mui/material/Dialog'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 
+//wysiwyg editor
+import { EditorState } from 'draft-js'
+import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
+
 // ** Types
 
 import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
@@ -53,15 +57,17 @@ import { SettingsContext } from 'src/@core/context/settingsContext'
 //api hooks
 
 import {
-  useGetProfileEmails,
-  getProfileLiabilityEmails,
-  postProfileEmail,
+  useGetEmailQuery,
+  useGetProfileLiabilityEmailsQuery,
+  usePostProfileEmailMutation,
   postProfileLiabilityEmail,
-  postEmailAttachment,
+  usePostProfileLiabilityEmailMutation,
+  usePostEmailAttachmentMutation,
   useGetProfileEmailsQuery
 } from 'src/store/api/apiHooks'
 import { useAppSelector } from 'src/store/hooks'
 import { selectEmailByProfileId } from 'src/store/emailSlice'
+import { profile } from 'console'
 
 interface Props {
   open: boolean
@@ -87,6 +93,12 @@ const Header = styled(Box)<BoxProps>(({ theme }) => ({
   justifyContent: 'space-between',
   backgroundColor: theme.palette.background.default
 }))
+const EditorControlled = () => {
+  // ** State
+  const [value, setValue] = useState(EditorState.createEmpty())
+
+  return <ReactDraftWysiwyg editorState={value} onEditorStateChange={data => setValue(data)} />
+}
 
 const CustomPaymentInput = forwardRef(({ ...props }, ref: ForwardedRef<HTMLElement>) => {
   return <TextField inputRef={ref} label='Payment Date' {...props} />
@@ -101,6 +113,7 @@ const ProfileEmails = ({ id }: any) => {
   // ) {
   //   return <Fade ref={ref} {...props} />
   // })
+  const [editor, setEditor] = useState(EditorState.createEmpty())
 
   // ** Hooks
   const profileId = id
@@ -139,7 +152,8 @@ const ProfileEmails = ({ id }: any) => {
   const [openEditEmail, setOpenEditEmail] = useState<boolean>(false)
 
   //Api Calls
-  // const [triggerCreate, { isSuccess: triggerSuccess }] = usePostCreateTaskMutation()
+  const [triggerCreate, { isSuccess: triggerSuccess }] = usePostProfileEmailMutation()
+
   // const [triggerUpdate, { isSuccess: editApiSuccess }] = usePutUpdateTaskMutation()
   // const [triggerDelete, { isSuccess: deleteApiSuccess }] = useDeleteTaskMutation()
   // const [triggerBulkUpdate, { isSuccess: bulkUpdateApiSuccess }] = usePutBulkUpdateTasksMutation()
@@ -171,45 +185,6 @@ const ProfileEmails = ({ id }: any) => {
 
   //   // setSelectedTask({})
   // }, [checkedValues])
-
-  // const loadData = () => {
-  //   rows = []
-  //   rows = dataWithIndex
-  //   console.log(rows)
-  // }
-  // console.log(dataWithIndex)
-  // console.log(rows)
-  // loadData()
-  // console.log(rows)
-
-  // loadData
-  //use isLoading state to conditionally render data
-  //use global
-  // console.log(profileTask)
-  // console.log(isLoading, isSuccess, isError, error)
-
-  // const tasksData = profileTask
-  // console.log(profileTask)
-
-  // const tasksData = useGetProfileTasksQuery(profileId)
-
-  // const tasksData = useGetProfileTasksQuery('9158384435')
-
-  // console.log(tasksData)
-
-  // if (tasksData) {
-  // console.log(tasksData)
-  // const dataWithIndex = tasksData.map((obj, index) => {
-  //   return { ...obj, id: index }
-  // })
-  // console.log(dataWithIndex)
-
-  // setRows(dataWithIndex)
-
-  // setData(tasksData)
-  // console.log(rows)
-
-  // }
 
   //Global localstate useEffect, need to remove and use global global
   // useEffect(() => {
@@ -255,19 +230,18 @@ const ProfileEmails = ({ id }: any) => {
   }
 
   //actual create request
-  // async function handleCreateClick() {
-  //   const testData = {
-  //     profileId,
-  //     taskName: taskName,
-  //     dueDate: paymentDate,
-  //     assignedTo: 'b12557c2-3a35-4ce6-9e52-959c07e13ce5',
-  //     assignType: 2,
-  //     notes: note
-  //   }
+  async function handleCreateEmailClick(params) {
+    const payload = {
+      profileId,
+      subject: subject,
+      body: body,
+      sentFrom: sentFrom,
+      sentTo: sentTo
+    }
 
-  //   const postResponse = await triggerCreate(testData).unwrap()
-  //   console.log(postResponse)
-  // }
+    const postResponse = await triggerCreate(payload).unwrap()
+    console.log(postResponse)
+  }
 
   // async function handleEditClick() {
   //   const testEditData = {
@@ -312,18 +286,18 @@ const ProfileEmails = ({ id }: any) => {
     setOpenAddEmail(true)
   }
 
-  // const actionChecker = () => {
-  //   console.log(selectedEmail)
+  const actionChecker = () => {
+    console.log(dialogTitle)
 
-  //   if (selectedEmail != undefined) {
-  //     // const findEntry = profileTask.find(item => item.taskId !== checkedValues[0])
-  //     // setSelectedTask(findEntry)
-  //     // console.log(selectedTask)
-  //     handleEditEmailOpen()
-  //   } else {
-  //     handleAddEmailOpen()
-  //   }
-  // }
+    if (dialogTitle == 'Edit') {
+      // const findEntry = profileTask.find(item => item.taskId !== checkedValues[0])
+      // setSelectedTask(findEntry)
+      // console.log(selectedTask)
+      handleEditEmailOpen()
+    } else {
+      handleAddEmailOpen()
+    }
+  }
 
   const handleAddEmailOpen = () => {
     // actionChecker()
@@ -335,6 +309,7 @@ const ProfileEmails = ({ id }: any) => {
     // setPaymentDate(new Date(''))
     setSubject('')
     setBody('')
+
     setOpenAddEmail(true)
   }
 
@@ -353,19 +328,28 @@ const ProfileEmails = ({ id }: any) => {
     // setOpenEditTask(false)
   }
 
+  const handleAddEmailClose = () => {
+    console.log('Closing')
+
+    resetForm()
+    setOpenAddEmail(false)
+  }
+
   const handleBlur = () => setFocus(undefined)
 
   const handleInputChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
     //can do formatting here
-    if (target.name === 'task-name') {
+    if (target.name === 'email-sentTo') {
       // target.value = formatCreditCardNumber(target.value, Payment)
 
-      setTaskName(target.value)
-    } else if (target.name === 'task-note') {
+      setSentTo(target.value)
+    } else if (target.name === 'email-sentFrom') {
       // target.value = formatExpirationDate(target.value)
-      setNote(target.value)
-    } else if (target.name === 'task-paymentDate') {
-      setPaymentDate(target.value)
+      setSentFrom(target.value)
+    } else if (target.name === 'email-subject') {
+      setSubject(target.value)
+    } else if (target.name === 'email-body') {
+      setBody(target.value)
     }
   }
 
@@ -391,12 +375,28 @@ const ProfileEmails = ({ id }: any) => {
   const handleEditEmailChange = params => {
     // setSelectedEmail('')
     console.log('EDIT EMAIL')
+    console.log(params)
+    const myEmail = profileEmail.find(email => email.emailId == params.row.emailId)
+    console.log(myEmail)
+    if (myEmail) {
+      setDialogTitle('Edit')
+      setCreatedAt(myEmail.createdAt)
+      setSentTo(myEmail.sentTo)
+      setSentFrom(myEmail.sentFrom)
+
+      // setPaymentDate(new Date(''))
+      setSubject(myEmail.subject)
+      setBody(myEmail.body)
+      setOpenAddEmail(true)
+    }
+
+    // handleEditEmailClick
 
     // const value = event
-    console.log(params.row)
-    if (!selectedEmail) {
-      setSelectedEmail(params.row)
-    }
+    // console.log(params.row)
+    // if (!selectedEmail) {
+    //   setSelectedEmail(params.row)
+    // }
 
     // console.log(e.target)
     // console.log(myEmail)
@@ -440,7 +440,7 @@ const ProfileEmails = ({ id }: any) => {
         size='small'
         sx={{ color: 'text.primary' }}
         value={params.row.emailId}
-        onClick={handleEditEmailChange(params)}
+        onClick={() => handleEditEmailChange(params)}
       >
         <Icon icon='mdi:edit' fontSize={20} />
       </IconButton>
@@ -512,12 +512,13 @@ const ProfileEmails = ({ id }: any) => {
     console.log('Resetting Drawer')
 
     // setDrawerTitle('Create')
-    setTaskName('')
-    setSelectedGroup('')
-    setPaymentDate('')
-    setStatus('')
-    setNote('')
-    setCheckedValues([])
+    setDialogTitle('Create')
+    setCreatedAt('')
+    setSentTo('')
+    setSentFrom('')
+
+    setSubject('')
+    setBody('')
 
     // setOpenEditTask(false)
   }
@@ -548,8 +549,7 @@ const ProfileEmails = ({ id }: any) => {
             variant='contained'
             color='secondary'
             sx={{ mb: 7, position: 'absolute', right: '12%' }}
-
-            // onClick={actionChecker}
+            onClick={actionChecker}
 
             // onClick={actionChecker}
 
@@ -592,7 +592,7 @@ const ProfileEmails = ({ id }: any) => {
             open={openAddEmail}
             maxWidth='md'
             scroll='body'
-            onClose={() => setOpenAddEmail(false)}
+            onClose={() => handleAddEmailClose()}
 
             // sx={{ '& .MuiDrawer-paper': { width: [300, 400] } }}
           >
@@ -605,30 +605,94 @@ const ProfileEmails = ({ id }: any) => {
               }}
             >
               <Card>
-                <CardHeader title='Create Email' />
+                <CardHeader title={`${dialogTitle}` + ' Email'} />
                 <CardContent>
                   <form>
                     <Grid container spacing={5}>
                       <Grid item xs={12}>
-                        <TextField fullWidth label='Template' placeholder='Template' />
+                        <TextField
+                          fullWidth
+                          label='Template'
+                          placeholder='Template'
+                          onBlur={handleBlur}
+                          onChange={handleInputChange}
+                          inputProps={{ maxLength: 1000 }}
+                          onFocus={e => setFocus(e.target.name as Focused)}
+                        />
                       </Grid>
                       <Grid item xs={6} sm={6}>
-                        <TextField label='To' placeholder='Send To...' />
+                        <TextField
+                          label='To'
+                          name='email-sentTo'
+                          value={sentTo ?? ''}
+                          placeholder='Send To...'
+                          onBlur={handleBlur}
+                          onChange={handleInputChange}
+                          inputProps={{ maxLength: 1000 }}
+                          onFocus={e => setFocus(e.target.name as Focused)}
+                        />
                       </Grid>
                       <Grid item xs={12} sm={6}>
-                        <TextField label='From' placeholder='Recieve from...' />
+                        <TextField
+                          label='From'
+                          name='email-sentFrom'
+                          value={sentFrom ?? ''}
+                          placeholder='Recieve from...'
+                          onBlur={handleBlur}
+                          onChange={handleInputChange}
+                          inputProps={{ maxLength: 1000 }}
+                          onFocus={e => setFocus(e.target.name as Focused)}
+                        />
                       </Grid>
                       <Grid item xs={12}>
-                        <TextField fullWidth label='Subject' placeholder='Recieve from...' />
+                        <TextField
+                          fullWidth
+                          name='email-subject'
+                          value={subject ?? ''}
+                          label='Subject'
+                          onBlur={handleBlur}
+                          onChange={handleInputChange}
+                          inputProps={{ maxLength: 1000 }}
+                          onFocus={e => setFocus(e.target.name as Focused)}
+                        />
                       </Grid>
                       <Grid item xs={12}>
                         {/* {CONVERT TO SUMMERNOTE} */}
-                        <TextField fullWidth rows={6} multiline label='' placeholder='Message' />
+                        <TextField
+                          fullWidth
+                          name='email-body'
+                          value={body ?? ''}
+                          rows={6}
+                          label='Body'
+                          multiline
+                          placeholder='Message'
+                          onBlur={handleBlur}
+                          onChange={handleInputChange}
+                          inputProps={{ maxLength: 1000 }}
+                          onFocus={e => setFocus(e.target.name as Focused)}
+                        />
+                        {/* <ReactDraftWysiwyg
+                          fullWidth
+                          editorState={editor}
+                          onEditorStateChange={edit => setEditor(edit)}
+                        /> */}
+                        {/* <ReactDraftWysiwyg></ReactDraftWysiwyg> */}
+
+                        {/* <EditorControlled></EditorControlled> */}
                       </Grid>
                       <Grid item xs={12}>
-                        <Button type='submit' variant='contained' sx={{ mr: 4 }}>
-                          Send Email
-                        </Button>
+                        {/* render another button for edit */}
+                        {dialogTitle === 'Create' && (
+                          <Button type='submit' variant='contained' sx={{ mr: 4 }} onClick={handleCreateEmailClick}>
+                            Send Email
+                          </Button>
+                        )}
+                        {dialogTitle === 'Edit' && (
+                          <Button type='submit' variant='contained' sx={{ mr: 4 }} onClick={handleEditEmailOpen}>
+                            Edit Email
+                          </Button>
+                        )}
+
                         <Button variant='outlined' color='secondary'>
                           Discard
                         </Button>
