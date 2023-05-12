@@ -25,21 +25,6 @@ type Props = {
   open: boolean
 }
 
-const stageOptions = [
-  {
-    value: 0,
-    label: 'Stage One'
-  },
-  {
-    value: 1,
-    label: 'Stage Two'
-  },
-  {
-    value: 2,
-    label: 'Stage Three'
-  }
-]
-
 export default function AssigneeDialog({ data, toggle, open }: Props): ReactElement {
   //might need to check to make sure employeeId is a valid employee still (filter for active accounts)
   //if not active, need to default to ''
@@ -76,7 +61,7 @@ export default function AssigneeDialog({ data, toggle, open }: Props): ReactElem
 
   console.log({ assigneeList, assigneeId, assigneeName, employeeAlias, employeeId })
   return (
-    <Dialog open={open} maxWidth='xs' fullWidth onClose={toggle} aria-labelledby='form-dialog-title'>
+    <Dialog open={open} maxWidth='xs' fullWidth onClose={onClose} aria-labelledby='form-dialog-title'>
       <DialogTitle id='form-dialog-title'>
         Update Assignee
         <IconButton
