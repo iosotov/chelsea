@@ -1,4 +1,4 @@
-import { useState, useEffect, MouseEvent, useCallback, SyntheticEvent } from 'react'
+import { useState, useEffect, MouseEvent, useCallback, SyntheticEvent, FC } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -24,7 +24,9 @@ import CardContent from '@mui/material/CardContent'
 import Icon from 'src/@core/components/icon'
 
 import IncomeTable from 'src/views/pages/user/view/components/budget/IncomeTable'
+import ChildComponent from './components/budget/income'
 import ExpenseTable from 'src/views/pages/user/view/components/budget/ExpenseTable'
+import { useForm } from 'react-hook-form'
 
 // import BudgetTableGenerator from './components/budget/BudgetTableGenerator'
 
@@ -56,6 +58,11 @@ import {
   usePutBudgetUpdateMutation
 } from 'src/store/api/apiHooks'
 import { gridColumnPositionsSelector } from '@mui/x-data-grid'
+
+// interface FormData {
+//   name: string
+//   amount: number
+// }
 
 export default function ProfileBudget({ id }: any) {
   //add isLoading?
@@ -99,11 +106,6 @@ export default function ProfileBudget({ id }: any) {
 
   // isSuccess
 
-  // const [incomeList, setIncomeList] = useState<any>([])
-  // const [expenseList, setExpenseList] = useState<any>([])
-
-  // const [income, setIncome] = useState<any>(incomeTotal)
-  // const [expense, setExpense] = useState<any>(expenseTotal)
   const [incomeSnap, setIncomeSnap] = useState<any>(null)
   const [expenseSnap, setExpenseSnap] = useState<any>(null)
   const [cashflow, setCashflow] = useState<any>(null)
@@ -118,6 +120,24 @@ export default function ProfileBudget({ id }: any) {
 
   // //api mock
   const [trigger, { isSuccess: triggerSuccess }] = usePostBudgetCreateMutation()
+
+  // const handleIncomeFormSubmit = (formData: FormData) => {
+  //   console.log('Data from child:', formData)
+  // }
+
+  const [formDataList, setFormDataList] = useState<FormData[]>([])
+
+  const addFormDataToList = (formDataList: FormData[]) => {
+    setFormDataList([...formDataList, ...formDataList])
+  }
+  console.log(formDataList)
+
+  // const { register, handleSubmit } = useForm<FormData>()
+  // const handleFormSubmit = (formData: FormData) => {
+  //   // Make API call with the form data
+  //   // console.log('Form data submitted:', formData)
+  //   setFormList([...formList, formData])
+  // }
 
   async function handleClick() {
     //need to configure values to set
@@ -140,170 +160,8 @@ export default function ProfileBudget({ id }: any) {
     // getTotals()
   }
 
-  // const { data: newProfile } = useGetProfileBudgetsQuery(id)
-  // useGetBudgetsQuery({})
-
-  // console.log(newProfile)
-
-  // useeffect data init
-  // useEffect(() => {
-  //   if (newProfile) {
-  //     console.log(newProfile)
-  //     setBudgetTypes(newProfile.budget)
-  //     dataSplitter()
-  //     getTotals()
-  //   }
-  // }, [newProfile, budgetTypes])
-  // useEffect(() => {
-  //   if (newProfile) {
-  //     console.log(newProfile)
-  //     setAllBudgets(newProfile.profile)
-  //     dataSplitter()
-  //     getTotals()
-  //   }
-  // }, [newProfile, allBudgets])
-
-  // const dataDivider = () => {
-  //   if (profileBudgets) {
-  //     console.log(profileBudgets)
-  //     const incomeList: any = []
-  //     const expenseList: any = []
-  //     let i = 0
-  //     for (i = 0; i < profileBudgets.length; i++) {
-  //       // if (profileBudgets[i].active) {
-
-  //       // }
-  //       if (profileBudgets[i].budgetType == 0) {
-  //         // const choiceId = profileBudgets[i].budgetId
-  //         //   const filteredIncome = profileBudgets.find(filteredIncome => filteredIncome.budgetId == choiceId)
-
-  //         incomeList.push(profileBudgets[i])
-
-  //         // setIncome(incomeList)
-
-  //         //  else {
-  //         //   const notFound = { budgetId: choiceId, amount: 0 }
-
-  //         //   //                 console.log(notFound)
-  //         //   //                 incomeList.push(notFound)
-  //         //   incomeList.push(notFound)
-  //         // }
-  //       } else {
-  //         // const choiceId = budgetTypes[i].budgetId
-  //         // const filteredExpense = allBudgets.find(filteredExpense => filteredExpense.budgetId == choiceId)
-
-  //         expenseList.push(profileBudgets[i])
-
-  //         // else {
-  //         //   const notFound = { budgetId: choiceId, amount: 0 }
-
-  //         //   //                 console.log(notFound)
-  //         //   //                 incomeList.push(notFound)
-  //         //   expenseList.push(notFound)
-  //         // }
-  //         // setExpense(expenseList)
-  //       }
-  //     }
-
-  //     // console.log(income, expense)
-
-  //     return [incomeList, expenseList]
-  //   }
-  // }
-  // console.log(dataDivider())
-
-  // const incomeDiv = dataDivider()[0]
-  // const incomeDiv = incomeBudgets
-  // console.log(incomeDiv)
-
-  // // const expenseDiv = dataDivider()[1]
-
-  // const expenseDiv = expenseBudgets
-  // console.log(expenseDiv)
-
-  // if (!isLoading) {
-  //   console.log(dataDivider())
-  //   const divide = dataDivider()
-  //   if (divide != null) {
-  //     const myIncome = divide[0]
-  //     const myExpense = divide[1]
-  //     setIncome(myIncome)
-  //     setExpense(myExpense)
-  //   }
-  //   console.log(income, expense)
-
-  //   // setIncome(dataDivider()[0])
-  // }
-
-  // const dataSplitter = () => {
-  //   if (budgetTypes && allBudgets) {
-  //     console.log(budgetTypes)
-  //     console.log(allBudgets)
-  //     const budgetArr: any = []
-  //     const typeArr: any = []
-  //     const incomeList: any = []
-  //     const expenseList: any = []
-  //     let i = 0
-  //     for (i = 0; i < budgetTypes.length; i++) {
-  //       console.log(budgetTypes[i])
-  //       if (budgetTypes[i].active) {
-  //         if (budgetTypes[i].budgetType == 0) {
-  //           const choiceId = budgetTypes[i].budgetId
-  //           const filteredIncome = allBudgets.find(filteredIncome => filteredIncome.budgetId == choiceId)
-  //           if (filteredIncome) {
-  //             console.log(filteredIncome)
-  //             incomeList.push(filteredIncome)
-  //           } else {
-  //             const notFound = { budgetId: choiceId, amount: 0 }
-
-  //             //                 console.log(notFound)
-  //             //                 incomeList.push(notFound)
-  //             incomeList.push(notFound)
-  //           }
-  //           setIncome(incomeList)
-  //         } else {
-  //           const choiceId = budgetTypes[i].budgetId
-  //           const filteredExpense = allBudgets.find(filteredExpense => filteredExpense.budgetId == choiceId)
-  //           if (filteredExpense) {
-  //             console.log(filteredExpense)
-  //             expenseList.push(filteredExpense)
-  //           } else {
-  //             const notFound = { budgetId: choiceId, amount: 0 }
-
-  //             //                 console.log(notFound)
-  //             //                 incomeList.push(notFound)
-  //             expenseList.push(notFound)
-  //           }
-  //           setExpense(expenseList)
-  //         }
-  //       }
-  //     }
-  //     console.log(incomeList, expenseList)
-
-  //     // setIncome(incomeList)
-  //     // setExpense(expenseList)
-  //   }
-  // }
-
   // val stores state for header filters
   // const [value, setValue] = useState<string>('')
-
-  // const handleChange = (e: SyntheticEvent, value: string) => {
-  //   setLoading(true)
-  //   setActiveTab(value)
-  //   setTimeout(() => {
-  //     router
-  //       .push({
-  //         pathname: `/profiles/${id}/${value.toLowerCase()}`
-  //       })
-  //       .then(() => setLoading(false))
-  //   },300)
-  // }
-  // useEffect(() => {
-  //   async function fetchData(){
-  //     const result = await useGetProfilesQuery(data)
-  //   }
-  // })
 
   // console.log(useGetProfilesQuery(data))
   // useGetProfileBudgetsQuery('1327485548')
@@ -512,7 +370,9 @@ export default function ProfileBudget({ id }: any) {
         <Grid item xs={12}>
           {/* //make sure data coming in isnt object, map */}
           {/* <IncomeTable budgetTypes={budgetTypes} budgetList={allBudgets} income={income}></IncomeTable> */}
-          <IncomeTable income={incomeBudgets}></IncomeTable>
+          {/* <IncomeTable income={incomeBudgets} onSubmit={handleIncomeFormSubmit}></IncomeTable> */}
+          {/* <ChildComponent register={register} onSubmit={handleSubmit(handleFormSubmit)} data={incomeBudgets} /> */}
+          <ChildComponent onFormSubmit={addFormDataToList} data={incomeBudgets} />
           {/* <BudgetTableGenerator
             budgetTypes={profileBudgets}
             budgetList={budgets}

@@ -61,8 +61,15 @@ const ExpenseTable = (data: any) => {
     // const dataCopy = [...dataSource]
     // console.log(dataCopy)
     const editBudget = { ...budget, amount: target.value }
+    console.log(data)
 
     console.log(editBudget)
+    editBudget.amount = target.value
+    const myData = dataSource.find(budget => budget.budgetId === editBudget.budgetId)
+    console.log(myData)
+
+    // myData.amount = target.value
+    console.log(myData)
 
     // editBudget.amount = target.value
     console.log(editBudget)
@@ -88,11 +95,12 @@ const ExpenseTable = (data: any) => {
   // }
 
   useEffect(() => {
-    if (dataSource) {
-      const dataCopy = [...dataSource]
-      setEditData(dataCopy)
-      console.log(editData)
-    }
+    // if (dataSource) {
+    const dataCopy = [...dataSource]
+    setEditData(dataCopy)
+    console.log(editData)
+
+    // }
 
     // setSelectedTask({})
   }, [dataSource])
