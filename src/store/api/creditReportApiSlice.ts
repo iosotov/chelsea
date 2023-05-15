@@ -1,13 +1,13 @@
 import { setCreditReports } from '../creditReportSlice'
 import { apiSlice } from './apiSlice'
+import { CreditReportInfoModel } from './defaultValues'
 import { LunaResponseType } from './sharedTypes'
 
 export type CreditScoreType = {
   scoreValue: string
   scoreName: string
   evaluation: CreditScoreEvaluation
-  scoreCodes: string | null
-  creditScoreCodes: CreditScoreCodeType[] | null
+  creditScoreCodes: CreditScoreCodeType[]
 }
 
 export type CreditScoreCodeType = {
@@ -59,8 +59,10 @@ export const creditReportApiSlice = apiSlice.injectEndpoints({
         }
       },
       transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) return null
-        const result: CreditReportInfoType = { ...res.data, profileId: arg }
+        if (!res.success) throw new Error('There was an error fetching credit report for this profile')
+        const result: CreditReportInfoType = res.data
+          ? { ...res.data, profileId: arg }
+          : { ...CreditReportInfoModel, profileId: arg }
 
         return result
       },

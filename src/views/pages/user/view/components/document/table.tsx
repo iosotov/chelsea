@@ -18,6 +18,9 @@ import { ThemeColor } from 'src/@core/layouts/types'
 
 // ** Utils Import
 import { getInitials } from 'src/@core/utils/get-initials'
+import DateConverter from 'src/views/shared/utils/date-converter'
+
+import { GridValueFormatterParams } from '@mui/x-data-grid'
 
 // ** Data Import
 
@@ -53,7 +56,7 @@ const columns: GridColumns = [
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             <Typography noWrap variant='body2' sx={{ color: 'text.primary', fontWeight: 600 }}>
-              {row.documentTitle}
+              {row.title}
             </Typography>
           </Box>
         </Box>
@@ -62,18 +65,7 @@ const columns: GridColumns = [
   },
   {
     flex: 0.15,
-    minWidth: 100,
-    headerName: 'Category',
-    field: 'category',
-    renderCell: (params: GridRenderCellParams) => (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params.row.category}
-      </Typography>
-    )
-  },
-  {
-    flex: 0.15,
-    field: 'createdBy',
+    field: 'createdByName',
     minWidth: 100,
     headerName: 'Created By',
     renderCell: (params: GridRenderCellParams) => (
@@ -85,13 +77,20 @@ const columns: GridColumns = [
   {
     flex: 0.2,
     minWidth: 120,
-    field: 'createdDate',
+    field: 'createdAt',
     headerName: 'Created Date',
-    renderCell: (params: GridRenderCellParams) => (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {params.row.createdDate}
-      </Typography>
-    )
+    valueFormatter: (params: GridValueFormatterParams<string>) => {
+      return DateConverter(params.value)
+    }
+  },
+  {
+    minWidth: 120,
+    field: 'status',
+    headerName: 'Status',
+    valueGetter: params => params.row.statusName,
+    valueFormatter: (params: GridValueFormatterParams<string>) => {
+      return params.value
+    }
   },
   {
     flex: 0.15,
@@ -100,8 +99,7 @@ const columns: GridColumns = [
     headerName: '',
     sortable: false,
     filterable: false,
-    disableColumnMenu: true,
-    renderCell: (params: GridRenderCellParams) => <></>
+    disableColumnMenu: true
   }
 ]
 
@@ -119,7 +117,7 @@ const TableColumns = ({ rows }: any) => {
     const filteredRows = data.filter(row => {
       return Object.keys(row).some(field => {
         // @ts-ignore
-        return searchRegex.test(row[field].toString())
+        return searchRegex.test(String(row[field]))
       })
     })
     if (searchValue.length) {
@@ -134,6 +132,7 @@ const TableColumns = ({ rows }: any) => {
       autoHeight
       columns={columns}
       pageSize={pageSize}
+      getRowId={row => row.documentId}
       rowsPerPageOptions={[10, 25, 50]}
       components={{ Toolbar: QuickSearchToolbar }}
       rows={filteredData.length ? filteredData : data}
