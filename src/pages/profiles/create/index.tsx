@@ -20,25 +20,13 @@ import { useAppSelector } from 'src/store/hooks'
 import { selectAllCampaigns } from 'src/store/campaignSlice'
 import { CampaignType } from 'src/store/api/campaignApiSlice'
 import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
+import StepperWrapper from 'src/@core/styles/mui/stepper'
+import Stepper from '@mui/material/Stepper'
+import StepperCustomDot from 'src/views/pages/user/view/components/document/stepperCustomDot'
+import { StepLabel } from '@mui/material'
+import Step from '@mui/material/Step'
 
-const campaignOptions = [
-  {
-    label: 'Campaign A',
-    value: '1'
-  },
-  {
-    label: 'Campaign B',
-    value: '2'
-  },
-  {
-    label: 'Campaign C',
-    value: '3'
-  },
-  {
-    label: 'Campaign D',
-    value: '4'
-  }
-]
+import toast from 'react-hot-toast'
 
 const genderOptions = [
   {
@@ -151,11 +139,157 @@ export default function CreateProfile() {
     }
   }, [campaigns])
 
+  // const {
+  //   reset: accountReset,
+  //   control: accountControl,
+  //   handleSubmit: accountSubmit,
+  //   formState: { errors: accountErrors }
+  // } = useForm()
+  // const {
+  //   reset: contactReset,
+  //   control: contactControl,
+  //   handleSubmit: contactSubmit,
+  //   formState: { errors: contactErrors }
+  // } = useForm()
+  // const {
+  //   reset: AdditionalReset,
+  //   control: AdditionalControl,
+  //   handleSubmit: AdditionalSubmit,
+  //   formState: { errors: AdditionalErrors }
+  // } = useForm()
+
+  // const steps = [
+  //   {
+  //     title: 'Account Details',
+  //     subtitle: 'Enter Client Account Details'
+  //   },
+  //   {
+  //     title: 'Contact Info',
+  //     subtitle: 'Setup Contact Information'
+  //   },
+  //   {
+  //     title: 'Additional Info',
+  //     subtitle: 'Add Additional Information'
+  //   },
+  //   {
+  //     title: 'Overview',
+  //     subtitle: 'Review Submitted Information'
+  //   }
+  // ]
+
+  // const [activeStep, setActiveStep] = useState<number>(0)
+
+  // const handleBack = () => {
+  //   setActiveStep(prevActiveStep => prevActiveStep - 1)
+  // }
+
+  // const onSubmit = () => {
+  //   setActiveStep(activeStep + 1)
+  //   if (activeStep === steps.length - 1) {
+  //     toast.success('Form Submitted')
+  //   }
+  // }
+
+  // const renderContent = () => {
+  //   if (activeStep === steps.length) {
+  //     return (
+  //       <>
+  //         <Typography>All steps are completed!</Typography>
+  //         <Box sx={{ mt: 4, display: 'flex', justifyContent: 'flex-end' }}>
+  //           <Button size='large' variant='contained'>
+  //             Create new profile
+  //           </Button>
+  //         </Box>
+  //       </>
+  //     )
+  //   } else {
+  //     return getStepContent(activeStep)
+  //   }
+  // }
+
+  // const getStepContent = (step: number) => {
+  //   switch (step) {
+  //     case 0:
+  //       return (
+  //         <>
+  //           <Box>
+  //             <Typography>{step}</Typography>
+  //             <Grid container>
+  //               <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+  //                 <Button size='large' variant='outlined' color='secondary' disabled>
+  //                   Back
+  //                 </Button>
+  //                 <Button size='large' type='submit' variant='contained'>
+  //                   Next
+  //                 </Button>
+  //               </Grid>
+  //             </Grid>
+  //           </Box>
+  //         </>
+  //       )
+  //     case 1:
+  //       return (
+  //         <>
+  //           <Box>
+  //             <Typography>{step}</Typography>
+  //             <Grid container>
+  //               <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+  //                 <Button size='large' variant='outlined' color='secondary' disabled>
+  //                   Back
+  //                 </Button>
+  //                 <Button size='large' type='submit' variant='contained'>
+  //                   Next
+  //                 </Button>
+  //               </Grid>
+  //             </Grid>
+  //           </Box>
+  //         </>
+  //       )
+  //       break
+  //     case 2:
+  //       return (
+  //         <>
+  //           <Box>
+  //             <Typography>{step}</Typography>
+  //             <Grid container>
+  //               <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+  //                 <Button size='large' variant='outlined' color='secondary' disabled>
+  //                   Back
+  //                 </Button>
+  //                 <Button size='large' type='submit' variant='contained'>
+  //                   Next
+  //                 </Button>
+  //               </Grid>
+  //             </Grid>
+  //           </Box>
+  //         </>
+  //       )
+  //     case 3:
+  //       ;<>
+  //         <Box>
+  //           <Typography>{step}</Typography>
+  //           <Grid container>
+  //             <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
+  //               <Button size='large' variant='outlined' color='secondary' disabled>
+  //                 Back
+  //               </Button>
+  //               <Button size='large' type='submit' variant='contained'>
+  //                 Next
+  //               </Button>
+  //             </Grid>
+  //           </Grid>
+  //         </Box>
+  //       </>
+  //       break
+  //   }
+  // }
+
   return (
     <Card>
       <CardContent>
         <Typography variant='h5'>Create New Profile</Typography>
         <Divider sx={{ my: 4 }}></Divider>
+
         <form>
           <Grid container spacing={4} sx={{ mb: 6 }}>
             <Grid item xs={12} md={6} lg={4}>
@@ -266,6 +400,61 @@ export default function CreateProfile() {
           </Box>
         </form>
       </CardContent>
+      {/* <CardContent>
+        <StepperWrapper>
+          <Stepper activeStep={activeStep}>
+            {steps.map((step, index) => {
+              const labelProps: {
+                error?: boolean
+              } = {}
+              // if (index === activeStep) {
+              //   labelProps.error = false
+              //   if (
+              //     (accountErrors.email ||
+              //       accountErrors.username ||
+              //       accountErrors.password ||
+              //       accountErrors['confirm-password']) &&
+              //     activeStep === 0
+              //   ) {
+              //     labelProps.error = true
+              //   } else if (
+              //     (personalErrors.country ||
+              //       personalErrors.language ||
+              //       personalErrors['last-name'] ||
+              //       personalErrors['first-name']) &&
+              //     activeStep === 1
+              //   ) {
+              //     labelProps.error = true
+              //   } else if (
+              //     (socialErrors.google || socialErrors.twitter || socialErrors.facebook || socialErrors.linkedIn) &&
+              //     activeStep === 2
+              //   ) {
+              //     labelProps.error = true
+              //   } else {
+              //     labelProps.error = false
+              //   }
+              // }
+
+              return (
+                <Step key={index}>
+                  <StepLabel {...labelProps} StepIconComponent={StepperCustomDot}>
+                    <div className='step-label'>
+                      <Typography className='step-number'>{`0${index + 1}`}</Typography>
+                      <div>
+                        <Typography className='step-title'>{step.title}</Typography>
+                        <Typography className='step-subtitle'>{step.subtitle}</Typography>
+                      </div>
+                    </div>
+                  </StepLabel>
+                </Step>
+              )
+            })}
+          </Stepper>
+        </StepperWrapper>
+      </CardContent>
+
+      <Divider />
+      <CardContent>{renderContent()}</CardContent> */}
     </Card>
   )
 }

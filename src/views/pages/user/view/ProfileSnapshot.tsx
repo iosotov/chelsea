@@ -460,7 +460,7 @@ const ProfileDetails = ({
             return (
               <>
                 <Box
-                  key={'assignee' + index}
+                  key={assignee.assigneeId}
                   sx={{ display: 'flex', mb: 2, justifyContent: 'space-between', alignItems: 'center' }}
                 >
                   <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>{assignee.assigneeName}</Typography>

@@ -1,3 +1,5 @@
+import type { CreditReportInfoType } from './creditReportApiSlice'
+
 export const EnrollmentDefaultModel = {
   enrollmentId: null,
   enrolledBalance: null,
@@ -26,4 +28,11 @@ export const EnrollmentDefaultModel = {
   clearedPayments: null,
   totalPayments: null,
   recurringPaymentDate: null
+}
+
+export const CreditReportInfoModel: CreditReportInfoType = {
+  profileId: '',
+  creditScores: [],
+  referenceFile: '',
+  fileType: ''
 }
