@@ -105,7 +105,7 @@ export default function PersonalDialog({ open, toggle, data }: Props): ReactElem
 
   const campaigns = useAppSelector(state => selectAllCampaigns(state))
 
-  useGetCampaignsQuery(
+  const { isSuccess } = useGetCampaignsQuery(
     {
       length: 10000,
       order: [
@@ -164,8 +164,9 @@ export default function PersonalDialog({ open, toggle, data }: Props): ReactElem
   const {
     formState: { errors },
     control,
-    watch,
-    reset
+    handleSubmit,
+    reset,
+    setValue
   } = personalForm
 
   const onClose = () => {
@@ -175,13 +176,21 @@ export default function PersonalDialog({ open, toggle, data }: Props): ReactElem
 
   const onSubmit = () => {
     const data = personalForm.getValues()
+    console.log(data)
     onClose()
   }
 
-  //need api for campaign list
+  //clears entry upon campaign Id that doesnt exist
+  useEffect(() => {
+    if (isSuccess) {
+      if (campaignOptions.filter(c => c.value === campaignId).length === 0) {
+        setValue('campaign', '')
+      }
+    }
+  }, [isSuccess])
 
   return (
-    <Dialog open={open} maxWidth='xl' fullWidth onClose={toggle} aria-labelledby='profile-personal-dialog'>
+    <Dialog open={open} maxWidth='xl' fullWidth onClose={onClose} aria-labelledby='profile-personal-dialog'>
       <DialogTitle id='profile-personal-dialog'>
         Update Profile Information
         <IconButton
@@ -302,7 +311,7 @@ export default function PersonalDialog({ open, toggle, data }: Props): ReactElem
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant='outlined' onClick={onSubmit}>
+        <Button variant='outlined' onClick={handleSubmit(onSubmit)}>
           Save Changes
         </Button>
       </DialogActions>

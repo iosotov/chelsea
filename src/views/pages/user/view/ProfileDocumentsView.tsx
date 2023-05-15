@@ -65,7 +65,7 @@ const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
 
 export default function ProfileDocuments({ id }: { id: string | string[] }) {
   const [openUploadDialog, setUploadDialog] = useState<boolean>(false)
-  const [openGenerateDrawer, setUploadDrawer] = useState<boolean>(false)
+  const [openGenerateDrawer, setGenerateDrawer] = useState<boolean>(false)
   const [tab, setTab] = useState<string>('esign')
   const [tabLoading, setTabLoading] = useState<boolean>(false)
 
@@ -74,31 +74,11 @@ export default function ProfileDocuments({ id }: { id: string | string[] }) {
   useGetDocumentsQuery(String(id))
   const data = useAppSelector(state => selectDocumentsByProfileId(state, String(id)))
 
-  const [esign, setEsign] = useState<DocumentType[]>([])
-  const [generated, setGenerated] = useState<DocumentType[]>([])
-  const [uploaded, setUploaded] = useState<DocumentType[]>([])
-
-  console.log(data)
-
-  // filter out the data
-  useEffect(() => {
-    if (data.length) {
-      const eSignEntries = data.filter(e => e.type === 1)
-      setEsign(eSignEntries)
-
-      const generatedEntries = data.filter(e => e.type === 2)
-      setGenerated(generatedEntries)
-
-      const uploadedEntries = data.filter(e => e.type === 3)
-      setUploaded(uploadedEntries)
-    }
-  }, [data])
-
   //toggles Upload Dialog
   const toggleDialog = () => setUploadDialog(!openUploadDialog)
 
   //toggles Generate Drawer
-  const toggleDrawer = () => setUploadDrawer(!openGenerateDrawer)
+  const toggleDrawer = () => setGenerateDrawer(!openGenerateDrawer)
 
   const handleTabChange = (e: SyntheticEvent, newValue: string) => {
     setTabLoading(true)
@@ -115,7 +95,7 @@ export default function ProfileDocuments({ id }: { id: string | string[] }) {
           <Card>
             <CardContent>
               <Typography variant='caption'>E-Sign Contracts</Typography>
-              <Typography variant='h4'>2</Typography>
+              <Typography variant='h4'>{data.filter(e => e.type === 1).length}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -123,7 +103,7 @@ export default function ProfileDocuments({ id }: { id: string | string[] }) {
           <Card>
             <CardContent>
               <Typography variant='caption'>Generated Docs</Typography>
-              <Typography variant='h4'>5</Typography>
+              <Typography variant='h4'>{data.filter(e => e.type === 3).length}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -131,7 +111,7 @@ export default function ProfileDocuments({ id }: { id: string | string[] }) {
           <Card>
             <CardContent>
               <Typography variant='caption'>Uploaded Docs</Typography>
-              <Typography variant='h4'>8</Typography>
+              <Typography variant='h4'>{data.filter(e => e.type === 0).length}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -151,8 +131,8 @@ export default function ProfileDocuments({ id }: { id: string | string[] }) {
               <Box>
                 <TabList variant='fullWidth' onChange={handleTabChange}>
                   <Tab value='esign' label='E-Sign Contracts' />
-                  <Tab value='generated' label={`Generated Docs`} />
-                  <Tab value='uploaded' label={`Uploaded Docs`} />
+                  <Tab value='generated' label='Generated Docs' />
+                  <Tab value='uploaded' label='Uploaded Docs' />
                 </TabList>
                 <Box sx={{ minHeight: 280 }}>
                   {tabLoading ? (
@@ -163,13 +143,13 @@ export default function ProfileDocuments({ id }: { id: string | string[] }) {
                   ) : (
                     <>
                       <TabPanel value='esign'>
-                        <TableColumns rows={esign} />
+                        <TableColumns rows={data.filter(e => e.type === 1)} />
                       </TabPanel>
                       <TabPanel value='generated'>
-                        <TableColumns rows={generated} />
+                        <TableColumns rows={data.filter(e => e.type === 3)} />
                       </TabPanel>
                       <TabPanel value='uploaded'>
-                        <TableColumns rows={uploaded} />
+                        <TableColumns rows={data.filter(e => e.type === 0)} />
                       </TabPanel>
                     </>
                   )}

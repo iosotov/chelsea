@@ -23,9 +23,9 @@ code[class*='language-'] {
   padding: 0;
 }
 
-
 ::-webkit-scrollbar {
   width: 3px;
+  height: 3px;
 }
 
 ::-webkit-scrollbar-track {
@@ -33,9 +33,9 @@ code[class*='language-'] {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #BDBDBD;
+  background: #bdbdbd;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #6E6E6E;
+  background: #6e6e6e;
 }
