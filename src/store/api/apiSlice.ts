@@ -43,14 +43,16 @@ export const apiSlice = createApi({
     'GROUP',
     'LIABILITY',
     'NOTE',
-    'TASK',
+    'PERMISSION',
+    'ROLE',
     'SETTING',
     'SETTING-ADDRESS',
     'SETTING-ASSIGNEE',
     'SETTING-CONTACT',
     'SETTING-CUSTOMFIELD',
     'SETTING-LABEL',
-    'SETTING'
+    'TASK',
+    'USER'
   ],
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

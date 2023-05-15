@@ -1,44 +1,48 @@
-import { setGroups, updateGroup } from '../groupSlice'
+import { setPermissions, updatePermission } from '../permissionSlice'
 import { apiSlice } from './apiSlice'
 import { LunaResponseType } from './sharedTypes'
 
-export type GroupType = {
-  groupId: string
-  name: string
+export type PermissionType = {
+  permissionId: string
   description: string
-  employees: string[]
+  permissionCode: string
+  parentPermissionCode: string
 }
 
-export type GroupUpdateType = {
-  groupId: string
+export type PermissionUpdateType = {
+  permissionId: string
   name: string
-  description: string
-  employeeIds?: string[]
+  description?: string
+  permissionCode: string
+  parentPermissionId?: string
 }
 
-export type GroupCreateType = {
+export type PermissionCreateType = {
+  permissionId: string
   name: string
-  description: string
+  description?: string
+  permissionCode: string
+  parentPermissionId?: string
 }
 
-export const groupApiSlice = apiSlice.injectEndpoints({
+export const permissionApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
-    getGroup: builder.query<GroupType, string>({
-      query: groupId => ({
-        url: `/group/${groupId}/basic`,
+    getPermission: builder.query<PermissionType, string>({
+      query: permissionId => ({
+        url: `/permission/${permissionId}/info`,
         method: 'GET'
       }),
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching group information')
+        if (!res.success) throw new Error('There was an error fetching permission information')
         console.log(res.data)
 
         return res.data
       },
-      async onQueryStarted(groupId, { dispatch, queryFulfilled }) {
+      async onQueryStarted(permissionId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
 
-          dispatch(updateGroup(data))
+          dispatch(updatePermission(data))
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
@@ -47,16 +51,16 @@ export const groupApiSlice = apiSlice.injectEndpoints({
         }
       },
       providesTags: (result, error, arg) => {
-        return result ? [{ type: 'GROUP', id: arg }] : []
+        return result ? [{ type: 'PERMISSION', id: arg }] : []
       }
     }),
-    getGroups: builder.query<GroupType[], undefined>({
+    getPermissions: builder.query<PermissionType[], undefined>({
       query: () => ({
-        url: `/group/all`,
+        url: `/permission/all`,
         method: 'GET'
       }),
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching groups')
+        if (!res.success) throw new Error('There was an error fetching permissions')
         console.log(res.data)
 
         return res.data
@@ -65,7 +69,7 @@ export const groupApiSlice = apiSlice.injectEndpoints({
         try {
           const { data } = await queryFulfilled
 
-          dispatch(setGroups(data))
+          dispatch(setPermissions(data))
         } catch (err) {
           // ************************
           // NEED TO CREATE ERROR HANDLING
@@ -75,20 +79,23 @@ export const groupApiSlice = apiSlice.injectEndpoints({
       },
       providesTags: result => {
         return result
-          ? [{ type: 'GROUP', id: 'LIST' }, ...result.map(g => ({ type: 'GROUP' as const, id: g.groupId }))]
+          ? [
+              { type: 'PERMISSION', id: 'LIST' },
+              ...result.map(p => ({ type: 'PERMISSION' as const, id: p.permissionId }))
+            ]
           : []
       }
     }),
-    postGroupCreate: builder.mutation<string, GroupCreateType>({
+    postPermissionCreate: builder.mutation<string, PermissionCreateType>({
       query: body => {
         return {
-          url: `/group`,
+          url: `/permission`,
           method: 'POST',
           body
         }
       },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating group')
+        if (!res.success) throw new Error('There was an error creating permission')
         console.log(res.data)
 
         return res.data
@@ -103,25 +110,25 @@ export const groupApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: res => (res ? [{ type: 'GROUP', id: 'LIST' }] : [])
+      invalidatesTags: res => (res ? [{ type: 'PERMISSION', id: 'LIST' }] : [])
     }),
-    putGroupUpdate: builder.mutation<string, GroupUpdateType>({
+    putPermissionUpdate: builder.mutation<string, PermissionUpdateType>({
       query: params => {
-        const { groupId, ...body } = params
+        const { permissionId, ...body } = params
         console.log(body)
 
         return {
-          url: `/group/${groupId}`,
+          url: `/permission/${permissionId}`,
           method: 'PUT',
           body
         }
       },
       transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error updating group information')
+        if (!res.success) throw new Error('There was an error updating permission information')
 
-        console.log(arg.groupId)
+        console.log(arg.permissionId)
 
-        return arg.groupId
+        return arg.permissionId
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
@@ -133,22 +140,22 @@ export const groupApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: res => (res ? [{ type: 'GROUP', id: res }] : [])
+      invalidatesTags: res => (res ? [{ type: 'PERMISSION', id: res }] : [])
     }),
-    deleteGroup: builder.mutation<string, string>({
-      query: groupId => {
+    deletePermission: builder.mutation<string, string>({
+      query: permissionId => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         return {
-          url: `/group/${groupId}`,
+          url: `/permission/${permissionId}`,
           method: 'DELETE'
         }
       },
       transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error deleting group')
+        if (!res.success) throw new Error('There was an error deleting permission')
 
         return arg
       },
-      async onQueryStarted(groupId, { queryFulfilled }) {
+      async onQueryStarted(permissionId, { queryFulfilled }) {
         try {
           await queryFulfilled
         } catch (err) {
@@ -158,7 +165,7 @@ export const groupApiSlice = apiSlice.injectEndpoints({
           console.log(err)
         }
       },
-      invalidatesTags: res => (res ? [{ type: 'GROUP', id: res }] : [])
+      invalidatesTags: res => (res ? [{ type: 'PERMISSION', id: res }] : [])
     })
   })
 })

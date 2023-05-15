@@ -1,5 +1,5 @@
 import { apiSlice } from './apiSlice'
-import { LunaResponseType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType } from './sharedTypes'
 import { deleteNote, updateNotes } from '../noteSlice'
 
 export type NoteCreateType = {
@@ -65,22 +65,24 @@ export const noteApiSlice = apiSlice.injectEndpoints({
         url: `/note/${noteId}/info`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching note information',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching profile notes')
-        console.log(res.data)
+        if (!res.success) throw new Error('There was an error fetching note information')
 
         return res.data
       },
       async onQueryStarted(noteId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-
-          dispatch(updateNotes([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateNotes([data]))
+        } catch (err: any) {
+          console.error('API error in getNote:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {

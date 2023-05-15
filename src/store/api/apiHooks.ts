@@ -8,12 +8,15 @@ import { documentApiSlice } from './documentApiSlice'
 import { emailApiSlice } from './emailApiSlice'
 import { employeeApiSlice } from './employeeApiSlice'
 import { enrollmentApiSlice } from './enrollmentApiSlice'
+import { groupApiSlice } from './groupApiSlice'
 import { liabilityApiSlice } from './liabilityApiSlice'
 import { noteApiSlice } from './noteApiSlice'
 import { profileApiSlice } from './profileApiSlice'
 import { profileBudgetApiSlice } from './profileBudgetApiSlice'
+import { roleApiSlice } from './roleApiSlice'
 import { settingApiSlice } from './settingApiSlice'
 import { taskApiSlice } from './taskApiSlice'
+import { userApiSlice } from './userApiSlice'
 
 // SOL REDUX API POINTS
 
@@ -252,6 +255,25 @@ export const {
   useGetEnrollmentPreviewMutation
 } = enrollmentApiSlice
 
+// ********************************************************************** GROUP
+
+export const {
+  // GET group/groupId/basic
+  useGetGroupQuery,
+
+  // GET group/all
+  useGetGroupsQuery,
+
+  // POST group
+  usePostGroupCreateMutation,
+
+  // PUT group/groupId
+  usePutGroupUpdateMutation,
+
+  // DELETE group/groupId
+  useDeleteGroupMutation
+} = groupApiSlice
+
 // ********************************************** LIABILITY
 
 export const {
@@ -388,30 +410,30 @@ export const {
   usePutBudgetUpdateMutation
 } = profileBudgetApiSlice
 
-// ********************************************** TASKS
+// ********************************************** ROLES
 
 export const {
-  // GET task/taskId/info
-  useGetTaskQuery,
+  // GET role/roleId/info
+  useGetRoleQuery,
 
-  // GET task/profileId/profile
-  useGetProfileTasksQuery,
+  // GET role/all
+  useGetRolesQuery,
 
-  // PUT task/taskId
-  usePutTaskUpdateMutation,
+  // PUT role/roleId
+  usePutRoleUpdateMutation,
 
-  // PUT task/bulk-update
-  usePutTasksBulkUpdateMutation,
+  // POST role
+  usePostRoleCreateMutation,
 
-  // POST task/profileId/profile
-  usePostTaskCreateMutation,
+  // POST role/search
+  usePostRoleSearchQuery,
 
-  // POST task/search
-  usePostTaskSearchQuery,
+  // POST role/roleId/assign-permissions
+  usePostRoleAssignPermissionsMutation,
 
-  // DELETE task/taskId/
-  useDeleteTaskMutation
-} = taskApiSlice
+  // DELETE role/roleId
+  useDeleteRoleMutation
+} = roleApiSlice
 
 // ********************************************** SETTINGS
 
@@ -527,3 +549,53 @@ export const {
   // PUT setting/id/delete
   usePutSettingDeleteMutation
 } = settingApiSlice
+
+// ********************************************** TASKS
+
+export const {
+  // GET task/taskId/info
+  useGetTaskQuery,
+
+  // GET task/profileId/profile
+  useGetProfileTasksQuery,
+
+  // PUT task/taskId
+  usePutTaskUpdateMutation,
+
+  // PUT task/bulk-update
+  usePutTasksBulkUpdateMutation,
+
+  // POST task/profileId/profile
+  usePostTaskCreateMutation,
+
+  // POST task/search
+  usePostTaskSearchQuery,
+
+  // DELETE task/taskId/
+  useDeleteTaskMutation
+} = taskApiSlice
+
+// ********************************************** USERS
+
+export const {
+  // GET user/userId
+  useGetUserQuery,
+
+  // PUT user/userId
+  usePutUserUpdateMutation,
+
+  // POST user
+  usePostUserCreateMutation,
+
+  // PUT user/userId/disable
+  usePutUserDisableMutation,
+
+  // PUT user/userId/enable
+  usePutUserEnableMutation,
+
+  // PUT user/userId/roles
+  usePutUserRoleUpdateMutation,
+
+  // PUT user/userId/password
+  usePutUserPasswordUpdateMutation
+} = userApiSlice
