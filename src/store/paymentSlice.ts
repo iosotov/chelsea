@@ -14,7 +14,7 @@ const paymentSlice = createSlice({
   initialState,
   reducers: {
     setPayments: (state, action) => {
-      console.log(action.payload)
+      // console.log(action.payload)
       paymentAdapter.setAll(state, action.payload)
     },
     updatePayments: (state, action) => {
