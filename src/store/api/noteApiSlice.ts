@@ -1,5 +1,5 @@
 import { apiSlice } from './apiSlice'
-import { LunaResponseType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType } from './sharedTypes'
 import { deleteNote, updateNotes } from '../noteSlice'
 
 export type NoteCreateType = {
@@ -74,7 +74,8 @@ export const noteApiSlice = apiSlice.injectEndpoints({
         }
       },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) return null
+        if (!res.success) throw new Error('There was an error fetching profile notes')
+        console.log(res.data)
 
         return res.data
       },
