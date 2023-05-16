@@ -79,7 +79,7 @@ export const creditReportApiSlice = apiSlice.injectEndpoints({
         return {
           url: `/creditreport/${profileId}/profile/request`,
           method: 'POST',
-          params: { testMode: false }
+          params: { testMode: true }
         }
       },
       transformResponse: (res: LunaResponseType, meta, arg) => {

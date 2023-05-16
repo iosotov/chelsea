@@ -281,7 +281,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          console.log(data)
+          // console.log(data)
 
           dispatch(updateEnrollments([data]))
         } catch (err) {
@@ -379,7 +379,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
         // if (!res.success) throw new Error('There was an error updating enrollment')
         if (res.success) {
           const newPayments = res.data.map((payment: PaymentDetailInfoModel) => ({ ...payment, profileId: arg }))
-          console.log(res.data, newPayments)
+          // console.log(res.data, newPayments)
           return newPayments
         } else {
           return []
@@ -388,7 +388,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          console.log(data)
+          // console.log(data)
 
           dispatch(setPayments(data))
         } catch (err) {

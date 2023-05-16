@@ -47,6 +47,7 @@ import MoneyConverter from 'src/views/shared/utils/money-converter'
 import { DataGridPro, GridColDef, GridValueFormatterParams, GridRowSelectionModel } from '@mui/x-data-grid-pro'
 
 import { LiabilityType } from 'src/store/api/liabilityApiSlice'
+import { usePostProfileCreditReportMutation } from 'src/store/api/apiHooks'
 
 type Order = 'asc' | 'desc'
 
@@ -64,6 +65,12 @@ function CreditScore({ id }: Props) {
   useGetCreditReportsQuery(String(id), { skip: !id })
   const creditReport = useAppSelector(state => selectCreditReportByProfileId(state, String(id)))
   console.log(creditReport)
+
+  const [call, status] = usePostProfileCreditReportMutation()
+  console.log(status)
+  const pullReport = () => {
+    call(String(id))
+  }
 
   const options: ApexOptions = {
     chart: {
@@ -104,7 +111,7 @@ function CreditScore({ id }: Props) {
     <Card sx={{ p: 2, mb: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
         <Button disabled={creditReport?.creditScores?.length === 0}>View</Button>
-        <Button>New Report</Button>
+        <Button onClick={pullReport}>New Report</Button>
       </Box>
       <Grid container spacing={4}>
         {creditReport?.creditScores?.length > 0 ? (

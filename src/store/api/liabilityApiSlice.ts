@@ -159,7 +159,7 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          console.log(data)
+          // console.log(data)
 
           dispatch(updateLiabilities(data))
         } catch (err) {

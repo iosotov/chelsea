@@ -18,7 +18,7 @@ const liabilitySlice = createSlice({
       liabilityAdapter.setAll(state, action.payload)
     },
     updateLiabilities: (state, action) => {
-      console.log(action.payload)
+      // console.log(action.payload)
       liabilityAdapter.upsertMany(state, action.payload)
     }
   }
