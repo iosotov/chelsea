@@ -1,4 +1,4 @@
-import { addProfile, deleteProfile, updateProfiles, updateStatus } from '../profileSlice'
+import { updateProfiles, updateStatus } from '../profileSlice'
 import SolApi from './SolApi'
 import { apiSlice } from './apiSlice'
 import { LunaResponseType, SearchFilterType } from './sharedTypes'
@@ -146,6 +146,11 @@ type ProfileUpdateType = {
   profileCustomFields?: ProfileCustomFieldCreateType[]
 }
 
+export type ProfileStatusSummaryType = {
+  profileId: string
+  summary: ProfileStatusType[]
+}
+
 export type ProfileStatusType = {
   profileId: string
   stageStatus: string
@@ -268,42 +273,55 @@ export type ProfileBasicType = {
 
 export const profileApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
-    // PROFILE SEARCH
-    postProfilesSearch: builder.query<ProfileInfoType[], SearchFilterType>({
+    // ****************************************************************** POST profile/search
+    postProfilesSearch: builder.query<ProfileInfoType[] | null, SearchFilterType>({
       query: searchParams => ({
         url: `/profile/search`,
         method: 'POST',
         body: searchParams
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching contacts',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching profiles')
+        if (!res.success) return null
 
         return res.data.data
       },
       async onQueryStarted(searchParams, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          dispatch(updateProfiles(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateProfiles(data))
+        } catch (err: any) {
+          console.error('API error in postProfilesSearch:', err.error.data.message)
         }
       },
       providesTags: result => {
-        return result ? [{ type: 'PROFILE', id: 'LIST' }] : []
+        return result
+          ? [{ type: 'PROFILE', id: 'LIST' }, ...result.map(p => ({ type: 'PROFILE' as const, id: p.profileId }))]
+          : []
       }
     }),
 
-    // GET PROFILE INFO
-    getProfileInfo: builder.query<ProfileInfoType, string>({
+    // ***************************************************** GET profile/profileId/info
+    getProfileInfo: builder.query<ProfileInfoType | null, string>({
       query: profileId => ({
         url: `/profile/${profileId}/info`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching profile',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: async (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching profile')
+        if (!res.success) return null
 
         const profileInfo: ProfileInfoType = { ...res.data }
 
@@ -456,15 +474,9 @@ export const profileApiSlice = apiSlice.injectEndpoints({
       async onQueryStarted(searchParams, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-
-          dispatch(updateProfiles([data]))
-        } catch (err) {
-          // ********************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
-          // Re-throw the error to make sure isError becomes true
-          throw err
+          if (data) dispatch(updateProfiles([data]))
+        } catch (err: any) {
+          console.error('API error in getProfileInfo:', err.error.data.message)
         }
       },
       providesTags: result => {
@@ -472,41 +484,51 @@ export const profileApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    // GET PROFILE BASIC
-    getProfileBasic: builder.query<ProfileBasicType, string>({
+    // ***************************************************** GET profile/profileId/basic
+    getProfileBasic: builder.query<ProfileBasicType | null, string>({
       query: profileId => ({
         url: `/profile/${profileId}/basic`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching profile',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching profile')
+        if (!res.success) return null
 
         return res.data
       },
       async onQueryStarted(searchParams, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          dispatch(updateProfiles([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateProfiles([data]))
+        } catch (err: any) {
+          console.error('API error in getProfileBasic:', err.error.data.message)
         }
       }
     }),
 
-    // GET PROFILE STATUS
-    // ******************** backend bug ****************************************
-    getProfileStatus: builder.query<ProfileStatusType, string>({
+    // ***************************************************** GET profile/profileId/status-summary
+    getProfileStatus: builder.query<ProfileStatusSummaryType | null, string>({
       query: profileId => ({
         url: `/profile/${profileId}/status-summary`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching profile status summary',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error fetching profile')
+        if (!res.success) null
 
-        const newStatus = { ...res.data, profileId: arg }
+        const newStatus = { summary: res.data, profileId: arg }
 
         console.log(res, newStatus)
 
@@ -515,13 +537,9 @@ export const profileApiSlice = apiSlice.injectEndpoints({
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          dispatch(updateStatus([data]))
-          dispatch(updateProfiles([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateStatus([data]))
+        } catch (err: any) {
+          console.error('API error in getProfileStatus:', err.error.data.message)
         }
       },
       providesTags: result => {
@@ -529,43 +547,46 @@ export const profileApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    // PROFILE QUICKSEARCH
+    // ***************************************************** GET profile/quicksearch/keyword
     getProfileQuickSearch: builder.query<ProfileStatusType[], string>({
       query: keyword => ({
         url: `/profile/quicksearch/${keyword}`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error using search contacts',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching profileS')
-
         return res.data
       }
     }),
 
-    // POST CREATE PROFILE
-    postProfileCreate: builder.mutation<ProfileBasicType, ProfileCreateType>({
+    // ***************************************************** POST profile
+    postProfileCreate: builder.mutation<boolean, ProfileCreateType>({
       query: body => ({
         url: `/profile`,
         method: 'POST',
         body
       }),
-      transformResponse: async (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating profile')
-
-        const newUserRes = await SolApi.GetProfile(res.data)
-        if (!newUserRes.success) throw new Error('There was an error fetching profiles')
-
-        return newUserRes.data as ProfileBasicType
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error creating profile',
+          data: baseQueryReturnValue.data
+        }
       },
-      async onQueryStarted(body, { dispatch, queryFulfilled }) {
+      transformResponse: async (res: LunaResponseType) => {
+        return res.success
+      },
+      async onQueryStarted(body, { queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled
-          dispatch(addProfile(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          await queryFulfilled
+        } catch (err: any) {
+          console.error('API error in postProfileCreate:', err.error.data.message)
         }
       },
       invalidatesTags: res => {
@@ -573,8 +594,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    // POST ASSIGN PROFILE
-    postProfileAssign: builder.mutation<ProfileAssigneeCreateType, ProfileAssigneeCreateType>({
+    // ***************************************************** POST profile/profileId/assign
+    postProfileAssign: builder.mutation<boolean, ProfileAssigneeCreateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -584,26 +605,28 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: async (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error assigning profile')
-
-        return arg
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error assigning profile',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: async (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postProfileAssign:', err.error.data.message)
         }
       },
       invalidatesTags: (result, error, arg) => (result ? [{ type: 'PROFILE', id: arg.profileId }] : [])
     }),
 
-    // POST PROFILE CUSTOM FIELD
-    postProfileCustomFieldCreate: builder.mutation<ProfileCustomFieldCreateType, ProfileCustomFieldCreateType>({
+    // ***************************************************** POST profile/profileId/customField
+    postProfileCustomFieldCreate: builder.mutation<boolean, ProfileCustomFieldCreateType>({
       query: params => {
         const { profileId, ...customFields } = params
 
@@ -613,25 +636,28 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           body: customFields
         }
       },
-      transformResponse: async (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error adding custom field to profile')
 
-        return arg
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error posting custom field',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: async (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postProfileCustomFieldCreate:', err.error.data.message)
         }
       },
       invalidatesTags: (result, error, arg) => (result ? [{ type: 'PROFILE', id: arg.profileId }] : [])
     }),
 
-    // POST PROFILE SUBMIT
+    // ***************************************************** POST profile/profileId/submit
     postProfileSubmit: builder.mutation<boolean, string>({
       query: profileId => {
         return {
@@ -639,25 +665,28 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           method: 'POST'
         }
       },
-      transformResponse: async (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error updating profile status')
 
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error submitting profile',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: async (res: LunaResponseType) => {
         return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postProfileSubmit:', err.error.data.message)
         }
       },
       invalidatesTags: (result, err, arg) => (result ? [{ type: 'PROFILE', id: arg }] : [])
     }),
 
-    // POST PROFILE APPROVE
+    // ***************************************************** POST profile/profileId/approve
     postProfileApprove: builder.mutation<boolean, string>({
       query: profileId => {
         return {
@@ -665,25 +694,28 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           method: 'POST'
         }
       },
-      transformResponse: async (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error updating profile status')
 
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error approving profile',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: async (res: LunaResponseType) => {
         return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postProfileApprove:', err.error.data.message)
         }
       },
-      invalidatesTags: (result, err, arg) => [{ type: 'PROFILE', id: arg }]
+      invalidatesTags: (result, err, arg) => (result ? [{ type: 'PROFILE', id: arg }] : [])
     }),
 
-    // POST PROFILE REJECT
+    // ***************************************************** POST profile/profileId/reject
     postProfileReject: builder.mutation<boolean, string>({
       query: profileId => {
         return {
@@ -691,25 +723,28 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           method: 'POST'
         }
       },
-      transformResponse: async (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error updating profile status')
 
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error rejecting profile',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: async (res: LunaResponseType) => {
         return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postProfileReject:', err.error.data.message)
         }
       },
       invalidatesTags: (result, err, arg) => (result ? [{ type: 'PROFILE', id: arg }] : [])
     }),
 
-    // POST PROFILE ENROLL
+    // ***************************************************** POST profile/profileId/enroll
     postProfileEnroll: builder.mutation<boolean, string>({
       query: profileId => {
         return {
@@ -717,19 +752,22 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           method: 'POST'
         }
       },
-      transformResponse: async (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error updating profile status')
 
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error enrolling profile',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: async (res: LunaResponseType) => {
         return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postProfileEnroll:', err.error.data.message)
         }
       },
       invalidatesTags: (result, err, arg) => [
@@ -739,7 +777,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
       ]
     }),
 
-    // POST PROFILE GRANT AUTH
+    // ***************************************************** POST profile/profileId/grant-auth
     postProfileGrantAuth: builder.mutation<boolean, ProfileGrantAuthCreateType>({
       query: params => {
         const { profileId, ...body } = params
@@ -750,26 +788,28 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: async (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error updating profile authentication')
 
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error granting profile auth',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: async (res: LunaResponseType) => {
         return res.success
       },
-      async onQueryStarted(params, { dispatch, queryFulfilled }) {
-        const { profileId } = params
+      async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-          dispatch(updateProfiles([{ profileId, hasAuthentication: true }]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postProfileGrantAuth:', err.error.data.message)
         }
-      }
+      },
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'PROFILE', id: arg.profileId }] : [])
     }),
 
-    // POST DISABLE GRANT AUTH
+    // ***************************************************** POST profile/profileId/disable-auth
     postProfileDisableAuth: builder.mutation<boolean, string>({
       query: profileId => {
         return {
@@ -777,25 +817,28 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           method: 'POST'
         }
       },
-      transformResponse: async (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error updating profile authentication')
 
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error disabling profile',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: async (res: LunaResponseType) => {
         return res.success
       },
-      async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
+      async onQueryStarted(profileId, { queryFulfilled }) {
         try {
           await queryFulfilled
-          dispatch(updateProfiles([{ profileId, hasAuthentication: true }]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postProfileDisableAuth:', err.error.data.message)
         }
-      }
+      },
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'PROFILE', id: arg }] : [])
     }),
 
-    // PUT UPDATE PROFILE STAGE/STATUS
+    // ***************************************************** PUT profile/profileId/stage
     putProfileStatusUpdate: builder.mutation<boolean, ProfileStatusUpdateType>({
       query: params => {
         const { profileId, ...body } = params
@@ -806,19 +849,22 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: async (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error updating profile status')
 
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error updating profile status',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: async (res: LunaResponseType) => {
         return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putProfileStatusUpdate:', err.error.data.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -831,7 +877,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    // PUT UPDATE PROFILE
+    // ***************************************************** PUT profile/profileId
     putProfileUpdate: builder.mutation<boolean, ProfileUpdateType>({
       query: params => {
         const { profileId, ...body } = params
@@ -842,19 +888,22 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: async (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error updating profile')
 
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error updating profile',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: async (res: LunaResponseType) => {
         return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putProfileUpdate:', err.error.data.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -862,7 +911,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
       }
     }),
 
-    // PUT DELETE PROFILE
+    // ***************************************************** PUT profile/profileId/delete
     putProfileDelete: builder.mutation<boolean, string>({
       query: profileId => {
         return {
@@ -870,25 +919,28 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           method: 'PUT'
         }
       },
-      transformResponse: async (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error deleting profile')
 
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error deleting profile',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: async (res: LunaResponseType) => {
         return res.success
       },
-      async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
+      async onQueryStarted(profileId, { queryFulfilled }) {
         try {
           await queryFulfilled
-          dispatch(deleteProfile(profileId))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putProfileDelete:', err.error.data.message)
         }
-      }
+      },
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'PROFILE', id: arg }] : [])
     }),
 
-    // POST EXPORT PROFILE
+    // ***************************************************** POST profile/export
     postProfilesExport: builder.mutation<Promise<Blob>, SearchFilterType>({
       query: body => {
         return {
@@ -898,46 +950,64 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           responseHandler: res => res.blob()
         }
       },
+
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error exporting profiles',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: Promise<Blob>) => {
         return res
       }
     }),
 
-    // GET PROFILE LABELS
-    getProfileLabels: builder.query<ProfileLabelType[], string>({
+    // ***************************************************** GET profile/profileId/labels
+    getProfileLabels: builder.query<ProfileLabelType[] | null, string>({
       query: profileId => {
         return {
           url: `/profile/${profileId}/labels`,
           method: 'GET'
         }
       },
+
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching profile labels',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching profile labels')
+        if (!res.success) return null
 
         return res.data
       },
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          const newLabels = {
-            profileId,
-            profileLabels: data
+          if (data) {
+            const newLabels = {
+              profileId,
+              profileLabels: data
+            }
+            dispatch(updateProfiles([newLabels]))
           }
-
-          console.log(newLabels)
-
-          dispatch(updateProfiles([newLabels]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in getProfileLabels:', err.error.data.message)
         }
       },
-      providesTags: (res, meta, arg) => (res ? [{ type: 'PROFILE-LABEL', id: arg }] : [])
+      providesTags: (res, meta, arg) =>
+        res
+          ? [
+              { type: 'PROFILE', id: arg },
+              { type: 'PROFILE-LABEL', id: arg }
+            ]
+          : []
     }),
 
-    // POST CREATE PROFILE LABELS
+    // ***************************************************** POST profile/profileId/labels
     postProfileLabelCreate: builder.mutation<boolean, ProfileLabelCreateType>({
       query: params => {
         const { profileId, ...body } = params
@@ -948,22 +1018,31 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching profile labels')
 
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error creating profile label',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
         return res.success
       },
       async onQueryStarted(profileId, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postProfileLabelCreate:', err.error.data.message)
         }
       },
-      invalidatesTags: (res, error, arg) => (res ? [{ type: 'PROFILE-LABEL', id: arg.profileId }] : [])
+      invalidatesTags: (res, error, arg) =>
+        res
+          ? [
+              { type: 'PROFILE', id: arg.profileId },
+              { type: 'PROFILE-LABEL', id: arg.profileId }
+            ]
+          : []
     })
   })
 })

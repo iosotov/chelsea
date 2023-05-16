@@ -44,34 +44,39 @@ export type UserCreateType = {
 
 export const userApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
-    getUser: builder.query<UserType, string>({
+    // ****************************************************************** GET user/userId
+    getUser: builder.query<UserType | [], string>({
       query: userId => ({
         url: `/user/${userId}`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching users',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching user information')
-        console.log(res.data)
+        if (!res.success) return null
 
         return res.data
       },
       async onQueryStarted(userId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-
-          dispatch(updateUser(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateUser(data))
+        } catch (err: any) {
+          console.error('API error in getUser:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
         return result ? [{ type: 'USER', id: arg }] : []
       }
     }),
-    postUserCreate: builder.mutation<string, UserCreateType>({
+
+    // ****************************************************************** POST user
+    postUserCreate: builder.mutation<boolean, UserCreateType>({
       query: body => {
         return {
           url: `/user`,
@@ -79,25 +84,28 @@ export const userApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error creating user',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating user')
-        console.log(res.data)
-
-        return res.data
+        return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postUserCreate:', err.error.data.message)
         }
       },
       invalidatesTags: res => (res ? [{ type: 'EMPLOYEE', id: 'LIST' }] : [])
     }),
-    putUserUpdate: builder.mutation<string, UserUpdateType>({
+
+    // ****************************************************************** PUT user/userId
+    putUserUpdate: builder.mutation<boolean, UserUpdateType>({
       query: params => {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { employeeId, userId, ...body } = params
@@ -108,92 +116,102 @@ export const userApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error updating user information')
-
-        console.log(arg.userId)
-
-        return arg.userId
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error bulk updating tasks',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putUserUpdate:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
         res
           ? [
-              { type: 'USER', id: res },
+              { type: 'USER', id: arg.userId },
               { type: 'EMPLOYEE', id: arg.employeeId }
             ]
           : []
     }),
-    putUserDisable: builder.mutation<string, string>({
+
+    // ****************************************************************** PUT user/userId/disable`
+    putUserDisable: builder.mutation<boolean, string>({
       query: userId => {
         return {
           url: `/user/${userId}/disable`,
           method: 'PUT'
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error disabling user')
-
-        return arg
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error disabling user',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(userId, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putUserDisable:', err.error.data.message)
         }
       },
-      invalidatesTags: res =>
+      invalidatesTags: (res, error, arg) =>
         res
           ? [
-              { type: 'USER', id: res },
+              { type: 'USER', id: arg },
               { type: 'EMPLOYEE', id: 'LIST' }
             ]
           : []
     }),
-    putUserEnable: builder.mutation<string, string>({
+
+    // ****************************************************************** PUT user/userId/enable`
+    putUserEnable: builder.mutation<boolean, string>({
       query: userId => {
         return {
           url: `/user/${userId}/enable`,
           method: 'PUT'
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error enabling user')
-
-        return arg
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error bulk enabling user',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(userId, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putUserEnable:', err.error.data.message)
         }
       },
-      invalidatesTags: res =>
+      invalidatesTags: (res, error, arg) =>
         res
           ? [
-              { type: 'USER', id: res },
+              { type: 'USER', id: arg },
               { type: 'EMPLOYEE', id: 'LIST' }
             ]
           : []
     }),
-    putUserRoleUpdate: builder.mutation<string, UserRolesUpdateType>({
+
+    // ****************************************************************** PUT user/userId/roles`
+    putUserRoleUpdate: builder.mutation<boolean, UserRolesUpdateType>({
       query: params => {
         const { userId, ...body } = params
 
@@ -203,30 +221,34 @@ export const userApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error updating user roles')
-
-        return arg.userId
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error updating user roles',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putUserRoleUpdate:', err.error.data.message)
         }
       },
-      invalidatesTags: res =>
+      invalidatesTags: (res, error, arg) =>
         res
           ? [
-              { type: 'USER', id: res },
+              { type: 'USER', id: arg.userId },
               { type: 'EMPLOYEE', id: 'LIST' }
             ]
           : []
     }),
-    putUserPasswordUpdate: builder.mutation<string, UserPasswordUpdateType>({
+
+    // ****************************************************************** PUT user/userId/roles`
+    putUserPasswordUpdate: builder.mutation<boolean, UserPasswordUpdateType>({
       query: params => {
         const { userId, ...body } = params
 
@@ -236,25 +258,27 @@ export const userApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error enabling user')
-
-        return arg.userId
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error updating user password',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in getRole:', err.error.data.message)
         }
       },
-      invalidatesTags: res =>
+      invalidatesTags: (res, error, arg) =>
         res
           ? [
-              { type: 'USER', id: res },
+              { type: 'USER', id: arg.userId },
               { type: 'EMPLOYEE', id: 'LIST' }
             ]
           : []

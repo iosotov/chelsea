@@ -93,39 +93,52 @@ export type DocumentType = {
 }
 export const documentApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
-    getDocuments: builder.query<DocumentType[], string>({
+    // ***************************************************** GET document/profileId/profile
+    getDocuments: builder.query<DocumentType[] | null, string>({
       query: profileId => ({
         url: `/document/${profileId}/profile`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching profile documents',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching documents')
+        if (!res.success) return null
+
         return res.data
       },
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          console.log(data)
-
-          dispatch(setDocuments(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(setDocuments(data))
+        } catch (err: any) {
+          console.error('API error in getDocuments:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
         return result ? [{ type: 'DOCUMENT', id: arg }] : []
       }
     }),
-    getDocumentByLiability: builder.query<DocumentType, DocumentLiabilityParamsType>({
+
+    // ***************************************************** GET document/profileId/profile/liability
+    getDocumentByLiability: builder.query<DocumentType | null, DocumentLiabilityParamsType>({
       query: params => ({
         url: `/document/${params.profileId}/profile/${params.liabilityId}/liability`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching liability document',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching documents')
+        if (!res.success) return null
 
         return res.data
       },
@@ -135,22 +148,27 @@ export const documentApiSlice = apiSlice.injectEndpoints({
           console.log(data)
 
           dispatch(setDocuments([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in getDocumentByLiability:', err.error.data.message)
         }
       }
     }),
-    getDocumentPreview: builder.query<DocumentPreviewType, string>({
+
+    // ***************************************************** GET document/documentId/preview
+    getDocumentPreview: builder.query<DocumentPreviewType | null, string>({
       query: documentId => ({
         url: `/document/${documentId}/preview`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching document preview',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error fetching document preview')
-
+        if (!res.success) return null
         const newRes = { ...res.data, documentId: arg }
 
         return newRes
@@ -158,19 +176,16 @@ export const documentApiSlice = apiSlice.injectEndpoints({
       async onQueryStarted(documentId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          console.log(data)
-
-          dispatch(setDocuments([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(setDocuments([data]))
+        } catch (err: any) {
+          console.error('API error in getDocumentPreview:', err.error.data.message)
         }
       },
       providesTags: res => (res ? [{ type: 'DOCUMENT-PREVIEW', id: res.documentId }] : [])
     }),
-    postDocumentGenerate: builder.mutation<string, DocumentGenerateType>({
+
+    // ***************************************************** POST document/profileId/profile/generate
+    postDocumentGenerate: builder.mutation<boolean, DocumentGenerateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -180,25 +195,29 @@ export const documentApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error generating document')
-        console.log(res.data)
 
-        return res.data
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error generating profile document',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postDocumentGenerate:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'DOCUMENT', id: arg.profileId }] : [])
     }),
-    postLiabilityDocumentGenerate: builder.mutation<string, LiabilityDocumentGenerateType>({
+
+    // ***************************************************** POST document/profileId/profile/liabilityId/generate
+    postLiabilityDocumentGenerate: builder.mutation<boolean, LiabilityDocumentGenerateType>({
       query: params => {
         const { liabilityId, profileId, ...body } = params
 
@@ -208,25 +227,29 @@ export const documentApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error generating document')
-        console.log(res.data)
 
-        return res.data
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error generating liability document',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postLiabilityDocumentGenerate:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'DOCUMENT', id: arg.profileId }] : [])
     }),
-    postDocumentUpload: builder.mutation<string, DocumentUploadType>({
+
+    // ***************************************************** POST document/profileId/profile
+    postDocumentUpload: builder.mutation<boolean, DocumentUploadType>({
       query: params => {
         const { profileId, data } = params
 
@@ -236,24 +259,28 @@ export const documentApiSlice = apiSlice.injectEndpoints({
           body: data
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error uploading document',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error uploading documents')
-
-        return res.data
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postDocumentUpload:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'DOCUMENT', id: arg.profileId }] : [])
     }),
-    postLiabilityDocumentUpload: builder.mutation<string, LiabilityDocumentUploadType>({
+
+    // ***************************************************** POST document/profileId/profile/liabilityId/liability/upload
+    postLiabilityDocumentUpload: builder.mutation<boolean, LiabilityDocumentUploadType>({
       query: params => {
         const { liabilityId, profileId, data } = params
 
@@ -263,29 +290,30 @@ export const documentApiSlice = apiSlice.injectEndpoints({
           body: data
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error uploading liability document',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error uploading documents')
-
-        return res.data
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postLiabilityDocumentUpload:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'DOCUMENT', id: arg.profileId }] : [])
     }),
+
+    // ***************************************************** POST document/profileId/profile/esign/send
     postDocumentEsign: builder.mutation<boolean, DocumentEsignType>({
       query: params => {
-        console.log(params)
         const { profileId, ...body } = params
-
-        console.log(body)
 
         return {
           url: `/document/${profileId}/profile/esign/send`,
@@ -293,24 +321,29 @@ export const documentApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error esigning documents')
 
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error posting document esign',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
         return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postDocumentEsign:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'DOCUMENT', id: arg.profileId }] : [])
     }),
-    postLiabilityDocumentEsign: builder.mutation<string, LiabilityDocumentEsignType>({
+
+    // ***************************************************** POST document/profileId/profile/liabilityId/liability/esign/send
+    postLiabilityDocumentEsign: builder.mutation<boolean, LiabilityDocumentEsignType>({
       query: params => {
         const { liabilityId, profileId, ...body } = params
 
@@ -320,19 +353,22 @@ export const documentApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error uploading documents')
 
-        return res.data
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error posting liability document esign',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postLiabilityDocumentEsign:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'DOCUMENT', id: arg.profileId }] : [])

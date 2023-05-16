@@ -12,25 +12,26 @@ export type HistoryType = {
 
 export const historyApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
-    getHistory: builder.query<HistoryType, string>({
+    getHistory: builder.query<HistoryType[], string>({
       query: profileId => ({
         url: `/history/${profileId}/profile`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching profile history',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching profile history')
-        console.log(res.data)
-
         return res.data
       },
       async onQueryStarted(profileId, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in getHistory:', err.error.data.message)
         }
       }
     })
