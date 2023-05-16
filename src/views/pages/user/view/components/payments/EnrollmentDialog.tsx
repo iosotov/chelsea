@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState, memo } from 'react'
 
 import { useForm } from 'react-hook-form'
 
@@ -35,6 +35,9 @@ import Icon from 'src/@core/components/icon'
 //Third-Party Packages
 import { addWeeks, addMonths } from 'date-fns'
 import { useGetEnrollmentPreviewMutation } from 'src/store/api/apiHooks'
+import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
+import { getValue } from '@mui/system'
+import { EnrollmentPreviewType } from 'src/store/api/enrollmentApiSlice'
 
 //Typing
 type EnrollmentModalProps = {
@@ -55,26 +58,94 @@ const CardContainer = styled(CardContent)<CardContentProps>(({ theme }) => ({
   }
 }))
 
-//fake data
+const serviceFixedOptions: SingleSelectOption[] = [
+  {
+    label: '100',
+    value: 100
+  },
+  {
+    label: '200',
+    value: 200
+  },
+  {
+    label: '300',
+    value: 300
+  },
+  {
+    label: '400',
+    value: 400
+  },
+  {
+    label: '500',
+    value: 500
+  }
+]
+
+const servicePercentageOptions: SingleSelectOption[] = [
+  {
+    label: '35%',
+    value: 0.35
+  },
+  {
+    label: '36%',
+    value: 0.36
+  },
+  {
+    label: '37%',
+    value: 0.37
+  },
+  {
+    label: '38%',
+    value: 0.38
+  },
+  {
+    label: '39%',
+    value: 0.39
+  },
+  {
+    label: '40%',
+    value: 0.4
+  },
+  {
+    label: '41%',
+    value: 0.41
+  },
+  {
+    label: '42%',
+    value: 0.42
+  },
+  {
+    label: '43%',
+    value: 0.43
+  },
+  {
+    label: '44%',
+    value: 0.44
+  },
+  {
+    label: '45%',
+    value: 0.45
+  }
+]
 
 const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: EnrollmentModalProps) => {
   const defaultValues = {
-    paymentMethod: 'ach',
     maintenanceFee: 80.0,
-    gateway: 'nacha',
-    planLength: 12,
-    serviceFee: 35,
+    programLength: 12,
+    serviceFeeType: 1,
+    serviceFee: 0.35,
     firstPaymentDate: new Date(),
-    recurringFrequency: 'monthly',
-    recurringDate: addMonths(new Date(), 1)
+    recurringType: 1,
+    recurringPaymentDate: addMonths(new Date(), 1)
   }
-
-  console.log(data)
 
   const enrollmentForm = useForm({ defaultValues, ...data })
   const {
     handleSubmit,
     control,
+    watch,
+    getValues,
+    setValue,
     formState: { errors }
   } = enrollmentForm
 
@@ -82,14 +153,39 @@ const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: Enrollment
     console.log(data)
   }
 
-  const preview = useGetEnrollmentPreviewMutation({ profileId, body: {} })
+  const preview = []
 
-  // const onRecurringChange = (select: string) {
+  // const [getPreview, previewStatus] = useGetEnrollmentPreviewMutation()
+  // console.log({ getPreview, previewStatus })
 
+  // const previewRequest = () => {
+  //   getPreview({
+  //     profileId: profileId,
+  //     paymentMethod: 2,
+  //     basePlan: 'Base Plan',
+  //     serviceFeeType: getValues('serviceFeeType'),
+  //     enrollmentFee: getValues('serviceFee'),
+  //     programLength: getValues('programLength'),
+  //     gateway: 'NACHA',
+  //     firstPaymentDate: getValues('firstPaymentDate'),
+  //     recurringType: getValues('recurringFrequency'),
+  //     recurringPaymentDate: getValues('recurringPaymentDate'),
+  //     initialFeeAmount: 0,
+  //     additionalFees: [
+  //       {
+  //         feeName: 'Maintenance Fee',
+  //         feeType: 0,
+  //         amount: 80,
+  //         feeStart: 1,
+  //         feeEnd: getValues('programLength')
+  //       }
+  //     ]
+  //   })
   // }
-
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
+
+  console.log('rerendering enrollmentdialog')
 
   // Avoid a layout jump when reaching the last page with empty rows.
   const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - preview.length) : 0
@@ -103,7 +199,7 @@ const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: Enrollment
     setPage(0)
   }
 
-  const lengthOptions = [
+  const lengthOptions: SingleSelectOption[] = [
     {
       label: '10 Payments',
       value: 10
@@ -126,49 +222,56 @@ const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: Enrollment
     }
   ]
 
-  const serviceOptions = [
-    {
-      label: '35%',
-      value: 35
-    },
-    {
-      label: '36%',
-      value: 36
-    },
-    {
-      label: '37%',
-      value: 37
-    },
-    {
-      label: '38%',
-      value: 38
-    },
-    {
-      label: '39%',
-      value: 39
-    },
-    {
-      label: '40%',
-      value: 40
-    }
-  ]
+  let serviceOptions: SingleSelectOption[] = []
 
-  const recurringOptions = [
+  // const selectType = watch('serviceFeeType')
+
+  // if (selectType === 0) {
+  //   serviceOptions = serviceFixedOptions
+  // } else if (selectType === 1) {
+  //   serviceOptions = servicePercentageOptions
+  // }
+
+  // const selectFrequency = watch('recurringType')
+  // if (selectFrequency === 0) {
+  //   setValue('recurringPaymentDate', addMonths(getValues('firstPaymentDate'), 1))
+  // } else if (selectFrequency === 1) {
+  //   setValue('recurringPaymentDate', addWeeks(getValues('firstPaymentDate'), 1))
+  // } else if (selectFrequency === 2) {
+  //   setValue('recurringPaymentDate', addWeeks(getValues('firstPaymentDate'), 2))
+  // }
+
+  // useEffect(() => {
+  //   if (getValues('firstPaymentDate')) {
+  //     setValue('recurringType', getValues('recurringType'))
+  //   }
+  // }, [watch('firstPaymentDate')])
+
+  const recurringOptions: SingleSelectOption[] = [
     {
       label: 'Weekly',
-      value: 'weekly'
+      value: 1
     },
     {
       label: 'Bi-weekly',
-      value: 'biweekly'
+      value: 2
     },
     {
       label: 'Monthly',
-      value: 'monthly'
+      value: 0
     }
   ]
 
-  // const rows: any[] = new Array(10)
+  const serviceFeeOptions: SingleSelectOption[] = [
+    {
+      label: 'Fixed Amount',
+      value: 0
+    },
+    {
+      label: 'Percentage',
+      value: 1
+    }
+  ]
 
   return (
     <Dialog open={open} maxWidth='xl' fullWidth onClose={handleClose} aria-labelledby='form-dialog-title'>
@@ -188,11 +291,21 @@ const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: Enrollment
             <Box mb={4}>
               <SingleSelect
                 label='Plan Length'
-                name='planLength'
+                name='programLength'
                 errors={errors}
                 required
                 control={control}
                 options={lengthOptions}
+              />
+            </Box>
+            <Box mb={4}>
+              <SingleSelect
+                label='Service Fee Type'
+                name='serviceFeeType'
+                errors={errors}
+                required
+                control={control}
+                options={serviceFeeOptions}
               />
             </Box>
             <Box mb={4}>
@@ -227,7 +340,7 @@ const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: Enrollment
               {' '}
               <SingleSelect
                 label='Recurring Payment Frequency'
-                name='recurringFrequency'
+                name='recurringType'
                 errors={errors}
                 required
                 control={control}
@@ -236,7 +349,7 @@ const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: Enrollment
             </Box>
             <Box mb={4}>
               <SelectDate
-                name='recurringDate'
+                name='recurringPaymentDate'
                 label='First Recurring Date'
                 errors={errors}
                 control={control}
@@ -307,4 +420,4 @@ const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: Enrollment
   )
 }
 
-export default EnrollmentDialog
+export default memo(EnrollmentDialog)
