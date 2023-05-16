@@ -1,5 +1,5 @@
 import { configureStore, isRejectedWithValue } from '@reduxjs/toolkit'
-import type { MiddlewareAPI, Middleware } from '@reduxjs/toolkit'
+import type { Middleware } from '@reduxjs/toolkit'
 import { apiSlice } from './api/apiSlice'
 
 import auth from './authSlice'
@@ -23,6 +23,7 @@ import group from './groupSlice'
 import permission from './permissionSlice'
 import role from './roleSlice'
 import user from './userSlice'
+import { toast } from 'react-hot-toast'
 
 /**
  * Log a warning and show a toast!
@@ -31,7 +32,7 @@ export const rtkQueryErrorLogger: Middleware = () => next => action => {
   // RTK Query uses `createAsyncThunk` from redux-toolkit under the hood, so we're able to utilize these matchers!
   if (isRejectedWithValue(action)) {
     console.log(action)
-    console.log({ title: 'API Error!', message: action.payload.message })
+    toast.error(`API Error: ${action.payload.message}`)
   }
 
   return next(action)
