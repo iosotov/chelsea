@@ -11,7 +11,7 @@ export type EmployeePhoneNumberType = {
 
 export type EmployeeEmailType = {
   name: string
-  email: string
+  employee: string
   order: number
   active: true
 }
@@ -31,7 +31,7 @@ export type EmployeeInfoType = {
   createdAt: string
   userId: string
   phoneNumbers: EmployeePhoneNumberType[]
-  emailAddresses: EmployeeEmailType[]
+  employeeAddresses: EmployeeEmailType[]
   companies: string[]
   permissions: string[]
   members: string[]
@@ -50,7 +50,7 @@ export type EmployeeBasicType = {
   primaryPhone: string
   userId: string
   phoneNumbers: EmployeePhoneNumberType[]
-  emailAddresses: EmployeeEmailType[]
+  employeeAddresses: EmployeeEmailType[]
 }
 
 export type EmployeeSnapshotType = {
@@ -89,95 +89,115 @@ export type EmployeeGrantAuthType = {
 
 export const employeeApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
-    getEmployeeInfo: builder.query<EmployeeInfoType, string>({
+    // ***************************************************** GET employee/employeeId/info
+    getEmployeeInfo: builder.query<EmployeeInfoType | null, string>({
       query: employeeId => ({
         url: `/employee/${employeeId}/info`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching employee info',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching employee info')
-        console.log(res.data)
+        if (!res.success) return null
 
         return res.data
       },
       async onQueryStarted(employeeId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-
-          dispatch(updateEmployee(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateEmployee(data))
+        } catch (err: any) {
+          console.error('API error in getEmployeeInfo:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
         return result ? [{ type: 'EMPLOYEE', id: arg }] : []
       }
     }),
-    getEmployeeBasic: builder.query<EmployeeBasicType, string>({
+
+    // ***************************************************** GET employee/employeeId/basic
+    getEmployeeBasic: builder.query<EmployeeBasicType | null, string>({
       query: employeeId => ({
         url: `/employee/${employeeId}/basic`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching employee info',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching employee info')
-        console.log(res.data)
+        if (!res.success) return null
 
         return res.data
       },
       async onQueryStarted(employeeId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-
-          dispatch(updateEmployee(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateEmployee(data))
+        } catch (err: any) {
+          console.error('API error in getEmployeeBasic:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
         return [{ type: 'EMPLOYEE', id: arg }]
       }
     }),
-    getEmployeeSnapshot: builder.query<EmployeeSnapshotType, string>({
+
+    // ***************************************************** GET employee/employeeId/employee
+    getEmployeeSnapshot: builder.query<EmployeeSnapshotType | null, string>({
       query: employeeId => ({
         url: `/employee/${employeeId}/snapshot`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching employee info',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching employee info')
-        console.log(res.data)
+        if (!res.success) return null
 
         return res.data
       },
       async onQueryStarted(employeeId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-
-          dispatch(updateEmployee(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateEmployee(data))
+        } catch (err: any) {
+          console.error('API error in getEmployeeSnapshot:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
         return result ? [{ type: 'EMPLOYEE', id: arg }] : []
       }
     }),
-    postEmployeeSearch: builder.query<EmployeeInfoType[], SearchFilterType | {}>({
+
+    // ***************************************************** POST employee/employeeId/employee
+    postEmployeeSearch: builder.query<EmployeeInfoType[] | null, SearchFilterType | {}>({
       query: body => ({
         url: `/employee/search`,
         method: 'POST',
         body
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching employees',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching employees')
+        if (!res.success) return null
 
         return res.data.data
       },
@@ -185,12 +205,9 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
         try {
           const { data } = await queryFulfilled
 
-          dispatch(setEmployees(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(setEmployees(data))
+        } catch (err: any) {
+          console.error('API error in postEmployeeSearch:', err.error.data.message)
         }
       },
       providesTags: result => {
@@ -199,33 +216,38 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
           : []
       }
     }),
-    postEmployeeCreate: builder.mutation<EmployeeInfoType[], EmployeeCreateType>({
+
+    // ***************************************************** POST employee
+    postEmployeeCreate: builder.mutation<boolean, EmployeeCreateType>({
       query: body => ({
         url: `/employee`,
         method: 'POST',
         body
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error creating employee',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating employee')
-        console.log(res.data)
-
-        return res.data
+        return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postEmployeeCreate:', err.error.data.message)
         }
       },
       invalidatesTags: result => {
         return result ? [{ type: 'EMPLOYEE', id: 'LIST' }] : []
       }
     }),
-    postEmployeeGrantAuth: builder.mutation<string, EmployeeGrantAuthType>({
+
+    // ***************************************************** POST employee/employeeId/employee
+    postEmployeeGrantAuth: builder.mutation<boolean, EmployeeGrantAuthType>({
       query: params => {
         const { employeeId, ...body } = params
 
@@ -235,27 +257,31 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error granting employee authorization')
-        console.log(res.data)
 
-        return arg.employeeId
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error authenticating employee',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postEmployeeGrantAuth:', err.error.data.message)
         }
       },
-      invalidatesTags: result => {
-        return result ? [{ type: 'EMPLOYEE', id: result }] : []
+      invalidatesTags: (result, error, arg) => {
+        return result ? [{ type: 'EMPLOYEE', id: arg.employeeId }] : []
       }
     }),
-    putEmployeeUpdate: builder.mutation<string, EmployeeUpdateType>({
+
+    // ***************************************************** GET employee/employeeId/employee
+    putEmployeeUpdate: builder.mutation<boolean, EmployeeUpdateType>({
       query: params => {
         const { employeeId, ...body } = params
 
@@ -265,78 +291,88 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error updating employee information')
-        console.log(res.data)
 
-        return arg.employeeId
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error updating employee',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putEmployeeUpdate:', err.error.data.message)
         }
       },
-      invalidatesTags: result => {
-        return result ? [{ type: 'EMPLOYEE', id: result }] : []
+      invalidatesTags: (result, error, arg) => {
+        return result ? [{ type: 'EMPLOYEE', id: arg.employeeId }] : []
       }
     }),
-    putEmployeeDisable: builder.mutation<string, string>({
+
+    // ***************************************************** GET employee/employeeId/employee
+    putEmployeeDisable: builder.mutation<boolean, string>({
       query: employeeId => {
         return {
           url: `/employee/${employeeId}/disable`,
           method: 'PUT'
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error disabling employee')
-        console.log(res.data)
 
-        return arg
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error disabling employee',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putEmployeeDisable:', err.error.data.message)
         }
       },
-      invalidatesTags: result => {
-        return result ? [{ type: 'EMPLOYEE', id: result }] : []
+      invalidatesTags: (result, error, arg) => {
+        return result ? [{ type: 'EMPLOYEE', id: arg }] : []
       }
     }),
-    putEmployeeEnable: builder.mutation<string, string>({
+
+    // ***************************************************** GET employee/employeeId/employee
+    putEmployeeEnable: builder.mutation<boolean, string>({
       query: employeeId => {
         return {
           url: `/employee/${employeeId}/enable`,
           method: 'PUT'
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error enabling employee')
-        console.log(res.data)
 
-        return arg
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error enabling employee',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putEmployeeEnable:', err.error.data.message)
         }
       },
-      invalidatesTags: result => {
-        return result ? [{ type: 'EMPLOYEE', id: result }] : []
+      invalidatesTags: (result, error, arg) => {
+        return result ? [{ type: 'EMPLOYEE', id: arg }] : []
       }
     })
   })

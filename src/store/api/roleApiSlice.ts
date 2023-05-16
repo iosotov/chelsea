@@ -33,41 +33,53 @@ export type RolePermissionPostType = {
 }
 
 export const roleApiSlice = apiSlice.injectEndpoints({
+  // ****************************************************************** GET role/roleId/info
   endpoints: builder => ({
-    getRole: builder.query<RoleType, string>({
+    getRole: builder.query<RoleType | null, string>({
       query: roleId => ({
         url: `/role/${roleId}/info`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching role information',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching role information')
-        console.log(res.data)
+        if (!res.success) return null
 
         return res.data
       },
       async onQueryStarted(roleId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-
-          dispatch(updateRoles([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateRoles([data]))
+        } catch (err: any) {
+          console.error('API error in getRole:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
         return result ? [{ type: 'ROLE', id: arg }] : []
       }
     }),
-    getRolePermissions: builder.query<RolePermissionsType, string>({
+
+    // ****************************************************************** GET role/roleId/permission
+    getRolePermissions: builder.query<RolePermissionsType | null, string>({
       query: roleId => ({
         url: `/role/${roleId}/permission`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error updating role permissions',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error fetching role information')
+        if (!res.success) return null
         const result: RolePermissionsType = { roleId: arg, permissions: res.data }
 
         return result
@@ -75,27 +87,31 @@ export const roleApiSlice = apiSlice.injectEndpoints({
       async onQueryStarted(roleId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-
-          dispatch(updateRolePermissions([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateRolePermissions([data]))
+        } catch (err: any) {
+          console.error('API error in getRolePermissions:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
         return result ? [{ type: 'ROLE', id: arg }] : []
       }
     }),
-    getRoles: builder.query<RoleType[], undefined>({
+
+    // ****************************************************************** GET role/all
+    getRoles: builder.query<RoleType[] | null, undefined>({
       query: () => ({
         url: `/role/all`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching roles',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching roles')
-        console.log(res.data)
+        if (!res.success) return null
 
         return res.data
       },
@@ -103,12 +119,9 @@ export const roleApiSlice = apiSlice.injectEndpoints({
         try {
           const { data } = await queryFulfilled
 
-          dispatch(setRoles(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(setRoles(data))
+        } catch (err: any) {
+          console.error('API error in getRoles:', err.error.data.message)
         }
       },
       providesTags: result => {
@@ -117,7 +130,9 @@ export const roleApiSlice = apiSlice.injectEndpoints({
           : []
       }
     }),
-    postRoleSearch: builder.query<RoleType[], SearchFilterType>({
+
+    // ****************************************************************** POST role/search
+    postRoleSearch: builder.query<RoleType[] | null, SearchFilterType>({
       query: body => {
         return {
           url: `/role/search`,
@@ -125,25 +140,31 @@ export const roleApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
+
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching roles',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching roles')
-        console.log(res.data)
+        if (!res.success) return null
 
         return res.data.data
       },
       async onQueryStarted(body, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          dispatch(setRoles(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(setRoles(data))
+        } catch (err: any) {
+          console.error('API error in postRoleSearch:', err.error.data.message)
         }
       }
     }),
-    postRoleCreate: builder.mutation<string, RoleCreateType>({
+
+    // ****************************************************************** POST role
+    postRoleCreate: builder.mutation<boolean, RoleCreateType>({
       query: body => {
         return {
           url: `/role`,
@@ -151,25 +172,29 @@ export const roleApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating role')
-        console.log(res.data)
 
-        return res.data
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error creating role',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postRoleCreate:', err.error.data.message)
         }
       },
       invalidatesTags: res => (res ? [{ type: 'ROLE', id: 'LIST' }] : [])
     }),
-    postRoleAssignPermissions: builder.mutation<string, RolePermissionPostType>({
+
+    // ****************************************************************** POST role/roleId/assign-permission
+    postRoleAssignPermissions: builder.mutation<boolean, RolePermissionPostType>({
       query: body => {
         return {
           url: `/role/${body.roleId}/assign-permissions`,
@@ -177,28 +202,31 @@ export const roleApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error assigning permissions to role')
-        console.log(res.data)
 
-        return arg.roleId
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error assigning permission',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postRoleAssignPermissions:', err.error.data.message)
         }
       },
-      invalidatesTags: res => (res ? [{ type: 'ROLE', id: res }] : [])
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'ROLE', id: arg.roleId }] : [])
     }),
-    putRoleUpdate: builder.mutation<string, RoleUpdateType>({
+
+    // ****************************************************************** PUT role/roleId
+    putRoleUpdate: builder.mutation<boolean, RoleUpdateType>({
       query: params => {
         const { roleId, ...body } = params
-        console.log(body)
 
         return {
           url: `/role/${roleId}`,
@@ -206,48 +234,53 @@ export const roleApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error updating role information')
-
-        console.log(arg.roleId)
-
-        return arg.roleId
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error updating role',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putRoleUpdate:', err.error.data.message)
         }
       },
-      invalidatesTags: res => (res ? [{ type: 'ROLE', id: res }] : [])
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'ROLE', id: arg.roleId }] : [])
     }),
-    deleteRole: builder.mutation<string, string>({
+
+    // ****************************************************************** DELETE role/roleId
+    deleteRole: builder.mutation<boolean, string>({
       query: roleId => {
         return {
           url: `/role/${roleId}`,
           method: 'DELETE'
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error deleting role')
 
-        return arg
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error deleting role',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(roleId, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in deleteRole:', err.error.data.message)
         }
       },
-      invalidatesTags: res => (res ? [{ type: 'ROLE', id: res }] : [])
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'ROLE', id: arg }] : [])
     })
   })
 })

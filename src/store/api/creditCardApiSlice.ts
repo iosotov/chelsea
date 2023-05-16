@@ -59,16 +59,22 @@ export type CreditCardUpdateType = {
 }
 
 export const creditCardApiSlice = apiSlice.injectEndpoints({
+  // ***************************************************** GET creditcard/profileId/profile
   endpoints: builder => ({
-    getCreditCards: builder.query<CreditCardType[], string>({
+    getCreditCards: builder.query<CreditCardType[] | null, string>({
       query: profileId => ({
         url: `/creditcard/${profileId}/profile`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching profile credit cards',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching credit cards for this profile')
-        console.log(res.data)
-
+        if (!res.success) return null
         const data = res.data.map((card: CreditCardType) => {
           return { ...card, paymentType: 'card' }
         })
@@ -78,12 +84,9 @@ export const creditCardApiSlice = apiSlice.injectEndpoints({
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          dispatch(setCreditCards(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(setCreditCards(data))
+        } catch (err: any) {
+          console.error('API error in getCreditCards:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -94,7 +97,9 @@ export const creditCardApiSlice = apiSlice.injectEndpoints({
         ]
       }
     }),
-    postCreditCardCreate: builder.mutation<string, CreditCardCreateType>({
+
+    // ***************************************************** POST creditcard/profileId/profile
+    postCreditCardCreate: builder.mutation<boolean, CreditCardCreateType>({
       query: body => {
         return {
           url: `/creditcard/${body.profileId}/profile`,
@@ -102,25 +107,29 @@ export const creditCardApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error adding credit card to profile')
-        console.log(res.data)
 
-        return res.data
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error adding credit card to profile',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postCreditCardCreate:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'CREDITCARD', id: arg.profileId }] : [])
     }),
-    putCreditCardUpdate: builder.mutation<string, CreditCardUpdateType>({
+
+    // ***************************************************** PUT creditcard/creditcardId
+    putCreditCardUpdate: builder.mutation<boolean, CreditCardUpdateType>({
       query: params => {
         const { creditCardId, ...body } = params
 
@@ -130,49 +139,53 @@ export const creditCardApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error updating credit card information')
 
-        console.log(arg.creditCardId)
-
-        return arg.creditCardId
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error updating credit card',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putCreditCardUpdate:', err.error.data.message)
         }
       },
-      invalidatesTags: res => (res ? [{ type: 'CREDITCARD', id: res }] : [])
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'CREDITCARD', id: arg.creditCardId }] : [])
     }),
-    deleteCreditCard: builder.mutation<string, string>({
+
+    // ***************************************************** DELETE creditcard/creditcardId
+    deleteCreditCard: builder.mutation<boolean, string>({
       query: creditCardId => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         return {
           url: `/creditcard/${creditCardId}`,
           method: 'DELETE'
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error deleting credit card information')
-
-        return arg
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error deleting credit card',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(creditCardId, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in deleteCreditCard:', err.error.data.message)
         }
       },
-      invalidatesTags: res => (res ? [{ type: 'CREDITCARD', id: res }] : [])
+      invalidatesTags: (res, meta, arg) => (res ? [{ type: 'CREDITCARD', id: arg }] : [])
     })
   })
 })

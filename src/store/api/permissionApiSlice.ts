@@ -27,41 +27,52 @@ export type PermissionCreateType = {
 
 export const permissionApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
-    getPermission: builder.query<PermissionType, string>({
+    // ***************************************************** GET permission/permissionId/info
+    getPermission: builder.query<PermissionType | null, string>({
       query: permissionId => ({
         url: `/permission/${permissionId}/info`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching permission',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching permission information')
-        console.log(res.data)
+        if (!res.success) return null
 
         return res.data
       },
       async onQueryStarted(permissionId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-
-          dispatch(updatePermission(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updatePermission(data))
+        } catch (err: any) {
+          console.error('API error in getPermission:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
         return result ? [{ type: 'PERMISSION', id: arg }] : []
       }
     }),
-    getPermissions: builder.query<PermissionType[], undefined>({
+
+    // ***************************************************** GET permission/permission/all
+    getPermissions: builder.query<PermissionType[] | null, undefined>({
       query: () => ({
         url: `/permission/all`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching permissions',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching permissions')
-        console.log(res.data)
+        if (!res.success) return null
 
         return res.data
       },
@@ -69,12 +80,9 @@ export const permissionApiSlice = apiSlice.injectEndpoints({
         try {
           const { data } = await queryFulfilled
 
-          dispatch(setPermissions(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(setPermissions(data))
+        } catch (err: any) {
+          console.error('API error in getPermissions:', err.error.data.message)
         }
       },
       providesTags: result => {
@@ -86,7 +94,9 @@ export const permissionApiSlice = apiSlice.injectEndpoints({
           : []
       }
     }),
-    postPermissionCreate: builder.mutation<string, PermissionCreateType>({
+
+    // ***************************************************** POST permission
+    postPermissionCreate: builder.mutation<boolean, PermissionCreateType>({
       query: body => {
         return {
           url: `/permission`,
@@ -94,28 +104,31 @@ export const permissionApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating permission')
-        console.log(res.data)
 
-        return res.data
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error creating permission',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postPermissionCreate:', err.error.data.message)
         }
       },
       invalidatesTags: res => (res ? [{ type: 'PERMISSION', id: 'LIST' }] : [])
     }),
-    putPermissionUpdate: builder.mutation<string, PermissionUpdateType>({
+
+    // ***************************************************** PUT permission/permissionId
+    putPermissionUpdate: builder.mutation<boolean, PermissionUpdateType>({
       query: params => {
         const { permissionId, ...body } = params
-        console.log(body)
 
         return {
           url: `/permission/${permissionId}`,
@@ -123,49 +136,53 @@ export const permissionApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error updating permission information')
 
-        console.log(arg.permissionId)
-
-        return arg.permissionId
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error updating permission',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putPermissionUpdate:', err.error.data.message)
         }
       },
-      invalidatesTags: res => (res ? [{ type: 'PERMISSION', id: res }] : [])
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'PERMISSION', id: arg.permissionId }] : [])
     }),
-    deletePermission: builder.mutation<string, string>({
+
+    // ***************************************************** DELETE permission/permissionId
+    deletePermission: builder.mutation<boolean, string>({
       query: permissionId => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         return {
           url: `/permission/${permissionId}`,
           method: 'DELETE'
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error deleting permission')
-
-        return arg
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error deleting permission',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(permissionId, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in deletePermission:', err.error.data.message)
         }
       },
-      invalidatesTags: res => (res ? [{ type: 'PERMISSION', id: res }] : [])
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'PERMISSION', id: arg }] : [])
     })
   })
 })

@@ -1,5 +1,5 @@
 import { updateEnrollments } from '../enrollmentSlice'
-import { setPayments, updatePayments } from '../paymentSlice'
+import { setPayments } from '../paymentSlice'
 import { apiSlice } from './apiSlice'
 import { EnrollmentDefaultModel } from './defaultValues'
 import { LunaResponseType, SearchFilterType } from './sharedTypes'
@@ -15,7 +15,7 @@ export enum EnrollmentDetailStatus {
   'pending',
   'cleared',
   'returned',
-  'apused',
+  'paused',
   'cancelled',
   'reversed',
   'rejected',
@@ -57,15 +57,13 @@ export enum ProfileStatus {
 export type ProfileAssigneeListItemModel = {
   assigneeId: string
   assigneeName: string
-  employeeId: string
-  employeeName: string
+  enrollmentId: string
+  enrollmentName: string
   companyId: string
   companyName: string
 }
 
 export type EnrollmentListItemModel = {
-  // eslint-disable-next-line lines-around-comment
-  // base EnrollmentListModel
   firstName: string
   lastName: string
   status: ProfileStatus
@@ -268,34 +266,37 @@ export type EnrollmentCancelModel = {
 
 export const enrollmentApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
+    // ***************************************************** GET enrollment/profileId/profile
     getEnrollment: builder.query<EnrollmentInfoModel, string>({
       query: profileId => ({
         url: `/enrollment/${profileId}/profile`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching profile enrollment',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error fetching enrollment details')
-
         return res.data ? res.data : { ...EnrollmentDefaultModel, profileId: arg }
       },
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          console.log(data)
-
           dispatch(updateEnrollments([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in getEnrollment:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
         return result ? [{ type: 'ENROLLMENT', id: arg }] : []
       }
     }),
-    postEnrollmentCreate: builder.mutation<string, EnrollmentCreateType>({
+
+    // ***************************************************** POST enrollment/profileId/profile
+    postEnrollmentCreate: builder.mutation<boolean, EnrollmentCreateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -305,35 +306,35 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error creating enrollment',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating enrollment')
-
-        console.log(res.data)
-
-        return res.data
+        return res.success
       },
       async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          console.log(data)
-
-          dispatch(updateEnrollments([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateEnrollments([data]))
+        } catch (err: any) {
+          console.error('API error in postEnrollmentCreate:', err.error.data.message)
         }
       },
-      invalidatesTags: res =>
+      invalidatesTags: (res, error, arg) =>
         res
           ? [
-              { type: 'ENROLLMENT', id: res },
-              { type: 'ENROLLMENT-PAYMENT', id: res }
+              { type: 'ENROLLMENT', id: arg.profileId },
+              { type: 'ENROLLMENT-PAYMENT', id: arg.profileId }
             ]
           : []
     }),
-    putEnrollmentUpdate: builder.mutation<string, EnrollmentCreateType>({
+
+    // ***************************************************** GET enrollment/enrollmentId/enrollment
+    putEnrollmentUpdate: builder.mutation<boolean, EnrollmentCreateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -343,30 +344,33 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error updating enrollment')
-
-        return arg.profileId
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error updating enrollment info',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled
-          console.log(data)
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          await queryFulfilled
+        } catch (err: any) {
+          console.error('API error in putEnrollmentUpdate:', err.error.data.message)
         }
       },
-      invalidatesTags: res =>
+      invalidatesTags: (res, error, arg) =>
         res
           ? [
-              { type: 'ENROLLMENT', id: res },
-              { type: 'ENROLLMENT-PAYMENT', id: res }
+              { type: 'ENROLLMENT', id: arg.profileId },
+              { type: 'ENROLLMENT-PAYMENT', id: arg.profileId }
             ]
           : []
     }),
+
+    // ***************************************************** GET /enrollment/profileId/profile/payments
     getProfilePayments: builder.query<PaymentDetailInfoModel[], string>({
       query: profileId => {
         return {
@@ -374,12 +378,17 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           method: 'GET'
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching payments info',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType, meta, arg) => {
-        //temporary measure
-        // if (!res.success) throw new Error('There was an error updating enrollment')
         if (res.success) {
           const newPayments = res.data.map((payment: PaymentDetailInfoModel) => ({ ...payment, profileId: arg }))
-          console.log(res.data, newPayments)
+
           return newPayments
         } else {
           return []
@@ -388,20 +397,22 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          console.log(data)
-
           dispatch(setPayments(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in getProfilePayments:', err.error.data.message)
         }
       },
-      providesTags: (res, error, arg) => (res ? [{ type: 'ENROLLMENT-PAYMENT', id: arg }] : [])
+      providesTags: (res, error, arg) =>
+        res
+          ? [
+              { type: 'ENROLLMENT-PAYMENT', id: arg },
+              ...res.map(e => ({ type: 'ENROLLMENT-PAYMENT' as const, id: e.enrollmentDetailId }))
+            ]
+          : []
     }),
 
-    getEnrollmentPreview: builder.mutation<EnrollmentPreviewType, EnrollmentCreateType>({
+    // ******************************************************************** GET /enrollment/profileId/preview
+    getEnrollmentPreview: builder.mutation<EnrollmentPreviewType | null, EnrollmentCreateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -411,54 +422,27 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching enrollment preview',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching enrollment info')
-
         return res.data
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
           console.log(data)
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          throw err
+        } catch (err: any) {
+          console.error('API error in getEnrollmentPreview:', err.error.data.message)
         }
       }
     }),
 
-    // NOT IMPLEMENTED IN LUNA
-    getProfilePaymentInfo: builder.query<PaymentDetailInfoModel, PaymentInfoParams>({
-      query: params => {
-        const { profileId, paymentId } = params
-
-        return {
-          url: `/enrollment/${profileId}/profile/payments/${paymentId}/info`,
-          method: 'GET'
-        }
-      },
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error updating enrollment')
-
-        return res.data
-      },
-      async onQueryStarted(params, { dispatch, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled
-          console.log(data)
-
-          dispatch(updatePayments([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
-        }
-      },
-      providesTags: (res, error, arg) => (res ? [{ type: 'ENROLLMENT-PAYMENT', id: arg.paymentId }] : [])
-    }),
+    // ***************************************************** POST enrollment/profileId/profile/payment
     postPaymentCreate: builder.mutation<boolean, PaymentCreateType>({
       query: params => {
         const { profileId, ...body } = params
@@ -469,20 +453,22 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error creating payment',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating payment')
-
         return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
           console.log(data)
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postPaymentCreate:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -493,6 +479,8 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
             ]
           : []
     }),
+
+    // ***************************************************** PUT enrollment/${profileId}/profile/${paymentId}/payment
     putPaymentUpdate: builder.mutation<boolean, PaymentUpdateType>({
       query: params => {
         const { profileId, paymentId, ...body } = params
@@ -503,20 +491,21 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error updating payment',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating payment')
-
         return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled
-          console.log(data)
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          await queryFulfilled
+        } catch (err: any) {
+          console.error('API error in putPaymentUpdate:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -528,8 +517,9 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           : []
     }),
 
+    // ***************************************************** POST /enrollment/search
     // NOT IMPLEMENTED IN LUNA
-    postEnrollmentSearch: builder.query<EnrollmentSearchResultModel[], SearchFilterType>({
+    postEnrollmentSearch: builder.query<EnrollmentSearchResultModel[] | null, SearchFilterType>({
       query: body => {
         return {
           url: `/enrollment/search`,
@@ -537,23 +527,28 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching enrollments',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error searching enrollment')
+        if (!res.success) return null
 
-        return res.data
+        return res.data.data
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled
-          console.log(data)
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          await queryFulfilled
+        } catch (err: any) {
+          console.error('API error in postEnrollmentSearch:', err.error.data.message)
         }
       }
     }),
+
+    // ***************************************************** POST enrollment/profileId/profile/pause
     postEnrollmentPause: builder.mutation<boolean, string>({
       query: profileId => {
         return {
@@ -561,20 +556,21 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           method: 'POST'
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error pausing enrollment',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error pausing enrollment')
-
         return res.success
       },
       async onQueryStarted(profileId, { queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled
-          console.log(data)
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          await queryFulfilled
+        } catch (err: any) {
+          console.error('API error in postEnrollmentPause:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -585,27 +581,30 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
             ]
           : []
     }),
+
+    // ***************************************************** POST enrollment/profileId/profile/resume
     postEnrollmentResume: builder.mutation<boolean, string>({
       query: profileId => {
         return {
-          url: `/enrollment/${[profileId]}/profile/resume`,
+          url: `/enrollment/${profileId}/profile/resume`,
           method: 'POST'
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error resuming enrollment',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error resuming enrollment')
-
         return res.success
       },
       async onQueryStarted(profileId, { queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled
-          console.log(data)
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          await queryFulfilled
+        } catch (err: any) {
+          console.error('API error in postEnrollmentResume:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -616,6 +615,8 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
             ]
           : []
     }),
+
+    // ***************************************************** POST enrollment/profileId/profile/cancel
     postEnrollmentCancel: builder.mutation<boolean, EnrollmentCancelModel>({
       query: params => {
         const { profileId, ...body } = params
@@ -626,20 +627,21 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error canceling enrollment',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error cancelling enrollment')
-
         return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled
-          console.log(data)
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          await queryFulfilled
+        } catch (err: any) {
+          console.error('API error in postEnrollmentCancel:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
