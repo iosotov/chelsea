@@ -432,7 +432,7 @@ const ProfileTasks = ({ id }: any) => {
   }
 
   const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 120, renderCell: renderEditTaskCheckbox },
+    { field: 'id', headerName: ' ', width: 60, renderCell: renderEditTaskCheckbox },
     {
       field: 'taskName',
       headerName: 'Task Name',
@@ -440,9 +440,9 @@ const ProfileTasks = ({ id }: any) => {
       editable: true
     },
     {
-      field: 'assignedTo',
+      field: 'assignedToName',
       headerName: 'Assigned To ',
-      width: 150,
+      width: 120,
       editable: true
     },
     {
@@ -450,7 +450,7 @@ const ProfileTasks = ({ id }: any) => {
       headerName: 'Due Date',
 
       // type: 'text',
-      width: 110,
+      width: 120,
       editable: true
     },
     {
@@ -467,17 +467,34 @@ const ProfileTasks = ({ id }: any) => {
       headerName: 'Status',
 
       // type: 'text',
+      width: 90,
+      editable: true
+    },
+    {
+      field: 'createdAt',
+      headerName: 'Created At',
+
+      // type: 'text',
       width: 110,
       editable: true
     },
     {
-      field: 'notes',
-      headerName: 'Note',
+      field: 'createdBy',
+      headerName: 'Created By',
 
       // type: 'text',
       width: 110,
       editable: true
     }
+
+    // {
+    //   field: 'notes',
+    //   headerName: 'Note',
+
+    //   // type: 'text',
+    //   width: 110,
+    //   editable: true
+    // }
 
     // {
     //   field: 'fullName',
@@ -746,42 +763,59 @@ const ProfileTasks = ({ id }: any) => {
                   ></TextField>
                 </FormControl>
               </Box>
-              <Box sx={{ mb: 6 }}>
+              {/* <Box sx={{ mb: 6 }}>
                 <FormGroup>
                   <FormControlLabel control={<Switch defaultChecked />} name={status} label='Active' />
                 </FormGroup>
-              </Box>
+              </Box> */}
 
               <div>
                 {/* conditional rendering button */}
                 {drawerTitle === 'Create' && (
-                  <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleCreateClick()}>
-                    Create
-                  </Button>
+                  <Box sx={{ mb: 6, ml: 4 }}>
+                    <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleCreateClick()}>
+                      Create
+                    </Button>
+                    <Button size='large' variant='outlined' color='error' onClick={() => setOpenAddTask(false)}>
+                      Cancel
+                    </Button>
+                  </Box>
                 )}
                 {drawerTitle === 'Edit' && (
-                  <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleEditClick()}>
-                    Update
-                  </Button>
+                  <Box sx={{ mb: 6, ml: 4 }}>
+                    <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleEditClick()}>
+                      Update
+                    </Button>
+                    <Button
+                      size='large'
+                      variant='outlined'
+                      color='error'
+                      sx={{ mr: 4 }}
+                      onClick={() => handleDeleteClick()}
+                    >
+                      Delete
+                    </Button>
+                  </Box>
                 )}
                 {drawerTitle === 'Bulk Update' && (
-                  <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleBulkUpdateClick()}>
-                    Bulk Update
-                  </Button>
+                  <Box sx={{ mb: 6, ml: 4 }}>
+                    <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleBulkUpdateClick()}>
+                      Bulk Update
+                    </Button>
+                    <Button size='large' variant='outlined' color='error' onClick={() => setOpenAddTask(false)}>
+                      Cancel
+                    </Button>
+                  </Box>
                 )}
-
-                <Button size='large' variant='outlined' color='secondary' onClick={() => setOpenAddTask(false)}>
-                  Cancel
-                </Button>
               </div>
             </Box>
-            {drawerTitle === 'Edit' && (
-              <Box sx={{ mb: 6 }}>
+            {/* {drawerTitle === 'Edit' && (
+              <Box sx={{ mb: 6, ml: 4 }}>
                 <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleDeleteClick()}>
                   Delete
                 </Button>
               </Box>
-            )}
+            )} */}
           </Drawer>
         </Grid>
       </Grid>
