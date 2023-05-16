@@ -54,6 +54,7 @@ const AssigneeDialog = ({ data, toggle, open }: Props): ReactElement => {
 
   //temp measure until i find the right selector
   const { data: assigneeList } = useGetAssigneeDatasourceQuery(assigneeId, { skip: !assigneeId })
+
   // use app selector to eventually select the right one
   // const assigneeList = useAppSelector(state => selectAllAssignees(state))
 
@@ -100,7 +101,8 @@ const AssigneeDialog = ({ data, toggle, open }: Props): ReactElement => {
           </Button>
         </DialogActions>
       </Dialog>
-      )
+    </Dialog>
+  )
 }
 
-      export default AssigneeDialog
+export default AssigneeDialog
