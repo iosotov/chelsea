@@ -1,4 +1,4 @@
-import { useEffect, useState, memo } from 'react'
+import { useEffect, useState } from 'react'
 
 import { useForm } from 'react-hook-form'
 
@@ -37,7 +37,6 @@ import { addWeeks, addMonths } from 'date-fns'
 import { useGetEnrollmentPreviewMutation } from 'src/store/api/apiHooks'
 import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
 import { getValue } from '@mui/system'
-import { EnrollmentPreviewType } from 'src/store/api/enrollmentApiSlice'
 
 //Typing
 type EnrollmentModalProps = {
@@ -131,11 +130,11 @@ const servicePercentageOptions: SingleSelectOption[] = [
 const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: EnrollmentModalProps) => {
   const defaultValues = {
     maintenanceFee: 80.0,
-    programLength: 12,
+    planLength: 12,
     serviceFeeType: 1,
     serviceFee: 0.35,
     firstPaymentDate: new Date(),
-    recurringType: 1,
+    recurringType: 'monthly',
     recurringPaymentDate: addMonths(new Date(), 1)
   }
 
@@ -153,7 +152,16 @@ const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: Enrollment
     console.log(data)
   }
 
-  const preview = []
+  const preview = useGetEnrollmentPreviewMutation({
+    profileId,
+    paymentMethod: 2,
+    basePlan: 'Base Plan',
+    serviceFeeType: getValues('serviceFeeType'),
+    serviceFee: getValues('serviceFee'),
+    firstPaymentDate: getValues('firstPaymentDate'),
+    recurringFrequency: getValues('recurringFrequency'),
+    recurringDate: getValues('recurringDate')
+  })
 
   // const [getPreview, previewStatus] = useGetEnrollmentPreviewMutation()
   // console.log({ getPreview, previewStatus })
@@ -224,28 +232,28 @@ const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: Enrollment
 
   let serviceOptions: SingleSelectOption[] = []
 
-  // const selectType = watch('serviceFeeType')
+  const selectType = watch('serviceFeeType')
 
-  // if (selectType === 0) {
-  //   serviceOptions = serviceFixedOptions
-  // } else if (selectType === 1) {
-  //   serviceOptions = servicePercentageOptions
-  // }
+  if (selectType === 0) {
+    serviceOptions = serviceFixedOptions
+  } else if (selectType === 1) {
+    serviceOptions = servicePercentageOptions
+  }
 
-  // const selectFrequency = watch('recurringType')
-  // if (selectFrequency === 0) {
-  //   setValue('recurringPaymentDate', addMonths(getValues('firstPaymentDate'), 1))
-  // } else if (selectFrequency === 1) {
-  //   setValue('recurringPaymentDate', addWeeks(getValues('firstPaymentDate'), 1))
-  // } else if (selectFrequency === 2) {
-  //   setValue('recurringPaymentDate', addWeeks(getValues('firstPaymentDate'), 2))
-  // }
+  const selectFrequency = watch('recurringType')
+  if (selectFrequency === 0) {
+    setValue('recurringPaymentDate', addMonths(getValues('firstPaymentDate'), 1))
+  } else if (selectFrequency === 1) {
+    setValue('recurringPaymentDate', addWeeks(getValues('firstPaymentDate'), 1))
+  } else if (selectFrequency === 2) {
+    setValue('recurringPaymentDate', addWeeks(getValues('firstPaymentDate'), 2))
+  }
 
-  // useEffect(() => {
-  //   if (getValues('firstPaymentDate')) {
-  //     setValue('recurringType', getValues('recurringType'))
-  //   }
-  // }, [watch('firstPaymentDate')])
+  useEffect(() => {
+    if (getValues('firstPaymentDate')) {
+      setValue('recurringType', getValues('recurringType'))
+    }
+  }, [watch('firstPaymentDate')])
 
   const recurringOptions: SingleSelectOption[] = [
     {
