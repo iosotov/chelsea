@@ -8,6 +8,7 @@ import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
 
 import { ConfirmProvider } from 'material-ui-confirm'
+
 // ** Loader Import
 import NProgress from 'nprogress'
 
@@ -103,7 +104,7 @@ const Guard = ({ children, authGuard, guestGuard }: GuardProps) => {
   } else if (!guestGuard && !authGuard) {
     return <>{children}</>
   } else {
-    return <AuthGuard fallback={<Spinner />}>{children}</AuthGuard>
+
   }
 }
 
