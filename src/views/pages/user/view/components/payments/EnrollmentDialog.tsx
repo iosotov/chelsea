@@ -34,12 +34,14 @@ import Icon from 'src/@core/components/icon'
 
 //Third-Party Packages
 import { addWeeks, addMonths } from 'date-fns'
+import { useGetEnrollmentPreviewMutation } from 'src/store/api/apiHooks'
 
 //Typing
 type EnrollmentModalProps = {
   open: boolean
   handleClose: () => void
   data?: any
+  id: string
 }
 
 //Custom Styling
@@ -54,39 +56,8 @@ const CardContainer = styled(CardContent)<CardContentProps>(({ theme }) => ({
 }))
 
 //fake data
-const createData = (
-  number: number,
-  processDate: string,
-  amount: number,
-  clearedDate: string,
-  status: string,
-  memo: string,
-  description: string,
-  paymentMethod: string
-) => {
-  return { number, processDate, amount, clearedDate, status, memo, description, paymentMethod }
-}
-const rows = [
-  createData(1, '5/18/2023', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(2, '6/18/2023', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(3, '7/18/2023', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(4, '8/18/2023', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(5, '9/18/2023', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(6, '10/18/2023', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(7, '11/18/2023', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(8, '12/18/2023', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(9, '1/18/2024', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(10, '2/18/2024', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(11, '3/18/2024', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(12, '4/18/2024', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(13, '5/18/2024', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(14, '6/18/2024', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(15, '7/18/2024', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(16, '8/18/2024', 304.14, '', 'Open', '', '', 'ACH'),
-  createData(17, '9/18/2024', 304.14, '', 'Open', '', '', 'ACH')
-]
 
-const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => {
+const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: EnrollmentModalProps) => {
   const defaultValues = {
     paymentMethod: 'ach',
     maintenanceFee: 80.0,
@@ -98,7 +69,9 @@ const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => 
     recurringDate: addMonths(new Date(), 1)
   }
 
-  const enrollmentForm = useForm({ defaultValues, data })
+  console.log(data)
+
+  const enrollmentForm = useForm({ defaultValues, ...data })
   const {
     handleSubmit,
     control,
@@ -109,6 +82,8 @@ const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => 
     console.log(data)
   }
 
+  const preview = useGetEnrollmentPreviewMutation({ profileId, body: {} })
+
   // const onRecurringChange = (select: string) {
 
   // }
@@ -117,7 +92,7 @@ const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => 
   const [rowsPerPage, setRowsPerPage] = useState(10)
 
   // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - preview.length) : 0
 
   const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage)
@@ -127,40 +102,6 @@ const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => 
     setRowsPerPage(parseInt(event.target.value, 10))
     setPage(0)
   }
-
-  const paymentOptions = [
-    {
-      label: 'ACH',
-      value: 'ach'
-    },
-    {
-      label: 'Credit',
-      value: 'credit'
-    },
-    {
-      label: 'Debit',
-      value: 'debit'
-    }
-  ]
-
-  const gatewayOptions = [
-    {
-      label: 'Nacha',
-      value: 'nacha'
-    },
-    {
-      label: 'Seamless Chex',
-      value: 'seamless'
-    },
-    {
-      label: 'Stripe',
-      value: 'stripe'
-    },
-    {
-      label: 'Authorize Net',
-      value: 'authorizenet'
-    }
-  ]
 
   const lengthOptions = [
     {
@@ -246,26 +187,6 @@ const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => 
           <form>
             <Box mb={4}>
               <SingleSelect
-                label='Payment Method'
-                name='paymentMethod'
-                errors={errors}
-                required
-                control={control}
-                options={paymentOptions}
-              />
-            </Box>
-            <Box mb={4}>
-              <SingleSelect
-                label='Gateway'
-                name='gateway'
-                errors={errors}
-                required
-                control={control}
-                options={gatewayOptions}
-              />
-            </Box>
-            <Box mb={4}>
-              <SingleSelect
                 label='Plan Length'
                 name='planLength'
                 errors={errors}
@@ -349,7 +270,7 @@ const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => 
               </TableRow>
             </TableHead>
             <TableBody>
-              {rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: any, i: number) => (
+              {preview.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: any, i: number) => (
                 <TableRow key={i}>
                   <TableCell>{i + 1}</TableCell>
                   <TableCell align='left'>{row.processDate}</TableCell>
@@ -368,7 +289,7 @@ const EnrollmentDialog = ({ open, handleClose, data }: EnrollmentModalProps) => 
           <TablePagination
             page={page}
             component='div'
-            count={rows.length}
+            count={preview.length}
             rowsPerPage={rowsPerPage}
             onPageChange={handleChangePage}
             rowsPerPageOptions={[5, 10, 25]}

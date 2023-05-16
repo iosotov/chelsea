@@ -608,7 +608,7 @@ function Overview({ enrollmentData, paymentData, id }: any) {
           </CardContent>
         </Card>
       </Grid>
-      <EnrollmentDialog open={enrollmentModal} handleClose={toggleEnrollment} data={enrollmentData} />
+      <EnrollmentDialog open={enrollmentModal} handleClose={toggleEnrollment} data={enrollmentData} id={id} />
     </>
   )
 }

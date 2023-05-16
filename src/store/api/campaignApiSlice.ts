@@ -34,14 +34,21 @@ export type CampaignType = {
 
 export const campaignApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
-    getCampaign: builder.query<CampaignType, string>({
+    // ******************************************* GET campaign/campaignId/info
+    getCampaign: builder.query<CampaignType | null, string>({
       query: campaignId => ({
         url: `/campaign/${campaignId}/info`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching campaign information',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching campaign')
-        console.log(res.data)
+        if (!res.success) null
 
         return res.data
       },
@@ -49,84 +56,88 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
         try {
           const { data } = await queryFulfilled
 
-          dispatch(updateCampaigns([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateCampaigns([data]))
+        } catch (err: any) {
+          console.error('API error in getCampaign:', err.error.data.message)
         }
       },
       providesTags: result => {
         return result ? [{ type: 'CAMPAIGN', id: result.campaignId }] : []
       }
     }),
-    getCampaigns: builder.query<CampaignType[], SearchFilterType>({
+
+    // ***************************************************** POST campaign/search
+    getCampaigns: builder.query<CampaignType[] | null, SearchFilterType>({
       query: body => ({
         url: `/campaign/search`,
         method: 'POST',
         body
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching campaigns',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching campaigns')
-        console.log(res.data)
+        if (!res.success) return null
 
         return res.data.data
       },
+
       async onQueryStarted(body, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
 
-          dispatch(setCampaigns(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(setCampaigns(data))
+        } catch (err: any) {
+          console.error('API error in getCampaigns:', err.error.data.message)
         }
       },
       providesTags: result => {
-        return [
-          { type: 'CAMPAIGN', id: 'LIST' },
-          ...((result && result.map(campaign => ({ type: 'CAMPAIGN' as const, id: campaign.campaignId }))) || [])
-        ]
+        return result
+          ? [
+              { type: 'CAMPAIGN', id: 'LIST' },
+              ...((result && result.map(campaign => ({ type: 'CAMPAIGN' as const, id: campaign.campaignId }))) || [])
+            ]
+          : []
       }
     }),
-    postCampaignCreate: builder.mutation<string, CampaignCreateType>({
+
+    // ********************************************************* POST campaign
+    postCampaignCreate: builder.mutation<boolean, CampaignCreateType>({
       query: body => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-
-        console.log(body)
-
         return {
           url: `/campaign`,
           method: 'POST',
           body
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error creating campaign',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating campaign')
-        console.log(res.data)
-
-        return res.data
+        return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postCampaignCreate:', err.error.data.message)
         }
       },
-      invalidatesTags: res => (res ? [{ type: 'CAMPAIGN', id: 'LIST' }] : [])
+      invalidatesTags: result => (result ? [{ type: 'CAMPAIGN', id: 'LIST' }] : [])
     }),
+
+    // ********************************************************* PUT campaign/campaignId
     putCampaignUpdate: builder.mutation<boolean, CampaignUpdateType>({
       query: params => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { campaignId, ...body } = params
-        console.log(body)
 
         return {
           url: `/campaign/${campaignId}`,
@@ -134,44 +145,49 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error updating campaign',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error updating campaign')
-
         return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putCampaignUpdate:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'CAMPAIGN', id: arg.campaignId }] : [])
     }),
-    deleteCampaign: builder.mutation<string, string>({
+
+    // ********************************************************* DELETE campaign/campaignId
+    deleteCampaign: builder.mutation<boolean, string>({
       query: campaignId => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         return {
           url: `/campaign/${campaignId}`,
           method: 'DELETE'
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error deleting campaign')
-
-        return arg
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error deleting campaign',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(campaignId, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in deleteCampaign:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'CAMPAIGN', id: arg }] : [])

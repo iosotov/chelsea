@@ -1,4 +1,4 @@
-import { ReactElement, useEffect } from 'react'
+import { ReactElement, useEffect, useRef } from 'react'
 
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -26,45 +26,57 @@ import {
 type Props = {
   open: boolean
   toggle: () => void
-  stage: number | null
-  stageStatus: number | null
+  stage: string | null
+  stageStatus: string | null
 }
 
-// const stageOptions = [
-//   {
-//     value: '',
-//     label: 'Select One...',
-//     disabled: true
-//   }
-// ]
-
-export default function StatusDialog({ open, toggle, stage, stageStatus }: Props): ReactElement {
-  // call api for status/stage
-
-  const statusForm = useForm({ defaultValues: { stage: stage ?? '', stageStatus: stageStatus ?? '' } })
+export default function StatusDialog({ open, toggle, stage = '', stageStatus = '' }: Props): ReactElement {
+  const statusForm = useForm({ defaultValues: { stage, stageStatus } })
   const {
     formState: { errors },
     control,
     watch,
-    reset
+    reset,
+    trigger,
+    getValues,
+    setValue
   } = statusForm
 
-  console.log(stage, stageStatus)
+  //tracks previous stages for resetting status value upon change
+  const previousStage = useRef(stage)
 
+  //used in place of onchange for uncontrolled components, checks if current value of stage is same as previous set stage
+  useEffect(() => {
+    if (getValues('stage') !== previousStage.current) {
+      previousStage.current = getValues('stage')
+      setValue('stageStatus', '')
+    }
+  }, [watch('stage')])
+
+  //closes dialog, resets form, reassigns ref to prop stage
   const onClose = () => {
     toggle()
+    previousStage.current = stage
     reset()
   }
 
   const onSubmit = () => {
-    const data = statusForm.getValues()
-    console.log(data)
+    trigger()
+    const check = getValues(['stage', 'stageStatus'])
+    if (check.every((val: string | null, index: number) => val === [stage, stageStatus][index])) {
+      onClose()
+    }
+    if (getValues('stage') && getValues('stageStatus')) {
+      const data = statusForm.getValues()
+      console.log(data)
+      onClose()
+    }
   }
 
-  usePostSettingSearchQuery({ length: 10000 })
+  //api call for all search settings, may need to narrow down later if settings results object too large
+  usePostSettingSearchQuery({ length: 10000 }, { skip: !open })
 
-  let statusOptions = []
-
+  //options for dropdown, pulled from redux state component
   const stageOptions = [
     {
       value: '',
@@ -74,10 +86,17 @@ export default function StatusDialog({ open, toggle, stage, stageStatus }: Props
     ...useAppSelector(state => selectSettingByTypeOptions(state, 2))
   ]
 
-  statusOptions = useAppSelector(state => selectSettingByParentValueOptions(state, String(watch('stage'))))
+  const statusOptions = [
+    {
+      value: '',
+      label: 'Select One...',
+      disabled: true
+    },
+    ...useAppSelector(state => selectSettingByParentValueOptions(state, String(watch('stage'))))
+  ]
 
   return (
-    <Dialog open={open} maxWidth='xs' fullWidth onClose={toggle} aria-labelledby='form-dialog-title'>
+    <Dialog open={open} maxWidth='xs' fullWidth onClose={onClose} aria-labelledby='form-dialog-title'>
       <DialogTitle id='form-dialog-title'>
         Update Stage & Status
         <IconButton

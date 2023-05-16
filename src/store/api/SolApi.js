@@ -164,8 +164,8 @@ class SolApi {
 
   static async TestAuth() {
     const testCred = {
-      username: 'sam@prime.co',
-      password: 'pass123'
+      username: 'celine@prime-logix.co',
+      password: '123'
     }
     const res = await this.request(`/user/auth`, testCred, 'POST')
 

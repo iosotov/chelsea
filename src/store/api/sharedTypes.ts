@@ -40,3 +40,9 @@ export type LunaResponseType = {
   message: string
   data: any
 }
+
+export type ErrorResponseType = {
+  success: boolean
+  message: string
+  data: any
+}

@@ -1,4 +1,4 @@
-import { useState, SyntheticEvent, useEffect, ReactElement } from 'react'
+import { useState, SyntheticEvent, useEffect, ReactElement, useRef } from 'react'
 
 //MUI components
 import AccordionDetails from '@mui/material/AccordionDetails'
@@ -389,11 +389,11 @@ const ProfileDetails = ({
 }: ProfileDetailsProps) => {
   //Edit Assignee
   const [assigneeDialog, setAssigneeDialog] = useState<boolean>(false)
-  const [assignee, setAssignee] = useState<{
+  const assignee = useRef<{
     assigneeId: string
     assigneeName: string
-    employeeAlias: string
     employeeId: string
+    employeeAlias: string
   }>({
     assigneeId: '',
     assigneeName: '',
@@ -403,8 +403,13 @@ const ProfileDetails = ({
 
   const closeAssignee = () => setAssigneeDialog(false)
 
-  const editAssignee = (assigneeId: string, employeeAlias: string, assigneeName: string, employeeId: string) => {
-    setAssignee({ assigneeId, assigneeName, employeeAlias, employeeId })
+  const editAssignee = (assigneeId: string, assigneeName: string, employeeId: string, employeeAlias: string) => {
+    assignee.current = {
+      assigneeId,
+      assigneeName,
+      employeeId,
+      employeeAlias
+    }
     setAssigneeDialog(true)
   }
 
@@ -455,7 +460,7 @@ const ProfileDetails = ({
             return (
               <>
                 <Box
-                  key={'assignee' + index}
+                  key={assignee.assigneeId}
                   sx={{ display: 'flex', mb: 2, justifyContent: 'space-between', alignItems: 'center' }}
                 >
                   <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>{assignee.assigneeName}</Typography>
@@ -463,7 +468,12 @@ const ProfileDetails = ({
                     size='small'
                     color='info'
                     onClick={() =>
-                      editAssignee(assignee.assigneeId, assignee.companyId, assignee.assigneeName, assignee.employeeId)
+                      editAssignee(
+                        assignee.assigneeId,
+                        assignee.assigneeName,
+                        assignee.employeeId,
+                        assignee.employeeAlias
+                      )
                     }
                   >
                     {assignee.employeeAlias === 'N/A' ? 'Unassigned' : assignee.employeeAlias}
@@ -519,7 +529,7 @@ const ProfileDetails = ({
           ) : null}
         </Box>
       </CardContent>
-      <AssigneeDialog open={assigneeDialog} data={assignee} toggle={closeAssignee} />
+      <AssigneeDialog open={assigneeDialog} data={assignee.current} toggle={closeAssignee} />
     </>
   )
 }

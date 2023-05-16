@@ -59,41 +59,53 @@ export enum NoteMentionedTargetType {
 }
 
 export const noteApiSlice = apiSlice.injectEndpoints({
+  // ***************************************************** GET note/noteId/info
   endpoints: builder => ({
-    getNote: builder.query<NoteType, string>({
+    getNote: builder.query<NoteType | null, string>({
       query: noteId => ({
         url: `/note/${noteId}/info`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching note information',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching profile notes')
-        console.log(res.data)
+        if (!res.success) return null
 
         return res.data
       },
       async onQueryStarted(noteId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-
-          dispatch(updateNotes([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateNotes([data]))
+        } catch (err: any) {
+          console.error('API error in getNote:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
         return result ? [{ type: 'NOTE', id: arg }] : []
       }
     }),
-    getProfileNotes: builder.query<NoteType[], string>({
+
+    // ***************************************************** GET note/profileId/profile
+    getProfileNotes: builder.query<NoteType[] | null, string>({
       query: profileId => ({
         url: `/note/${profileId}/profile`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching profile notes',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error fetching profile notes')
+        if (!res.success) return null
         const result: NoteType[] = res.data.map((n: NoteType) => ({ ...n, profileId: arg }))
 
         return result
@@ -101,25 +113,20 @@ export const noteApiSlice = apiSlice.injectEndpoints({
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-
-          dispatch(updateNotes(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateNotes(data))
+        } catch (err: any) {
+          console.error('API error in getProfileNotes:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
         return result
-          ? [
-              { type: 'NOTE', id: arg },
-              ...((result && result.map(note => ({ type: 'NOTE' as const, id: note.noteId }))) || [])
-            ]
+          ? [{ type: 'NOTE', id: arg }, ...result.map(note => ({ type: 'NOTE' as const, id: note.noteId }))]
           : []
       }
     }),
-    postNoteCreate: builder.mutation<string, NoteCreateType>({
+
+    // ***************************************************** POST note/profileId/profile
+    postNoteCreate: builder.mutation<boolean, NoteCreateType>({
       query: body => {
         return {
           url: `/note/${body.profileId}/profile`,
@@ -127,28 +134,30 @@ export const noteApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error creating note',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating note')
-        console.log(res.data)
-
-        return res.data
+        return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postNoteCreate:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'NOTE', id: arg.profileId }] : [])
     }),
-    putNoteUpdate: builder.mutation<string, NoteUpdateType>({
+
+    // ***************************************************** PUT note/noteId
+    putNoteUpdate: builder.mutation<boolean, NoteUpdateType>({
       query: params => {
         const { noteId, ...body } = params
-        console.log(body)
 
         return {
           url: `/note/${noteId}`,
@@ -156,49 +165,53 @@ export const noteApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error updating note')
-
-        console.log(arg.noteId)
-
-        return arg.noteId
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error updating note',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putNoteUpdate:', err.error.data.message)
         }
       },
-      invalidatesTags: res => (res ? [{ type: 'NOTE', id: res }] : [])
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'NOTE', id: arg.noteId }] : [])
     }),
-    deleteNote: builder.mutation<string, string>({
+
+    // ***************************************************** DELETE note/noteId
+    deleteNote: builder.mutation<boolean, string>({
       query: noteId => {
         return {
           url: `/note/${noteId}`,
           method: 'DELETE'
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error deleting note')
-
-        return arg
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error deleting note',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(noteId, { dispatch, queryFulfilled }) {
         try {
           await queryFulfilled
           dispatch(deleteNote(noteId))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in getDocuments:', err.error.data.message)
         }
       },
-      invalidatesTags: res => (res ? [{ type: 'NOTE', id: res }] : [])
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'NOTE', id: arg }] : [])
     })
   })
 })

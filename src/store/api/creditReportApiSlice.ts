@@ -1,13 +1,13 @@
 import { setCreditReports } from '../creditReportSlice'
 import { apiSlice } from './apiSlice'
+import { CreditReportInfoModel } from './defaultValues'
 import { LunaResponseType } from './sharedTypes'
 
 export type CreditScoreType = {
   scoreValue: string
   scoreName: string
   evaluation: CreditScoreEvaluation
-  scoreCodes: string | null
-  creditScoreCodes: CreditScoreCodeType[] | null
+  creditScoreCodes: CreditScoreCodeType[]
 }
 
 export type CreditScoreCodeType = {
@@ -45,14 +45,24 @@ export type CreditReportInfoType = {
 
 export const creditReportApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
-    getCreditReports: builder.query<CreditReportInfoType, string>({
+    // ***************************************************** GET creditreport/profileId/profile
+    getCreditReports: builder.query<CreditReportInfoType | null, string>({
       query: profileId => ({
         url: `/creditreport/${profileId}/profile`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching profile credit report',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType, meta, arg) => {
         if (!res.success) throw new Error('There was an error fetching credit report for this profile')
-        const result: CreditReportInfoType = { ...res.data, profileId: arg }
+        const result: CreditReportInfoType = res.data
+          ? { ...res.data, profileId: arg }
+          : { ...CreditReportInfoModel, profileId: arg }
 
         return result
       },
@@ -60,19 +70,18 @@ export const creditReportApiSlice = apiSlice.injectEndpoints({
         try {
           const { data } = await queryFulfilled
 
-          dispatch(setCreditReports([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(setCreditReports([data]))
+        } catch (err: any) {
+          console.error('API error in getCreditReports:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
-        return [{ type: 'CREDITREPORT', id: arg }]
+        return result ? [{ type: 'CREDITREPORT', id: arg }] : []
       }
     }),
-    postProfileCreditReport: builder.mutation<string, string>({
+
+    // ***************************************************** POST creditreport/profileId/profile/request
+    postProfileCreditReport: builder.mutation<boolean, string>({
       query: profileId => {
         return {
           url: `/creditreport/${profileId}/profile/request`,
@@ -80,25 +89,28 @@ export const creditReportApiSlice = apiSlice.injectEndpoints({
           params: { testMode: false }
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error posting credit report to profile')
-        console.log(res.data)
-
-        return arg
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error posting profile credit report',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postProfileCreditReport:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'CREDITREPORT', id: arg }] : [])
     }),
-    postCreditReport: builder.mutation<string, CreditReportRequestType>({
+
+    // ***************************************************** POST creditreport/request
+    postCreditReport: builder.mutation<boolean, CreditReportRequestType>({
       query: body => {
         return {
           url: `/creditreport/request`,
@@ -106,20 +118,21 @@ export const creditReportApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error posting credit report information')
-        console.log(res.data)
-
-        return arg.firstName
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error posting credit report',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postCreditReport:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) => (arg.profileId ? [{ type: 'CREDITREPORT', id: arg.profileId }] : [])

@@ -49,61 +49,70 @@ export enum EmailStatusEnum {
 
 export const emailApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
-    getEmail: builder.query<EmailType, string>({
+    // ***************************************************** GET email/emailId/info
+    getEmail: builder.query<EmailType | null, string>({
       query: emailId => ({
         url: `/email/${emailId}/info`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching email',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching email')
+        if (!res.success) return null
 
         return res.data
       },
       async onQueryStarted(emailId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          console.log(data)
-
-          dispatch(updateEmails([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateEmails([data]))
+        } catch (err: any) {
+          console.error('API error in getEmail:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
         return result ? [{ type: 'EMAIL', id: arg }] : []
       }
     }),
-    getProfileEmails: builder.query<EmailType[], string>({
+
+    // ***************************************************** GET email/profileId/profile
+    getProfileEmails: builder.query<EmailType[] | null, string>({
       query: profileId => ({
         url: `/email/${profileId}/profile`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching profile email',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching profile emails')
+        if (!res.success) return null
 
         return res.data
       },
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          console.log(data)
-
-          dispatch(updateEmails(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateEmails(data))
+        } catch (err: any) {
+          console.error('API error in getProfileEmails:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
         return result ? [{ type: 'EMAIL', id: arg }] : []
       }
     }),
-    getProfileLiabilityEmails: builder.query<EmailType[], EmailProfileLiabilitySearchType>({
+
+    // ***************************************************** GET email/profileId/profile/liabilityId/liability
+    getProfileLiabilityEmails: builder.query<EmailType[] | null, EmailProfileLiabilitySearchType>({
       query: params => {
         const { profileId, liabilityId } = params
 
@@ -112,22 +121,24 @@ export const emailApiSlice = apiSlice.injectEndpoints({
           method: 'GET'
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching liability email',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching liability email')
+        if (!res.success) return null
 
         return res.data
       },
       async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          console.log(data)
-
-          dispatch(updateEmails(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateEmails(data))
+        } catch (err: any) {
+          console.error('API error in getProfileLiabilityEmails:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -139,7 +150,9 @@ export const emailApiSlice = apiSlice.injectEndpoints({
           : []
       }
     }),
-    postProfileEmail: builder.mutation<string, EmailProfileCreateType>({
+
+    // ***************************************************** POST email/profileId/profile/send
+    postProfileEmail: builder.mutation<boolean, EmailProfileCreateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -149,28 +162,30 @@ export const emailApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error posting email',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error sending email')
-
-        return res.data
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-
-          // dispatch(updateEmails([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postProfileEmail:', err.error.data.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
         return result ? [{ type: 'EMAIL', id: arg.profileId }] : []
       }
     }),
-    postProfileLiabilityEmail: builder.mutation<string, EmailProfileLiabilityCreateType>({
+
+    // ***************************************************** POST email/profileId/profile/liabilityId/liability/send
+    postProfileLiabilityEmail: builder.mutation<boolean, EmailProfileLiabilityCreateType>({
       query: params => {
         const { profileId, liabilityId, ...body } = params
 
@@ -180,19 +195,22 @@ export const emailApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error sending liability email')
 
-        return res.data
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error posting liability email',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postProfileLiabilityEmail:', err.error.data.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -204,7 +222,9 @@ export const emailApiSlice = apiSlice.injectEndpoints({
           : []
       }
     }),
-    postEmailAttachment: builder.mutation<string, EmailSendAttachmentType>({
+
+    // ***************************************************** POST email/profileId/profile/send-attachment
+    postEmailAttachment: builder.mutation<boolean, EmailSendAttachmentType>({
       query: params => {
         const { profileId, body } = params
 
@@ -214,21 +234,23 @@ export const emailApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error posting email/attachment',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error sending email with attachment')
-
-        return res.data
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
 
           // dispatch(updateEmails([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in  postEmailAttachment:', err.error.data.message)
         }
       },
       invalidatesTags: (result, error, arg) => {

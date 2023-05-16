@@ -13,7 +13,7 @@ export type GroupUpdateType = {
   groupId: string
   name: string
   description: string
-  employees?: string[]
+  employeeIds?: string[]
 }
 
 export type GroupCreateType = {
@@ -22,55 +22,62 @@ export type GroupCreateType = {
 }
 
 export const groupApiSlice = apiSlice.injectEndpoints({
+  // ***************************************************** GET group/groupId/basic
   endpoints: builder => ({
-    getGroup: builder.query<GroupType, string>({
+    getGroup: builder.query<GroupType | null, string>({
       query: groupId => ({
         url: `/group/${groupId}/basic`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching group information',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching group information')
-        console.log(res.data)
+        if (!res.success) return null
 
         return res.data
       },
       async onQueryStarted(groupId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-
-          dispatch(updateGroup(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateGroup(data))
+        } catch (err: any) {
+          console.error('API error in getGroup:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
         return result ? [{ type: 'GROUP', id: arg }] : []
       }
     }),
-    getGroups: builder.query<GroupType[], undefined>({
+
+    // ***************************************************** GET group/all
+    getGroups: builder.query<GroupType[] | null, undefined>({
       query: () => ({
         url: `/group/all`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching groups',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching groups')
-        console.log(res.data)
+        if (!res.success) return null
 
         return res.data
       },
       async onQueryStarted(arg, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-
-          dispatch(setGroups(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(setGroups(data))
+        } catch (err: any) {
+          console.error('API error in getGroups:', err.error.data.message)
         }
       },
       providesTags: result => {
@@ -79,7 +86,9 @@ export const groupApiSlice = apiSlice.injectEndpoints({
           : []
       }
     }),
-    createGroup: builder.mutation<string, GroupCreateType>({
+
+    // ***************************************************** GET group/profileId/profile
+    postGroupCreate: builder.mutation<boolean, GroupCreateType>({
       query: body => {
         return {
           url: `/group`,
@@ -87,25 +96,28 @@ export const groupApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error creating group',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating group')
-        console.log(res.data)
-
-        return res.data
+        return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postGroupCreate:', err.error.data.message)
         }
       },
       invalidatesTags: res => (res ? [{ type: 'GROUP', id: 'LIST' }] : [])
     }),
-    updateGroup: builder.mutation<string, GroupUpdateType>({
+
+    // ***************************************************** GET group/profileId/profile
+    putGroupUpdate: builder.mutation<boolean, GroupUpdateType>({
       query: params => {
         const { groupId, ...body } = params
         console.log(body)
@@ -116,49 +128,52 @@ export const groupApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error updating group information')
-
-        console.log(arg.groupId)
-
-        return arg.groupId
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error updating group',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.data
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putGroupUpdate:', err.error.data.message)
         }
       },
-      invalidatesTags: res => (res ? [{ type: 'GROUP', id: res }] : [])
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'GROUP', id: arg.groupId }] : [])
     }),
-    deleteGroup: builder.mutation<string, string>({
+
+    // ***************************************************** GET group/profileId/profile
+    deleteGroup: builder.mutation<boolean, string>({
       query: groupId => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         return {
           url: `/group/${groupId}`,
           method: 'DELETE'
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error deleting group')
-
-        return arg
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error deleting group',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(groupId, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in deleteGroup:', err.error.data.message)
         }
       },
-      invalidatesTags: res => (res ? [{ type: 'GROUP', id: res }] : [])
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'GROUP', id: arg }] : [])
     })
   })
 })
