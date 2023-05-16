@@ -287,7 +287,6 @@ export const taskApiSlice = apiSlice.injectEndpoints({
           data: baseQueryReturnValue.data
         }
       },
-
       transformResponse: (res: LunaResponseType) => {
         return res.success
       },
