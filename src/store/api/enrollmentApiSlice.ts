@@ -7,7 +7,7 @@ import { LunaResponseType, SearchFilterType } from './sharedTypes'
 export enum EnrollmentPaymentMethod {
   'ach',
   'credit',
-  'debit'
+  'none'
 }
 
 export enum EnrollmentDetailStatus {
