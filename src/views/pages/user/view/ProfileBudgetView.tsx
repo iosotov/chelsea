@@ -128,9 +128,13 @@ export default function ProfileBudget({ id }: any) {
   const [formDataList, setFormDataList] = useState<FormData[]>([])
 
   const addFormDataToList = (formDataList: FormData[]) => {
-    setFormDataList([...formDataList, ...formDataList])
+    console.log(formDataList)
+    setFormDataList([...formDataList])
+    console.log(formDataList.entries)
   }
-  console.log(formDataList)
+  console.log(formDataList.entries)
+
+  // console.log(formDataList.map(form => form.get('Disposable')))
 
   // const { register, handleSubmit } = useForm<FormData>()
   // const handleFormSubmit = (formData: FormData) => {
@@ -141,33 +145,93 @@ export default function ProfileBudget({ id }: any) {
 
   async function handleClick() {
     //need to configure values to set
-    const testData = {
-      profileId,
-      budgets: [
-        {
-          budgetId: 'b3f1d85d-b49a-4f06-b168-4600f2244e0d',
-          amount: 1241
-        }
-      ]
-    }
+    const mapParams = getFormValues()
+    console.log(mapParams)
+
+    // const testData = {
+    //   profileId,
+    //   budgets: [
+    //     {
+    //       budgetId: 'b3f1d85d-b49a-4f06-b168-4600f2244e0d',
+    //       amount: 1241
+    //     }
+    //   ]
+    // }
 
     // console.log(testData)
 
-    await trigger(testData).unwrap()
+    // await trigger(testData).unwrap()
 
     // getTotalIncome()
     // getTotalExpense()
     // getTotals()
   }
 
-  // val stores state for header filters
-  // const [value, setValue] = useState<string>('')
+  const getFormValues = () => {
+    console.log(formDataList)
+    const filter = []
+    const values = profileBudgets.map(profileBudget => profileBudget.budgetId)
+    console.log(values)
 
-  // console.log(useGetProfilesQuery(data))
-  // useGetProfileBudgetsQuery('1327485548')
-  // useGetBudgetsQuery({})
+    // console.log(values.map(value => value.type))
 
-  // console.log(isLoading)
+    // console.log(values)
+    // const myValues = values.map(value => formDataList.getAll(value))
+    // const myValues = formDataList.map(form => form.getAll(values.forEach()))
+    // const lol = values.map(value => value)
+    // console.log(lol)
+    const check = item => {
+      console.log(item)
+      const fields = formDataList.map(el => el.getAll(item))
+      console.log(fields)
+      fields
+        .filter(ele => ele.length > 0)
+        .forEach(ele => {
+          // filter.push(item)
+          filter.push({ budgetId: item, amount: Number(ele[0]) })
+        })
+      console.log(fields)
+      console.log(filter)
+
+      // const hi = fields.map(item => mine.push(item.length > 0))
+      // const filter = lol.reduce
+      // console.log(hi)
+
+      // const entry = lol.map(item => item.length > 0)
+      // entry.map(ent => ent == true)
+
+      // if (lol) {
+      //   console.log(lol)
+      //   mine.push(lol)
+      // }
+    }
+    values.map(value => check(value))
+
+    // setFormDataList(filter)
+    console.log(formDataList)
+
+    console.log(filter)
+
+    //set this filter to the income data and also make an expense one
+
+    return filter
+    console.log(check)
+    console.log(values)
+
+    // const lol = values.map(console.log(values))
+
+    // lol.forEach(formDataList.forEach().getAll(lol))
+
+    // const myValues = formDataList.map(form => form.has(values.map(value => value)))
+
+    // const myValues = formDataList.map(form => form.getAll(values.forEach()))
+    // console.log(myValues)
+
+    // formDataList.map
+    // const total = values.map(val => check(val))
+    // const total = values.forEach(val => console.log(val))
+    // console.log(total)
+  }
 
   const LoadData = () => {
     console.log('Loading')
