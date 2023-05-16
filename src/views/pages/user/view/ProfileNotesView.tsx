@@ -118,23 +118,6 @@ const ProfileNotes = ({ id }: any) => {
   const [triggerCreate, { isSuccess: triggerPostSuccess }] = usePostNoteCreateMutation()
   const [triggerUpdate, { isSuccess: triggerPutSuccess }] = usePutNoteUpdateMutation()
 
-  // const rows = [
-  //   { id: 1, type: 'Snow', createdBy: 'Jon', description: 35 },
-  //   { id: 2, type: 'Lannister', createdBy: 'Cersei', description: 42 },
-  //   { id: 3, type: 'Lannister', createdBy: 'Jaime', description: 45 },
-  //   { id: 4, type: 'Stark', createdBy: 'Arya', description: 16 },
-  //   { id: 5, type: 'Targaryen', createdBy: 'Daenerys', description: null },
-  //   { id: 6, type: 'Melisandre', createdBy: null, description: 150 },
-  //   { id: 7, type: 'Clifford', createdBy: 'Ferrara', description: 44 },
-  //   { id: 8, type: 'Frances', createdBy: 'Rossini', description: 36 },
-  //   { id: 9, type: 'Roxie', createdBy: 'Harvey', description: 65 }
-  // ]
-
-  // const handleChange = event => {
-  //   setNoteType(event.target.value)
-  //   setNoteTemplate(event.target.value)
-  //   console.log(noteType)
-  // }
   //LOAD DATA
   const loadData = () => {
     console.log(templateDrop)
@@ -257,13 +240,20 @@ const ProfileNotes = ({ id }: any) => {
 
   async function handleUpdateByIdClick(props) {
     console.log(props)
+
+    //do pinning check if important, then pin if not remove
+    //delete removes important
     const payload = {
-      noteId: props.noteId,
+      noteId: props.selectedNote,
+      targets: props.notifyUsers,
 
       // profileId,
-      content: props.content,
-      mentionedEmails: props.mentionedEmails,
+      content: props.message,
+      mentionedEmails: props.noteEmails,
+
       important: props.important
+
+      // important: true
     }
     console.log(payload)
 
@@ -285,15 +275,17 @@ const ProfileNotes = ({ id }: any) => {
       setNoteEmails(myNote.mentionedEmails)
 
       // setTemplate()
-      // setNotifyUsers()
+      setNotifyUsers(myNote.targets)
 
       // setCreatedAt(myNote.createdAt)
       setMessage(myNote.content)
       setImportant(myNote.important)
+      setSelectedNote(myNote.noteId)
       setDialogMode('Edit')
     }
+    console.log(selectedNote)
 
-    handleUpdateByIdClick(myNote)
+    // handleUpdateByIdClick(myNote)
 
     // handleUpdateClick()
 
@@ -523,7 +515,15 @@ const ProfileNotes = ({ id }: any) => {
                 variant='contained'
                 sx={{ mr: 4 }}
                 onClick={() =>
-                  handleUpdateByIdClick({ message, notifyUsers, noteType, noteTemplate, noteEmails, important })
+                  handleUpdateByIdClick({
+                    message,
+                    notifyUsers,
+                    noteType,
+                    noteTemplate,
+                    noteEmails,
+                    important,
+                    selectedNote
+                  })
                 }
               >
                 Update

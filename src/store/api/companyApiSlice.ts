@@ -44,15 +44,22 @@ export type CompanyType = {
 }
 
 export const companyApiSlice = apiSlice.injectEndpoints({
+  // ***************************************************** GET company/companyId/info
   endpoints: builder => ({
-    getCompany: builder.query<CompanyType, string>({
+    getCompany: builder.query<CompanyType | null, string>({
       query: companyId => ({
         url: `/company/${companyId}/info`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching company',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching company')
-        console.log(res.data)
+        if (!res.success) return null
 
         return res.data
       },
@@ -60,27 +67,32 @@ export const companyApiSlice = apiSlice.injectEndpoints({
         try {
           const { data } = await queryFulfilled
 
-          dispatch(updateCompanies([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateCompanies([data]))
+        } catch (err: any) {
+          console.error('API error in getCompany:', err.error.data.message)
         }
       },
       providesTags: result => {
         return result ? [{ type: 'COMPANY', id: result.companyId }] : []
       }
     }),
-    getCompanies: builder.query<CompanyType[], SearchFilterType>({
+
+    // ************************************************ POST company/search
+    getCompanies: builder.query<CompanyType[] | null, SearchFilterType>({
       query: body => ({
         url: `/company/search`,
         method: 'POST',
         body
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching companies',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching companies')
-        console.log(res.data)
+        if (!res.success) return null
 
         return res.data.data
       },
@@ -88,53 +100,55 @@ export const companyApiSlice = apiSlice.injectEndpoints({
         try {
           const { data } = await queryFulfilled
 
-          dispatch(setCompanies(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(setCompanies(data))
+        } catch (err: any) {
+          console.error('API error in getCompanies:', err.error.data.message)
         }
       },
       providesTags: result => {
-        return [
-          { type: 'COMPANY', id: 'LIST' },
-          ...((result && result.map(company => ({ type: 'COMPANY' as const, id: company.companyId }))) || [])
-        ]
+        return result
+          ? [
+              { type: 'COMPANY', id: 'LIST' },
+              ...((result && result.map(company => ({ type: 'COMPANY' as const, id: company.companyId }))) || [])
+            ]
+          : []
       }
     }),
-    postCompanyCreate: builder.mutation<string, CompanyCreateType>({
-      query: body => {
-        console.log(body)
 
+    // *********************************************************** POST company
+    postCompanyCreate: builder.mutation<boolean, CompanyCreateType>({
+      query: body => {
         return {
           url: `/company`,
           method: 'POST',
           body
         }
       },
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating company')
-        console.log(res.data)
 
-        return res.data
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error creating company',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postCompanyCreate:', err.error.data.message)
         }
       },
       invalidatesTags: res => (res ? [{ type: 'COMPANY', id: 'LIST' }] : [])
     }),
+
+    // *********************************************************** PUT company/companyId
     putCompanyUpdate: builder.mutation<boolean, CompanyUpdateType>({
       query: params => {
         const { companyId, ...body } = params
-        console.log(body)
 
         return {
           url: `/company/${companyId}`,
@@ -142,68 +156,80 @@ export const companyApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error updating company')
 
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error updating campaign',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
         return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putCompanyUpdate:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'COMPANY', id: arg.companyId }] : [])
     }),
-    putCompanyEnable: builder.mutation<string, string>({
+
+    // *********************************************************** PUT company/companyId/enable
+    putCompanyEnable: builder.mutation<boolean, string>({
       query: companyId => {
         return {
           url: `/company/${companyId}/enable`,
           method: 'PUT'
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error enabling company')
 
-        return arg
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching campaigns',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(companyId, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error enabling company:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'COMPANY', id: arg }] : [])
     }),
-    putCompanyDisable: builder.mutation<string, string>({
+
+    // *********************************************************** PUT company/companyId/disable
+    putCompanyDisable: builder.mutation<boolean, string>({
       query: companyId => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         return {
           url: `/company/${companyId}/disable`,
           method: 'PUT'
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error disabling company')
 
-        return arg
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching campaigns',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(companyId, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error disabling company:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'COMPANY', id: arg }] : [])

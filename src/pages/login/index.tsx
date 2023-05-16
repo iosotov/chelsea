@@ -97,7 +97,6 @@ const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(({ t
 
 const schema = yup.object().shape({
   email: yup.string().email().required(),
-  //add min back to password after
   password: yup.string().required()
 })
 

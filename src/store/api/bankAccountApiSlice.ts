@@ -55,48 +55,49 @@ export type BankAccountUpdateType = {
 
 export const bankAccountApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
-    getBankAccounts: builder.query<BankAccountType[], string>({
+    // ******************************************* GET bankaccount/bankaccount/profileId/profile
+    getBankAccounts: builder.query<BankAccountType[] | null, string>({
       query: profileId => ({
         url: `/bankaccount/${profileId}/profile`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching bank account information',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching bank accounts')
-        console.log(res.data)
-
+        if (!res.success) return null
         const data = res.data.map((account: BankAccountType) => {
           return { ...account, accountType: 'ach' }
         })
-
-        console.log(data)
 
         return data
       },
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-
-          dispatch(setBankAccounts(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
+          if (data) dispatch(setBankAccounts(data))
+        } catch (err: any) {
+          console.error('API error in getBankAccounts:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
-        return [
-          { type: 'BANKACCOUNT', id: arg },
-          ...((result &&
-            result.map(bankaccount => ({ type: 'BANKACCOUNT' as const, id: bankaccount.bankAccountId }))) ||
-            [])
-        ]
+        return result
+          ? [
+              { type: 'BANKACCOUNT', id: arg },
+              ...result.map(bankaccount => ({ type: 'BANKACCOUNT' as const, id: bankaccount.bankAccountId }))
+            ]
+          : []
       }
     }),
-    postBankAccountCreate: builder.mutation<string, BankAccountCreateType>({
-      query: params => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { profileId, ...body } = params
 
-        console.log(body)
+    // ************************************************ POST bankaccount/profileId/profile
+    postBankAccountCreate: builder.mutation<boolean, BankAccountCreateType>({
+      query: params => {
+        const { profileId, ...body } = params
 
         return {
           url: `/bankaccount/${profileId}/profile`,
@@ -104,29 +105,30 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error creating bank account',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating bank account')
-        console.log(res.data)
-
-        return res.data
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postBankAccountCreate:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'BANKACCOUNT', id: arg.profileId }] : [])
     }),
-    putBankAccountUpdate: builder.mutation<string, BankAccountUpdateType>({
+
+    // ******************************************************* PUT bankaccount/bankaccountId
+    putBankAccountUpdate: builder.mutation<boolean, BankAccountUpdateType>({
       query: params => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { bankAccountId, ...body } = params
-        console.log(body)
 
         return {
           url: `/bankaccount/${bankAccountId}`,
@@ -134,49 +136,52 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error updating bank account information')
-
-        console.log(arg.bankAccountId)
-
-        return arg.bankAccountId
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error updating bank account',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putBankAccountUpdate:', err.error.data.message)
         }
       },
-      invalidatesTags: res => (res ? [{ type: 'BANKACCOUNT', id: res }] : [])
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'BANKACCOUNT', id: arg.bankAccountId }] : [])
     }),
-    deleteBankAccount: builder.mutation<string, string>({
+
+    // ************************************************ DELETE bankaccount/bankaccountId/
+    deleteBankAccount: builder.mutation<boolean, string>({
       query: bankAccountId => {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
         return {
           url: `/bankaccount/${bankAccountId}`,
           method: 'DELETE'
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error updating bank account information')
-
-        return arg
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error deleting bank account',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(bankAccountId, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in deleteBankAccount:', err.error.data.message)
         }
       },
-      invalidatesTags: res => (res ? [{ type: 'BANKACCOUNT', id: res }] : [])
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'BANKACCOUNT', id: arg }] : [])
     })
   })
 })

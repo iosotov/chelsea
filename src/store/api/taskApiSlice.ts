@@ -64,55 +64,62 @@ export enum TaskStatusEnum {
 }
 
 export const taskApiSlice = apiSlice.injectEndpoints({
+  // ****************************************************************** GET task/taskId/info
   endpoints: builder => ({
-    getTask: builder.query<TaskType, string>({
+    getTask: builder.query<TaskType | null, string>({
       query: taskId => ({
         url: `/task/${taskId}/info`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching task',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching task')
+        if (!res.success) return null
 
         return res.data
       },
       async onQueryStarted(taskId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          console.log(data)
-
-          dispatch(updateTasks([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateTasks([data]))
+        } catch (err: any) {
+          console.error('API error in getTask:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
         return result ? [{ type: 'TASK', id: arg }] : []
       }
     }),
-    getProfileTasks: builder.query<TaskType[], string>({
+
+    // ****************************************************************** GET task/profileId/profile
+    getProfileTasks: builder.query<TaskType[] | null, string>({
       query: profileId => ({
         url: `/task/${profileId}/profile`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching profile tasks',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching profile tasks')
+        if (!res.success) return null
 
         return res.data
       },
       async onQueryStarted(taskId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          console.log(data)
-
-          dispatch(updateTasks(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateTasks(data))
+        } catch (err: any) {
+          console.error('API error in getProfileTasks:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -121,30 +128,33 @@ export const taskApiSlice = apiSlice.injectEndpoints({
           : []
       }
     }),
-    postTaskCreate: builder.mutation<string, TaskCreateType>({
+
+    // ****************************************************************** POST task/profileId/profile
+    postTaskCreate: builder.mutation<boolean, TaskCreateType>({
       query: params => {
         const { profileId, ...body } = params
 
         return {
-          url: `/task/${profileId}/profile/`,
+          url: `/task/${profileId}/profile`,
           method: 'POST',
           body
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error creating task',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating task')
-
-        return res.data
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled
-          console.log(data)
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          await queryFulfilled
+        } catch (err: any) {
+          console.error('API error in postTaskCreate:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -155,7 +165,9 @@ export const taskApiSlice = apiSlice.injectEndpoints({
             ]
           : []
     }),
-    postTaskSearch: builder.query<TaskType[], SearchFilterType>({
+
+    // ****************************************************************** POST task/search
+    postTaskSearch: builder.query<TaskType[] | null, SearchFilterType>({
       query: body => {
         return {
           url: `/task/search`,
@@ -163,27 +175,31 @@ export const taskApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error searching task',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating task')
+        if (!res.success) return null
 
         return res.data.data
       },
       async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          dispatch(setTasks(data))
-
-          // console.log(data)
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(setTasks(data))
+        } catch (err: any) {
+          console.error('API error in postTaskSearch:', err.error.data.message)
         }
       },
       providesTags: res =>
         res ? [{ type: 'TASK', id: 'LIST' }, ...res.map(task => ({ type: 'TASK' as const, id: task.taskId }))] : []
     }),
+
+    // ****************************************************************** PUT task/taskId
     putTaskUpdate: builder.mutation<boolean, TaskUpdateType>({
       query: params => {
         const { taskId, ...body } = params
@@ -194,20 +210,21 @@ export const taskApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error updating task',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error updating task')
-        console.log(res.data)
-
         return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putTaskUpdate:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -218,28 +235,31 @@ export const taskApiSlice = apiSlice.injectEndpoints({
             ]
           : []
     }),
-    deleteTask: builder.mutation<string, string>({
+
+    // ****************************************************************** DELETE task/taskId
+    deleteTask: builder.mutation<boolean, string>({
       query: taskId => {
         return {
           url: `/task/${taskId}`,
           method: 'DELETE'
         }
       },
-      transformResponse: (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error updating task')
-        console.log(res.data)
-
-        return arg
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error deleting task',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          dispatch(deleteTask(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(deleteTask(data))
+        } catch (err: any) {
+          console.error('API error in deleteTask:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -250,6 +270,8 @@ export const taskApiSlice = apiSlice.injectEndpoints({
             ]
           : []
     }),
+
+    // ****************************************************************** PUT task/task-update
     putTasksBulkUpdate: builder.mutation<boolean, TaskBulkUpdateType>({
       query: body => {
         return {
@@ -258,20 +280,21 @@ export const taskApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error bulk updating tasks',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error bulk updating tasks')
-        console.log(res.data)
-
         return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putTasksBulkUpdate:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) =>

@@ -49,14 +49,22 @@ export type BudgetSettingType = {
 }
 
 export const profileBudgetApiSlice = apiSlice.injectEndpoints({
+  // ****************************************************************** GET profile/profileId/budget
   endpoints: builder => ({
-    getProfileBudgets: builder.query<ProfileBudgetObj, string>({
+    getProfileBudgets: builder.query<ProfileBudgetObj | null, string>({
       query: profileId => ({
         url: `/profile/${profileId}/budget`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching profile budgets',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: async (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error fetching profile budgets')
+        if (!res.success) return null
 
         const result = await SolApi.GetBudgets()
         const budget: BudgetSettingType[] = result.data
@@ -84,13 +92,9 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          console.log('dispatch')
-          dispatch(updateProfileBudget(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateProfileBudget(data))
+        } catch (err: any) {
+          console.error('API error in getProfileBudgets:', err.error.data.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -102,7 +106,9 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
           : []
       }
     }),
-    putProfileBudgetsUpdate: builder.mutation<string, ProfileBudgeUpdateType>({
+
+    // ****************************************************************** PUT profile/profileId/budget
+    putProfileBudgetsUpdate: builder.mutation<boolean, ProfileBudgeUpdateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -112,106 +118,119 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
-      transformResponse: async (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error fetching profile budgets')
-
-        return arg.profileId
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error updating profile budget',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: async (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putProfileBudgetsUpdate:', err.error.data.message)
         }
       },
-      invalidatesTags: res => (res ? [{ type: 'PROFILE-BUDGET', id: res }] : [])
+      invalidatesTags: (res, error, arg) => (res ? [{ type: 'PROFILE-BUDGET', id: arg.profileId }] : [])
     }),
 
-    getBudgets: builder.query<BudgetSettingType[], undefined>({
+    // ****************************************************************** GET setting/budgets
+    getBudgets: builder.query<BudgetSettingType[] | null, undefined>({
       query: () => ({
         url: `/setting/budgets`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching budgets',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: async (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching budgets')
+        if (!res.success) return null
 
         return res.data
       },
       async onQueryStarted(params, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          dispatch(setBudget(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(setBudget(data))
+        } catch (err: any) {
+          console.error('API error in getBudgets:', err.error.data.message)
         }
       },
       providesTags: result => {
-        return [
-          { type: 'BUDGET', id: 'LIST' },
-          ...((result &&
-            result.map((budget: BudgetSettingType) => ({
-              type: 'BUDGET' as const,
-              id: budget.budgetId
-            }))) ||
-            [])
-        ]
+        return result
+          ? [
+              { type: 'BUDGET', id: 'LIST' },
+              ...result.map((budget: BudgetSettingType) => ({ type: 'BUDGET' as const, id: budget.budgetId }))
+            ]
+          : []
       }
     }),
 
+    // ****************************************************************** POST setting/budgets
     postBudgetCreate: builder.mutation<boolean, BudgetCreateType>({
       query: body => ({
         url: `/setting/budgets`,
         method: 'POST',
         body
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching enrollment enrollment',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: async (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error creating profile budgets')
-
-        return res.data
+        return res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in postBudgetCreate:', err.error.data.message)
         }
       },
       invalidatesTags: res => (res ? [{ type: 'BUDGET', id: 'LIST' }] : [])
     }),
 
-    getBudgetInfo: builder.query<BudgetSettingType, string>({
+    // ****************************************************************** GET setting/budgets/budgetId/info
+    getBudgetInfo: builder.query<BudgetSettingType | null, string>({
       query: budgetId => ({
         url: `/setting/budgets/${budgetId}/info`,
         method: 'GET'
       }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching budget information ',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: async (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error fetching budget info')
+        if (!res.success) return null
 
         return res.data
       },
       async onQueryStarted(budgetId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          dispatch(updateBudget([data]))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(updateBudget([data]))
+        } catch (err: any) {
+          console.error('API error in getBudgetInfo:', err.error.data.message)
         }
       },
       providesTags: (res, error, arg) => (res ? [{ type: 'BUDGET', id: arg }] : [])
     }),
 
+    // ****************************************************************** PUT setting/budgets/budgetId
     putBudgetUpdate: builder.mutation<boolean, BudgetUpdateType>({
       query: params => {
         const { budgetId, ...body } = params
@@ -222,19 +241,21 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
           body
         }
       },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error updating budget',
+          data: baseQueryReturnValue.data
+        }
+      },
       transformResponse: async (res: LunaResponseType) => {
-        if (!res.success) throw new Error('There was an error updating budget')
-
         return res.success
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putBudgetUpdate:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -246,27 +267,30 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
           : []
     }),
 
-    putBudgetDisable: builder.mutation<string, string>({
+    // ****************************************************************** PUT setting/budgets/budgetId/disable
+    putBudgetDisable: builder.mutation<boolean, string>({
       query: budgetId => {
         return {
           url: `/setting/budgets/${budgetId}/disable`,
           method: 'PUT'
         }
       },
-      transformResponse: async (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error disabling budget')
-
-        return arg
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error disabling budget',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: async (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(budgetId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          dispatch(removeBudget(data))
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          if (data) dispatch(removeBudget(budgetId))
+        } catch (err: any) {
+          console.error('API error in putBudgetDisable:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -278,26 +302,29 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
           : []
     }),
 
-    putBudgetEnable: builder.mutation<string, string>({
+    // ****************************************************************** PUT setting/budgets/budgetId/enable
+    putBudgetEnable: builder.mutation<boolean, string>({
       query: budgetId => {
         return {
           url: `/setting/budgets/${budgetId}/enable`,
           method: 'PUT'
         }
       },
-      transformResponse: async (res: LunaResponseType, meta, arg) => {
-        if (!res.success) throw new Error('There was an error disabling budget')
-
-        return arg
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching enrollment enrollment',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: async (res: LunaResponseType) => {
+        return res.success
       },
       async onQueryStarted(budgetId, { queryFulfilled }) {
         try {
           await queryFulfilled
-        } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+        } catch (err: any) {
+          console.error('API error in putBudgetEnable:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
