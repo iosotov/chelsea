@@ -8,14 +8,16 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
+import { useRef } from 'react'
 
-import { useForm, useFieldArray } from 'react-hook-form'
+import { useForm, useFieldArray, Control, FieldValues } from 'react-hook-form'
 
 // const createData = (incomeType: string, amount: number) => {
 //   return { incomeType, amount }
 // }
 
 import { SubmitHandler, UseFormRegister } from 'react-hook-form'
+import { DataGrid } from '@mui/x-data-grid'
 
 // interface Props {
 //   register: UseFormRegister<FormValues>
@@ -38,52 +40,113 @@ interface Field {
 
 interface Props {
   onFormSubmit: (formDataList: FormData[]) => void
+
+  // submitForm: () => void
+
   data: any
+
+  // ref: any
 }
 
+// type myProps = {
+//   onFormSubmit: (formDataList: FormData[]) => void
+
+//   // submitForm: () => void
+
+//   data: any
+
+//   ref: any
+// }
+
+// function ChildComponent({ onFormSubmit, data, ref }: Props) {
 function ChildComponent({ onFormSubmit, data }: Props) {
   console.log(data)
 
+  // const fields = data
+  const myFields = data
+  console.log(myFields)
+
   // const { register, onSubmit, data } = props
-  const { register, handleSubmit } = useForm()
+  // const { register, handleSubmit, getValues, setValue, control } = useForm<FormData>()
+  const { register, handleSubmit, getValues, setValue, control } = useForm()
 
-  // const fields: Field[] = data
-  // console.log(fields)
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: 'inputs'
+  })
 
-  const onSubmit = () => {
-    // console.log(fields)
-    // const formDataList = fields.map(field => {
-    //   const formData = new FormData()
-    //   console.log(field.name, field.amount)
-    //   formData.append(field.name, field.amount)
-    //   console.log(formData)
+  // const formRef = useRef<HTMLFormElement | null>(null)
 
-    //   return formData
-    // })
-    const formDataList = data.map(income => {
+  // const formRef = useRef<any>(null)
+
+  // const childFormRef = useRef<any>(null)
+
+  // const handleInputChange = () => {
+  //   const formData = getValues()
+  //   onSubmit([formData])
+  // }
+
+  const handleInputChange = (index: number, event: React.ChangeEvent<HTMLInputElement>) => {
+    // const inputValue = event.target.value
+
+    // console.log(name, value)
+    const { name, value } = event.target
+    console.log(name, value)
+
+    console.log(index)
+
+    // console.log(index.target)
+    // console.log(index.target.value)
+    ///CREATE A FIEELDS LIST WITH BELOW ID, RENDER FIELDS AND UPDATE VALUES
+    // setValue(`${budgetId}.amount`, value)
+    setValue(`inputs[${index}].amount`, value)
+
+    console.log(event)
+    console.log(fields)
+
+    // setValue(`fields[${index}].name`, value)
+  }
+
+  const onSubmit = (data: Record<string, string>) => {
+    console.log('INCOME ON SUMIT')
+
+    console.log(data)
+    console.log(fields)
+
+    // const mySubmit = () => {
+    //   handleSubmit(onSubmit)
+    // }
+
+    const formDataList = myFields.map((budget, index) => {
       const formData = new FormData()
 
       // const formData: any = {}
       // console.log(formData)
-      // console.log(income.name, income.amount)
+      console.log(budget, index)
+
+      // console.log(budget.name, budget.amount, budget.budgetId)
+      // console.log(data, index)
 
       // formData = income
       // console.log(formData)
 
       // return formData
       // return income
+      // console.log(data, data[income.budgetId])
+      console.log(budget, Number(data.inputs[index]['amount']))
 
-      formData.append(income.budgetId, income.name)
-      console.log(formData)
+      // formData.append(budget.budgetId, budget.amount)
+      formData.append(budget.budgetId, Number(data.inputs[index]['amount']))
 
-      // formData.append('amount', income.amount)
-
-      // formData.get
+      console.log(formDataList)
 
       return formData
     })
     console.log(formDataList)
+
     onFormSubmit(formDataList)
+
+    // handleAddForm
   }
 
   // console.log(data)
@@ -99,21 +162,25 @@ function ChildComponent({ onFormSubmit, data }: Props) {
   // const dataSource = data.income
   // console.log(dataSource)
 
+  // const handleForm: SubmitHandler<any> = data => {
+  //   console.log('hehe')
+
+  //   // onFormSubmit();
+  //   onFormSubmit(data)
+
+  //   // handleSubmit(onSubmit)
+
+  //   // onFormSubmit
+
+  //   console.log('sent to parent')
+  // }
+
   return (
-    // <TableContainer>
-    //   <h3>Child Component</h3>
-    //   <form onSubmit={onSubmit}>
-    //     <label htmlFor='name'>Name:</label>
-    //     <input type='text' id='name' {...register('name')} />
-    //     <br />
-    //     <label htmlFor='amount'>Email:</label>
-    //     <input type='text' id='amount' {...register('amount')} />
-    //     <br />
-    //     <button type='submit'>Submit</button>
-    //   </form>
-    // </div>
     <TableContainer>
       <form onSubmit={handleSubmit(onSubmit)}>
+        {/* <form onSubmit={handleSubmit(handleForm)}> */}
+        {/* <form ref={formRef} onSubmit={handleSubmit(onSubmit)}> */}
+        {/* <form onSubmit={handleForm} useRef={formRef}> */}
         <Table sx={{ minWidth: 650 }} aria-label='simple table'>
           <TableHead>
             <TableRow>
@@ -123,9 +190,9 @@ function ChildComponent({ onFormSubmit, data }: Props) {
           </TableHead>
 
           <TableBody>
-            {data.map((budget, index) => (
+            {myFields.map((budget, index) => (
               <TableRow
-                key={budget.id}
+                key={budget.budgetId}
                 sx={{
                   '&:last-of-type td, &:last-of-type th': {
                     border: 0
@@ -136,8 +203,14 @@ function ChildComponent({ onFormSubmit, data }: Props) {
                 <TableCell
                   component='th'
                   scope='row'
+
                   // key={budget.budgetId}
-                  {...register(`data.${index}.name` as const)}
+
+                  // {...register(budget.name)}
+                  // {...register(`${budget.name}`)}
+                  // value={budget.amount}
+
+                  // defaultValue={budget.amount}
                 >
                   {/* {getBudgetById(budget.budgetId)} */}
                   {budget.name}
@@ -149,12 +222,18 @@ function ChildComponent({ onFormSubmit, data }: Props) {
                 </TextField> */}
                   <TextField
                     fullWidth
-                    // name='income-amount'
+                    // name={`${budget.budgetId}.amount`}
+                    // name={`inputs[${index}].value`}
                     label='Amount'
-                    value={budget.amount}
-                    placeholder='Amount'
-                    // {...register(`${budget.amount}`)}
-                    {...register(`data.${index}.amount` as const)}
+                    key={budget.budgetId}
+                    {...register(`inputs.${index}.amount` as const)}
+                    // value={budget.amount}
+                    defaultValue={budget.amount}
+                    // placeholder='Amount'
+                    // {...register(`${budget.budgetId}.amount`)}
+                    onChange={e => handleInputChange(index, e)}
+
+                    // {...register(`data.${index}.amount` as const)}
 
                     // {...register(`items.${index}.amount`)}
                   ></TextField>

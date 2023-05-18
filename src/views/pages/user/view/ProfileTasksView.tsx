@@ -57,6 +57,7 @@ import {
 } from 'src/store/api/apiHooks'
 import { useAppSelector } from 'src/store/hooks'
 import { selectTaskByProfileId } from 'src/store/taskSlice'
+import { TaskCreateType, TaskUpdateType } from 'src/store/api/taskApiSlice'
 
 interface Props {
   open: boolean
@@ -241,7 +242,7 @@ const ProfileTasks = ({ id }: any) => {
 
   //actual create request
   async function handleCreateClick() {
-    const testData = {
+    const testData: TaskCreateType = {
       profileId,
       taskName: taskName,
       dueDate: paymentDate,
