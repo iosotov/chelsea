@@ -252,9 +252,9 @@ export type EnrollmentCreateType = {
   enrollmentFee: number
   programLength: number
   gateway: string
-  firstPaymentDate: string
-  recurringPaymentDate?: string
-  initialFeeAmount?: number
+  firstPaymentDate: Date
+  recurringPaymentDate?: Date
+  initialFeeAmount?: number | null
   additionalFees?: AdditionalFeesType[]
 }
 
@@ -430,7 +430,52 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
         }
       },
       transformResponse: (res: LunaResponseType) => {
-        return res.data
+        const {
+          totalEnrolledDebt,
+          totalAdditionalFee,
+          totalFee,
+          totalPayments,
+          totalServiceFee,
+          serviceFee,
+          enrollmentScheduleInfoModels
+        } = res.data
+        const mappedData = {
+          totalEnrolledDebt,
+          totalAdditionalFee,
+          totalFee,
+          totalPayments,
+          totalServiceFee,
+          serviceFee,
+          transactions: []
+        }
+
+        const serviceData = {}
+
+        enrollmentScheduleInfoModels
+          .filter((e: EnrollmentScheduleInfoType) => e.type === 0)
+          .forEach((e: EnrollmentScheduleInfoType) => {
+            return (serviceData[e.processedDate] = {
+              processDate: e.processedDate,
+              serviceFee: e.amount
+            })
+          })
+
+        const maintenanceData = {}
+
+        enrollmentScheduleInfoModels
+          .filter((e: EnrollmentScheduleInfoType) => e.type === 2)
+          .forEach((e: EnrollmentScheduleInfoType) => {
+            return (maintenanceData[e.processedDate] = {
+              ...serviceData[e.processedDate],
+              maintenanceFee: e.amount
+            })
+          })
+
+        mappedData.transactions = Object.keys(maintenanceData).map((e: any) => {
+          return { ...maintenanceData[e], total: maintenanceData[e].serviceFee + maintenanceData[e].maintenanceFee }
+        })
+
+        return mappedData
       },
       async onQueryStarted(params, { queryFulfilled }) {
         try {

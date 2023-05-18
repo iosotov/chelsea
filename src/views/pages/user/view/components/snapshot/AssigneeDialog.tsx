@@ -59,48 +59,47 @@ const AssigneeDialog = ({ data, toggle, open }: Props): ReactElement => {
 
   return (
     <Dialog open={open} maxWidth='xs' fullWidth onClose={onClose} aria-labelledby='form-dialog-title'>
-      <Dialog open={open} maxWidth='xs' fullWidth onClose={onClose} aria-labelledby='form-dialog-title'>
-        <DialogTitle id='form-dialog-title'>
-          Update Assignee
-          <IconButton
-            aria-label='close'
-            onClick={onClose}
-            sx={{ top: 10, right: 10, position: 'absolute', color: 'grey.500' }}
-          >
-            <Icon icon='mdi:close' />
-          </IconButton>
-        </DialogTitle>
+      <DialogTitle id='form-dialog-title'>
+        Update Assignee
+        <IconButton
+          aria-label='close'
+          onClick={onClose}
+          sx={{ top: 10, right: 10, position: 'absolute', color: 'grey.500' }}
+        >
+          <Icon icon='mdi:close' />
+        </IconButton>
+      </DialogTitle>
 
-        <DialogContent>
-          <Typography variant='caption'>
-            Current {assigneeName}: {employeeAlias ?? 'Unassigned'}
-          </Typography>
-          <Box my={4}>
-            <form>
-              <Grid container spacing={6}>
-                <Grid item xs={12}>
-                  <SingleSelect
-                    defaultValue={employeeId === 'N/A' ? '' : employeeId}
-                    name='assignee'
-                    label={assigneeName}
-                    options={assigneeList}
-                    control={control}
-                    errors={errors}
-                    required
-                  />
-                </Grid>
+      <DialogContent>
+        <Typography variant='caption'>
+          Current {assigneeName}: {employeeAlias ?? 'Unassigned'}
+        </Typography>
+        <Box my={4}>
+          <form>
+            <Grid container spacing={6}>
+              <Grid item xs={12}>
+                <SingleSelect
+                  defaultValue={employeeId === 'N/A' ? '' : employeeId}
+                  name='assignee'
+                  label={assigneeName}
+                  options={assigneeList}
+                  control={control}
+                  errors={errors}
+                  required
+                />
               </Grid>
-            </form>
-          </Box>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose}>Cancel</Button>
-          <Button variant='outlined' onClick={handleSubmit(onSubmit)}>
-            Save Changes
-          </Button>
-        </DialogActions>
-      </Dialog>
-      )
+            </Grid>
+          </form>
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={onClose}>Cancel</Button>
+        <Button variant='outlined' onClick={handleSubmit(onSubmit)}>
+          Save Changes
+        </Button>
+      </DialogActions>
+    </Dialog>
+  )
 }
 
-      export default AssigneeDialog
+export default AssigneeDialog

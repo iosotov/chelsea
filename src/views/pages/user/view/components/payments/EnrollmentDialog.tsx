@@ -1,6 +1,6 @@
-import { useEffect, useState, memo } from 'react'
+import { useEffect, useState, memo, useRef } from 'react'
 
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 
 //MUI
 import Box from '@mui/material/Box'
@@ -34,16 +34,26 @@ import Icon from 'src/@core/components/icon'
 
 //Third-Party Packages
 import { addWeeks, addMonths } from 'date-fns'
+
+//API
 import { useGetEnrollmentPreviewMutation } from 'src/store/api/apiHooks'
+
+//Redux Store
+import { useAppSelector } from 'src/store/hooks'
+import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
+
+//Utils
+import MoneyConverter from 'src/views/shared/utils/money-converter'
+
+//Imported Types
 import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
-import { getValue } from '@mui/system'
 import { EnrollmentPreviewType } from 'src/store/api/enrollmentApiSlice'
+import DateConverter from 'src/views/shared/utils/date-converter'
 
 //Typing
 type EnrollmentModalProps = {
   open: boolean
   handleClose: () => void
-  data?: any
   id: string
 }
 
@@ -57,6 +67,8 @@ const CardContainer = styled(CardContent)<CardContentProps>(({ theme }) => ({
     marginBottom: '24px'
   }
 }))
+
+//Dropdown Options
 
 const serviceFixedOptions: SingleSelectOption[] = [
   {
@@ -128,7 +140,62 @@ const servicePercentageOptions: SingleSelectOption[] = [
   }
 ]
 
-const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: EnrollmentModalProps) => {
+const recurringOptions: SingleSelectOption[] = [
+  {
+    label: 'Weekly',
+    value: 1
+  },
+  {
+    label: 'Bi-weekly',
+    value: 2
+  },
+  {
+    label: 'Monthly',
+    value: 0
+  }
+]
+
+const serviceFeeOptions: SingleSelectOption[] = [
+  {
+    label: 'Fixed Amount',
+    value: 0
+  },
+  {
+    label: 'Percentage',
+    value: 1
+  }
+]
+
+const lengthOptions: SingleSelectOption[] = [
+  {
+    label: '10 Payments',
+    value: 10
+  },
+  {
+    label: '12 Payments',
+    value: 12
+  },
+  {
+    label: '14 Payments',
+    value: 14
+  },
+  {
+    label: '16 Payments',
+    value: 16
+  },
+  {
+    label: '18 Payments',
+    value: 18
+  }
+]
+
+const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalProps) => {
+  //Data
+  const enrollmentData = useAppSelector(state => selectEnrollmentByProfileId(state, profileId))
+  const [previewData, setPreviewData] = useState<EnrollmentPreviewType | null>(null)
+
+  const [getPreview, previewStatus] = useGetEnrollmentPreviewMutation()
+
   const defaultValues = {
     maintenanceFee: 80.0,
     programLength: 12,
@@ -139,13 +206,13 @@ const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: Enrollment
     recurringPaymentDate: addMonths(new Date(), 1)
   }
 
-  const enrollmentForm = useForm({ defaultValues, ...data })
+  const enrollmentForm = useForm({ defaultValues, ...enrollmentData })
   const {
     handleSubmit,
     control,
-    watch,
     getValues,
     setValue,
+    watch,
     formState: { errors }
   } = enrollmentForm
 
@@ -153,42 +220,44 @@ const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: Enrollment
     console.log(data)
   }
 
-  const preview = []
+  const previewRequest = () => {
+    getPreview({
+      profileId: profileId,
+      paymentMethod: 2,
+      basePlan: 'Base Plan',
+      serviceFeeType: getValues('serviceFeeType'),
+      enrollmentFee: getValues('serviceFee'),
+      programLength: getValues('programLength'),
+      gateway: 'settingservice_paymentprocessor_nacha',
+      firstPaymentDate: getValues('firstPaymentDate'),
+      recurringType: getValues('recurringType'),
+      recurringPaymentDate: getValues('recurringPaymentDate'),
+      //if initialFeeAmount is not a null value, check backend to make sure numbers match up.
+      //currently returned total service fee is dividing by original plan length rather than plan length - 1 to account for initial down payment
+      initialFeeAmount: null,
+      additionalFees: [
+        {
+          feeName: 'Maintenance Fee',
+          feeType: 0,
+          amount: 80,
+          feeStart: 1,
+          feeEnd: getValues('programLength')
+        }
+      ]
+    })
+      .unwrap()
+      .then(res => setPreviewData(res))
+      .catch(err => console.error(err))
+  }
 
-  // const [getPreview, previewStatus] = useGetEnrollmentPreviewMutation()
-  // console.log({ getPreview, previewStatus })
-
-  // const previewRequest = () => {
-  //   getPreview({
-  //     profileId: profileId,
-  //     paymentMethod: 2,
-  //     basePlan: 'Base Plan',
-  //     serviceFeeType: getValues('serviceFeeType'),
-  //     enrollmentFee: getValues('serviceFee'),
-  //     programLength: getValues('programLength'),
-  //     gateway: 'NACHA',
-  //     firstPaymentDate: getValues('firstPaymentDate'),
-  //     recurringType: getValues('recurringFrequency'),
-  //     recurringPaymentDate: getValues('recurringPaymentDate'),
-  //     initialFeeAmount: 0,
-  //     additionalFees: [
-  //       {
-  //         feeName: 'Maintenance Fee',
-  //         feeType: 0,
-  //         amount: 80,
-  //         feeStart: 1,
-  //         feeEnd: getValues('programLength')
-  //       }
-  //     ]
-  //   })
-  // }
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
 
   console.log('rerendering enrollmentdialog')
 
   // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - preview.length) : 0
+  //PreviewData !== null when empty rows is checked
+  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - previewData.transactions.length ?? 0) : 0
 
   const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage)
@@ -199,84 +268,45 @@ const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: Enrollment
     setPage(0)
   }
 
-  const lengthOptions: SingleSelectOption[] = [
-    {
-      label: '10 Payments',
-      value: 10
-    },
-    {
-      label: '12 Payments',
-      value: 12
-    },
-    {
-      label: '14 Payments',
-      value: 14
-    },
-    {
-      label: '16 Payments',
-      value: 16
-    },
-    {
-      label: '18 Payments',
-      value: 18
-    }
-  ]
+  //onChange
+  const [selectedFeeType, selectedRecurringType, selectedFirstPaymentDate] = watch([
+    'serviceFeeType',
+    'recurringType',
+    'firstPaymentDate'
+  ])
 
+  //Changes Service Fee
   let serviceOptions: SingleSelectOption[] = []
 
-  // const selectType = watch('serviceFeeType')
+  if (selectedFeeType === 0) {
+    serviceOptions = serviceFixedOptions
+  } else if (selectedFeeType === 1) {
+    serviceOptions = servicePercentageOptions
+  }
 
-  // if (selectType === 0) {
-  //   serviceOptions = serviceFixedOptions
-  // } else if (selectType === 1) {
-  //   serviceOptions = servicePercentageOptions
-  // }
-
-  // const selectFrequency = watch('recurringType')
-  // if (selectFrequency === 0) {
-  //   setValue('recurringPaymentDate', addMonths(getValues('firstPaymentDate'), 1))
-  // } else if (selectFrequency === 1) {
-  //   setValue('recurringPaymentDate', addWeeks(getValues('firstPaymentDate'), 1))
-  // } else if (selectFrequency === 2) {
-  //   setValue('recurringPaymentDate', addWeeks(getValues('firstPaymentDate'), 2))
-  // }
-
-  // useEffect(() => {
-  //   if (getValues('firstPaymentDate')) {
-  //     setValue('recurringType', getValues('recurringType'))
-  //   }
-  // }, [watch('firstPaymentDate')])
-
-  const recurringOptions: SingleSelectOption[] = [
-    {
-      label: 'Weekly',
-      value: 1
-    },
-    {
-      label: 'Bi-weekly',
-      value: 2
-    },
-    {
-      label: 'Monthly',
-      value: 0
+  const previousSelected = useRef(getValues('serviceFeeType'))
+  useEffect(() => {
+    if (previousSelected.current !== getValues('serviceFeeType')) {
+      setValue('serviceFee', '')
+      previousSelected.current = selectedFeeType
     }
-  ]
+  }, [selectedFeeType])
 
-  const serviceFeeOptions: SingleSelectOption[] = [
-    {
-      label: 'Fixed Amount',
-      value: 0
-    },
-    {
-      label: 'Percentage',
-      value: 1
+  useEffect(() => {
+    console.log('settingValues')
+    if (getValues('recurringType') === 0) {
+      setValue('recurringPaymentDate', addMonths(getValues('firstPaymentDate'), 1))
+    } else if (getValues('recurringType') === 1) {
+      setValue('recurringPaymentDate', addWeeks(getValues('firstPaymentDate'), 1))
+    } else if (getValues('recurringType') === 2) {
+      setValue('recurringPaymentDate', addWeeks(getValues('firstPaymentDate'), 2))
     }
-  ]
+  }, [selectedRecurringType, selectedFirstPaymentDate])
 
   return (
     <Dialog open={open} maxWidth='xl' fullWidth onClose={handleClose} aria-labelledby='form-dialog-title'>
       <DialogTitle id='form-dialog-title'>
-        {data ? 'Update' : 'Create New'} Enrollment Plan
+        {enrollmentData?.enrollmentId ? 'Update' : 'Create New'} Enrollment Plan
         <IconButton
           aria-label='close'
           onClick={handleClose}
@@ -293,7 +323,6 @@ const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: Enrollment
                 label='Plan Length'
                 name='programLength'
                 errors={errors}
-                required
                 control={control}
                 options={lengthOptions}
               />
@@ -303,7 +332,6 @@ const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: Enrollment
                 label='Service Fee Type'
                 name='serviceFeeType'
                 errors={errors}
-                required
                 control={control}
                 options={serviceFeeOptions}
               />
@@ -313,9 +341,9 @@ const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: Enrollment
                 label='Service Fee'
                 name='serviceFee'
                 errors={errors}
-                required
                 control={control}
                 options={serviceOptions}
+                required
               />
             </Box>
             <Box mb={4}>
@@ -333,7 +361,7 @@ const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: Enrollment
                 label='First Payment Date'
                 errors={errors}
                 control={control}
-                required
+                isClearable={false}
               />
             </Box>
             <Box mb={4}>
@@ -342,7 +370,6 @@ const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: Enrollment
                 label='Recurring Payment Frequency'
                 name='recurringType'
                 errors={errors}
-                required
                 control={control}
                 options={recurringOptions}
               />
@@ -353,66 +380,90 @@ const EnrollmentDialog = ({ open, handleClose, data, id: profileId }: Enrollment
                 label='First Recurring Date'
                 errors={errors}
                 control={control}
-                required
+                isClearable={false}
               />
+            </Box>
+            <Box sx={{ display: 'flex', justifyContent: 'center' }}>
+              <Button variant='outlined' size='small' onClick={handleSubmit(previewRequest)}>
+                Preview
+              </Button>
             </Box>
           </form>
         </CardContainer>
         <Box sx={{ width: '100%', px: { xs: '16px', md: '24px' } }}>
-          <Grid container sx={{ mb: 4 }}>
-            <Grid item xs={6}>
-              <Typography variant='caption'>Total Enrolled Debt</Typography>
-              <Typography variant='h4'>${'10000'}</Typography>
-            </Grid>
-            <Grid item xs={6}>
-              <Typography variant='caption'>Total Fees</Typography>
-              <Typography variant='h4'>${'6066.00'}</Typography>
-            </Grid>
-          </Grid>
-          <Typography variant='h5' sx={{ mb: 2 }}>
-            Enrollment Plan Preview
-          </Typography>
-          <Table sx={{ maxHeight: '500px' }} stickyHeader>
-            <TableHead>
-              <TableRow>
-                <TableCell>#</TableCell>
-                <TableCell align='left'>Process Date</TableCell>
-                <TableCell align='left'>Service Fee</TableCell>
-                <TableCell align='left'>Mainentance Fee</TableCell>
-                <TableCell align='left'>Total</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {preview.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage).map((row: any, i: number) => (
-                <TableRow key={i}>
-                  <TableCell>{i + 1}</TableCell>
-                  <TableCell align='left'>{row.processDate}</TableCell>
-                  <TableCell align='left'>{row.serviceFee}</TableCell>
-                  <TableCell align='left'>{row.maintenanceFee}</TableCell>
-                  <TableCell align='left'>{row.total}</TableCell>
-                </TableRow>
-              ))}
-              {emptyRows > 0 && (
-                <TableRow style={{ height: 50 * emptyRows }}>
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-          <TablePagination
-            page={page}
-            component='div'
-            count={preview.length}
-            rowsPerPage={rowsPerPage}
-            onPageChange={handleChangePage}
-            rowsPerPageOptions={[5, 10, 25]}
-            onRowsPerPageChange={handleChangeRowsPerPage}
-          />
+          {previewData ? (
+            <>
+              <Grid container sx={{ mb: 4 }}>
+                <Grid item xs={6}>
+                  <Typography variant='caption'>Total Enrolled Debt</Typography>
+                  <Typography variant='h4'>{MoneyConverter(previewData.totalEnrolledDebt)}</Typography>
+                </Grid>
+                <Grid item xs={6}>
+                  <Typography variant='caption'>Total Fees</Typography>
+                  <Typography variant='h4'>{MoneyConverter(previewData.totalFee)}</Typography>
+                </Grid>
+              </Grid>
+              <Typography variant='h5' sx={{ mb: 2 }}>
+                Enrollment Plan Preview
+              </Typography>
+              <Table sx={{ maxHeight: '500px' }} stickyHeader>
+                <TableHead>
+                  <TableRow>
+                    <TableCell>#</TableCell>
+                    <TableCell align='center'>Process Date</TableCell>
+                    <TableCell align='center'>Service Fee</TableCell>
+                    <TableCell align='center'>Mainentance Fee</TableCell>
+                    <TableCell align='center'>Total</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {previewData.transactions
+                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                    .map((row: any, i: number) => (
+                      <TableRow key={i}>
+                        <TableCell>{i + 1}</TableCell>
+                        <TableCell align='center'>{DateConverter(row.processDate, 'UTC')}</TableCell>
+                        <TableCell align='center'>{MoneyConverter(row.serviceFee)}</TableCell>
+                        <TableCell align='center'>{MoneyConverter(row.maintenanceFee)}</TableCell>
+                        <TableCell align='center'>{MoneyConverter(row.total)}</TableCell>
+                      </TableRow>
+                    ))}
+                  {emptyRows > 0 && (
+                    <TableRow style={{ height: 50 * emptyRows }}>
+                      <TableCell colSpan={6} />
+                    </TableRow>
+                  )}
+                </TableBody>
+              </Table>
+              <TablePagination
+                page={page}
+                component='div'
+                count={previewData.transactions.length}
+                rowsPerPage={rowsPerPage}
+                onPageChange={handleChangePage}
+                rowsPerPageOptions={[5, 10, 25]}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+              />
+            </>
+          ) : (
+            <Box
+              sx={{
+                height: '100%',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                flexDirection: 'column',
+                gap: 2
+              }}
+            >
+              <Typography variant='body1'>Click Preview button on left to view</Typography>
+            </Box>
+          )}
         </Box>
       </DialogContent>
       <DialogActions className='dialog-actions-dense'>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button variant='outlined' onClick={handleSubmit(onSubmit)}>
+        <Button disabled={!previewData} variant='outlined' onClick={onSubmit}>
           Save Changes
         </Button>
       </DialogActions>

@@ -12,6 +12,7 @@ type Props = {
   name: string
   label: string
   control: any
+  isClearable?: boolean
   placeholder?: string
   required?: boolean
   defaultValue?: Date
@@ -37,6 +38,7 @@ export default function SelectDate({
   placeholder,
   required,
   defaultValue,
+  isClearable,
   ...props
 }: Props) {
   return (
@@ -51,7 +53,8 @@ export default function SelectDate({
               selected={value}
               onChange={e => onChange(e)}
               placeholderText='MM/DD/YYYY'
-              isClearable
+              isClearable={isClearable ?? true}
+              {...props}
               customInput={
                 <CustomInput
                   value={value}

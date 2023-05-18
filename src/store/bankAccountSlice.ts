@@ -1,5 +1,6 @@
 import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit'
 import { BankAccountType } from './api/bankAccountApiSlice'
+import { selectAllCreditCards } from './creditCardSlice'
 
 import { RootState } from './store'
 
@@ -43,5 +44,17 @@ export const selectBankAccountsByProfileId = createSelector(
   (_: RootState, profileId: string) => profileId,
   (bankaccounts, profileId) => {
     return bankaccounts.filter(bank => bank.profileId === profileId)
+  }
+)
+
+export const selectPaymentsByProfileId = createSelector(
+  selectAllBankAccounts,
+  selectAllCreditCards,
+  (_: RootState, profileId: string) => profileId,
+  (bankaccounts, creditcards, profileId) => {
+    return [
+      ...bankaccounts.filter(b => b.profileId === profileId),
+      ...creditcards.filter(c => c.profileId === profileId)
+    ]
   }
 )
