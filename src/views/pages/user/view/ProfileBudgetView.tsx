@@ -175,6 +175,8 @@ export default function ProfileBudget({ id }: any) {
 
     // }
     console.log('bruh')
+
+    //dummy expense
     const partialExpense = [
       {
         budgetId: 'c85aae08-58ee-4531-b35d-db1e53de3868',
@@ -193,8 +195,8 @@ export default function ProfileBudget({ id }: any) {
         amount: 9
       },
       {
-        budgetId: 'ce387bd-9893-4859-ad80-d03e809c115f',
-        amount: 0
+        budgetId: '2ce387bd-9893-4859-ad80-d03e809c115f',
+        amount: 1
       },
       {
         budgetId: '185549cc-d0a4-4d64-a948-596669174cbf',
@@ -278,7 +280,7 @@ export default function ProfileBudget({ id }: any) {
     // getTotals()
   }
 
-  const createBudgetClick = () => {}
+  // const createBudgetClick = () => {}
 
   const getFormValues = () => {
     console.log(formDataList)
