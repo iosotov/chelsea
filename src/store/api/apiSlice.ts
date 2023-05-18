@@ -14,12 +14,14 @@ const baseQuery = fetchBaseQuery({
     }
 
     return headers
-  }
+  },
+  credentials: 'include'
 })
 
 export const apiSlice = createApi({
   baseQuery,
   tagTypes: [
+    'AUTH',
     'PROFILE',
     'PROFILE-STATUS',
     'PROFILE-BUDGET',

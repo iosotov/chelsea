@@ -38,26 +38,12 @@ class SolApi {
     }
   }
 
-  static async UserAuth(data) {
-    const res = await this.request('/user/auth', data, 'POST')
-
-    return res
-  }
-
-  static async RefreshToken() {
-    const res = await this.request('/user/refresh-token', {}, 'POST')
-
-    return res
+  static async GetEmployeeInfo(employeeId) {
+    return await this.request(`/employee/${employeeId}/info`)
   }
 
   static async GetPermissions() {
     const res = await this.request('/user/permissions', {}, 'GET')
-
-    return res
-  }
-
-  static async RevokeToken() {
-    const res = await this.request('/user/revoke-token', {}, 'POST')
 
     return res
   }
