@@ -8,13 +8,13 @@ import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
 
 import { ConfirmProvider } from 'material-ui-confirm'
+
 // ** Loader Import
 import NProgress from 'nprogress'
 
 // ** Emotion Imports
 import { CacheProvider } from '@emotion/react'
 import type { EmotionCache } from '@emotion/cache'
-import createCache from '@emotion/cache'
 
 // ** Config Imports
 
@@ -74,13 +74,7 @@ type GuardProps = {
   children: ReactNode
 }
 
-//?? dont understand error
-LicenseInfo.setLicenseKey(process.env.NEXT_PUBLIC_MUI_LICENSE_KEY)
-
-const errorCache = createCache({
-  key: 'css',
-  prepend: true
-})
+process.env.NEXT_PUBLIC_MUI_LICENSE_KEY && LicenseInfo.setLicenseKey(process.env.NEXT_PUBLIC_MUI_LICENSE_KEY)
 
 const clientSideEmotionCache = createEmotionCache()
 
@@ -124,19 +118,20 @@ const App = (props: ExtendedAppProps) => {
 
   const aclAbilities = Component.acl ?? defaultACLObj
 
+
   return (
     <CacheProvider value={emotionCache}>
       <Head>
-        <title>{`${themeConfig.templateName} - Material Design React Admin Template`}</title>
+        <title>{`${themeConfig.templateName} - Debt Management Solutions`}</title>
         <meta
           name='description'
-          content={`${themeConfig.templateName} – Material Design React Admin Dashboard Template – is the most developer friendly & highly customizable Admin Dashboard Template based on MUI v5.`}
+          content={`${themeConfig.templateName} – Proprietary Debt Resolution CRM`}
         />
-        <meta name='keywords' content='Material Design, MUI, Admin Template, React Admin Template' />
+        <meta name='keywords' content='Debt Management, CRM' />
         <meta name='viewport' content='initial-scale=1, width=device-width' />
       </Head>
 
-      <AuthProvider>
+      <AuthProvider fallback={<Spinner />}>
         <SettingsProvider {...(setConfig ? { pageSettings: setConfig() } : {})}>
           <SettingsConsumer>
             {({ settings }) => {

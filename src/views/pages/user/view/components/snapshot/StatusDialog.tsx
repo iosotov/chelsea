@@ -1,5 +1,4 @@
 import { ReactElement, useEffect, useRef } from 'react'
-import { ReactElement, useEffect, useRef } from 'react'
 
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -29,8 +28,6 @@ type Props = {
   toggle: () => void
   stage: string | null
   stageStatus: string | null
-  stage: string | null
-  stageStatus: string | null
 }
 
 export default function StatusDialog({ open, toggle, stage = '', stageStatus = '' }: Props): ReactElement {
@@ -43,22 +40,8 @@ export default function StatusDialog({ open, toggle, stage = '', stageStatus = '
     trigger,
     getValues,
     setValue
-    reset,
-    trigger,
-    getValues,
-    setValue
   } = statusForm
 
-  //tracks previous stages for resetting status value upon change
-  const previousStage = useRef(stage)
-
-  //used in place of onchange for uncontrolled components, checks if current value of stage is same as previous set stage
-  useEffect(() => {
-    if (getValues('stage') !== previousStage.current) {
-      previousStage.current = getValues('stage')
-      setValue('stageStatus', '')
-    }
-  }, [watch('stage')])
   //tracks previous stages for resetting status value upon change
   const previousStage = useRef(stage)
 
@@ -90,24 +73,12 @@ export default function StatusDialog({ open, toggle, stage = '', stageStatus = '
       console.log(data)
       onClose()
     }
-    trigger()
-    const check = getValues(['stage', 'stageStatus'])
-    if (check.every((val: string | null, index: number) => val === [stage, stageStatus][index])) {
-      onClose()
-    }
-    if (getValues('stage') && getValues('stageStatus')) {
-      const data = statusForm.getValues()
-      console.log(data)
-      onClose()
-    }
   }
 
   //api call for all search settings, may need to narrow down later if settings results object too large
   usePostSettingSearchQuery({ length: 10000 }, { skip: !open })
-  //api call for all search settings, may need to narrow down later if settings results object too large
-  usePostSettingSearchQuery({ length: 10000 }, { skip: !open })
 
-  //options for dropdown, pulled from redux state component
+
   //options for dropdown, pulled from redux state component
   const stageOptions = [
     {
@@ -118,14 +89,6 @@ export default function StatusDialog({ open, toggle, stage = '', stageStatus = '
     ...useAppSelector(state => selectSettingByTypeOptions(state, 2))
   ]
 
-  const statusOptions = [
-    {
-      value: '',
-      label: 'Select One...',
-      disabled: true
-    },
-    ...useAppSelector(state => selectSettingByParentValueOptions(state, String(watch('stage'))))
-  ]
   const statusOptions = [
     {
       value: '',
@@ -185,5 +148,6 @@ export default function StatusDialog({ open, toggle, stage = '', stageStatus = '
           </Button>
         </DialogActions>
       </Dialog>
-      )
+    </Dialog>
+  )
 }

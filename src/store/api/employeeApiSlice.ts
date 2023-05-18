@@ -24,20 +24,20 @@ export type EmployeeInfoType = {
   alias: string
   primaryEmail: string
   primaryPhone: string
-  hasAuthentication: boolean
+  hasAuthentication: boolean | null
   companyId: string
   companyName: string
-  active: boolean
+  active: boolean | null
   createdAt: string
   userId: string
-  phoneNumbers: EmployeePhoneNumberType[]
-  employeeAddresses: EmployeeEmailType[]
-  companies: string[]
-  permissions: string[]
-  members: string[]
-  roles: string[]
-  groups: string[]
-  allowedIps: string[]
+  phoneNumbers: EmployeePhoneNumberType[] | []
+  employeeAddresses: EmployeeEmailType[] | []
+  companies: string[] | []
+  permissions: string[] | []
+  members: string[] | []
+  roles: string[] | []
+  groups: string[] | []
+  allowedIps: string[] | []
 }
 
 export type EmployeeBasicType = {

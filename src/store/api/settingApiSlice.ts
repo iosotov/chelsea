@@ -96,7 +96,7 @@ export type ContactSettingType = {
 
 export type ContactCreateType = {
   name: string
-  type: number
+  type?: number
 }
 
 export type ContactUpdateType = {

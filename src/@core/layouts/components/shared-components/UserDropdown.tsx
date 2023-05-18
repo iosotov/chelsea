@@ -19,8 +19,9 @@ import Icon from 'src/@core/components/icon'
 
 // ** Type Imports
 import { Settings } from 'src/@core/context/settingsContext'
-import { useAppDispatch } from 'src/store/hooks'
-import { Logout } from 'src/store/authSlice'
+
+// ** Hook Imports
+import { usePostAuthRevokeTokenMutation } from 'src/store/api/apiHooks'
 
 interface Props {
   settings: Settings
@@ -44,7 +45,7 @@ const UserDropdown = (props: Props) => {
   const [anchorEl, setAnchorEl] = useState<Element | null>(null)
 
   // ** Hooks
-  const dispatch = useAppDispatch()
+  const [logout] = usePostAuthRevokeTokenMutation()
   const router = useRouter()
 
   // ** Vars
@@ -77,7 +78,7 @@ const UserDropdown = (props: Props) => {
   }
 
   const handleLogout = async () => {
-    await dispatch(Logout()).unwrap()
+    await logout()
     handleDropdownClose()
   }
 

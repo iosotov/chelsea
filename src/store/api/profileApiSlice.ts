@@ -78,7 +78,7 @@ export type ProfileLabelCreateType = {
 export type ProfileAddressCreateType = {
   addressId: string
   address1: string
-  address2: string
+  address2?: string
   city: string
   state: string
   zipCode: string
