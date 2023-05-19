@@ -1,4 +1,4 @@
-import { ChangeEvent, MouseEvent, useState, useEffect, useRef } from 'react'
+import { ChangeEvent, MouseEvent, useState, useEffect, useRef, useCallback } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -26,11 +26,6 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 
 // ** Custom Components Imports
-
-import PaymentDialog from 'src/views/pages/user/view/components/payments/PaymentDialog'
-import EnrollmentDialog from './components/payments/EnrollmentDialog'
-import EditPaymentDialog from './components/payments/EditPaymentDialog'
-
 import Icon from 'src/@core/components/icon'
 import Alert from '@mui/material/Alert'
 import AlertTitle from '@mui/material/AlertTitle'
@@ -63,12 +58,20 @@ import MoneyConverter from 'src/views/shared/utils/money-converter'
 import DateConverter from 'src/views/shared/utils/date-converter'
 
 import { PaymentDetailInfoModel } from 'src/store/api/enrollmentApiSlice'
+import { selectPaymentsByProfileId } from 'src/store/bankAccountSlice'
 
 //test
 import { DataGridPro, GridColDef, GridValueFormatterParams, GridRowSelectionModel } from '@mui/x-data-grid-pro'
 
 //Table Types
 type Order = 'asc' | 'desc'
+
+//Dynamic Imports
+import dynamic from 'next/dynamic'
+
+const PaymentDialog = dynamic(() => import('./components/payments/PaymentDialog'))
+const EnrollmentDialog = dynamic(() => import('./components/payments/EnrollmentDialog'))
+const EditPaymentDialog = dynamic(() => import('./components/payments/EditPaymentDialog'))
 
 interface TableData {
   processedDate: string
@@ -139,16 +142,16 @@ function Overview({ enrollmentData, paymentData, id }: any) {
   const [alert, setAlert] = useState<boolean>(true)
 
   //toggles for type of alert
-  const [error, setError] = useState<boolean>(false)
+  const error = useRef<boolean>(false)
 
   useGetProfileLiabilitiesQuery(id)
   const debts = useAppSelector(state => selectLiabilityByProfileId(state, id))
 
   useEffect(() => {
     if ((enrollmentData && enrollmentData.enrollmentId === null) || Object.keys(paymentData).length === 0) {
-      setError(true)
+      error.current = true
     } else {
-      setError(false)
+      error.current = false
     }
   }, [enrollmentData, paymentData])
 
@@ -227,7 +230,7 @@ function Overview({ enrollmentData, paymentData, id }: any) {
                 <Collapse in={alert}>
                   <Alert
                     icon={false}
-                    severity={error ? 'warning' : 'success'}
+                    severity={error.current ? 'warning' : 'success'}
                     action={
                       <IconButton size='small' color='inherit' aria-label='close' onClick={() => setAlert(false)}>
                         <Icon icon='mdi:close' fontSize='inherit' />
@@ -238,7 +241,7 @@ function Overview({ enrollmentData, paymentData, id }: any) {
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <AlertTitle>{error ? 'Attention!' : 'No Attention Needed'}</AlertTitle>
                     </Box>
-                    {error ? (
+                    {error.current ? (
                       <>
                         {debts?.length === 0 ? (
                           <Box sx={{ display: 'flex', alignContent: 'center' }}>
@@ -309,9 +312,7 @@ function Overview({ enrollmentData, paymentData, id }: any) {
           </CardContent>
         </Card>
       </Grid>
-      {enrollmentModal ? (
-        <EnrollmentDialog open={enrollmentModal} handleClose={toggleEnrollment} data={enrollmentData} id={id} />
-      ) : null}
+      {enrollmentModal && <EnrollmentDialog open={enrollmentModal} handleClose={toggleEnrollment} id={id} />}
     </>
   )
 }
@@ -434,8 +435,8 @@ function PaymentMethod({ paymentData, enrollmentData }: { paymentData: any; enro
           </CardContent>
         </Card>
       </Grid>
-      <PaymentDialog open={paymentModal} handleClose={togglePayment} data={null} />
-      <EditPaymentDialog open={editModal} handleClose={toggleEdit} data={dialogData} />
+      {paymentModal && <PaymentDialog open={paymentModal} handleClose={togglePayment} data={null} />}
+      {editModal && <EditPaymentDialog open={editModal} handleClose={toggleEdit} data={dialogData} />}
     </>
   )
 }
@@ -627,19 +628,12 @@ export default function ProfilePayments({ id: profileId }: ProfileProps) {
   //Enrollment Data
   const enrollmentData = useAppSelector(state => selectEnrollmentByProfileId(state, profileId))
   //Payment Data
-  const bankData = useAppSelector(state => selectBankAccountsByProfileId(state, profileId))
-  const cardData = useAppSelector(state => selectCreditCardsByProfileId(state, profileId))
   const { isSuccess: bankSuccess } = useGetBankAccountsQuery(profileId, { skip: !profileId })
   const { isSuccess: cardSuccess, isUninitialized, isLoading } = useGetCreditCardsQuery(profileId, { skip: !profileId })
-  const [paymentData, setPaymentData] = useState<(BankAccountType | CreditCardType)[]>([])
 
-  console.log('rerendering payments page', { enrollmentData })
+  const paymentData = useAppSelector(state => selectPaymentsByProfileId(state, String(profileId)))
 
-  useEffect(() => {
-    if (bankSuccess && cardSuccess) {
-      setPaymentData([...bankData, ...cardData])
-    }
-  }, [bankSuccess, cardSuccess])
+  console.log('rerendering payments page', { paymentData })
 
   return (
     <>
