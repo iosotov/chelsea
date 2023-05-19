@@ -33,7 +33,7 @@ import TextInput from 'src/views/shared/form-input/text-input'
 import Icon from 'src/@core/components/icon'
 
 //Third-Party Packages
-import { addWeeks, addMonths } from 'date-fns'
+import { addWeeks, addMonths, isSameDay } from 'date-fns'
 
 //API
 import { useGetEnrollmentPreviewMutation } from 'src/store/api/apiHooks'
@@ -49,6 +49,7 @@ import MoneyConverter from 'src/views/shared/utils/money-converter'
 import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
 import { EnrollmentPreviewType } from 'src/store/api/enrollmentApiSlice'
 import DateConverter from 'src/views/shared/utils/date-converter'
+import { get } from 'http'
 
 //Typing
 type EnrollmentModalProps = {
@@ -302,6 +303,18 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
       setValue('recurringPaymentDate', addWeeks(getValues('firstPaymentDate'), 2))
     }
   }, [selectedRecurringType, selectedFirstPaymentDate])
+
+  const shallow1 = useRef(JSON.stringify(getValues()))
+
+  useEffect(() => {
+    if (previewData) {
+      const shallow2 = JSON.stringify(getValues())
+      if (shallow1.current !== shallow2) {
+        console.log('theyre the same, dont refresh')
+        shallow1.current = shallow2
+      }
+    }
+  }, [watch()])
 
   return (
     <Dialog open={open} maxWidth='xl' fullWidth onClose={handleClose} aria-labelledby='form-dialog-title'>

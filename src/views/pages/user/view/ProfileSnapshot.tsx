@@ -41,6 +41,7 @@ import { useGetEnrollmentQuery } from 'src/store/api/apiHooks'
 import { Button, Fade, Menu, MenuItem } from '@mui/material'
 
 import { useConfirm } from 'material-ui-confirm'
+import LabelsDialog from './components/snapshot/LabelsDialog'
 
 //Entire View
 type Props = {
@@ -403,6 +404,10 @@ const ProfileDetails = ({
 
   const closeAssignee = () => setAssigneeDialog(false)
 
+  const [labelsDialog, setLabelsDialog] = useState<boolean>(false)
+
+  const closeLabels = () => setLabelsDialog(false)
+
   const editAssignee = (assigneeId: string, assigneeName: string, employeeId: string, employeeAlias: string) => {
     assignee.current = {
       assigneeId,
@@ -430,9 +435,11 @@ const ProfileDetails = ({
                 })}
               </Box>
             ) : (
-              <Typography variant='body2' align='right'>
-                None
-              </Typography>
+              <Button onClick={() => setLabelsDialog(true)}>
+                <Typography variant='body2' align='right'>
+                  None
+                </Typography>
+              </Button>
             )}
           </Box>
           <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
@@ -530,6 +537,7 @@ const ProfileDetails = ({
         </Box>
       </CardContent>
       <AssigneeDialog open={assigneeDialog} data={assignee.current} toggle={closeAssignee} />
+      <LabelsDialog open={labelsDialog} data={profileLabels} toggle={closeLabels} />
     </>
   )
 }
