@@ -55,7 +55,8 @@ import {
   usePostBudgetCreateMutation,
   usePutBudgetDisableMutation,
   usePutBudgetEnableMutation,
-  usePutBudgetUpdateMutation
+  usePutBudgetUpdateMutation,
+  useGetEnrollmentQuery
 } from 'src/store/api/apiHooks'
 
 import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
@@ -96,15 +97,26 @@ export default function ProfileBudget({ id }: any) {
   const expenseTotal = useAppSelector(state => selectExpenseTotalByProfileId(state, profileId))
   console.log(expenseTotal)
 
+  useGetEnrollmentQuery({})
   const enrollments = useAppSelector(state => selectEnrollmentByProfileId(state, profileId))
   console.log(enrollments)
 
   const allTotal = incomeTotal - expenseTotal
 
   //set data loading to a load Data function?
-  const totalEnrolledBalance = enrollments.enrolledBalance
-  console.log(totalEnrolledBalance)
-  const cashFlow = totalEnrolledBalance - allTotal
+  //need to validate data loading
+  if (enrollments) {
+    const totalEnrolledBalance = enrollments.enrolledBalance
+    console.log(totalEnrolledBalance)
+    const cashFlow = totalEnrolledBalance - allTotal
+  } else {
+    const totalEnrolledBalance = 0
+    console.log(totalEnrolledBalance)
+    const cashFlow = totalEnrolledBalance - allTotal
+  }
+  const cashFlow = 0
+
+  // cashflow = cashflow
 
   //   const {getIsLoading} =  useAppSelector(state => selectProfileBudgetsByProfileId(state, profileId))
   //  console.log(getIsLoading)

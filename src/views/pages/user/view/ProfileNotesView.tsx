@@ -70,25 +70,6 @@ const ProfileNotes = ({ id }: any) => {
   }))
   const dropDataSource = employeeList
 
-  // const myNotes = [
-  //   {
-  //     key: 'cc',
-  //     value: 'CreditCard'
-  //   },
-  //   {
-  //     key: 'tt',
-  //     value: 'TT'
-  //   },
-  //   {
-  //     key: 'gg',
-  //     value: 'GasdfG'
-  //   },
-  //   {
-  //     key: 'hh',
-  //     value: 'HfasdfH'
-  //   }
-  // ]
-
   // ** Hooks
 
   //Form init
@@ -141,27 +122,22 @@ const ProfileNotes = ({ id }: any) => {
   }
 
   const handleChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
-    console.log(target.name)
     if (target.name === 'notes-template') {
       // target.value = formatCreditCardNumber(target.value, Payment)
-      console.log('same name target')
+
       setNoteTemplate(target.value)
     } else if (target.name === 'notes-type') {
       // target.value = formatExpirationDate(target.value)
       setNoteType(target.value)
-      console.log('same name note')
     } else if (target.name === 'notes-email') {
       // target.value = formatExpirationDate(target.value)
       setNoteEmails(target.value)
-      console.log('same email')
     } else if (target.name === 'notes-users') {
       // target.value = formatExpirationDate(target.value)
       setNotifyUsers(target.value)
-      console.log('same users')
     } else if (target.name === 'notes-message') {
       // target.value = formatExpirationDate(target.value)
       setMessage(target.value)
-      console.log('same users')
 
       // else if (target.name === 'task-paymentDate') {
 
@@ -288,7 +264,7 @@ const ProfileNotes = ({ id }: any) => {
       setNoteEmails(myNote.mentionedEmails)
 
       // setTemplate()
-      setNotifyUsers(myNote.targets)
+      setNotifyUsers(myNote.notify)
 
       // setCreatedAt(myNote.createdAt)
       setMessage(myNote.content)
@@ -329,20 +305,6 @@ const ProfileNotes = ({ id }: any) => {
 
   // const renderEditNoteButton = params => {
   //   console.log(params)
-
-  //   return (
-  //     <>
-  //       <IconButton
-  //         size='small'
-  //         sx={{ color: 'text.primary' }}
-  //         value={params.row.noteId}
-  //         onClick={handleEditButtonById(params.row.noteId)}
-  //       >
-  //         <Icon icon='mdi:edit' />
-  //       </IconButton>
-  //     </>
-  //   )
-  // }
 
   const columns: GridColDef[] = [
     {
