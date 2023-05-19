@@ -1,9 +1,7 @@
 // ** React Imports
 
-import { useState, ReactNode, useEffect } from 'react'
+import { useState, ReactNode } from 'react'
 
-// ** Next Imports
-// import Link from 'next/link'
 
 // ** MUI Components
 // import Alert from '@mui/material/Alert'
@@ -40,9 +38,10 @@ import themeConfig from 'src/configs/themeConfig'
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 
-// ** Demo Imports
-import { useAppDispatch, useAppSelector } from 'src/store/hooks'
-import { selectAuthError, UserAuth } from 'src/store/authSlice'
+// ** Hook Imports
+import { usePostAuthLoginMutation } from 'src/store/api/apiHooks'
+import FooterIllustrationsV2 from 'src/views/pages/auth/FooterIllustrationsV2'
+import { CircularProgress } from '@mui/material'
 
 // ** Styled Components
 const LoginIllustrationWrapper = styled(Box)<BoxProps>(({ theme }) => ({
@@ -53,11 +52,8 @@ const LoginIllustrationWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   }
 }))
 
-const LoginIllustration = styled('img')(({ theme }) => ({
-  maxWidth: '75rem',
-  [theme.breakpoints.down('lg')]: {
-    maxWidth: '35rem'
-  }
+const LoginIllustration = styled('img')(() => ({
+  width: '100%',
 }))
 
 const RightWrapper = styled(Box)<BoxProps>(({ theme }) => ({
@@ -82,11 +78,6 @@ const TypographyStyled = styled(Typography)<TypographyProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: { mt: theme.spacing(8) }
 }))
 
-// const LinkStyled = styled(Link)(({ theme }) => ({
-//   fontSize: '0.875rem',
-//   textDecoration: 'none',
-//   color: theme.palette.primary.main
-// }))
 
 const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(({ theme }) => ({
   '& .MuiFormControlLabel-label': {
@@ -112,15 +103,14 @@ interface FormData {
 }
 
 const LoginPage = () => {
-  const error = useAppSelector(selectAuthError)
+
+  // component state
   const [rememberMe, setRememberMe] = useState<boolean>(true)
   const [showPassword, setShowPassword] = useState<boolean>(false)
 
   // ** Hooks
   const theme = useTheme()
-
-  // ** Redux Hooks
-  const dispatch = useAppDispatch()
+  const [login, { isLoading, error }] = usePostAuthLoginMutation()
 
   // const bgColors = useBgColor()
   const { settings } = useSettings()
@@ -140,37 +130,25 @@ const LoginPage = () => {
     resolver: yupResolver(schema)
   })
 
-  useEffect(() => {
-    if (error)
-      setError('email', {
-        type: 'manual',
-        message: error
-      })
-  }, [error, setError])
-
   const onSubmit = async (data: FormData) => {
     const { email, password } = data
-
-    dispatch(
-      UserAuth({
-        email,
-        password,
-        rememberMe
-      })
-    ).unwrap()
+    await login({ username: email, password })
+    if (error && 'message' in error) setError('email', {
+      type: 'manual',
+      message: error.message
+    })
   }
 
-  // const imageSource = skin === 'bordered' ? 'auth-v2-login-illustration-bordered' : 'auth-v2-login-illustration'
   const imageSource = 'chelsea_app_1'
 
   return (
     <Box className='content-right'>
       {!hidden ? (
-        <Box sx={{ flex: 1, display: 'flex', position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
+        <Box sx={{ display: 'flex', position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
           <LoginIllustrationWrapper>
             <LoginIllustration alt='login-illustration' src={`/images/pages/${imageSource}.svg`} />
           </LoginIllustrationWrapper>
-          {/* <FooterIllustrationsV2 /> */}
+          <FooterIllustrationsV2 />
         </Box>
       ) : null}
       <RightWrapper sx={skin === 'bordered' && !hidden ? { borderLeft: `1px solid ${theme.palette.divider}` } : {}}>
@@ -269,16 +247,9 @@ const LoginPage = () => {
             </Box>
             <Box sx={{ mb: 6 }}>
               <TypographyStyled variant='h5'>Welcome to {themeConfig.templateName}! 👋🏻</TypographyStyled>
-              <Typography variant='body2'>Please sign-in to your account and start the adventure</Typography>
+              <Typography variant='body2'>Please sign-in to your account</Typography>
             </Box>
-            {/* <Alert icon={false} sx={{ py: 3, mb: 6, ...bgColors.primaryLight, '& .MuiAlert-message': { p: 0 } }}>
-              <Typography variant='caption' sx={{ mb: 2, display: 'block', color: 'primary.main' }}>
-                Admin: <strong>admin@materio.com</strong> / Pass: <strong>admin</strong>
-              </Typography>
-              <Typography variant='caption' sx={{ display: 'block', color: 'primary.main' }}>
-                Client: <strong>client@materio.com</strong> / Pass: <strong>client</strong>
-              </Typography>
-            </Alert> */}
+
             <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
               <FormControl fullWidth sx={{ mb: 4 }}>
                 <Controller
@@ -345,17 +316,10 @@ const LoginPage = () => {
                 />
                 {/* <LinkStyled href='/forgot-password'>Forgot Password?</LinkStyled> */}
               </Box>
-              <Button fullWidth size='large' type='submit' variant='contained' sx={{ mb: 7 }}>
-                Login
+              <Button disabled={isLoading} fullWidth size='large' type='submit' variant='contained' sx={{ mb: 7 }}>
+                {!isLoading && <Typography>Login</Typography>}
+                {isLoading && <CircularProgress sx={{ mx: 1 }} />}
               </Button>
-              {/* <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
-                <Typography variant='body2' sx={{ mr: 2 }}>
-                  New on our platform?
-                </Typography>
-                <Typography variant='body2'>
-                  <LinkStyled href='/register'>Create an account</LinkStyled>
-                </Typography>
-              </Box> */}
               <Divider sx={{ my: theme => `${theme.spacing(5)} !important` }}></Divider>
             </form>
           </BoxWrapper>

@@ -1,5 +1,5 @@
 // ** React Imports
-import { useEffect, ReactNode } from 'react'
+import { ReactNode } from 'react'
 
 // ** Next Import
 import { useRouter } from 'next/router'
@@ -7,44 +7,41 @@ import { useRouter } from 'next/router'
 // ** Types
 import { Provider } from 'react-redux'
 import { store } from './store'
-import { RefreshToken, selectRefreshInit } from './authSlice'
-import { useAppDispatch, useAppSelector } from './hooks'
-import FallbackSpinner from 'src/@core/components/spinner'
+import { useAppSelector } from './hooks'
+import { usePostAuthRefreshTokenQuery } from './api/apiHooks'
 
 type Props = {
   children: ReactNode
+  fallback: ReactNode
 }
 
-const AuthWrapper = ({ children }: Props) => {
+const AuthWrapper = ({ children, fallback }: Props) => {
   // ** Hooks
   const router = useRouter()
-  const dispatch = useAppDispatch()
 
-  // has refresh token api been called
-  const init = useAppSelector(selectRefreshInit)
+  const auth = useAppSelector(state => state.auth)
 
-  useEffect(() => {
-    const initAuth = async (): Promise<void> => {
-      // send request to refresh-token api to check for token
-      const refreshToken = await dispatch(RefreshToken()).unwrap()
-      if (!refreshToken) {
-        if (!router.pathname.includes('login')) {
-          router.replace('/login')
-        }
-      }
+  usePostAuthRefreshTokenQuery(undefined, { skip: !!auth.token })
+
+  if (!auth.init) return <>{fallback}</>
+
+  if (!auth.token) {
+    if (!router.pathname.includes('login')) {
+      router.replace('/login')
     }
+  }
 
-    initAuth()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  return <>{children}</>
 
-  return init ? <>{children}</> : <FallbackSpinner />
 }
 
-const AuthProvider = ({ children }: Props) => {
+const AuthProvider = ({ children, fallback }: Props) => {
+
   return (
     <Provider store={store}>
-      <AuthWrapper>{children}</AuthWrapper>
+      <AuthWrapper fallback={fallback}>
+        {children}
+      </AuthWrapper>
     </Provider>
   )
 }

@@ -1,4 +1,4 @@
-import { useState, useEffect, MouseEvent, useCallback, SyntheticEvent, FC } from 'react'
+import { useState, useEffect, MouseEvent, useCallback, SyntheticEvent, FC, useRef } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -112,6 +112,8 @@ export default function ProfileBudget({ id }: any) {
   const [totalBalance, setTotalBalance] = useState<any>(null)
   console.log(incomeTotal, expenseTotal)
 
+  const childFormRef = useRef<myProps>(null)
+
   // const a = useGetProfileBudgetsQueryMock(profileId)
 
   // console.log(budgets)
@@ -120,6 +122,7 @@ export default function ProfileBudget({ id }: any) {
 
   // //api mock
   const [trigger, { isSuccess: triggerSuccess }] = usePostBudgetCreateMutation()
+  const [putTrigger, { isSuccess: putTriggerSuccess }] = usePutProfileBudgetsUpdateMutation()
 
   // const handleIncomeFormSubmit = (formData: FormData) => {
   //   console.log('Data from child:', formData)
@@ -127,10 +130,7 @@ export default function ProfileBudget({ id }: any) {
 
   const [formDataList, setFormDataList] = useState<FormData[]>([])
 
-  const addFormDataToList = (formDataList: FormData[]) => {
-    setFormDataList([...formDataList, ...formDataList])
-  }
-  console.log(formDataList)
+  // console.log(formDataList.map(form => form.get('Disposable')))
 
   // const { register, handleSubmit } = useForm<FormData>()
   // const handleFormSubmit = (formData: FormData) => {
@@ -139,35 +139,223 @@ export default function ProfileBudget({ id }: any) {
   //   setFormList([...formList, formData])
   // }
 
+  const handleChildFormSubmit = () => {
+    console.log('Child form submitted')
+  }
+
+  const handleParentButtonClick = () => {
+    // childFormRef.current.handle
+    // if (childFormRef.current) {
+    //   console.log('yoooo')
+    // }
+    console.log('OMG WE DID IT')
+  }
+
   async function handleClick() {
+    console.log('click')
+
+    // childFormRef.current.onFormSubmit
+    // if (childFormRef.current) {
+    //   console.log('doooo')
+    //   childFormRef.current.onFormSubmit()
+    // }
+
+    console.log('isubmitted')
+
+    // childFormRef.current.submitForm()
+
+    addFormDataToList(formDataList)
+    console.log('add')
+
+    //incomes
+    const mapParams = getFormValues()
+    console.log(mapParams)
+
+    //combine expenese
+
+    // }
+    console.log('bruh')
+
+    //dummy expense
+    const partialExpense = [
+      {
+        budgetId: 'c85aae08-58ee-4531-b35d-db1e53de3868',
+        amount: 511
+      },
+      {
+        budgetId: 'fb065254-000a-44b4-ab42-de6939938bed',
+        amount: 6
+      },
+      {
+        budgetId: '06815f58-25f7-495f-9bcb-e56f60ad25c1',
+        amount: 8
+      },
+      {
+        budgetId: 'cf8c14ca-9375-4c87-94d9-6a8e30fb85d4',
+        amount: 9
+      },
+      {
+        budgetId: '2ce387bd-9893-4859-ad80-d03e809c115f',
+        amount: 1
+      },
+      {
+        budgetId: '185549cc-d0a4-4d64-a948-596669174cbf',
+        amount: 0
+      },
+      {
+        budgetId: '909ffbaa-edd1-4f42-b972-e08fb1b2a7fa',
+        amount: 11
+      },
+      {
+        budgetId: 'efbe1e6a-25cf-4ebb-86c9-c8ed2f76e28f',
+        amount: 0
+      },
+      {
+        budgetId: '757c889d-c562-44a6-a91d-d1fd4a362af9',
+        amount: 0
+      },
+      {
+        budgetId: 'f6400ac7-4451-4f4f-a2bf-87df7e3a2660',
+        amount: 0
+      },
+      {
+        budgetId: '17ca1546-38ec-49a5-99aa-9141749c7e1e',
+        amount: 0
+      },
+      {
+        budgetId: 'a3133f51-23d1-40b0-a8aa-dfd170baf8e6',
+        amount: 0
+      },
+      {
+        budgetId: 'ae301956-cd41-477b-b346-e54e669429ff',
+        amount: 0
+      },
+      {
+        budgetId: 'ec083c9b-a182-40e3-a8e7-09543d760e7e',
+        amount: 0
+      },
+      {
+        budgetId: '4ef5e81e-e3d2-43c2-afc2-55153ca7b38b',
+        amount: 0
+      },
+      {
+        budgetId: '4cb707ca-3579-4fb9-aa60-151fd4787ce1',
+        amount: 0
+      },
+      {
+        budgetId: '9aaede98-e834-463c-8cde-5cbd61c29628',
+        amount: 0
+      }
+    ]
+    console.log(partialExpense)
+    const combined = mapParams.concat(partialExpense)
+    console.log(combined)
+
+    // handleChildFormSubmit()
+
+    // if (childFormRef.current) {
+    //   childFormRef.current.dispatchEvent(new Event("submit", { cancelable: true }));
+    // }
+
+    // addFormDataToList(formDataList)
+    // if (childFormRef.current) {
+    //   console.log('child submit from parent')
+    //   childFormRef.current.submit()
+    // }
+
     //need to configure values to set
+
     const testData = {
       profileId,
-      budgets: [
-        {
-          budgetId: 'b3f1d85d-b49a-4f06-b168-4600f2244e0d',
-          amount: 1241
-        }
-      ]
+      budgets: combined
     }
 
-    // console.log(testData)
+    console.log(testData)
 
-    await trigger(testData).unwrap()
+    // await trigger(testData).unwrap()
+    await putTrigger(testData).unwrap()
 
     // getTotalIncome()
     // getTotalExpense()
     // getTotals()
   }
 
-  // val stores state for header filters
-  // const [value, setValue] = useState<string>('')
+  // const createBudgetClick = () => {}
 
-  // console.log(useGetProfilesQuery(data))
-  // useGetProfileBudgetsQuery('1327485548')
-  // useGetBudgetsQuery({})
+  const getFormValues = () => {
+    console.log(formDataList)
+    const filter = []
+    const values = profileBudgets.map(profileBudget => profileBudget.budgetId)
+    console.log(values)
 
-  // console.log(isLoading)
+    // console.log(values.map(value => value.type))
+
+    // console.log(values)
+    // const myValues = values.map(value => formDataList.getAll(value))
+    // const myValues = formDataList.map(form => form.getAll(values.forEach()))
+    // const lol = values.map(value => value)
+    // console.log(lol)
+    const check = item => {
+      console.log(item)
+      const fields = formDataList.map(el => el.getAll(item))
+      console.log(fields)
+      fields
+        .filter(ele => ele.length > 0)
+        .forEach(ele => {
+          // filter.push(item)
+          filter.push({ budgetId: item, amount: Number(ele[0]) })
+        })
+      console.log(fields)
+      console.log(filter)
+
+      // const hi = fields.map(item => mine.push(item.length > 0))
+      // const filter = lol.reduce
+      // console.log(hi)
+
+      // const entry = lol.map(item => item.length > 0)
+      // entry.map(ent => ent == true)
+
+      // if (lol) {
+      //   console.log(lol)
+      //   mine.push(lol)
+      // }
+    }
+    values.map(value => check(value))
+
+    // setFormDataList(filter)
+    console.log(formDataList)
+
+    console.log(filter)
+
+    //set this filter to the income data and also make an expense one
+
+    return filter
+    console.log(check)
+    console.log(values)
+
+    // const lol = values.map(console.log(values))
+
+    // lol.forEach(formDataList.forEach().getAll(lol))
+
+    // const myValues = formDataList.map(form => form.has(values.map(value => value)))
+
+    // const myValues = formDataList.map(form => form.getAll(values.forEach()))
+    // console.log(myValues)
+
+    // formDataList.map
+    // const total = values.map(val => check(val))
+    // const total = values.forEach(val => console.log(val))
+    // console.log(total)
+  }
+
+  const addFormDataToList = (formDataList: FormData[]) => {
+    console.log(formDataList)
+
+    // handleClick()
+    setFormDataList([...formDataList])
+    console.log(formDataList.entries)
+  }
+  console.log(formDataList.entries)
 
   const LoadData = () => {
     console.log('Loading')
@@ -372,7 +560,16 @@ export default function ProfileBudget({ id }: any) {
           {/* <IncomeTable budgetTypes={budgetTypes} budgetList={allBudgets} income={income}></IncomeTable> */}
           {/* <IncomeTable income={incomeBudgets} onSubmit={handleIncomeFormSubmit}></IncomeTable> */}
           {/* <ChildComponent register={register} onSubmit={handleSubmit(handleFormSubmit)} data={incomeBudgets} /> */}
-          <ChildComponent onFormSubmit={addFormDataToList} data={incomeBudgets} />
+          {/* <ChildComponent onFormSubmit={addFormDataToList} data={incomeBudgets} /> */}
+          {/* <ChildComponent
+            onFormSubmit={handleChildFormSubmit}
+            // submitForm={handleParentButtonClick}
+            data={incomeBudgets}
+
+          /> */}
+          <ChildComponent onFormSubmit={addFormDataToList} data={incomeBudgets} ref={childFormRef} />
+          {/* <ChildComponent onFormSubmit={handleClick} data={incomeBudgets} ref={childFormRef} /> */}
+          {/* <ChildComponent onFormSubmit={handleClick} data={incomeBudgets} ref={childFormRef} /> */}
           {/* <BudgetTableGenerator
             budgetTypes={profileBudgets}
             budgetList={budgets}
@@ -389,10 +586,17 @@ export default function ProfileBudget({ id }: any) {
           <Button variant='outlined' color='secondary' sx={{ mr: 4 }} onClick={resetForm}>
             Clear Form
           </Button>
-
+          {/*
+          <Button type='submit' variant='contained' onClick={handleClick}>
+            Submit Budget
+          </Button> */}
           <Button type='submit' variant='contained' onClick={handleClick}>
             Submit Budget
           </Button>
+
+          {/* <Button type='submit' variant='contained' onClick={handleParentButtonClick}>
+            Submit Budget
+          </Button> */}
         </Grid>
       </Grid>
     </>

@@ -42,7 +42,6 @@ export default function StatusDialog({ open, toggle, stage = '', stageStatus = '
     setValue
   } = statusForm
 
-  //tracks previous stages for resetting status value upon change
   const previousStage = useRef(stage)
 
   //used in place of onchange for uncontrolled components, checks if current value of stage is same as previous set stage
@@ -76,10 +75,7 @@ export default function StatusDialog({ open, toggle, stage = '', stageStatus = '
 
   //api call for all search settings, may need to narrow down later if settings results object too large
   usePostSettingSearchQuery({ length: 10000 }, { skip: !open })
-  //api call for all search settings, may need to narrow down later if settings results object too large
-  usePostSettingSearchQuery({ length: 10000 }, { skip: !open })
 
-  //options for dropdown, pulled from redux state component
   //options for dropdown, pulled from redux state component
   const stageOptions = [
     {
@@ -98,7 +94,6 @@ export default function StatusDialog({ open, toggle, stage = '', stageStatus = '
     },
     ...useAppSelector(state => selectSettingByParentValueOptions(state, String(watch('stage'))))
   ]
-
   return (
     <Dialog open={open} maxWidth='xs' fullWidth onClose={onClose} aria-labelledby='form-dialog-title'>
       <DialogTitle id='form-dialog-title'>

@@ -22,9 +22,14 @@ export type ProfileBudgetObj = {
   budget: BudgetSettingType[] | []
 }
 
-export type ProfileBudgeUpdateType = {
+export type ProfileBudgetItemType = {
+  budgetId: string
+  amount: number
+}
+
+export type ProfileBudgetUpdateType = {
   profileId: string
-  budgets: ProfileBudget[]
+  budgets: ProfileBudgetItemType[]
 }
 
 export type BudgetCreateType = {
@@ -108,7 +113,7 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
     }),
 
     // ****************************************************************** PUT profile/profileId/budget
-    putProfileBudgetsUpdate: builder.mutation<boolean, ProfileBudgeUpdateType>({
+    putProfileBudgetsUpdate: builder.mutation<boolean, ProfileBudgetUpdateType>({
       query: params => {
         const { profileId, ...body } = params
 

@@ -1,3 +1,4 @@
+import { authApiSlice } from './authApiSlice'
 import { bankAccountApiSlice } from './bankAccountApiSlice'
 import { campaignApiSlice } from './campaignApiSlice'
 import { companyApiSlice } from './companyApiSlice'
@@ -19,6 +20,19 @@ import { taskApiSlice } from './taskApiSlice'
 import { userApiSlice } from './userApiSlice'
 
 // SOL REDUX API POINTS
+
+// ********************************************* AUTH
+
+export const {
+  // POST user/auth
+  usePostAuthLoginMutation,
+
+  // POST user/refresh-token
+  usePostAuthRefreshTokenQuery,
+
+  // POST user/revoke-token
+  usePostAuthRevokeTokenMutation
+} = authApiSlice
 
 // ********************************************* BANK ACCOUNT
 
@@ -229,9 +243,6 @@ export const {
 
   // GET enrollment/profileId/profile/payments
   useGetProfilePaymentsQuery,
-
-  // GET enrollment/profileId/profile/payments/paymentId/info
-  useGetProfilePaymentInfoQuery,
 
   // POST enrollment/profileId/profile/payment
   usePostPaymentCreateMutation,
