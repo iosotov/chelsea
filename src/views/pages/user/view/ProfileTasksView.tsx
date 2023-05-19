@@ -25,7 +25,7 @@ import Checkbox from '@mui/material/Checkbox'
 
 // ** Types
 
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridValueGetterParams, gridColumnLookupSelector } from '@mui/x-data-grid'
 
 // import DialogActions from '@mui/material/DialogActions'
 
@@ -53,11 +53,17 @@ import {
   usePostTaskCreateMutation,
   usePostTaskSearchQuery,
   useDeleteTaskMutation,
-  usePutTasksBulkUpdateMutation
+  usePutTasksBulkUpdateMutation,
+  usePostEmployeeSearchQuery,
+  useGetGroupsQuery,
+  useGetRolesQuery
 } from 'src/store/api/apiHooks'
 import { useAppSelector } from 'src/store/hooks'
 import { selectTaskByProfileId } from 'src/store/taskSlice'
-import { TaskCreateType, TaskUpdateType } from 'src/store/api/taskApiSlice'
+import { TaskBulkUpdateType, TaskCreateType, TaskUpdateType } from 'src/store/api/taskApiSlice'
+import { selectAllEmployees } from 'src/store/employeeSlice'
+import { selectAllGroups } from 'src/store/groupSlice'
+import { selectAllRoles } from 'src/store/roleSlice'
 
 interface Props {
   open: boolean
@@ -101,6 +107,17 @@ const ProfileTasks = ({ id }: any) => {
   // ** Hooks
   const profileId = id
 
+  //DATASOURCE API CALLS
+  usePostEmployeeSearchQuery({})
+  const users = useAppSelector(state => selectAllEmployees(state))
+
+  useGetGroupsQuery({})
+  const groups = useAppSelector(state => selectAllGroups(state))
+
+  useGetRolesQuery({})
+  const roles = useAppSelector(state => selectAllRoles(state))
+  console.log(roles)
+
   //data set remove this and useEffect and use global
   const [data, setData] = useState<any>([])
 
@@ -110,9 +127,15 @@ const ProfileTasks = ({ id }: any) => {
   const [taskName, setTaskName] = useState<string>('')
   const profileTask = useAppSelector(state => selectTaskByProfileId(state, profileId))
   const [status, setStatus] = useState<string>('')
+
   const [paymentDate, setPaymentDate] = useState<string>('')
+
+  //configure DATETYPE pICKER for backend too
+  // const [paymentDate, setPaymentDate] = useState<DateType>(null)
   const [selectedGroup, setSelectedGroup] = useState<string>('')
   const [note, setNote] = useState<string>('')
+  const [assigneeType, setAssigneeType] = useState<number>(0)
+  const [selectedDataSource, setSelectedDataSource] = useState<any>([])
   let rows = []
 
   // const { isLoading, isSuccess, isError, error }= useAppSelector(state => selectTaskByProfileId(state, profileId))
@@ -240,6 +263,70 @@ const ProfileTasks = ({ id }: any) => {
     setOpenAddTask(true)
   }
 
+  //DATASOURCE LOADING FOR DROPDOWNS
+  //Not loading correct, loads the thing before, need to wait for it to set, maybe need useeffect to update list based on whenever new group button clicked
+  //NEED TO MAKE DROPDOWNS FILTERABLE/SEARCHABLe
+  const getAssigneeSources = async (assigneeChoice: any) => {
+    //move to own hook?/selector
+    const mine = []
+    console.log(assigneeChoice)
+    console.log(assigneeType)
+    console.log(selectedDataSource)
+    setAssigneeType(assigneeChoice)
+    console.log(assigneeType)
+
+    //add other assignees, make sure assignee type is right, and dataloaded correctly.async
+    if (assigneeType == 0) {
+      //USERS
+      const filteredOptions = users.filter((user: any) => user.hasAuthentication === true)
+      const employeeList = filteredOptions.map((employee: any) => ({
+        label: employee.employeeAlias,
+        value: employee.employeeId
+      }))
+      console.log(employeeList)
+
+      // mine = employeeList
+
+      setSelectedDataSource(employeeList)
+      console.log(selectedDataSource)
+    }
+    if (assigneeType == 1) {
+      // GROUPS
+      console.log('11111')
+
+      const groupList = groups.map((group: any) => ({
+        label: group.name,
+        value: group.groupId
+      }))
+      console.log(groupList)
+
+      // mine = groupList
+
+      setSelectedDataSource(groupList)
+      console.log(selectedDataSource)
+    }
+    if (assigneeType == 2) {
+      // Roles
+      console.log('ROles loaded')
+
+      const rolesList = roles.map((role: any) => ({
+        label: role.name,
+        value: role.roleId
+      }))
+      console.log(rolesList)
+
+      // mine = rolesList
+
+      setSelectedDataSource(rolesList)
+      console.log(selectedDataSource)
+    }
+    console.log(selectedDataSource)
+
+    // setSelectedDataSource(mine)
+
+    // console.log(group)
+  }
+
   //actual create request
   async function handleCreateClick() {
     const testData: TaskCreateType = {
@@ -256,7 +343,8 @@ const ProfileTasks = ({ id }: any) => {
   }
 
   async function handleEditClick() {
-    const testEditData = {
+    const testEditData: TaskUpdateType = {
+      profileId,
       taskId: selectedTask.taskId,
       taskName: taskName,
 
@@ -281,7 +369,7 @@ const ProfileTasks = ({ id }: any) => {
   }
 
   async function handleBulkUpdateClick() {
-    const testEditData = {
+    const testEditData: TaskBulkUpdateType = {
       taskIds: checkedValues,
 
       // taskName: taskName,
@@ -295,6 +383,7 @@ const ProfileTasks = ({ id }: any) => {
       notes: note,
       status: 1
     }
+    console.log(testEditData)
 
     const bulkUpdateResponse = await triggerBulkUpdate(testEditData).unwrap()
     console.log(bulkUpdateResponse)
@@ -684,12 +773,14 @@ const ProfileTasks = ({ id }: any) => {
                 {/* commented out datepicker and config type */}
                 {/* <DatePickerWrapper sx={{ '& .MuiFormControl-root': { width: '100%' } }}>
                   <DatePicker
-                    selected={paymentDate}
+                    // selected={paymentDate}
                     value={paymentDate}
                     name='task-paymentDate'
                     id='task-paymentDate'
                     customInput={<CustomPaymentInput />}
                     onChange={(paymentDate: Date) => setPaymentDate(paymentDate)}
+
+                    // onChange={handleInputChange}
                   />
                 </DatePickerWrapper> */}
                 <TextField
@@ -718,9 +809,12 @@ const ProfileTasks = ({ id }: any) => {
               {/* <Box sx={{ mb: 6 }}>{selectedTask.taskId}</Box> */}
               <Box sx={{ mb: 6 }}>
                 <ButtonGroup variant='contained' sx={{ ml: 10 }}>
-                  <Button onClick={() => setGroup('Users')}>Users</Button>
+                  {/* <Button onClick={() => setGroup('Users')}>Users</Button>
                   <Button onClick={() => setGroup('Teams')}>Teams</Button>
-                  <Button onClick={() => setGroup('Roles')}>Roles</Button>
+                  <Button onClick={() => setGroup('Roles')}>Roles</Button> */}
+                  <Button onClick={() => getAssigneeSources(0)}>Users</Button>
+                  <Button onClick={() => getAssigneeSources(1)}>Teams</Button>
+                  <Button onClick={() => getAssigneeSources(2)}>Roles</Button>
                 </ButtonGroup>
               </Box>
               {/* {group} */}
@@ -738,12 +832,14 @@ const ProfileTasks = ({ id }: any) => {
                     <MenuItem value='select-method' disabled>
                       Select Group
                     </MenuItem>
+
+                    {selectedDataSource.map(option => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                    {/* //need to set a limit number of dropdown */}
                     {/* //Load group from user roles teams, calls api depending on useState of group */}
-                    <MenuItem value='Cash'>User1</MenuItem>
-                    <MenuItem value='Bank Transfer'>Team1</MenuItem>
-                    <MenuItem value='Credit'>Credit</MenuItem>
-                    <MenuItem value='Debit'>Debit</MenuItem>
-                    <MenuItem value='Paypal'>Paypal</MenuItem>
                   </Select>
                 </FormControl>
               </Box>

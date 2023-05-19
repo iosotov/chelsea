@@ -34,11 +34,13 @@ import {
   useGetProfileNotesQuery,
   usePostNoteCreateMutation,
   usePutNoteUpdateMutation,
-  useDeleteNoteMutation
+  useDeleteNoteMutation,
+  usePostEmployeeSearchQuery
 } from 'src/store/api/apiHooks'
 
 import { useAppSelector } from 'src/store/hooks'
 import { selectNotesByProfileId, selectNoteById } from 'src/store/noteSlice'
+import { selectAllEmployees } from 'src/store/employeeSlice'
 
 // ** Third Party Imports
 import { useForm, Controller } from 'react-hook-form'
@@ -57,24 +59,35 @@ const ProfileNotes = ({ id }: any) => {
   const profileId = id
   const profileNotes = useAppSelector(state => selectNotesByProfileId(state, profileId))
 
-  const myNotes = [
-    {
-      key: 'cc',
-      value: 'CreditCard'
-    },
-    {
-      key: 'tt',
-      value: 'TT'
-    },
-    {
-      key: 'gg',
-      value: 'GasdfG'
-    },
-    {
-      key: 'hh',
-      value: 'HfasdfH'
-    }
-  ]
+  usePostEmployeeSearchQuery({})
+  const users = useAppSelector(state => selectAllEmployees(state))
+  console.log(users)
+
+  const filteredOptions = users.filter((user: any) => user.hasAuthentication === true)
+  const employeeList = filteredOptions.map((employee: any) => ({
+    label: employee.employeeAlias,
+    value: employee.employeeId
+  }))
+  const dropDataSource = employeeList
+
+  // const myNotes = [
+  //   {
+  //     key: 'cc',
+  //     value: 'CreditCard'
+  //   },
+  //   {
+  //     key: 'tt',
+  //     value: 'TT'
+  //   },
+  //   {
+  //     key: 'gg',
+  //     value: 'GasdfG'
+  //   },
+  //   {
+  //     key: 'hh',
+  //     value: 'HfasdfH'
+  //   }
+  // ]
 
   // ** Hooks
 
@@ -91,7 +104,7 @@ const ProfileNotes = ({ id }: any) => {
   const [dialogMode, setDialogMode] = useState<any>('Create')
 
   //hooks for loading dropdown lists
-  const [templateDrop, setTemplateDrop] = useState<any>(myNotes)
+  const [templateDrop, setTemplateDrop] = useState<any>(dropDataSource)
 
   let rows = []
   const { isLoading, isSuccess, isError } = useGetProfileNotesQuery(profileId)
@@ -415,9 +428,9 @@ const ProfileNotes = ({ id }: any) => {
                 </MenuItem>
 
                 {/* //data load for dropdown map */}
-                {templateDrop.map(temp => (
-                  <MenuItem key={temp.key} value={temp.value}>
-                    {temp.value}
+                {employeeList.map(option => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
                   </MenuItem>
                 ))}
                 {/* <MenuItem value='cc'>Credit Card Template</MenuItem>
@@ -461,11 +474,11 @@ const ProfileNotes = ({ id }: any) => {
                 <MenuItem value='select-method' disabled>
                   Select User
                 </MenuItem>
-                <MenuItem value='australia'>User1</MenuItem>
-                <MenuItem value='canada'>Joe TEst</MenuItem>
-                <MenuItem value='france'>Admin</MenuItem>
-                <MenuItem value='united-kingdom'>United Kingdom</MenuItem>
-                <MenuItem value='united-states'>United States</MenuItem>
+                {employeeList.map(option => (
+                  <MenuItem key={option.value} value={option.value}>
+                    {option.label}
+                  </MenuItem>
+                ))}
               </Select>
             </FormControl>
           </Grid>

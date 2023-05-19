@@ -30,7 +30,7 @@ import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 
 //wysiwyg editor
-import { EditorState } from 'draft-js'
+import { EditorState, ContentState } from 'draft-js'
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 
 // ** Types
@@ -169,6 +169,10 @@ const ProfileEmail = ({ id }: any) => {
   })
   rows = dataWithIndex
   console.log(rows)
+
+  const handleEditorChange = (state: EditorState) => {
+    setEditor(state)
+  }
 
   // useEffect(() => {
   //   if (checkedValues) {
@@ -658,6 +662,7 @@ const ProfileEmail = ({ id }: any) => {
                       </Grid>
                       <Grid item xs={12}>
                         {/* {CONVERT TO SUMMERNOTE} */}
+                        <ReactDraftWysiwyg></ReactDraftWysiwyg>
                         <TextField
                           fullWidth
                           name='email-body'
@@ -676,9 +681,13 @@ const ProfileEmail = ({ id }: any) => {
                           editorState={editor}
                           onEditorStateChange={edit => setEditor(edit)}
                         /> */}
-                        {/* <ReactDraftWysiwyg></ReactDraftWysiwyg> */}
 
-                        {/* <EditorControlled></EditorControlled> */}
+                        {/* <Editor editorState={editor} onEditorStateChange={handleEditorChange}></Editor> */}
+
+                        {/* <EditorControlled
+                          editorState={editor}
+                          onEditorStateChange={handleEditorChange}
+                        ></EditorControlled> */}
                       </Grid>
                       <Grid item xs={12}>
                         {/* render another button for edit */}

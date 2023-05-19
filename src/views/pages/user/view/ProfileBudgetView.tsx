@@ -57,6 +57,11 @@ import {
   usePutBudgetEnableMutation,
   usePutBudgetUpdateMutation
 } from 'src/store/api/apiHooks'
+
+import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
+
+// import { usePostEnrollmentSearchQuery } from 'src/store/api/apiHooks'
+
 import { gridColumnPositionsSelector } from '@mui/x-data-grid'
 
 // interface FormData {
@@ -91,7 +96,15 @@ export default function ProfileBudget({ id }: any) {
   const expenseTotal = useAppSelector(state => selectExpenseTotalByProfileId(state, profileId))
   console.log(expenseTotal)
 
+  const enrollments = useAppSelector(state => selectEnrollmentByProfileId(state, profileId))
+  console.log(enrollments)
+
   const allTotal = incomeTotal - expenseTotal
+
+  //set data loading to a load Data function?
+  const totalEnrolledBalance = enrollments.enrolledBalance
+  console.log(totalEnrolledBalance)
+  const cashFlow = totalEnrolledBalance - allTotal
 
   //   const {getIsLoading} =  useAppSelector(state => selectProfileBudgetsByProfileId(state, profileId))
   //  console.log(getIsLoading)
@@ -108,13 +121,12 @@ export default function ProfileBudget({ id }: any) {
 
   const [incomeSnap, setIncomeSnap] = useState<any>(null)
   const [expenseSnap, setExpenseSnap] = useState<any>(null)
-  const [cashflow, setCashflow] = useState<any>(null)
+
+  // const [cashflow, setCashflow] = useState<any>(null)
   const [totalBalance, setTotalBalance] = useState<any>(null)
   console.log(incomeTotal, expenseTotal)
 
   const childFormRef = useRef<myProps>(null)
-
-  // const a = useGetProfileBudgetsQueryMock(profileId)
 
   // console.log(budgets)
 
@@ -129,8 +141,6 @@ export default function ProfileBudget({ id }: any) {
   // }
 
   const [formDataList, setFormDataList] = useState<FormData[]>([])
-
-  // console.log(formDataList.map(form => form.get('Disposable')))
 
   // const { register, handleSubmit } = useForm<FormData>()
   // const handleFormSubmit = (formData: FormData) => {
@@ -174,7 +184,6 @@ export default function ProfileBudget({ id }: any) {
     //combine expenese
 
     // }
-    console.log('bruh')
 
     //dummy expense
     const partialExpense = [
@@ -274,10 +283,6 @@ export default function ProfileBudget({ id }: any) {
 
     // await trigger(testData).unwrap()
     await putTrigger(testData).unwrap()
-
-    // getTotalIncome()
-    // getTotalExpense()
-    // getTotals()
   }
 
   // const createBudgetClick = () => {}
@@ -330,22 +335,6 @@ export default function ProfileBudget({ id }: any) {
     //set this filter to the income data and also make an expense one
 
     return filter
-    console.log(check)
-    console.log(values)
-
-    // const lol = values.map(console.log(values))
-
-    // lol.forEach(formDataList.forEach().getAll(lol))
-
-    // const myValues = formDataList.map(form => form.has(values.map(value => value)))
-
-    // const myValues = formDataList.map(form => form.getAll(values.forEach()))
-    // console.log(myValues)
-
-    // formDataList.map
-    // const total = values.map(val => check(val))
-    // const total = values.forEach(val => console.log(val))
-    // console.log(total)
   }
 
   const addFormDataToList = (formDataList: FormData[]) => {
@@ -419,58 +408,7 @@ export default function ProfileBudget({ id }: any) {
 
   // LoadData()
 
-  // budgetSeparator()
-
   //Snap cards summary functions
-  // const getTotalIncome = () => {
-  //   console.log(incomeTotal)
-  //   setIncomeSnap(incomeTotal)
-
-  //   // let _totalIncome = 0
-  //   // if (income != null && income.length > 0) {
-  //   //   console.log(income)
-  //   //   income.map(entry => {
-  //   //     _totalIncome += entry.amount
-  //   //   })
-  //   // }
-  //   // console.log(_totalIncome)
-  //   // setIncomeSnap(_totalIncome)
-  //   // getTotalFunds()
-  // }
-
-  // const getTotalExpense = () => {
-  //   console.log(expense)
-
-  //   let _totalExpense = 0
-  //   if (expense != null && expense.length > 0) {
-  //     console.log(expense)
-  //     expense.map(entry => {
-  //       _totalExpense += entry.amount
-  //     })
-  //   }
-  //   console.log(_totalExpense)
-  //   setExpenseSnap(_totalExpense)
-  //   getTotalFunds()
-  // }
-
-  // const getTotals = () => {
-  //   console.log('Totals')
-  //   getTotalBalance()
-  //   getTotalIncome()
-  //   getTotalExpense()
-
-  //   // getTotalFunds()
-
-  //   // let _totalExpense = 0
-  //   // if (expense != null && expense.length > 0) {
-  //   //   console.log(expense)
-  //   //   expense.map(entry => {
-  //   //     _totalExpense += entry.amount
-  //   //   })
-  //   // }
-  //   // console.log(_totalExpense)
-  //   // setIncomeSnap(_totalIncome)
-  // }
 
   const getTotalFunds = () => {
     const sum = incomeSnap - expenseSnap
@@ -506,17 +444,17 @@ export default function ProfileBudget({ id }: any) {
         </Grid>
         <Grid item xs={12}>
           <Box sx={{ mt: 1, mb: 2.5, display: 'flex', alignItems: 'center', width: 1, gap: 3 }}>
-            <Card sx={{ width: 1 / 3, height: 1, mr: 'auto' }}>
+            <Card sx={{ width: 1 / 3, height: 150, mr: 'auto' }}>
               <CardContent>
                 <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography variant='body2'>{`Cash Funds Available`}</Typography>
+                  <Typography variant='h6'>{`Cash Funds Available`}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
                     {/* <Typography variant='h6'>${totalFunds ?? 'No Funds'}</Typography> */}
                     {/* <Typography variant='body2'>{incomeSnap}</Typography> */}
-                    <Typography variant='body2'>${incomeTotal ?? ''}</Typography>
-                    <Typography variant='body2'>${expenseTotal ?? ''}</Typography>
+                    <Typography variant='subtitle1'>Income: ${incomeTotal ?? ''}</Typography>
+                    <Typography variant='subtitle1'>Expense: ${expenseTotal ?? ''}</Typography>
                     {/* <Typography variant='body2' sx={{ color: 'primary.main', textDecoration: 'none' }}>
                     Edit Role
                   </Typography> */}
@@ -524,15 +462,16 @@ export default function ProfileBudget({ id }: any) {
                 </Box>
               </CardContent>
             </Card>
-            <Card sx={{ width: 1 / 3, mr: 'auto' }}>
+            <Card sx={{ width: 1 / 3, height: 150, mr: 'auto' }}>
               <CardContent>
                 <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography variant='body2'>{`Total Balance`}</Typography>
+                  <Typography variant='h6'>{`Total Balance`}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
                     {/* <Typography variant='h6'>{totalBalance ?? 'No Balance'}</Typography> */}
                     <Typography variant='h6'>${allTotal}</Typography>
+
                     {/* <Typography variant='body2'>""</Typography>
                     <Typography variant='h6'>""</Typography> */}
 
@@ -541,14 +480,15 @@ export default function ProfileBudget({ id }: any) {
                 </Box>
               </CardContent>
             </Card>
-            <Card sx={{ width: 1 / 3, mr: 'auto' }}>
+            <Card sx={{ width: 1 / 3, height: 150, mr: 'auto' }}>
               <CardContent>
                 <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography variant='body2'>{`Cash Flow`}</Typography>
+                  <Typography variant='h6'>{`Cash Flow`}</Typography>
                 </Box>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
                   <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-                    <Typography variant='h6'>${cashflow}</Typography>
+                    {/* <Typography variant='h6'>${cashflow}</Typography> */}
+                    <Typography variant='h6'>${cashFlow}</Typography>
                   </Box>
                 </Box>
               </CardContent>
