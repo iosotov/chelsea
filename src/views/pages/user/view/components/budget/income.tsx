@@ -7,6 +7,9 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 import TextField from '@mui/material/TextField'
+import Card from '@mui/material/Card'
+import CardHeader from '@mui/material/CardHeader'
+import CardContent from '@mui/material/CardContent'
 import Button from '@mui/material/Button'
 import { useRef } from 'react'
 
@@ -176,76 +179,81 @@ function ChildComponent({ onFormSubmit, data }: Props) {
   // }
 
   return (
-    <TableContainer>
-      <form onSubmit={handleSubmit(onSubmit)}>
-        {/* <form onSubmit={handleSubmit(handleForm)}> */}
-        {/* <form ref={formRef} onSubmit={handleSubmit(onSubmit)}> */}
-        {/* <form onSubmit={handleForm} useRef={formRef}> */}
-        <Table sx={{ minWidth: 650 }} aria-label='simple table'>
-          <TableHead>
-            <TableRow>
-              <TableCell>Income Name</TableCell>
-              <TableCell>Amount</TableCell>
-            </TableRow>
-          </TableHead>
+    <Card>
+      <CardHeader title='Income' />
+      <CardContent>
+        <TableContainer>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            {/* <form onSubmit={handleSubmit(handleForm)}> */}
+            {/* <form ref={formRef} onSubmit={handleSubmit(onSubmit)}> */}
+            {/* <form onSubmit={handleForm} useRef={formRef}> */}
+            <Table sx={{ minWidth: 650 }} aria-label='simple table'>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Income Name</TableCell>
+                  <TableCell>Amount</TableCell>
+                </TableRow>
+              </TableHead>
 
-          <TableBody>
-            {myFields.map((budget, index) => (
-              <TableRow
-                key={budget.budgetId}
-                sx={{
-                  '&:last-of-type td, &:last-of-type th': {
-                    border: 0
-                  }
-                }}
-              >
-                {/* <TableCell component='th' scope='row' {...register(`${budget.name}`)}> */}
-                <TableCell
-                  component='th'
-                  scope='row'
+              <TableBody>
+                {myFields.map((budget, index) => (
+                  <TableRow
+                    key={budget.budgetId}
+                    sx={{
+                      '&:last-of-type td, &:last-of-type th': {
+                        border: 0
+                      }
+                    }}
+                  >
+                    {/* <TableCell component='th' scope='row' {...register(`${budget.name}`)}> */}
+                    <TableCell
+                      component='th'
+                      scope='row'
 
-                  // key={budget.budgetId}
+                      // key={budget.budgetId}
 
-                  // {...register(budget.name)}
-                  // {...register(`${budget.name}`)}
-                  // value={budget.amount}
+                      // {...register(budget.name)}
+                      // {...register(`${budget.name}`)}
+                      // value={budget.amount}
 
-                  // defaultValue={budget.amount}
-                >
-                  {/* {getBudgetById(budget.budgetId)} */}
-                  {budget.name}
-                </TableCell>
-                <TableCell align='right'>
-                  {/* sets to load default value */}
-                  {/* <TextField fullWidth label='Amount' defaultValue={getBudgetById(budget.budgetId)} placeholder='Amount'>
+                      // defaultValue={budget.amount}
+                    >
+                      {/* {getBudgetById(budget.budgetId)} */}
+                      {budget.name}
+                    </TableCell>
+                    <TableCell align='right'>
+                      {/* sets to load default value */}
+                      {/* <TextField fullWidth label='Amount' defaultValue={getBudgetById(budget.budgetId)} placeholder='Amount'>
                   {' '}
                 </TextField> */}
-                  <TextField
-                    fullWidth
-                    // name={`${budget.budgetId}.amount`}
-                    // name={`inputs[${index}].value`}
-                    label='Amount'
-                    key={budget.budgetId}
-                    {...register(`inputs.${index}.amount` as const)}
-                    // value={budget.amount}
-                    defaultValue={budget.amount}
-                    // placeholder='Amount'
-                    // {...register(`${budget.budgetId}.amount`)}
-                    onChange={e => handleInputChange(index, e)}
+                      <TextField
+                        fullWidth
+                        // name={`${budget.budgetId}.amount`}
+                        // name={`inputs[${index}].value`}
+                        label='Amount'
+                        key={budget.budgetId}
+                        {...register(`inputs.${index}.amount` as const)}
+                        // value={budget.amount}
+                        defaultValue={budget.amount}
+                        // placeholder='Amount'
+                        // {...register(`${budget.budgetId}.amount`)}
+                        onChange={e => handleInputChange(index, e)}
 
-                    // {...register(`data.${index}.amount` as const)}
+                        // {...register(`data.${index}.amount` as const)}
 
-                    // {...register(`items.${index}.amount`)}
-                  ></TextField>
-                  {/* <input {...register(`items.${index}.amount`)} defaultValue={budget.amount}></input> */}
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-          <input type='submit'></input>
-        </Table>
-      </form>
-    </TableContainer>
+                        // {...register(`items.${index}.amount`)}
+                      ></TextField>
+                      {/* <input {...register(`items.${index}.amount`)} defaultValue={budget.amount}></input> */}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+              <input type='submit'></input>
+            </Table>
+          </form>
+        </TableContainer>
+      </CardContent>
+    </Card>
   )
 }
 

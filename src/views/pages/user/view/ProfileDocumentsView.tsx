@@ -53,6 +53,7 @@ const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
   },
   '& .Mui-selected': {
     backgroundColor: theme.palette.primary.main,
+
     //hard coded color b/c change in tablist variant
     color: 'white !important'
   },

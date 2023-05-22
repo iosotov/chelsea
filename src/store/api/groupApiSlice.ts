@@ -55,7 +55,7 @@ export const groupApiSlice = apiSlice.injectEndpoints({
     }),
 
     // ***************************************************** GET group/all
-    getGroups: builder.query<GroupType[] | null, undefined>({
+    getGroups: builder.query<GroupType[] | null, void>({
       query: () => ({
         url: `/group/all`,
         method: 'GET'

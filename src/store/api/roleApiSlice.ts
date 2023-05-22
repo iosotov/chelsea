@@ -98,7 +98,7 @@ export const roleApiSlice = apiSlice.injectEndpoints({
     }),
 
     // ****************************************************************** GET role/all
-    getRoles: builder.query<RoleType[] | null, undefined>({
+    getRoles: builder.query<RoleType[] | null, void>({
       query: () => ({
         url: `/role/all`,
         method: 'GET'
