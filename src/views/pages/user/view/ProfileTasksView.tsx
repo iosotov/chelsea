@@ -13,19 +13,20 @@ import Typography from '@mui/material/Typography'
 import Box, { BoxProps } from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 
-import InputAdornment from '@mui/material/InputAdornment'
-import Cards, { Focused } from 'react-credit-cards'
-import { DateType } from 'src/types/forms/reactDatepickerTypes'
-import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
-import DatePicker from 'react-datepicker'
-import FormGroup from '@mui/material/FormGroup'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Switch from '@mui/material/Switch'
+// import InputAdornment from '@mui/material/InputAdornment'
+import { Focused } from 'react-credit-cards'
+
+// import { DateType } from 'src/types/forms/reactDatepickerTypes'
+// import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
+// import DatePicker from 'react-datepicker'
+// import FormGroup from '@mui/material/FormGroup'
+// import FormControlLabel from '@mui/material/FormControlLabel'
+// import Switch from '@mui/material/Switch'
 import Checkbox from '@mui/material/Checkbox'
 
 // ** Types
 
-import { DataGrid, GridColDef, GridValueGetterParams, gridColumnLookupSelector } from '@mui/x-data-grid'
+import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
 
 // import DialogActions from '@mui/material/DialogActions'
 
@@ -41,8 +42,6 @@ import IconButton from '@mui/material/IconButton'
 import Grid from '@mui/material/Grid'
 
 import Icon from 'src/@core/components/icon'
-
-import { SettingsContext } from 'src/@core/context/settingsContext'
 
 //api hooks
 
@@ -65,11 +64,11 @@ import { selectAllEmployees } from 'src/store/employeeSlice'
 import { selectAllGroups } from 'src/store/groupSlice'
 import { selectAllRoles } from 'src/store/roleSlice'
 
-interface Props {
-  open: boolean
+// interface Props {
+//   open: boolean
 
-  // toggle: () => void
-}
+//   // toggle: () => void
+// }
 
 interface TaskType {
   id: number
@@ -90,20 +89,7 @@ const Header = styled(Box)<BoxProps>(({ theme }) => ({
   backgroundColor: theme.palette.background.default
 }))
 
-const CustomPaymentInput = forwardRef(({ ...props }, ref: ForwardedRef<HTMLElement>) => {
-  return <TextField inputRef={ref} label='Payment Date' {...props} />
-})
-
 const ProfileTasks = ({ id }: any) => {
-  // console.log(data)
-
-  // const Transition = forwardRef(function Transition(
-  //   props: FadeProps & { children?: ReactElement<any, any> },
-  //   ref: Ref<unknown>
-  // ) {
-  //   return <Fade ref={ref} {...props} />
-  // })
-
   // ** Hooks
   const profileId = id
 
@@ -111,15 +97,14 @@ const ProfileTasks = ({ id }: any) => {
   usePostEmployeeSearchQuery({})
   const users = useAppSelector(state => selectAllEmployees(state))
 
-  useGetGroupsQuery({})
+  useGetGroupsQuery()
   const groups = useAppSelector(state => selectAllGroups(state))
 
-  useGetRolesQuery({})
+  useGetRolesQuery()
   const roles = useAppSelector(state => selectAllRoles(state))
-  console.log(roles)
 
   //data set remove this and useEffect and use global
-  const [data, setData] = useState<any>([])
+  // const [data, setData] = useState<any>([])
 
   //Drawer Form variables
   const [drawerTitle, setDrawerTitle] = useState<string>('Create')
@@ -138,17 +123,14 @@ const ProfileTasks = ({ id }: any) => {
   const [selectedDataSource, setSelectedDataSource] = useState<any>([])
   let rows = []
 
-  // const { isLoading, isSuccess, isError, error }= useAppSelector(state => selectTaskByProfileId(state, profileId))
-
-  // const [paymentDate, setPaymentDate] = useState<DateType>()
-  // const [rows, setRows] = useState<any>([])
-
   //State Management
   //set selectedTask type to taskType
 
   const [checkedValues, setCheckedValues] = useState<any>([])
 
   const [selectedTask, setSelectedTask] = useState<any>({})
+
+  // const [selectedTask, setSelectedTask] = useState<TaskType>({})
   const [focus, setFocus] = useState<Focused>()
   const [openAddTask, setOpenAddTask] = useState<boolean>(false)
   const [openEditTask, setOpenEditTask] = useState<boolean>(false)
@@ -159,11 +141,12 @@ const ProfileTasks = ({ id }: any) => {
   const [triggerDelete, { isSuccess: deleteApiSuccess }] = useDeleteTaskMutation()
   const [triggerBulkUpdate, { isSuccess: bulkUpdateApiSuccess }] = usePutTasksBulkUpdateMutation()
 
+  //handle success calls/ notification
+  console.log(triggerSuccess, editApiSuccess, deleteApiSuccess, bulkUpdateApiSuccess)
+
   const label = { inputProps: { 'aria-label': 'Checkbox demo' } }
 
   const { isLoading, isSuccess, isError } = useGetProfileTasksQuery(profileId)
-
-  // console.log(isLoading, isSuccess, isError)
 
   const dataWithIndex = profileTask.map((obj, index) => {
     return { ...obj, id: index }
@@ -181,99 +164,32 @@ const ProfileTasks = ({ id }: any) => {
         setDrawerTitle('Bulk Update')
       }
     }
-
-    // setSelectedTask({})
   }, [checkedValues])
-
-  // const loadData = () => {
-  //   rows = []
-  //   rows = dataWithIndex
-  //   console.log(rows)
-  // }
-  // console.log(dataWithIndex)
-  // console.log(rows)
-  // loadData()
-  // console.log(rows)
-
-  // loadData
-  //use isLoading state to conditionally render data
-  //use global
-  // console.log(profileTask)
-  // console.log(isLoading, isSuccess, isError, error)
-
-  // const tasksData = profileTask
-  // console.log(profileTask)
-
-  // const tasksData = useGetProfileTasksQuery(profileId)
-
-  // const tasksData = useGetProfileTasksQuery('9158384435')
-
-  // console.log(tasksData)
-
-  // if (tasksData) {
-  // console.log(tasksData)
-  // const dataWithIndex = tasksData.map((obj, index) => {
-  //   return { ...obj, id: index }
-  // })
-  // console.log(dataWithIndex)
-
-  // setRows(dataWithIndex)
-
-  // setData(tasksData)
-  // console.log(rows)
-
-  // }
-
-  //Global localstate useEffect, need to remove and use global global
-  // useEffect(() => {
-  //   if (tasksData) {
-  //     console.log(tasksData)
-
-  //     //adds index to data needed for dataGrid display can move to a function
-  //     const dataWithIndex = tasksData.map((obj, index) => {
-  //       return { ...obj, id: index }
-  //     })
-  //     console.log(dataWithIndex)
-
-  //     setRows(dataWithIndex)
-  //     setData(tasksData)
-
-  //     // setSelectedTask({})
-  //   }
-  // }, [tasksData, data])
 
   //selected Task useeffect
 
-  // useEffect(() => {
-  //   openEditDrawer()
-  //   // openadd
-  // }, [selectedTask])
+  // function openEditDrawer() {
+  //   console.log(selectedTask)
+  //   handleEditTaskOpen()
 
-  function openEditDrawer() {
-    console.log(selectedTask)
-    handleEditTaskOpen()
+  //   // setOpenAddTask(false)
 
-    // setOpenAddTask(false)
+  //   // handleEditTaskOpen()
+  // }
 
-    // handleEditTaskOpen()
-  }
-
-  function handleGetTaskById(choice) {
-    setSelectedTask(choice.row)
-    setOpenAddTask(true)
-  }
+  // function handleGetTaskById(choice) {
+  //   setSelectedTask(choice.row)
+  //   setOpenAddTask(true)
+  // }
 
   //DATASOURCE LOADING FOR DROPDOWNS
   //Not loading correct, loads the thing before, need to wait for it to set, maybe need useeffect to update list based on whenever new group button clicked
   //NEED TO MAKE DROPDOWNS FILTERABLE/SEARCHABLe
   const getAssigneeSources = async (assigneeChoice: any) => {
     //move to own hook?/selector
-    const mine = []
-    console.log(assigneeChoice)
-    console.log(assigneeType)
-    console.log(selectedDataSource)
+    // const mine = []
+
     setAssigneeType(assigneeChoice)
-    console.log(assigneeType)
 
     //add other assignees, make sure assignee type is right, and dataloaded correctly.async
     if (assigneeType == 0) {
@@ -283,48 +199,30 @@ const ProfileTasks = ({ id }: any) => {
         label: employee.employeeAlias,
         value: employee.employeeId
       }))
-      console.log(employeeList)
-
-      // mine = employeeList
 
       setSelectedDataSource(employeeList)
-      console.log(selectedDataSource)
     }
     if (assigneeType == 1) {
       // GROUPS
-      console.log('11111')
 
       const groupList = groups.map((group: any) => ({
         label: group.name,
         value: group.groupId
       }))
-      console.log(groupList)
-
-      // mine = groupList
 
       setSelectedDataSource(groupList)
-      console.log(selectedDataSource)
     }
     if (assigneeType == 2) {
       // Roles
-      console.log('ROles loaded')
 
       const rolesList = roles.map((role: any) => ({
         label: role.name,
         value: role.roleId
       }))
-      console.log(rolesList)
-
-      // mine = rolesList
 
       setSelectedDataSource(rolesList)
       console.log(selectedDataSource)
     }
-    console.log(selectedDataSource)
-
-    // setSelectedDataSource(mine)
-
-    // console.log(group)
   }
 
   //actual create request
@@ -407,10 +305,6 @@ const ProfileTasks = ({ id }: any) => {
   }
 
   const actionChecker = () => {
-    console.log(drawerTitle)
-    console.log(checkedValues)
-    console.log(openAddTask)
-
     // setOpenAddTask(false)
     if (checkedValues.length == 1) {
       // const findEntry = profileTask.find(item => item.taskId !== checkedValues[0])
@@ -506,7 +400,9 @@ const ProfileTasks = ({ id }: any) => {
     }
   }
 
-  const handleCheckboxChange = event => {
+  //wrong typing?
+
+  const handleCheckboxChange = (event: ChangeEvent) => {
     // checkbox not rendered need to persist
     const value = event.target.value
     if (event.target.checked) {
@@ -514,10 +410,10 @@ const ProfileTasks = ({ id }: any) => {
       const findEntry = profileTask.find(item => item.taskId !== checkedValues[0])
       setSelectedTask(findEntry)
     } else {
-      setCheckedValues(checkedValues.filter(item => item !== value))
+      setCheckedValues(checkedValues.filter((item: any) => item !== value))
     }
   }
-  const renderEditTaskCheckbox = params => {
+  const renderEditTaskCheckbox = (params: any) => {
     return <Checkbox {...label} value={params.row.taskId} onChange={handleCheckboxChange} />
   }
 
@@ -623,34 +519,35 @@ const ProfileTasks = ({ id }: any) => {
 
   if (isLoading) return <div>Loading</div>
 
-  return (
-    <>
-      <Grid container spacing={6}>
-        <Grid item xs={12}>
-          {/* <Box sx={{ height: 50, width: '100%' }}> */}
-          <Typography variant='h5'>Tasks</Typography>
+  if (isSuccess)
+    return (
+      <>
+        <Grid container spacing={6}>
+          <Grid item xs={12}>
+            {/* <Box sx={{ height: 50, width: '100%' }}> */}
+            <Typography variant='h5'>Tasks</Typography>
 
-          <Button
-            size='medium'
-            type='submit'
-            variant='contained'
-            color='secondary'
-            sx={{ mb: 7, position: 'absolute', right: '12%' }}
-            // onClick={handleAddTaskOpen}
-            onClick={actionChecker}
+            <Button
+              size='medium'
+              type='submit'
+              variant='contained'
+              color='secondary'
+              sx={{ mb: 7, position: 'absolute', right: '12%' }}
+              // onClick={handleAddTaskOpen}
+              onClick={actionChecker}
 
-            // disabled={checkedValues.length > 1}
-          >
-            {checkedValues.length > 1 && <div>{drawerTitle + ' ' + checkedValues.length} Tasks</div>}
-            {checkedValues.length < 1 && <div>{drawerTitle} Task</div>}
-            {checkedValues.length == 1 && <div>{drawerTitle + ' ' + checkedValues.length} Task</div>}
-            {/* {drawerTitle + ' ' + checkedValues.length} Task */}
-          </Button>
-          {/* </Box> */}
-          {/* </Grid>
+              // disabled={checkedValues.length > 1}
+            >
+              {checkedValues.length > 1 && <div>{drawerTitle + ' ' + checkedValues.length} Tasks</div>}
+              {checkedValues.length < 1 && <div>{drawerTitle} Task</div>}
+              {checkedValues.length == 1 && <div>{drawerTitle + ' ' + checkedValues.length} Task</div>}
+              {/* {drawerTitle + ' ' + checkedValues.length} Task */}
+            </Button>
+            {/* </Box> */}
+            {/* </Grid>
         <Grid item xs={12}> */}
-          {/* BULKUPDATE BUTTON */}
-          {/* <Button
+            {/* BULKUPDATE BUTTON */}
+            {/* <Button
             size='medium'
             type='submit'
             variant='contained'
@@ -662,34 +559,34 @@ const ProfileTasks = ({ id }: any) => {
           >
             Bulk Update Task
           </Button> */}
-        </Grid>
-        <Grid item xs={12}>
-          <Box sx={{ height: 400, width: '100%' }}>
-            {isLoading}
-            {isError}
-            <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }}></DataGrid>
-            {/* <DataGrid rows={dataWithIndex} columns={columns} sx={{ mt: 7 }}></DataGrid> */}
-          </Box>
-        </Grid>
+          </Grid>
+          <Grid item xs={12}>
+            <Box sx={{ height: 400, width: '100%' }}>
+              {isLoading}
+              {isError}
+              <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }}></DataGrid>
+              {/* <DataGrid rows={dataWithIndex} columns={columns} sx={{ mt: 7 }}></DataGrid> */}
+            </Box>
+          </Grid>
 
-        <Grid item xs={12}>
-          <Drawer
-            open={openAddTask}
-            onClose={() => setOpenAddTask(false)}
-            anchor='right'
-            variant='temporary'
-            ModalProps={{ keepMounted: true }}
-            sx={{ '& .MuiDrawer-paper': { width: [300, 400] } }}
-          >
-            <Header>
-              <Typography variant='h6'>{drawerTitle ?? ''} Task</Typography>
-              <IconButton size='small' sx={{ color: 'text.primary' }}>
-                <Icon icon='mdi:close' fontSize={20} />
-              </IconButton>
-            </Header>
+          <Grid item xs={12}>
+            <Drawer
+              open={openAddTask}
+              onClose={() => setOpenAddTask(false)}
+              anchor='right'
+              variant='temporary'
+              ModalProps={{ keepMounted: true }}
+              sx={{ '& .MuiDrawer-paper': { width: [300, 400] } }}
+            >
+              <Header>
+                <Typography variant='h6'>{drawerTitle ?? ''} Task</Typography>
+                <IconButton size='small' sx={{ color: 'text.primary' }}>
+                  <Icon icon='mdi:close' fontSize={20} />
+                </IconButton>
+              </Header>
 
-            <Box sx={{ p: 5 }}>
-              {/* <TextField
+              <Box sx={{ p: 5 }}>
+                {/* <TextField
                     fullWidth
                     name='task-name'
                     label='Task Name'
@@ -701,44 +598,42 @@ const ProfileTasks = ({ id }: any) => {
                     inputProps={{ maxLength: 100 }}
                     onFocus={e => setFocus(e.target.name as Focused)}
                   /> */}
-              {drawerTitle != 'Bulk Update' && (
-                <Box sx={{ mb: 6 }}>
-                  <FormControl fullWidth>
-                    <TextField
-                      fullWidth
-                      name='task-name'
-                      label='Task Name'
-                      value={taskName ?? ''}
-                      // defaultValue='hi'
-                      onBlur={handleBlur}
-                      placeholder='Task Name'
-                      onChange={handleInputChange}
-                      inputProps={{ maxLength: 100 }}
-                      onFocus={e => setFocus(e.target.name as Focused)}
-                    />
-                  </FormControl>
-                </Box>
-              )}
-              {drawerTitle === 'Bulk Update' && (
-                <Box sx={{ mb: 6 }}>
-                  <FormControl fullWidth>
-                    <TextField
-                      fullWidth
-                      name='task-name'
-                      label='Task Name'
-                      value={taskName ?? ''}
-                      // defaultValue='hi'
-                      onBlur={handleBlur}
-                      placeholder='Task Name'
-                      onChange={handleInputChange}
-                      inputProps={{ maxLength: 100 }}
-                      onFocus={e => setFocus(e.target.name as Focused)}
-                      disabled={true}
-                    />
-                  </FormControl>
-                </Box>
-              )}
-              {/* <InputLabel htmlFor='payment-method'>Task Name</InputLabel>
+                {drawerTitle != 'Bulk Update' && (
+                  <Box sx={{ mb: 6 }}>
+                    <FormControl fullWidth>
+                      <TextField
+                        fullWidth
+                        name='task-name'
+                        label='Task Name'
+                        value={taskName ?? ''}
+                        onBlur={handleBlur}
+                        placeholder='Task Name'
+                        onChange={handleInputChange}
+                        inputProps={{ maxLength: 100 }}
+                        onFocus={e => setFocus(e.target.name as Focused)}
+                      />
+                    </FormControl>
+                  </Box>
+                )}
+                {drawerTitle === 'Bulk Update' && (
+                  <Box sx={{ mb: 6 }}>
+                    <FormControl fullWidth>
+                      <TextField
+                        fullWidth
+                        name='task-name'
+                        label='Task Name'
+                        value={taskName ?? ''}
+                        onBlur={handleBlur}
+                        placeholder='Task Name'
+                        onChange={handleInputChange}
+                        inputProps={{ maxLength: 100 }}
+                        onFocus={e => setFocus(e.target.name as Focused)}
+                        disabled={true}
+                      />
+                    </FormControl>
+                  </Box>
+                )}
+                {/* <InputLabel htmlFor='payment-method'>Task Name</InputLabel>
                   <Select
                     label='Task Name'
                     labelId='task-name'
@@ -751,16 +646,16 @@ const ProfileTasks = ({ id }: any) => {
                       Select Task Name
 
                     </MenuItem> */}
-              {/* swtich to select if edit, else use textfield */}
-              {/* {options.map(option => (
+                {/* swtich to select if edit, else use textfield */}
+                {/* {options.map(option => (
                 <MenuItem key={option.taskName} value={option.id}>
                   {option.taskName}
                 </MenuItem>
               ))} */}
 
-              {/* </Select> */}
+                {/* </Select> */}
 
-              {/* <Box sx={{ mb: 6 }}>
+                {/* <Box sx={{ mb: 6 }}>
           <TextField
             fullWidth
             id='companyName'
@@ -769,9 +664,9 @@ const ProfileTasks = ({ id }: any) => {
             defaultValue='Task Name'
           />
         </Box> */}
-              <Box sx={{ mb: 6 }}>
-                {/* commented out datepicker and config type */}
-                {/* <DatePickerWrapper sx={{ '& .MuiFormControl-root': { width: '100%' } }}>
+                <Box sx={{ mb: 6 }}>
+                  {/* commented out datepicker and config type */}
+                  {/* <DatePickerWrapper sx={{ '& .MuiFormControl-root': { width: '100%' } }}>
                   <DatePicker
                     // selected={paymentDate}
                     value={paymentDate}
@@ -783,20 +678,19 @@ const ProfileTasks = ({ id }: any) => {
                     // onChange={handleInputChange}
                   />
                 </DatePickerWrapper> */}
-                <TextField
-                  fullWidth
-                  name='task-paymentDate'
-                  label='Task Payment Date'
-                  value={paymentDate ?? ''}
-                  // defaultValue='hi'
-                  onBlur={handleBlur}
-                  placeholder='Task Payment Date'
-                  onChange={handleInputChange}
-                  inputProps={{ maxLength: 100 }}
-                  onFocus={e => setFocus(e.target.name as Focused)}
-                />
-              </Box>
-              {/* <Box sx={{ mb: 6 }}>
+                  <TextField
+                    fullWidth
+                    name='task-paymentDate'
+                    label='Task Payment Date'
+                    value={paymentDate ?? ''}
+                    onBlur={handleBlur}
+                    placeholder='Task Payment Date'
+                    onChange={handleInputChange}
+                    inputProps={{ maxLength: 100 }}
+                    onFocus={e => setFocus(e.target.name as Focused)}
+                  />
+                </Box>
+                {/* <Box sx={{ mb: 6 }}>
           <TextField
             fullWidth
             type='number'
@@ -806,118 +700,118 @@ const ProfileTasks = ({ id }: any) => {
             }}
           />
         </Box> */}
-              {/* <Box sx={{ mb: 6 }}>{selectedTask.taskId}</Box> */}
-              <Box sx={{ mb: 6 }}>
-                <ButtonGroup variant='contained' sx={{ ml: 10 }}>
-                  {/* <Button onClick={() => setGroup('Users')}>Users</Button>
+                {/* <Box sx={{ mb: 6 }}>{selectedTask.taskId}</Box> */}
+                <Box sx={{ mb: 6 }}>
+                  <ButtonGroup variant='contained' sx={{ ml: 10 }}>
+                    {/* <Button onClick={() => setGroup('Users')}>Users</Button>
                   <Button onClick={() => setGroup('Teams')}>Teams</Button>
                   <Button onClick={() => setGroup('Roles')}>Roles</Button> */}
-                  <Button onClick={() => getAssigneeSources(0)}>Users</Button>
-                  <Button onClick={() => getAssigneeSources(1)}>Teams</Button>
-                  <Button onClick={() => getAssigneeSources(2)}>Roles</Button>
-                </ButtonGroup>
-              </Box>
-              {/* {group} */}
+                    <Button onClick={() => getAssigneeSources(0)}>Users</Button>
+                    <Button onClick={() => getAssigneeSources(1)}>Teams</Button>
+                    <Button onClick={() => getAssigneeSources(2)}>Roles</Button>
+                  </ButtonGroup>
+                </Box>
+                {/* {group} */}
 
-              <Box sx={{ mb: 6 }}>
-                <FormControl fullWidth>
-                  <InputLabel htmlFor='payment-method'>Choose..</InputLabel>
-                  <Select
-                    label='Select Group'
-                    labelId='task-group'
-                    name='task-group'
-                    id='payment-method-select'
-                    defaultValue='select-method'
-                  >
-                    <MenuItem value='select-method' disabled>
-                      Select Group
-                    </MenuItem>
-
-                    {selectedDataSource.map(option => (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label}
+                <Box sx={{ mb: 6 }}>
+                  <FormControl fullWidth>
+                    <InputLabel htmlFor='payment-method'>Choose..</InputLabel>
+                    <Select
+                      label='Select Group'
+                      labelId='task-group'
+                      name='task-group'
+                      id='payment-method-select'
+                      defaultValue='select-method'
+                    >
+                      <MenuItem value='select-method' disabled>
+                        Select Group
                       </MenuItem>
-                    ))}
-                    {/* //need to set a limit number of dropdown */}
-                    {/* //Load group from user roles teams, calls api depending on useState of group */}
-                  </Select>
-                </FormControl>
-              </Box>
-              <Box sx={{ mb: 6 }}>
-                <FormControl fullWidth>
-                  <TextField
-                    rows={6}
-                    multiline
-                    fullWidth
-                    name='task-note'
-                    label='Note'
-                    placeholder='Note'
-                    value={note ?? ''}
-                    onBlur={handleBlur}
-                    onChange={handleInputChange}
-                    inputProps={{ maxLength: 1000 }}
-                    onFocus={e => setFocus(e.target.name as Focused)}
-                  ></TextField>
-                </FormControl>
-              </Box>
-              {/* <Box sx={{ mb: 6 }}>
+
+                      {selectedDataSource.map((option: any) => (
+                        <MenuItem key={option.value} value={option.value}>
+                          {option.label}
+                        </MenuItem>
+                      ))}
+                      {/* //need to set a limit number of dropdown */}
+                      {/* //Load group from user roles teams, calls api depending on useState of group */}
+                    </Select>
+                  </FormControl>
+                </Box>
+                <Box sx={{ mb: 6 }}>
+                  <FormControl fullWidth>
+                    <TextField
+                      rows={6}
+                      multiline
+                      fullWidth
+                      name='task-note'
+                      label='Note'
+                      placeholder='Note'
+                      value={note ?? ''}
+                      onBlur={handleBlur}
+                      onChange={handleInputChange}
+                      inputProps={{ maxLength: 1000 }}
+                      onFocus={e => setFocus(e.target.name as Focused)}
+                    ></TextField>
+                  </FormControl>
+                </Box>
+                {/* <Box sx={{ mb: 6 }}>
                 <FormGroup>
                   <FormControlLabel control={<Switch defaultChecked />} name={status} label='Active' />
                 </FormGroup>
               </Box> */}
 
-              <div>
-                {/* conditional rendering button */}
-                {drawerTitle === 'Create' && (
-                  <Box sx={{ mb: 6, ml: 4 }}>
-                    <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleCreateClick()}>
-                      Create
-                    </Button>
-                    <Button size='large' variant='outlined' color='error' onClick={() => setOpenAddTask(false)}>
-                      Cancel
-                    </Button>
-                  </Box>
-                )}
-                {drawerTitle === 'Edit' && (
-                  <Box sx={{ mb: 6, ml: 4 }}>
-                    <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleEditClick()}>
-                      Update
-                    </Button>
-                    <Button
-                      size='large'
-                      variant='outlined'
-                      color='error'
-                      sx={{ mr: 4 }}
-                      onClick={() => handleDeleteClick()}
-                    >
-                      Delete
-                    </Button>
-                  </Box>
-                )}
-                {drawerTitle === 'Bulk Update' && (
-                  <Box sx={{ mb: 6, ml: 4 }}>
-                    <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleBulkUpdateClick()}>
-                      Bulk Update
-                    </Button>
-                    <Button size='large' variant='outlined' color='error' onClick={() => setOpenAddTask(false)}>
-                      Cancel
-                    </Button>
-                  </Box>
-                )}
-              </div>
-            </Box>
-            {/* {drawerTitle === 'Edit' && (
+                <div>
+                  {/* conditional rendering button */}
+                  {drawerTitle === 'Create' && (
+                    <Box sx={{ mb: 6, ml: 4 }}>
+                      <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleCreateClick()}>
+                        Create
+                      </Button>
+                      <Button size='large' variant='outlined' color='error' onClick={() => setOpenAddTask(false)}>
+                        Cancel
+                      </Button>
+                    </Box>
+                  )}
+                  {drawerTitle === 'Edit' && (
+                    <Box sx={{ mb: 6, ml: 4 }}>
+                      <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleEditClick()}>
+                        Update
+                      </Button>
+                      <Button
+                        size='large'
+                        variant='outlined'
+                        color='error'
+                        sx={{ mr: 4 }}
+                        onClick={() => handleDeleteClick()}
+                      >
+                        Delete
+                      </Button>
+                    </Box>
+                  )}
+                  {drawerTitle === 'Bulk Update' && (
+                    <Box sx={{ mb: 6, ml: 4 }}>
+                      <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleBulkUpdateClick()}>
+                        Bulk Update
+                      </Button>
+                      <Button size='large' variant='outlined' color='error' onClick={() => setOpenAddTask(false)}>
+                        Cancel
+                      </Button>
+                    </Box>
+                  )}
+                </div>
+              </Box>
+              {/* {drawerTitle === 'Edit' && (
               <Box sx={{ mb: 6, ml: 4 }}>
                 <Button size='large' variant='contained' sx={{ mr: 4 }} onClick={() => handleDeleteClick()}>
                   Delete
                 </Button>
               </Box>
             )} */}
-          </Drawer>
+            </Drawer>
+          </Grid>
         </Grid>
-      </Grid>
-    </>
-  )
+      </>
+    )
 }
 
 export default ProfileTasks

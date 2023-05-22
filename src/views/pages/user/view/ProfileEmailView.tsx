@@ -1,27 +1,27 @@
-import { MouseEvent, SyntheticEvent } from 'react'
+// import { MouseEvent, SyntheticEvent } from 'react'
 
-import { Ref, useState, ChangeEvent, useEffect, forwardRef, ReactElement, ForwardedRef } from 'react'
+// import { Ref, useState, ChangeEvent, useEffect, forwardRef, ReactElement, ForwardedRef } from 'react'
+import { useState, ChangeEvent } from 'react'
 
 import Button from '@mui/material/Button'
-import ButtonGroup from '@mui/material/ButtonGroup'
-import MenuItem from '@mui/material/MenuItem'
-import TextField from '@mui/material/TextField'
-import Drawer from '@mui/material/Drawer'
-import Select from '@mui/material/Select'
-import InputLabel from '@mui/material/InputLabel'
-import Typography from '@mui/material/Typography'
-import Box, { BoxProps } from '@mui/material/Box'
-import FormControl from '@mui/material/FormControl'
 
-import InputAdornment from '@mui/material/InputAdornment'
-import Cards, { Focused } from 'react-credit-cards'
-import { DateType } from 'src/types/forms/reactDatepickerTypes'
-import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
-import DatePicker from 'react-datepicker'
-import FormGroup from '@mui/material/FormGroup'
-import FormControlLabel from '@mui/material/FormControlLabel'
-import Switch from '@mui/material/Switch'
-import Checkbox from '@mui/material/Checkbox'
+import TextField from '@mui/material/TextField'
+
+import Typography from '@mui/material/Typography'
+import Box from '@mui/material/Box'
+
+// import FormControl from '@mui/material/FormControl'
+
+// import InputAdornment from '@mui/material/InputAdornment'
+import { Focused } from 'react-credit-cards'
+
+// import { DateType } from 'src/types/forms/reactDatepickerTypes'
+// import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
+// import DatePicker from 'react-datepicker'
+// import FormGroup from '@mui/material/FormGroup'
+// import FormControlLabel from '@mui/material/FormControlLabel'
+// import Switch from '@mui/material/Switch'
+// import Checkbox from '@mui/material/Checkbox'
 import DialogContent from '@mui/material/DialogContent'
 import Card from '@mui/material/Card'
 
@@ -30,12 +30,13 @@ import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 
 //wysiwyg editor
-import { EditorState, ContentState } from 'draft-js'
-import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
+// import { EditorState, ContentState } from 'draft-js'
+// import { EditorState } from 'draft-js'
+// import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 
 // ** Types
 
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
+import { DataGrid, GridColDef } from '@mui/x-data-grid'
 
 // import DialogActions from '@mui/material/DialogActions'
 
@@ -44,82 +45,60 @@ import 'react-credit-cards/es/styles-compiled.css'
 
 // ** MUI Imports
 
-import { styled } from '@mui/material/styles'
-
 import IconButton from '@mui/material/IconButton'
 
 import Grid from '@mui/material/Grid'
 
 import Icon from 'src/@core/components/icon'
 
-import { SettingsContext } from 'src/@core/context/settingsContext'
+// import { SettingsContext } from 'src/@core/context/settingsContext'
 
 //api hooks
 
 import {
-  useGetEmailQuery,
-  useGetProfileLiabilityEmailsQuery,
+  // useGetEmailQuery,
+  // useGetProfileLiabilityEmailsQuery,
   usePostProfileEmailMutation,
-  postProfileLiabilityEmail,
-  usePostProfileLiabilityEmailMutation,
-  usePostEmailAttachmentMutation,
+
+  // postProfileLiabilityEmail,
+  // usePostProfileLiabilityEmailMutation,
+  // usePostEmailAttachmentMutation,
   useGetProfileEmailsQuery
 } from 'src/store/api/apiHooks'
 import { useAppSelector } from 'src/store/hooks'
 import { selectEmailByProfileId } from 'src/store/emailSlice'
-import { profile } from 'console'
 
-interface Props {
-  open: boolean
+// interface Props {
+//   open: boolean
 
-  // toggle: () => void
-}
+//   // toggle: () => void
+// }
 
-interface TaskType {
-  id: number
-  taskName?: string
+// interface TaskType {
+//   id: number
+//   taskName?: string
 
-  // dueDate: DateType
-  dueDate: string
-  assignedTo?: string
-  note: string
-  status?: string
-}
+//   // dueDate: DateType
+//   dueDate: string
+//   assignedTo?: string
+//   note: string
+//   status?: string
+// }
 
-const Header = styled(Box)<BoxProps>(({ theme }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  padding: theme.spacing(3, 4),
-  justifyContent: 'space-between',
-  backgroundColor: theme.palette.background.default
-}))
-const EditorControlled = () => {
-  // ** State
-  const [value, setValue] = useState(EditorState.createEmpty())
+// const EditorControlled = () => {
+//   // ** State
+//   const [value, setValue] = useState(EditorState.createEmpty())
 
-  return <ReactDraftWysiwyg editorState={value} onEditorStateChange={data => setValue(data)} />
-}
-
-const CustomPaymentInput = forwardRef(({ ...props }, ref: ForwardedRef<HTMLElement>) => {
-  return <TextField inputRef={ref} label='Payment Date' {...props} />
-})
+//   return <ReactDraftWysiwyg editorState={value} onEditorStateChange={data => setValue(data)} />
+// }
 
 const ProfileEmail = ({ id }: any) => {
-  // console.log(data)
-
-  // const Transition = forwardRef(function Transition(
-  //   props: FadeProps & { children?: ReactElement<any, any> },
-  //   ref: Ref<unknown>
-  // ) {
-  //   return <Fade ref={ref} {...props} />
-  // })
-  const [editor, setEditor] = useState(EditorState.createEmpty())
+  // const [editor, setEditor] = useState(EditorState.createEmpty())
 
   // ** Hooks
   const profileId = id
 
   //data set remove this and useEffect and use global
-  const [data, setData] = useState<any>([])
 
   //Drawer Form variables
   const [dialogTitle, setDialogTitle] = useState<string>('Create')
@@ -158,8 +137,6 @@ const ProfileEmail = ({ id }: any) => {
   // const [triggerDelete, { isSuccess: deleteApiSuccess }] = useDeleteTaskMutation()
   // const [triggerBulkUpdate, { isSuccess: bulkUpdateApiSuccess }] = usePutBulkUpdateTasksMutation()
 
-  const label = { inputProps: { 'aria-label': 'Checkbox demo' } }
-
   const { isLoading, isSuccess, isError } = useGetProfileEmailsQuery(profileId)
 
   // console.log(isLoading, isSuccess, isError)
@@ -167,48 +144,13 @@ const ProfileEmail = ({ id }: any) => {
   const dataWithIndex = profileEmail.map((obj, index) => {
     return { ...obj, id: index }
   })
+
+  //sends Data with index to rows for data grid display
   rows = dataWithIndex
-  console.log(rows)
 
-  const handleEditorChange = (state: EditorState) => {
-    setEditor(state)
-  }
-
-  // useEffect(() => {
-  //   if (checkedValues) {
-  //     if (checkedValues.length == 0) {
-  //       setDrawerTitle('Create')
-  //     }
-  //     if (checkedValues.length == 1) {
-  //       setDrawerTitle('Edit')
-  //     }
-  //     if (checkedValues.length > 1) {
-  //       setDrawerTitle('Bulk Update')
-  //     }
-  //   }
-
-  //   // setSelectedTask({})
-  // }, [checkedValues])
-
-  //Global localstate useEffect, need to remove and use global global
-  // useEffect(() => {
-  //   if (tasksData) {
-  //     console.log(tasksData)
-
-  //     //adds index to data needed for dataGrid display can move to a function
-  //     const dataWithIndex = tasksData.map((obj, index) => {
-  //       return { ...obj, id: index }
-  //     })
-  //     console.log(dataWithIndex)
-
-  //     setRows(dataWithIndex)
-  //     setData(tasksData)
-
-  //     // setSelectedTask({})
-  //   }
-  // }, [tasksData, data])
-
-  //selected Task useeffect
+  // const handleEditorChange = (state: EditorState) => {
+  //   setEditor(state)
+  // }
 
   // useEffect(() => {
   //   openEditDialog()
@@ -216,25 +158,25 @@ const ProfileEmail = ({ id }: any) => {
   //   // openadd
   // }, [selectedEmail])
 
-  function openEditDialog() {
-    handleEditEmailOpen()
+  // function openEditDialog() {
+  //   handleEditEmailOpen()
 
-    // setOpenAddTask(false)
+  //   // setOpenAddTask(false)
 
-    // handleEditTaskOpen()
-  }
+  //   // handleEditTaskOpen()
+  // }
 
-  function handleGetTaskById(choice) {
-    console.log(choice)
-    setSelectedEmail(choice.row)
-    console.log(selectedEmail)
-    handleEditTaskOpen()
+  // function handleGetTaskById(choice:string) {
+  //   console.log(choice)
+  //   setSelectedEmail(choice.row)
+  //   console.log(selectedEmail)
+  //   handleEditTaskOpen()
 
-    // setOpenAddEmail(true)
-  }
+  //   // setOpenAddEmail(true)
+  // }
 
   //actual create request
-  async function handleCreateEmailClick(params) {
+  async function handleCreateEmailClick() {
     const payload = {
       profileId,
       subject: subject,
@@ -242,6 +184,7 @@ const ProfileEmail = ({ id }: any) => {
       sentFrom: sentFrom,
       sentTo: sentTo
     }
+    console.log(payload)
 
     const postResponse = await triggerCreate(payload).unwrap()
     console.log(postResponse)
@@ -317,21 +260,6 @@ const ProfileEmail = ({ id }: any) => {
     setOpenAddEmail(true)
   }
 
-  const handleEditTaskClose = () => {
-    console.log('Closing')
-
-    resetForm()
-
-    // setDrawerTitle('Add')
-    // setTaskName('')
-    // setSelectedGroup('')
-    // setPaymentDate(1)
-    // setStatus('')
-    // setNote('')
-    // setOpenAddTask(false)
-    // setOpenEditTask(false)
-  }
-
   const handleAddEmailClose = () => {
     console.log('Closing')
 
@@ -368,20 +296,12 @@ const ProfileEmail = ({ id }: any) => {
   // }
 
   //fixing and checking for missing values using valueGetter in columns
-  const getCompletedDate = (params: GridValueGetterParams) => {
-    if (`${params.row.completedDate}`) {
-      return 'Incomplete'
-    } else {
-      return `${params.row.completedDate}`
-    }
-  }
 
-  const handleEditEmailChange = params => {
+  const handleEditEmailChange = (params: any) => {
     // setSelectedEmail('')
-    console.log('EDIT EMAIL')
-    console.log(params)
+
     const myEmail = profileEmail.find(email => email.emailId == params.row.emailId)
-    console.log(myEmail)
+
     if (myEmail) {
       setDialogTitle('Edit')
       setCreatedAt(myEmail.createdAt)
@@ -423,20 +343,7 @@ const ProfileEmail = ({ id }: any) => {
     // console.log(selectedEmail)
   }
 
-  // const renderEditEmailButton = params => {
-  //   return (
-  //     <IconButton
-  //       size='small'
-  //       sx={{ color: 'text.primary' }}
-  //       value={params.row.emailId}
-  //       onClick={() => handleEditEmailChange(params)}
-  //     >
-  //       <Icon icon='mdi:edit' fontSize={20} />
-  //     </IconButton>
-  //   )
-  // }
-
-  const renderEditEmailButton = params => {
+  const renderEditEmailButton = (params: any) => {
     console.log(params)
 
     return (
@@ -540,182 +447,170 @@ const ProfileEmail = ({ id }: any) => {
 
   if (isLoading) return <div>Loading</div>
 
-  return (
-    <>
-      <Grid container spacing={6}>
-        <Grid item xs={12}>
-          {/* <Box sx={{ height: 50, width: '100%' }}> */}
-          <Typography variant='h5'>Emails</Typography>
+  if (isSuccess)
+    return (
+      <>
+        <Grid container spacing={6}>
+          <Grid item xs={12}>
+            {/* <Box sx={{ height: 50, width: '100%' }}> */}
+            <Typography variant='h5'>Emails</Typography>
 
-          <Button
-            size='medium'
-            type='submit'
-            variant='contained'
-            color='secondary'
-            sx={{ mb: 7, position: 'absolute', right: '12%' }}
-            onClick={actionChecker}
+            <Button
+              size='medium'
+              type='submit'
+              variant='contained'
+              color='secondary'
+              sx={{ mb: 7, position: 'absolute', right: '12%' }}
+              onClick={actionChecker}
 
-            // onClick={actionChecker}
+              // onClick={actionChecker}
 
-            // disabled={checkedValues.length > 1}
-          >
-            Compose Email
-            {/* {checkedValues.length > 1 && <div>{drawerTitle + ' ' + checkedValues.length} Tasks</div>}
+              // disabled={checkedValues.length > 1}
+            >
+              Compose Email
+              {/* {checkedValues.length > 1 && <div>{drawerTitle + ' ' + checkedValues.length} Tasks</div>}
             {checkedValues.length < 1 && <div>{drawerTitle} Task</div>}
             {checkedValues.length == 1 && <div>{drawerTitle + ' ' + checkedValues.length} Task</div>} */}
-          </Button>
-          {/* </Box> */}
-          {/* </Grid>
+            </Button>
+            {/* </Box> */}
+            {/* </Grid>
         <Grid item xs={12}> */}
-          {/* BULKUPDATE BUTTON */}
-          {/* <Button
-            size='medium'
-            type='submit'
-            variant='contained'
-            color='secondary'
-            sx={{ mb: 7, position: 'absolute', right: '24%' }}
-            // onClick={() => handleBulkEditTaskOpen()}
-            onClick={actionChecker}
-            disabled={checkedValues.length <= 1}
-          >
-            Bulk Update Task
-          </Button> */}
-        </Grid>
-        <Grid item xs={12}>
-          <Box sx={{ height: 400, width: '100%' }}>
-            {isLoading}
-            {isError}
-            <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }}></DataGrid>
-            {/* <DataGrid rows={dataWithIndex} columns={columns} sx={{ mt: 7 }}></DataGrid> */}
-          </Box>
-        </Grid>
+          </Grid>
+          <Grid item xs={12}>
+            <Box sx={{ height: 400, width: '100%' }}>
+              {isLoading}
+              {isError}
+              <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }}></DataGrid>
+              {/* <DataGrid rows={dataWithIndex} columns={columns} sx={{ mt: 7 }}></DataGrid> */}
+            </Box>
+          </Grid>
 
-        <Grid item xs={12}>
-          <Dialog
-            fullWidth
-            open={openAddEmail}
-            maxWidth='md'
-            scroll='body'
-            onClose={() => handleAddEmailClose()}
+          <Grid item xs={12}>
+            <Dialog
+              fullWidth
+              open={openAddEmail}
+              maxWidth='md'
+              scroll='body'
+              onClose={() => handleAddEmailClose()}
 
-            // sx={{ '& .MuiDrawer-paper': { width: [300, 400] } }}
-          >
-            <DialogContent
-              sx={{
-                position: 'relative',
-                pb: theme => `${theme.spacing(8)} !important`,
-                px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-                pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-              }}
+              // sx={{ '& .MuiDrawer-paper': { width: [300, 400] } }}
             >
-              <Card>
-                <CardHeader title={`${dialogTitle}` + ' Email'} />
-                <CardContent>
-                  <form>
-                    <Grid container spacing={5}>
-                      <Grid item xs={12}>
-                        <TextField
-                          fullWidth
-                          label='Template'
-                          placeholder='Template'
-                          onBlur={handleBlur}
-                          onChange={handleInputChange}
-                          inputProps={{ maxLength: 1000 }}
-                          onFocus={e => setFocus(e.target.name as Focused)}
-                        />
-                      </Grid>
-                      <Grid item xs={6} sm={6}>
-                        <TextField
-                          label='To'
-                          name='email-sentTo'
-                          value={sentTo ?? ''}
-                          placeholder='Send To...'
-                          onBlur={handleBlur}
-                          onChange={handleInputChange}
-                          inputProps={{ maxLength: 1000 }}
-                          onFocus={e => setFocus(e.target.name as Focused)}
-                        />
-                      </Grid>
-                      <Grid item xs={12} sm={6}>
-                        <TextField
-                          label='From'
-                          name='email-sentFrom'
-                          value={sentFrom ?? ''}
-                          placeholder='Recieve from...'
-                          onBlur={handleBlur}
-                          onChange={handleInputChange}
-                          inputProps={{ maxLength: 1000 }}
-                          onFocus={e => setFocus(e.target.name as Focused)}
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        <TextField
-                          fullWidth
-                          name='email-subject'
-                          value={subject ?? ''}
-                          label='Subject'
-                          onBlur={handleBlur}
-                          onChange={handleInputChange}
-                          inputProps={{ maxLength: 1000 }}
-                          onFocus={e => setFocus(e.target.name as Focused)}
-                        />
-                      </Grid>
-                      <Grid item xs={12}>
-                        {/* {CONVERT TO SUMMERNOTE} */}
-                        <ReactDraftWysiwyg></ReactDraftWysiwyg>
-                        <TextField
-                          fullWidth
-                          name='email-body'
-                          value={body ?? ''}
-                          rows={6}
-                          label='Body'
-                          multiline
-                          placeholder='Message'
-                          onBlur={handleBlur}
-                          onChange={handleInputChange}
-                          inputProps={{ maxLength: 1000 }}
-                          onFocus={e => setFocus(e.target.name as Focused)}
-                        />
-                        {/* <ReactDraftWysiwyg
+              <DialogContent
+                sx={{
+                  position: 'relative',
+                  pb: theme => `${theme.spacing(8)} !important`,
+                  px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
+                  pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
+                }}
+              >
+                <Card>
+                  <CardHeader title={`${dialogTitle}` + ' Email'} />
+                  <CardContent>
+                    <form>
+                      <Grid container spacing={5}>
+                        <Grid item xs={12}>
+                          <TextField
+                            fullWidth
+                            label='Template'
+                            placeholder='Template'
+                            onBlur={handleBlur}
+                            onChange={handleInputChange}
+                            inputProps={{ maxLength: 1000 }}
+                            onFocus={e => setFocus(e.target.name as Focused)}
+                          />
+                        </Grid>
+                        <Grid item xs={6} sm={6}>
+                          <TextField
+                            label='To'
+                            name='email-sentTo'
+                            value={sentTo ?? ''}
+                            placeholder='Send To...'
+                            onBlur={handleBlur}
+                            onChange={handleInputChange}
+                            inputProps={{ maxLength: 1000 }}
+                            onFocus={e => setFocus(e.target.name as Focused)}
+                          />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                          <TextField
+                            label='From'
+                            name='email-sentFrom'
+                            value={sentFrom ?? ''}
+                            placeholder='Recieve from...'
+                            onBlur={handleBlur}
+                            onChange={handleInputChange}
+                            inputProps={{ maxLength: 1000 }}
+                            onFocus={e => setFocus(e.target.name as Focused)}
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          <TextField
+                            fullWidth
+                            name='email-subject'
+                            value={subject ?? ''}
+                            label='Subject'
+                            onBlur={handleBlur}
+                            onChange={handleInputChange}
+                            inputProps={{ maxLength: 1000 }}
+                            onFocus={e => setFocus(e.target.name as Focused)}
+                          />
+                        </Grid>
+                        <Grid item xs={12}>
+                          {/* {CONVERT TO SUMMERNOTE} */}
+
+                          <TextField
+                            fullWidth
+                            name='email-body'
+                            value={body ?? ''}
+                            rows={6}
+                            label='Body'
+                            multiline
+                            placeholder='Message'
+                            onBlur={handleBlur}
+                            onChange={handleInputChange}
+                            inputProps={{ maxLength: 1000 }}
+                            onFocus={e => setFocus(e.target.name as Focused)}
+                          />
+                          {/* <ReactDraftWysiwyg
                           fullWidth
                           editorState={editor}
                           onEditorStateChange={edit => setEditor(edit)}
                         /> */}
 
-                        {/* <Editor editorState={editor} onEditorStateChange={handleEditorChange}></Editor> */}
+                          {/* <Editor editorState={editor} onEditorStateChange={handleEditorChange}></Editor> */}
 
-                        {/* <EditorControlled
+                          {/* <EditorControlled
                           editorState={editor}
                           onEditorStateChange={handleEditorChange}
                         ></EditorControlled> */}
-                      </Grid>
-                      <Grid item xs={12}>
-                        {/* render another button for edit */}
-                        {dialogTitle === 'Create' && (
-                          <Button type='submit' variant='contained' sx={{ mr: 4 }} onClick={handleCreateEmailClick}>
-                            Send Email
-                          </Button>
-                        )}
-                        {dialogTitle === 'Edit' && (
-                          <Button type='submit' variant='contained' sx={{ mr: 4 }} onClick={handleEditEmailOpen}>
-                            Edit Email
-                          </Button>
-                        )}
+                        </Grid>
+                        <Grid item xs={12}>
+                          {/* render another button for edit */}
+                          {dialogTitle === 'Create' && (
+                            <Button type='submit' variant='contained' sx={{ mr: 4 }} onClick={handleCreateEmailClick}>
+                              Send Email
+                            </Button>
+                          )}
+                          {dialogTitle === 'Edit' && (
+                            <Button type='submit' variant='contained' sx={{ mr: 4 }} onClick={handleEditEmailOpen}>
+                              Edit Email
+                            </Button>
+                          )}
 
-                        <Button variant='outlined' color='secondary'>
-                          Discard
-                        </Button>
+                          <Button variant='outlined' color='secondary'>
+                            Discard
+                          </Button>
+                        </Grid>
                       </Grid>
-                    </Grid>
-                  </form>
-                </CardContent>
-              </Card>
-            </DialogContent>
-          </Dialog>
+                    </form>
+                  </CardContent>
+                </Card>
+              </DialogContent>
+            </Dialog>
+          </Grid>
         </Grid>
-      </Grid>
-    </>
-  )
+      </>
+    )
 }
 
 export default ProfileEmail

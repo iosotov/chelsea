@@ -1,4 +1,5 @@
-import { useState, useEffect, MouseEvent, useCallback, SyntheticEvent, FC, useRef } from 'react'
+// import { useState, useEffect, MouseEvent, useCallback, SyntheticEvent, FC, useRef } from 'react'
+import { useState } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
@@ -6,56 +7,57 @@ import Grid from '@mui/material/Grid'
 
 import Button from '@mui/material/Button'
 
-import Select from '@mui/material/Select'
-import Switch from '@mui/material/Switch'
-import Divider from '@mui/material/Divider'
-import MenuItem from '@mui/material/MenuItem'
+// import Select from '@mui/material/Select'
+// import Switch from '@mui/material/Switch'
+// import Divider from '@mui/material/Divider'
+// import MenuItem from '@mui/material/MenuItem'
 
-import { styled } from '@mui/material/styles'
+// import { styled } from '@mui/material/styles'
 
-import TextField from '@mui/material/TextField'
-import CardHeader from '@mui/material/CardHeader'
+// import TextField from '@mui/material/TextField'
+// import CardHeader from '@mui/material/CardHeader'
 import Typography from '@mui/material/Typography'
-import AlertTitle from '@mui/material/AlertTitle'
-import InputLabel from '@mui/material/InputLabel'
+
 import CardContent from '@mui/material/CardContent'
 
 // ** Icon Imports
-import Icon from 'src/@core/components/icon'
+// import Icon from 'src/@core/components/icon'
 
-import IncomeTable from 'src/views/pages/user/view/components/budget/IncomeTable'
+// import IncomeTable from 'src/views/pages/user/view/components/budget/IncomeTable'
 import ChildComponent from './components/budget/income'
 import ExpenseTable from 'src/views/pages/user/view/components/budget/ExpenseTable'
-import { useForm } from 'react-hook-form'
-
-// import BudgetTableGenerator from './components/budget/BudgetTableGenerator'
 
 //api imports
 
-import { useAppDispatch, useAppSelector } from 'src/store/hooks'
-import { Profile, selectAllProfiles, useGetProfilesQuery } from 'src/store/api/profileApiSlice'
+import { useAppSelector } from 'src/store/hooks'
+
+// import { Profile, selectAllProfiles, useGetProfilesQuery } from 'src/store/api/profileApiSlice'
 
 // import { useGetBudgetsQuery, useGetProfileBudgetsQuery,  } from 'src/store/api/profileBudgetApiSlice'
 import {
-  selectAllBudgets,
-  selectAllProfileBudgets,
+  // selectAllBudgets,
+  // selectAllProfileBudgets,
   selectProfileBudgetsByProfileId,
   selectIncomeBudgetsByProfileId,
   selectExpenseBudgetsByProfileId,
   selectIncomeTotalByProfileId,
   selectExpenseTotalByProfileId
 } from 'src/store/profileBudgetSlice'
-import { left } from '@popperjs/core'
-import { ValidationError } from 'yup'
+
+// import { left } from '@popperjs/core'
+// import { ValidationError } from 'yup'
 import {
   useGetProfileBudgetsQuery,
-  useGetBudgetsQuery,
-  useGetBudgetInfoQuery,
+
+  // useGetBudgetsQuery,
+
+  // useGetBudgetInfoQuery,
   usePutProfileBudgetsUpdateMutation,
   usePostBudgetCreateMutation,
-  usePutBudgetDisableMutation,
-  usePutBudgetEnableMutation,
-  usePutBudgetUpdateMutation,
+
+  // usePutBudgetDisableMutation,
+  // usePutBudgetEnableMutation,
+  // usePutBudgetUpdateMutation,
   useGetEnrollmentQuery
 } from 'src/store/api/apiHooks'
 
@@ -63,7 +65,7 @@ import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
 
 // import { usePostEnrollmentSearchQuery } from 'src/store/api/apiHooks'
 
-import { gridColumnPositionsSelector } from '@mui/x-data-grid'
+// import { gridColumnPositionsSelector } from '@mui/x-data-grid'
 
 // interface FormData {
 //   name: string
@@ -73,7 +75,8 @@ import { gridColumnPositionsSelector } from '@mui/x-data-grid'
 export default function ProfileBudget({ id }: any) {
   //add isLoading?
   console.log(id)
-  const [data, setData] = useState<Profile[] | {}>({})
+
+  // const [data, setData] = useState<Profile[] | {}>({})
 
   // const [isLoading, setLoading] = useState(false)
   // const [allBudgets, setAllBudgets] = useState<any>([])
@@ -97,7 +100,7 @@ export default function ProfileBudget({ id }: any) {
   const expenseTotal = useAppSelector(state => selectExpenseTotalByProfileId(state, profileId))
   console.log(expenseTotal)
 
-  useGetEnrollmentQuery({})
+  useGetEnrollmentQuery(profileId)
   const enrollments = useAppSelector(state => selectEnrollmentByProfileId(state, profileId))
   console.log(enrollments)
 
@@ -116,29 +119,17 @@ export default function ProfileBudget({ id }: any) {
   }
   const cashFlow = 0
 
-  // cashflow = cashflow
-
-  //   const {getIsLoading} =  useAppSelector(state => selectProfileBudgetsByProfileId(state, profileId))
-  //  console.log(getIsLoading)
-
   const { isLoading, isSuccess, isError } = useGetProfileBudgetsQuery(profileId, { skip: !profileId })
 
-  // console.log(isLoading:getisLoading, isSuccess)
+  console.log(isLoading, isSuccess, isError)
 
-  // isLoading
-
-  // isError
-
-  // isSuccess
-
-  const [incomeSnap, setIncomeSnap] = useState<any>(null)
-  const [expenseSnap, setExpenseSnap] = useState<any>(null)
+  // const [incomeSnap, setIncomeSnap] = useState<any>(null)
+  // const [expenseSnap, setExpenseSnap] = useState<any>(null)
 
   // const [cashflow, setCashflow] = useState<any>(null)
-  const [totalBalance, setTotalBalance] = useState<any>(null)
-  console.log(incomeTotal, expenseTotal)
+  // const [totalBalance, setTotalBalance] = useState<any>(null)
 
-  const childFormRef = useRef<myProps>(null)
+  // const childFormRef = useRef<>(null)
 
   // console.log(budgets)
 
@@ -161,17 +152,17 @@ export default function ProfileBudget({ id }: any) {
   //   setFormList([...formList, formData])
   // }
 
-  const handleChildFormSubmit = () => {
-    console.log('Child form submitted')
-  }
+  // const handleChildFormSubmit = () => {
+  //   console.log('Child form submitted')
+  // }
 
-  const handleParentButtonClick = () => {
-    // childFormRef.current.handle
-    // if (childFormRef.current) {
-    //   console.log('yoooo')
-    // }
-    console.log('OMG WE DID IT')
-  }
+  // const handleParentButtonClick = () => {
+  //   // childFormRef.current.handle
+  //   // if (childFormRef.current) {
+  //   //   console.log('yoooo')
+  //   // }
+  //   console.log('OMG WE DID IT')
+  // }
 
   async function handleClick() {
     console.log('click')
@@ -182,12 +173,9 @@ export default function ProfileBudget({ id }: any) {
     //   childFormRef.current.onFormSubmit()
     // }
 
-    console.log('isubmitted')
-
     // childFormRef.current.submitForm()
 
     addFormDataToList(formDataList)
-    console.log('add')
 
     //incomes
     const mapParams = getFormValues()
@@ -301,7 +289,7 @@ export default function ProfileBudget({ id }: any) {
 
   const getFormValues = () => {
     console.log(formDataList)
-    const filter = []
+    const filter: [] = []
     const values = profileBudgets.map(profileBudget => profileBudget.budgetId)
     console.log(values)
 
@@ -312,7 +300,7 @@ export default function ProfileBudget({ id }: any) {
     // const myValues = formDataList.map(form => form.getAll(values.forEach()))
     // const lol = values.map(value => value)
     // console.log(lol)
-    const check = item => {
+    const check = (item: any) => {
       console.log(item)
       const fields = formDataList.map(el => el.getAll(item))
       console.log(fields)
@@ -358,50 +346,48 @@ export default function ProfileBudget({ id }: any) {
   }
   console.log(formDataList.entries)
 
-  const LoadData = () => {
-    console.log('Loading')
-    const newProfile = useGetProfileBudgetsQuery('1327485548')
+  // const LoadData = () => {
+  //   console.log('Loading')
+  //   const newProfile = useGetProfileBudgetsQuery('1327485548')
 
-    useGetBudgetsQuery({})
+  //   useGetBudgetsQuery({})
 
-    // setAllBudgets()
-    // setBudgetTypes
-    if (newProfile.data) {
-      console.log(newProfile.data.budget)
-      console.log(newProfile.data.profile)
-      const myBudgets = newProfile.data.profile
-      const myTypes = newProfile.data.budget
-      console.log(myTypes)
-      console.log(myBudgets)
+  //   // setAllBudgets()
+  //   // setBudgetTypes
+  //   if (newProfile.data) {
+  //     console.log(newProfile.data.budget)
+  //     console.log(newProfile.data.profile)
+  //     const myBudgets = newProfile.data.profile
+  //     const myTypes = newProfile.data.budget
+  //     console.log(myTypes)
+  //     console.log(myBudgets)
 
-      // myTypes.map(mine => (if (mine.active){
-      //   console.log(mine)
-      // }
+  // myTypes.map(mine => (if (mine.active){
+  //   console.log(mine)
+  // }
 
-      // ))
+  // ))
 
-      //     const newList = myTypes.filter(mine => mine.active)
-      //     const findItem = (myId) => {
-      //       return myBudgets.find((item) => item.budgetId === myId);
-      //     };
-      // newList.map((element)=>findItem(element.budgetId))
-      //     myBudgets.filter(yours => yours.budgetId == )
-      //     console.log(newList)
+  //     const newList = myTypes.filter(mine => mine.active)
+  //     const findItem = (myId) => {
+  //       return myBudgets.find((item) => item.budgetId === myId);
+  //     };
+  // newList.map((element)=>findItem(element.budgetId))
+  //     myBudgets.filter(yours => yours.budgetId == )
+  //     console.log(newList)
 
-      // myList.map(mine => (if(mine.)))
-      // {templateDrop.map(temp => (
-      //   <MenuItem key={temp.key} value={temp.value}>
-      //     {temp.value}
-      //   </MenuItem>
-      // ))}
-      // setBudgetTypes(newProfile.data.budget)
-      // setAllBudgets(newProfile.data.profile)
-    }
-  }
+  // myList.map(mine => (if(mine.)))
+  // {templateDrop.map(temp => (
+  //   <MenuItem key={temp.key} value={temp.value}>
+  //     {temp.value}
+  //   </MenuItem>
+  // ))}
+  // setBudgetTypes(newProfile.data.budget)
+  // setAllBudgets(newProfile.data.profile)
+  //   }
+  // }
 
   const resetForm = () => {
-    console.log(data)
-
     const formReset = profileBudgets.map(item => {
       if (item.amount != 0) {
         return { ...item, amount: 0 }
@@ -422,29 +408,29 @@ export default function ProfileBudget({ id }: any) {
 
   //Snap cards summary functions
 
-  const getTotalFunds = () => {
-    const sum = incomeSnap - expenseSnap
-    setTotalFunds(sum)
-    console.log(sum)
-    console.log(totalFunds)
-    getCashFlow()
-  }
+  // const getTotalFunds = () => {
+  //   const sum = incomeSnap - expenseSnap
+  //   setTotalFunds(sum)
+  //   console.log(sum)
+  //   console.log(totalFunds)
+  //   getCashFlow()
+  // }
 
-  const getTotalBalance = () => {
-    //api call
+  // const getTotalBalance = () => {
+  //   //api call
 
-    setTotalBalance(1000)
+  //   setTotalBalance(1000)
 
-    // getCashFlow()
-  }
+  //   // getCashFlow()
+  // }
 
-  const getCashFlow = () => {
-    //call api to get total balance and set it initially
+  // const getCashFlow = () => {
+  //   //call api to get total balance and set it initially
 
-    const flow = totalBalance - totalFunds
-    setCashflow(flow)
-    console.log(flow)
-  }
+  //   const flow = totalBalance - totalFunds
+  //   setCashflow(flow)
+  //   console.log(flow)
+  // }
 
   // isSuccess &&
 
@@ -519,7 +505,7 @@ export default function ProfileBudget({ id }: any) {
             data={incomeBudgets}
 
           /> */}
-          <ChildComponent onFormSubmit={addFormDataToList} data={incomeBudgets} ref={childFormRef} />
+          <ChildComponent onFormSubmit={addFormDataToList} data={incomeBudgets} />
           {/* <ChildComponent onFormSubmit={handleClick} data={incomeBudgets} ref={childFormRef} /> */}
           {/* <ChildComponent onFormSubmit={handleClick} data={incomeBudgets} ref={childFormRef} /> */}
           {/* <BudgetTableGenerator
