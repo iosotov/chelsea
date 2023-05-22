@@ -46,12 +46,8 @@ import 'react-credit-cards/es/styles-compiled.css'
 // ** MUI Imports
 
 import IconButton from '@mui/material/IconButton'
-
 import Grid from '@mui/material/Grid'
-
 import Icon from 'src/@core/components/icon'
-
-// import { SettingsContext } from 'src/@core/context/settingsContext'
 
 //api hooks
 
@@ -344,8 +340,6 @@ const ProfileEmail = ({ id }: any) => {
   }
 
   const renderEditEmailButton = (params: any) => {
-    console.log(params)
-
     return (
       <IconButton
         size='small'
@@ -399,29 +393,9 @@ const ProfileEmail = ({ id }: any) => {
       width: 170,
       editable: true
     }
-
-    // {
-    //   field: 'notes',
-    //   headerName: 'Note',
-
-    //   // type: 'text',
-    //   width: 110,
-    //   editable: true
-    // }
-
-    // {
-    //   field: 'fullName',
-    //   headerName: 'Full name',
-    //   description: 'This column has a value getter and is not sortable.',
-    //   sortable: false,
-    //   width: 160,
-    //   valueGetter: (params: GridValueGetterParams) => `${params.row.firstName || ''} ${params.row.lastName || ''}`
-    // }
   ]
 
   const resetForm = () => {
-    console.log('Resetting Drawer')
-
     // setDrawerTitle('Create')
     setDialogTitle('Create')
     setCreatedAt('')
@@ -434,15 +408,6 @@ const ProfileEmail = ({ id }: any) => {
     // setOpenEditTask(false)
   }
 
-  //handle null values
-  // const handleCellEditCommit = params => {
-  //   if (params.field === 'completedDate' && params.value === null) {
-  //     console.log('hi')
-  //     params.row.completeDate = 'Not Completed' // Replace null with 0
-  //     params.api.updateRow(params.row) // Update the row in the grid
-  //   }
-  // }
-
   if (isError) return <div>An error occured</div>
 
   if (isLoading) return <div>Loading</div>
@@ -452,9 +417,7 @@ const ProfileEmail = ({ id }: any) => {
       <>
         <Grid container spacing={6}>
           <Grid item xs={12}>
-            {/* <Box sx={{ height: 50, width: '100%' }}> */}
             <Typography variant='h5'>Emails</Typography>
-
             <Button
               size='medium'
               type='submit'
@@ -492,8 +455,7 @@ const ProfileEmail = ({ id }: any) => {
               maxWidth='md'
               scroll='body'
               onClose={() => handleAddEmailClose()}
-
-              // sx={{ '& .MuiDrawer-paper': { width: [300, 400] } }}
+              sx={{ '& .MuiDrawer-paper': { width: [300, 400] } }}
             >
               <DialogContent
                 sx={{
@@ -503,108 +465,108 @@ const ProfileEmail = ({ id }: any) => {
                   pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
                 }}
               >
-                <Card>
+                {/* <Card>
                   <CardHeader title={`${dialogTitle}` + ' Email'} />
-                  <CardContent>
-                    <form>
-                      <Grid container spacing={5}>
-                        <Grid item xs={12}>
-                          <TextField
-                            fullWidth
-                            label='Template'
-                            placeholder='Template'
-                            onBlur={handleBlur}
-                            onChange={handleInputChange}
-                            inputProps={{ maxLength: 1000 }}
-                            onFocus={e => setFocus(e.target.name as Focused)}
-                          />
-                        </Grid>
-                        <Grid item xs={6} sm={6}>
-                          <TextField
-                            label='To'
-                            name='email-sentTo'
-                            value={sentTo ?? ''}
-                            placeholder='Send To...'
-                            onBlur={handleBlur}
-                            onChange={handleInputChange}
-                            inputProps={{ maxLength: 1000 }}
-                            onFocus={e => setFocus(e.target.name as Focused)}
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                          <TextField
-                            label='From'
-                            name='email-sentFrom'
-                            value={sentFrom ?? ''}
-                            placeholder='Recieve from...'
-                            onBlur={handleBlur}
-                            onChange={handleInputChange}
-                            inputProps={{ maxLength: 1000 }}
-                            onFocus={e => setFocus(e.target.name as Focused)}
-                          />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <TextField
-                            fullWidth
-                            name='email-subject'
-                            value={subject ?? ''}
-                            label='Subject'
-                            onBlur={handleBlur}
-                            onChange={handleInputChange}
-                            inputProps={{ maxLength: 1000 }}
-                            onFocus={e => setFocus(e.target.name as Focused)}
-                          />
-                        </Grid>
-                        <Grid item xs={12}>
-                          {/* {CONVERT TO SUMMERNOTE} */}
+                  <CardContent> */}
+                <form>
+                  <Grid container spacing={5}>
+                    <Grid item xs={12}>
+                      <TextField
+                        fullWidth
+                        label='Template'
+                        placeholder='Template'
+                        onBlur={handleBlur}
+                        onChange={handleInputChange}
+                        inputProps={{ maxLength: 1000 }}
+                        onFocus={e => setFocus(e.target.name as Focused)}
+                      />
+                    </Grid>
+                    <Grid item xs={6} sm={6}>
+                      <TextField
+                        label='To'
+                        name='email-sentTo'
+                        value={sentTo ?? ''}
+                        placeholder='Send To...'
+                        onBlur={handleBlur}
+                        onChange={handleInputChange}
+                        inputProps={{ maxLength: 1000 }}
+                        onFocus={e => setFocus(e.target.name as Focused)}
+                      />
+                    </Grid>
+                    <Grid item xs={12} sm={6}>
+                      <TextField
+                        label='From'
+                        name='email-sentFrom'
+                        value={sentFrom ?? ''}
+                        placeholder='Recieve from...'
+                        onBlur={handleBlur}
+                        onChange={handleInputChange}
+                        inputProps={{ maxLength: 1000 }}
+                        onFocus={e => setFocus(e.target.name as Focused)}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      <TextField
+                        fullWidth
+                        name='email-subject'
+                        value={subject ?? ''}
+                        label='Subject'
+                        onBlur={handleBlur}
+                        onChange={handleInputChange}
+                        inputProps={{ maxLength: 1000 }}
+                        onFocus={e => setFocus(e.target.name as Focused)}
+                      />
+                    </Grid>
+                    <Grid item xs={12}>
+                      {/* {CONVERT TO SUMMERNOTE} */}
 
-                          <TextField
-                            fullWidth
-                            name='email-body'
-                            value={body ?? ''}
-                            rows={6}
-                            label='Body'
-                            multiline
-                            placeholder='Message'
-                            onBlur={handleBlur}
-                            onChange={handleInputChange}
-                            inputProps={{ maxLength: 1000 }}
-                            onFocus={e => setFocus(e.target.name as Focused)}
-                          />
-                          {/* <ReactDraftWysiwyg
+                      <TextField
+                        fullWidth
+                        name='email-body'
+                        value={body ?? ''}
+                        rows={6}
+                        label='Body'
+                        multiline
+                        placeholder='Message'
+                        onBlur={handleBlur}
+                        onChange={handleInputChange}
+                        inputProps={{ maxLength: 1000 }}
+                        onFocus={e => setFocus(e.target.name as Focused)}
+                      />
+                      {/* <ReactDraftWysiwyg
                           fullWidth
                           editorState={editor}
                           onEditorStateChange={edit => setEditor(edit)}
                         /> */}
 
-                          {/* <Editor editorState={editor} onEditorStateChange={handleEditorChange}></Editor> */}
+                      {/* <Editor editorState={editor} onEditorStateChange={handleEditorChange}></Editor> */}
 
-                          {/* <EditorControlled
+                      {/* <EditorControlled
                           editorState={editor}
                           onEditorStateChange={handleEditorChange}
                         ></EditorControlled> */}
-                        </Grid>
-                        <Grid item xs={12}>
-                          {/* render another button for edit */}
-                          {dialogTitle === 'Create' && (
-                            <Button type='submit' variant='contained' sx={{ mr: 4 }} onClick={handleCreateEmailClick}>
-                              Send Email
-                            </Button>
-                          )}
-                          {dialogTitle === 'Edit' && (
-                            <Button type='submit' variant='contained' sx={{ mr: 4 }} onClick={handleEditEmailOpen}>
-                              Edit Email
-                            </Button>
-                          )}
+                    </Grid>
+                    <Grid item xs={12}>
+                      {/* render another button for edit */}
+                      {dialogTitle === 'Create' && (
+                        <Button type='submit' variant='contained' sx={{ mr: 4 }} onClick={handleCreateEmailClick}>
+                          Send Email
+                        </Button>
+                      )}
+                      {dialogTitle === 'Edit' && (
+                        <Button type='submit' variant='contained' sx={{ mr: 4 }} onClick={handleEditEmailOpen}>
+                          Edit Email
+                        </Button>
+                      )}
 
-                          <Button variant='outlined' color='secondary'>
-                            Discard
-                          </Button>
-                        </Grid>
-                      </Grid>
-                    </form>
-                  </CardContent>
-                </Card>
+                      <Button variant='outlined' color='secondary'>
+                        Discard
+                      </Button>
+                    </Grid>
+                  </Grid>
+                </form>
+                {/* </CardContent>
+                </Card> */}
               </DialogContent>
             </Dialog>
           </Grid>
