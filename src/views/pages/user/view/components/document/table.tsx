@@ -3,41 +3,20 @@ import { ChangeEvent, useState } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
-import CardHeader from '@mui/material/CardHeader'
 import { DataGrid, GridColumns, GridRenderCellParams } from '@mui/x-data-grid'
 
 // ** Custom Components
-import CustomChip from 'src/@core/components/mui/chip'
-import CustomAvatar from 'src/@core/components/mui/avatar'
 import QuickSearchToolbar from './QuickSearchToolbar'
 
 // ** Types Imports
-import { ThemeColor } from 'src/@core/layouts/types'
+// import { ThemeColor } from 'src/@core/layouts/types'
 
 // ** Utils Import
-import { getInitials } from 'src/@core/utils/get-initials'
 import DateConverter from 'src/views/shared/utils/date-converter'
 
 import { GridValueFormatterParams } from '@mui/x-data-grid'
 
-// ** Data Import
-
-interface StatusObj {
-  [key: number]: {
-    title: string
-    color: ThemeColor
-  }
-}
-
-const statusObj: StatusObj = {
-  1: { title: 'current', color: 'primary' },
-  2: { title: 'professional', color: 'success' },
-  3: { title: 'rejected', color: 'error' },
-  4: { title: 'resigned', color: 'warning' },
-  5: { title: 'applied', color: 'info' }
-}
 
 const escapeRegExp = (value: string) => {
   return value.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')
