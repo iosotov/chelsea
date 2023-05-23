@@ -148,7 +148,7 @@ const ProfileTasks = ({ id }: ProfileTasksProps) => {
                 </Box>
               </Grid>
               <Grid item xs={12}>
-                <DataGrid getRowId={r => r.taskId} rows={profileTasks} columns={columns} sx={!profileTasks.length ? { height: '250px' } : { height: '500px' }} />
+                <DataGrid checkboxSelection getRowId={r => r.taskId} rows={profileTasks} columns={columns} sx={!profileTasks.length ? { height: '250px' } : { height: '500px' }} />
               </Grid>
               <Grid item xs={12}>
                 <TaskForm formMode={selectedTasks.length} calendarMode={false} openTaskModal={openTaskModal} setOpenTaskModal={setOpenTaskModal} selectedTasks={selectedTasks} profileId={profileId} />

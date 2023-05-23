@@ -15,6 +15,7 @@ import { v4 as uuid } from 'uuid';
 import { selectTaskById } from "src/store/taskSlice"
 import { toast } from "react-hot-toast"
 
+
 export type TaskFormProps = {
   formMode: number
   calendarMode: boolean
@@ -96,6 +97,7 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
 
   useEffect(() => {
     if (formMode === 1 && task) {
+
       const { taskName, dueDate, assignedTo, notes, completedDate, rescheduleDate, status } = task
       values = { ...values, taskName, dueDate: new Date(dueDate), assignedTo, notes, completedDate, rescheduleDate, status }
     } else {
@@ -147,6 +149,7 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
       handleClose()
     }
   }
+
 
   const PickersComponent = forwardRef(({ ...props }: PickerProps, ref) => {
     return (
