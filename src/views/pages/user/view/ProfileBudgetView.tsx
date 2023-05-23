@@ -6,6 +6,7 @@ import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
 
 import Button from '@mui/material/Button'
+import { useForm, useFieldArray, Control, FieldValues } from 'react-hook-form'
 
 // import Select from '@mui/material/Select'
 // import Switch from '@mui/material/Switch'
@@ -78,19 +79,18 @@ export default function ProfileBudget({ id }: any) {
 
   const { register, handleSubmit, getValues, setValue, control } = useForm()
 
-
   // const [data, setData] = useState<Profile[] | {}>({})
 
   // const [isLoading, setLoading] = useState(false)
   // const [allBudgets, setAllBudgets] = useState<any>([])
   // const [budgetTypes, setBudgetTypes] = useState<any>([])
 
-  function handleBudgetSubmit(data: Type ){
+  // function handleBudgetSubmit(data: Type ){
 
-    const newRes: ProfileBudgetUpdateType = {..data, profileId: id}
-    putTrigger
+  //   const newRes: ProfileBudgetUpdateType = {..data, profileId: id}
+  //   putTrigger
 
-  }
+  // }
 
   const profileId = id
 
@@ -153,7 +153,7 @@ export default function ProfileBudget({ id }: any) {
   //   console.log('Data from child:', formData)
   // }
 
-  // const [formDataList, setFormDataList] = useState<FormData[]>([])
+  const [formDataList, setFormDataList] = useState<FormData[]>([])
 
   // const { register, handleSubmit } = useForm<FormData>()
   // const handleFormSubmit = (formData: FormData) => {
@@ -173,6 +173,10 @@ export default function ProfileBudget({ id }: any) {
   //   // }
   //   console.log('OMG WE DID IT')
   // }
+
+  const onBudgetSubmit = data => {
+    console.log(data)
+  }
 
   async function handleClick() {
     console.log('click')
@@ -503,7 +507,7 @@ export default function ProfileBudget({ id }: any) {
             </Card>
           </Box>
         </Grid>
-        <form onSubmit={handleSubmit}
+        {/* <form onSubmit={handleSubmit} */}
         <Grid item xs={12}>
           {/* //make sure data coming in isnt object, map */}
           {/* <IncomeTable budgetTypes={budgetTypes} budgetList={allBudgets} income={income}></IncomeTable> */}
@@ -516,7 +520,8 @@ export default function ProfileBudget({ id }: any) {
             data={incomeBudgets}
 
           /> */}
-          <ChildComponent onFormSubmit={addFormDataToList} data={incomeBudgets} />
+          {/* <ChildComponent onFormSubmit={addFormDataToList} data={incomeBudgets} /> */}
+          <ChildComponent register={register} data={incomeBudgets} onSubmit={handleSubmit(onBudgetSubmit)} />
           {/* <ChildComponent onFormSubmit={handleClick} data={incomeBudgets} ref={childFormRef} /> */}
           {/* <ChildComponent onFormSubmit={handleClick} data={incomeBudgets} ref={childFormRef} /> */}
           {/* <BudgetTableGenerator
