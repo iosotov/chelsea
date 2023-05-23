@@ -66,7 +66,7 @@ const ProfileTasks = ({ id }: ProfileTasksProps) => {
   }
 
   const columns: GridColDef[] = [
-    { field: 'taskId', headerName: '', width: 60, renderCell: renderEditTaskCheckbox },
+    { field: 'taskId', headerName: ' ', width: 60, renderCell: renderEditTaskCheckbox },
     {
       field: 'taskName',
       headerName: 'Task Name',
