@@ -25,8 +25,8 @@ import Icon from 'src/@core/components/icon'
 
 // import Fade, { FadeProps } from '@mui/material/Fade'
 // import DialogContent from '@mui/material/DialogContent'
-// GridValueGetterParams
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+
+import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
 import Box from '@mui/material/Box'
 
 // import DialogActions from '@mui/material/DialogActions'
@@ -37,8 +37,7 @@ import {
   useGetProfileNotesQuery,
   usePostNoteCreateMutation,
   usePutNoteUpdateMutation,
-
-  // useDeleteNoteMutation,
+  useDeleteNoteMutation,
   usePostEmployeeSearchQuery
 } from 'src/store/api/apiHooks'
 
@@ -51,10 +50,13 @@ import { useForm } from 'react-hook-form'
 
 // ** Styles Import
 import 'react-credit-cards/es/styles-compiled.css'
+import { NoteCreateType, NoteUpdateType } from 'src/store/api/noteApiSlice'
 
 const defaultValues = {
-  companyName: '',
-  billingEmail: ''
+  content: '',
+  mentionedEmails: '',
+  important: '',
+  targets: []
 }
 
 const ProfileNotes = ({ id }: any) => {
@@ -112,6 +114,7 @@ const ProfileNotes = ({ id }: any) => {
   //API CALLS
   const [triggerCreate, { isSuccess: triggerPostSuccess }] = usePostNoteCreateMutation()
   const [triggerUpdate, { isSuccess: triggerPutSuccess }] = usePutNoteUpdateMutation()
+  const [triggerDelete, { isSuccess: triggerDeleteSuccess }] = useDeleteNoteMutation()
 
   //LOAD DATA
 
@@ -152,25 +155,27 @@ const ProfileNotes = ({ id }: any) => {
     // }
   }
 
-  const resetForm = () => {
-    setNoteTemplate('')
-    setNoteType('')
-    setNoteEmails('')
-    setNotifyUsers('')
-    setMessage('')
-    setDialogMode('Create')
-  }
+  // const resetForm = () => {
+  //   setNoteTemplate('')
+  //   setNoteType('')
+  //   setNoteEmails('')
+  //   setNotifyUsers('')
+  //   setMessage('')
+  //   setDialogMode('Create')
+  // }
 
   //api calls\
   //need to send id
 
   async function handleCreateClick(props: any) {
     console.log(props)
-    const payload = {
+    const payload: NoteCreateType = {
       profileId,
       content: props.message,
       mentionedEmails: props.noteEmails,
       important: props.important
+
+      // targets: props.targets
     }
     console.log(payload)
 
@@ -187,34 +192,10 @@ const ProfileNotes = ({ id }: any) => {
     console.log(postResponse)
   }
 
-  // async function handleUpdateClick(props) {
-  //   console.log(props)
-  //   const payload = {
-  //     // noteId: props.noteId,
-  //     profileId,
-  //     content: props.content,
-  //     mentionedEmails: props.noteEmails,
-  //     important: props.important
-  //   }
-  //   console.log(payload)
-
-  //   // const testData = {
-  //   //   profileId,
-  //   //   taskName: taskName,
-  //   //   dueDate: paymentDate,
-  //   //   assignedTo: 'b12557c2-3a35-4ce6-9e52-959c07e13ce5',
-  //   //   assignType: 2,
-  //   //   notes: note
-  //   // }
-
-  //   // const postResponse = await triggerCreate(payload).unwrap()
-  //   // console.log(postResponse)
-  // }
-
   async function handleUpdateByIdClick(props: any) {
     //do pinning check if important, then pin if not remove
     //delete removes important
-    const payload = {
+    const payload: NoteUpdateType = {
       noteId: props.selectedNote,
       targets: props.notifyUsers,
 
@@ -223,8 +204,6 @@ const ProfileNotes = ({ id }: any) => {
       mentionedEmails: props.noteEmails,
 
       important: props.important
-
-      // important: true
     }
 
     const putResponse = await triggerUpdate(payload).unwrap()
@@ -241,8 +220,9 @@ const ProfileNotes = ({ id }: any) => {
     //set update or edit to know which button to create
     const myNote = profileNotes.find(note => note.noteId == params)
     console.log(myNote)
-    console.log(myNote.targets)
+
     if (myNote) {
+      console.log(myNote.targets[0])
       setNoteEmails(myNote.mentionedEmails)
 
       // setTemplate()
@@ -256,29 +236,17 @@ const ProfileNotes = ({ id }: any) => {
     }
 
     // handleUpdateByIdClick(myNote)
+  }
 
-    // handleUpdateClick()
+  async function handleDeleteButton(params: any) {
+    console.log(params)
+    const myNote = profileNotes.find(note => note.noteId == params)
+    console.log(myNote)
+    if (myNote) {
+      const payload: string = myNote.noteId
 
-    // if (myNote) {
-    //   setSelectedNote(myNote)
-    // }
-    // console.log(myNote)
-    // console.log(selectedNote)
-    // if (selectedNote == myNote) {
-    //   console.log(selectedNote)
-    //   handleUpdateById()
-    // }
-
-    // if (myNote != null) {
-
-    //   console.log(myNote)
-    //   console.log(selectedNote)
-    // }
-
-    // selectedNote
-
-    // const notesById = useAppSelector(state => selectNoteById(state, myNote))
-    // console.log(notesById)
+      await triggerDelete(payload).unwrap()
+    }
   }
 
   const columns: GridColDef[] = [
@@ -286,31 +254,27 @@ const ProfileNotes = ({ id }: any) => {
       field: 'type',
       headerName: 'Type',
       width: 90,
-      editable: true
+      valueGetter: (params: GridValueGetterParams) => `${params.row.type || 'null'}`
     },
     {
       field: 'content',
       headerName: 'Message',
-      width: 190,
-      editable: true
+      width: 190
     },
     {
       field: 'createdAt',
       headerName: 'created At',
-      width: 150,
-      editable: true
+      width: 150
     },
     {
       field: 'createdByName',
       headerName: 'created By Name',
-      width: 150,
-      editable: true
+      width: 150
     },
     {
       field: 'important',
       headerName: 'Important',
-      width: 110,
-      editable: true
+      width: 110
     },
 
     {
@@ -337,7 +301,7 @@ const ProfileNotes = ({ id }: any) => {
           size='small'
           sx={{ color: 'text.primary' }}
           value={params.row.noteId}
-          onClick={() => handleEditButtonById(params.row.noteId)}
+          onClick={() => handleDeleteButton(params.row.noteId)}
         >
           <Icon icon='mdi:delete' />
         </IconButton>
@@ -479,9 +443,9 @@ const ProfileNotes = ({ id }: any) => {
                     Update
                   </Button>
                 )}
-                <Button variant='outlined' color='secondary' onClick={() => resetForm()}>
+                {/* <Button variant='outlined' color='secondary' onClick={() => resetForm()}>
                   Clear Form
-                </Button>
+                </Button> */}
               </Grid>
             </Grid>
           </form>
