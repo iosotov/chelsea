@@ -1,4 +1,4 @@
-import { createEntityAdapter, createSlice } from '@reduxjs/toolkit'
+import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit'
 
 import { RootState } from './store'
 import { GroupType } from './api/groupApiSlice'
@@ -40,3 +40,7 @@ export const {
   selectById: selectGroupById,
   selectIds: selectGroupIds
 } = groupAdapter.getSelectors((state: RootState) => state.group)
+
+export const selectAllGroupSelectOptions = createSelector(selectAllGroups, groups => {
+  return groups.map(g => ({ label: g.name, value: g.groupId }))
+})
