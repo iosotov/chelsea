@@ -1,4 +1,4 @@
-import { createEntityAdapter, createSlice } from '@reduxjs/toolkit'
+import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit'
 
 import { RootState } from './store'
 import { RolePermissionsType, RoleType } from './api/roleApiSlice'
@@ -54,3 +54,7 @@ export const {
   selectById: selectRolePermissionById,
   selectIds: selectRolePermissionIds
 } = rolePermissionAdapter.getSelectors((state: RootState) => state.role.rolePermission)
+
+export const selectAllRoleSelectOptions = createSelector(selectAllRoles, roles => {
+  return roles.map(r => ({ label: r.name, value: r.roleId }))
+})

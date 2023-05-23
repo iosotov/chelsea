@@ -1,4 +1,4 @@
-import { createEntityAdapter, createSlice } from '@reduxjs/toolkit'
+import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit'
 
 import { RootState } from './store'
 import { EmployeeInfoType } from './api/employeeApiSlice'
@@ -40,3 +40,7 @@ export const {
   selectById: selectEmployeeById,
   selectIds: selectEmployeeIds
 } = employeeAdapter.getSelectors((state: RootState) => state.employee)
+
+export const selectAllEmployeeSelectOptions = createSelector(selectAllEmployees, employees => {
+  return employees.map(e => ({ label: e.employeeAlias, value: e.employeeId }))
+})
