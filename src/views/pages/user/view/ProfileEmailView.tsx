@@ -111,11 +111,6 @@ const ProfileEmail = ({ id }: any) => {
 
   let rows = []
 
-  // const { isLoading, isSuccess, isError, error }= useAppSelector(state => selectTaskByProfileId(state, profileId))
-
-  // const [paymentDate, setPaymentDate] = useState<DateType>()
-  // const [rows, setRows] = useState<any>([])
-
   //State Management
   //set selectedTask type to taskType
 
@@ -135,41 +130,12 @@ const ProfileEmail = ({ id }: any) => {
 
   const { isLoading, isSuccess, isError } = useGetProfileEmailsQuery(profileId)
 
-  // console.log(isLoading, isSuccess, isError)
-
   const dataWithIndex = profileEmail.map((obj, index) => {
     return { ...obj, id: index }
   })
 
   //sends Data with index to rows for data grid display
   rows = dataWithIndex
-
-  // const handleEditorChange = (state: EditorState) => {
-  //   setEditor(state)
-  // }
-
-  // useEffect(() => {
-  //   openEditDialog()
-
-  //   // openadd
-  // }, [selectedEmail])
-
-  // function openEditDialog() {
-  //   handleEditEmailOpen()
-
-  //   // setOpenAddTask(false)
-
-  //   // handleEditTaskOpen()
-  // }
-
-  // function handleGetTaskById(choice:string) {
-  //   console.log(choice)
-  //   setSelectedEmail(choice.row)
-  //   console.log(selectedEmail)
-  //   handleEditTaskOpen()
-
-  //   // setOpenAddEmail(true)
-  // }
 
   //actual create request
   async function handleCreateEmailClick() {
@@ -471,6 +437,7 @@ const ProfileEmail = ({ id }: any) => {
                 <form>
                   <Grid container spacing={5}>
                     <Grid item xs={12}>
+                      {/* ADD EMAIL TEMPLATE DROPDOWN */}
                       <TextField
                         fullWidth
                         label='Template'

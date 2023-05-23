@@ -120,6 +120,7 @@ const ProfileNotes = ({ id }: any) => {
       // target.value = formatCreditCardNumber(target.value, Payment)
 
       setNoteTemplate(target.value)
+      console.log(noteTemplate)
     } else if (target.name === 'notes-type') {
       // target.value = formatExpirationDate(target.value)
       setNoteType(target.value)
@@ -361,7 +362,7 @@ const ProfileNotes = ({ id }: any) => {
                     id='notes-template-select'
                     value={noteTemplate}
                     defaultValue='select-method'
-                    onSelect={handleChange}
+                    onChange={handleChange}
                   >
                     <MenuItem value='select-method' disabled>
                       Select Template
@@ -383,6 +384,7 @@ const ProfileNotes = ({ id }: any) => {
                     value={noteType}
                     defaultValue='select-method'
                     onSelect={handleChange}
+                    disabled={noteTemplate == ''}
                   >
                     <MenuItem value='select-method' disabled>
                       Select Template
@@ -402,6 +404,7 @@ const ProfileNotes = ({ id }: any) => {
                     label='Notify to Users'
                     defaultValue='select-method'
                     onSelect={handleChange}
+                    disabled={noteTemplate == ''}
                   >
                     <MenuItem value='select-method' disabled>
                       Select User
@@ -423,6 +426,7 @@ const ProfileNotes = ({ id }: any) => {
                   value={noteEmails ?? ''}
                   placeholder='Emails'
                   onChange={handleChange}
+                  disabled={noteTemplate == ''}
 
                   // required={true}
                 />
@@ -438,6 +442,7 @@ const ProfileNotes = ({ id }: any) => {
                   label='Message'
                   placeholder='Message'
                   onChange={handleChange}
+                  disabled={noteTemplate == ''}
                 />
               </Grid>
 
