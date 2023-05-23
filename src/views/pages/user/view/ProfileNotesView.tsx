@@ -59,13 +59,12 @@ const defaultValues = {
 
 const ProfileNotes = ({ id }: any) => {
   //mock Data
-  console.log(id)
+
   const profileId = id
   const profileNotes = useAppSelector(state => selectNotesByProfileId(state, profileId))
 
   usePostEmployeeSearchQuery({})
   const users = useAppSelector(state => selectAllEmployees(state))
-  console.log(users)
 
   const filteredOptions = users.filter((user: any) => user.hasAuthentication === true)
   const employeeList = filteredOptions.map((employee: any) => ({
@@ -94,14 +93,11 @@ const ProfileNotes = ({ id }: any) => {
   let rows = []
   const { isLoading, isSuccess, isError } = useGetProfileNotesQuery(profileId)
   console.log(isLoading, isSuccess, isError)
-  console.log(profileNotes)
+
   const dataWithIndex = profileNotes.map((obj, index) => {
     return { ...obj, id: index }
   })
   rows = dataWithIndex
-  console.log(rows)
-
-  // console.log(templateDrop)
 
   const {
     control,
@@ -118,13 +114,6 @@ const ProfileNotes = ({ id }: any) => {
   const [triggerUpdate, { isSuccess: triggerPutSuccess }] = usePutNoteUpdateMutation()
 
   //LOAD DATA
-  // const loadData = () => {
-  //   console.log(templateDrop)
-
-  //   // setTemplateDrop(myNotes)
-
-  //   // return <div>{templateDrop}</div>
-  // }
 
   const handleChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
     if (target.name === 'notes-template') {
@@ -293,9 +282,40 @@ const ProfileNotes = ({ id }: any) => {
 
   const columns: GridColDef[] = [
     {
-      field: 'id',
-      headerName: 'ID',
+      field: 'type',
+      headerName: 'Type',
       width: 90,
+      editable: true
+    },
+    {
+      field: 'content',
+      headerName: 'Message',
+      width: 190,
+      editable: true
+    },
+    {
+      field: 'createdAt',
+      headerName: 'created At',
+      width: 150,
+      editable: true
+    },
+    {
+      field: 'createdByName',
+      headerName: 'created By Name',
+      width: 150,
+      editable: true
+    },
+    {
+      field: 'important',
+      headerName: 'Important',
+      width: 110,
+      editable: true
+    },
+
+    {
+      field: 'Pin Note',
+
+      width: 70,
       renderCell: params => (
         <IconButton
           size='small'
@@ -303,60 +323,31 @@ const ProfileNotes = ({ id }: any) => {
           value={params.row.noteId}
           onClick={() => handleEditButtonById(params.row.noteId)}
         >
-          <Icon icon='mdi:edit' />
+          <Icon icon='mdi:pin' />
         </IconButton>
       )
     },
+    {
+      field: 'Delete',
 
-    // {
-    //   field: 'id',
-    //   headerName: 'ID',
-    //   width: 90,
-    //   renderCell: params => (
-    //     <IconButton
-    //       size='small'
-    //       sx={{ color: 'text.primary' }}
-    //       value={params.row.noteId}
-    //       onClick={() => setSelectedNote(profileNotes.find(note => note.noteId == params.row.noteId))}
-    //     >
-    //       <Icon icon='mdi:edit' />
-    //     </IconButton>
-    //   )
-    // },
-    {
-      field: 'content',
-      headerName: 'content',
-      width: 150,
-      editable: true
-    },
-    {
-      field: 'createdAt',
-      headerName: 'createdAt',
-      width: 150,
-      editable: true
-    },
-    {
-      field: 'createdByName',
-      headerName: 'created By Name',
-
-      // type: 'text',
-      width: 110,
-      editable: true
-    },
-    {
-      field: 'important',
-      headerName: 'Important',
-
-      // type: 'text',
-      width: 110,
-      editable: true
+      width: 70,
+      renderCell: params => (
+        <IconButton
+          size='small'
+          sx={{ color: 'text.primary' }}
+          value={params.row.noteId}
+          onClick={() => handleEditButtonById(params.row.noteId)}
+        >
+          <Icon icon='mdi:delete' />
+        </IconButton>
+      )
     }
   ]
 
   return (
     <>
-      {/* <Card></Card> */}
       <Card>
+        <CardHeader title='Create Note' />
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)}>
             <Grid container spacing={5}>
@@ -371,25 +362,15 @@ const ProfileNotes = ({ id }: any) => {
                     value={noteTemplate}
                     defaultValue='select-method'
                     onSelect={handleChange}
-
-                    // onChange={handleChange}
                   >
-                    {/* Load templates into dropdown */}
                     <MenuItem value='select-method' disabled>
                       Select Template
                     </MenuItem>
-
-                    {/* //data load for dropdown map */}
                     {employeeList.map(option => (
                       <MenuItem key={option.value} value={option.value}>
                         {option.label}
                       </MenuItem>
                     ))}
-                    {/* <MenuItem value='cc'>Credit Card Template</MenuItem>
-                <MenuItem value='test'>Test Template</MenuItem>
-                <MenuItem value='Credit'>Test 2</MenuItem>
-                <MenuItem value='Debit'>Debit</MenuItem>
-                <MenuItem value='Paypal'>Paypal</MenuItem> */}
                   </Select>
                 </FormControl>
               </Grid>
@@ -403,11 +384,10 @@ const ProfileNotes = ({ id }: any) => {
                     defaultValue='select-method'
                     onSelect={handleChange}
                   >
-                    {/* map through notes list and append to drop down */}
                     <MenuItem value='select-method' disabled>
                       Select Template
                     </MenuItem>
-                    {/* <MenuItem value={noteType}>{noteType}</MenuItem> */}
+
                     <MenuItem value='ccTemplate'>CreditCard</MenuItem>
                     <MenuItem value='addressTemplate'>Address Temmp</MenuItem>
                   </Select>
@@ -494,45 +474,6 @@ const ProfileNotes = ({ id }: any) => {
                     Update
                   </Button>
                 )}
-                {/* {dialogMode === 'Create' ?? (
-              <Button
-                type='submit'
-                variant='contained'
-                sx={{ mr: 4 }}
-                onClick={() =>
-                  handleCreateClick({ message, notifyUsers, noteType, noteTemplate, noteEmails, important })
-                }
-
-                //remove payload,
-              >
-                {dialogMode} Note
-              </Button>
-            )}
-            {dialogMode === 'Edit' ?? (
-              <Button
-                type='submit'
-                variant='contained'
-                sx={{ mr: 4 }}
-                onClick={() =>
-                  handleUpdateByIdClick({ message, notifyUsers, noteType, noteTemplate, noteEmails, important })
-                }
-
-                //remove payload,
-              >
-                {dialogMode} Note
-              </Button>
-            )} */}
-
-                {/* <Button
-              type='submit'
-              variant='contained'
-              sx={{ mr: 4 }}
-              onClick={() => handleCreateClick({ message, notifyUsers, noteType, noteTemplate, noteEmails, important })}
-
-              //remove payload,
-            >
-              {dialogMode} Note
-            </Button> */}
                 <Button variant='outlined' color='secondary' onClick={() => resetForm()}>
                   Clear Form
                 </Button>
@@ -548,7 +489,6 @@ const ProfileNotes = ({ id }: any) => {
         <CardContent>
           <Box sx={{ height: 400, width: '100%' }}>
             <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }} />
-            {/* <NotesTable></NotesTable> */}
           </Box>
         </CardContent>
       </Card>
