@@ -254,7 +254,4 @@ function ChildComponent({ onFormSubmit, data }: Props) {
         </TableContainer>
       </CardContent>
     </Card>
-  )
-}
-
-export default ChildComponent
+tainer>

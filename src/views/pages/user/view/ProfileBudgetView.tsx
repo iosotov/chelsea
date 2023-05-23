@@ -76,11 +76,21 @@ export default function ProfileBudget({ id }: any) {
   //add isLoading?
   console.log(id)
 
+  const { register, handleSubmit, getValues, setValue, control } = useForm()
+
+
   // const [data, setData] = useState<Profile[] | {}>({})
 
   // const [isLoading, setLoading] = useState(false)
   // const [allBudgets, setAllBudgets] = useState<any>([])
   // const [budgetTypes, setBudgetTypes] = useState<any>([])
+
+  function handleBudgetSubmit(data: Type ){
+
+    const newRes: ProfileBudgetUpdateType = {..data, profileId: id}
+    putTrigger
+
+  }
 
   const profileId = id
 
@@ -143,7 +153,7 @@ export default function ProfileBudget({ id }: any) {
   //   console.log('Data from child:', formData)
   // }
 
-  const [formDataList, setFormDataList] = useState<FormData[]>([])
+  // const [formDataList, setFormDataList] = useState<FormData[]>([])
 
   // const { register, handleSubmit } = useForm<FormData>()
   // const handleFormSubmit = (formData: FormData) => {
@@ -493,6 +503,7 @@ export default function ProfileBudget({ id }: any) {
             </Card>
           </Box>
         </Grid>
+        <form onSubmit={handleSubmit}
         <Grid item xs={12}>
           {/* //make sure data coming in isnt object, map */}
           {/* <IncomeTable budgetTypes={budgetTypes} budgetList={allBudgets} income={income}></IncomeTable> */}
