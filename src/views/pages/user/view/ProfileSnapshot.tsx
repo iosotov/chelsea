@@ -55,9 +55,9 @@ type ProfileInfoProps = {
   profileId: string
   status: number
   statusName: string
-  stage: number
+  stage: string
   stageName: string
-  stageStatus: number
+  stageStatus: string
   stageStatusName: string
   createdAt: string
   createdByName: string
@@ -79,8 +79,9 @@ type ProfileTitleProps = {
 type ProfileStageStatusProps = {
   stageName: string
   stageStatusName: string
-  stage: number
-  stageStatus: number
+  stage: string
+  stageStatus: string
+  profileId: string
 }
 
 type ProfileDetailsProps = {
@@ -259,6 +260,7 @@ const ProfileInfo = ({
         stageStatusName={stageStatusName}
         stage={stage}
         stageStatus={stageStatus}
+        profileId={profileId}
       />
       <ProfileDetails
         profileId={profileId}
@@ -350,7 +352,7 @@ const ProfileTitle = ({
   )
 }
 
-const ProfileStageStatus = ({ stageName, stageStatusName, stage, stageStatus }: ProfileStageStatusProps) => {
+const ProfileStageStatus = ({ stageName, stageStatusName, stage, stageStatus, profileId }: ProfileStageStatusProps) => {
   const [statusDialog, setStatusDialog] = useState<boolean>(false)
   const toggleStatus = () => setStatusDialog(!statusDialog)
 
@@ -375,7 +377,13 @@ const ProfileStageStatus = ({ stageName, stageStatusName, stage, stageStatus }: 
           </Box>
         </Box>
       </CardContent>
-      <StatusDialog open={statusDialog} toggle={toggleStatus} stage={stage} stageStatus={stageStatus} />
+      <StatusDialog
+        open={statusDialog}
+        toggle={toggleStatus}
+        stage={stage}
+        stageStatus={stageStatus}
+        profileId={profileId}
+      />
     </>
   )
 }

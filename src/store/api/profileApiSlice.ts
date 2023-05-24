@@ -16,7 +16,7 @@ export type ProfileInfoType = {
   status: number
   statusName: string
 
-  stage: number
+  stage: string
   stageName: string
   stageStatus: string
   stageStatusName: string
@@ -61,7 +61,7 @@ export type ProfileLabelsType = {
 
 export type ProfileStatusUpdateType = {
   profileId: string
-  status: string
+  stage: string
   stageStatus: string
 }
 

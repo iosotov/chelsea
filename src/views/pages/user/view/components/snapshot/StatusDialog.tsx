@@ -1,23 +1,29 @@
 import { ReactElement, useEffect, useRef } from 'react'
 
+//MUI
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
+
+//Dialog
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 
-import Box from '@mui/material/Box'
-import Grid from '@mui/material/Grid'
+//Custom Components
 import SingleSelect from 'src/views/shared/form-input/single-select'
-import Button from '@mui/material/Button'
-import IconButton from '@mui/material/IconButton'
 
+//Forms
 import { useForm } from 'react-hook-form'
 
+//Custom Imports
 import Icon from 'src/@core/components/icon'
 
 //API Hooks
 import { useAppSelector } from 'src/store/hooks'
-import { usePostSettingSearchQuery } from 'src/store/api/apiHooks'
+import { usePostSettingSearchQuery, usePutProfileStatusUpdateMutation } from 'src/store/api/apiHooks'
 
 //API Slices
 import { selectSettingByParentValueOptions, selectSettingByTypeOptions } from 'src/store/settingSlice'
@@ -25,11 +31,12 @@ import { selectSettingByParentValueOptions, selectSettingByTypeOptions } from 's
 type Props = {
   open: boolean
   toggle: () => void
-  stage: string | null
-  stageStatus: string | null
+  stage: string
+  stageStatus: string
+  profileId: string
 }
 
-export default function StatusDialog({ open, toggle, stage = '', stageStatus = '' }: Props): ReactElement {
+export default function StatusDialog({ open, toggle, stage = '', stageStatus = '', profileId }: Props): ReactElement {
   const statusForm = useForm({ defaultValues: { stage, stageStatus } })
   const {
     formState: { errors },
@@ -43,6 +50,10 @@ export default function StatusDialog({ open, toggle, stage = '', stageStatus = '
 
   const previousStage = useRef(stage)
 
+  const [updateStageStatus, updateStatus] = usePutProfileStatusUpdateMutation()
+
+  const { isLoading } = updateStatus
+
   //used in place of onchange for uncontrolled components, checks if current value of stage is same as previous set stage
   useEffect(() => {
     if (getValues('stage') !== previousStage.current) {
@@ -55,7 +66,6 @@ export default function StatusDialog({ open, toggle, stage = '', stageStatus = '
   const onClose = () => {
     toggle()
     previousStage.current = stage
-    previousStage.current = stage
     reset()
   }
 
@@ -67,8 +77,13 @@ export default function StatusDialog({ open, toggle, stage = '', stageStatus = '
     }
     if (getValues('stage') && getValues('stageStatus')) {
       const data = statusForm.getValues()
-      console.log(data)
-      onClose()
+      updateStageStatus({ ...data, profileId })
+        .unwrap()
+        .then(res => {
+          if (res) {
+            onClose()
+          }
+        })
     }
   }
 
@@ -93,6 +108,7 @@ export default function StatusDialog({ open, toggle, stage = '', stageStatus = '
     },
     ...useAppSelector(state => selectSettingByParentValueOptions(state, String(watch('stage'))))
   ]
+
   return (
     <Dialog open={open} maxWidth='xs' fullWidth onClose={onClose} aria-labelledby='form-dialog-title'>
       <DialogTitle id='form-dialog-title'>
@@ -137,8 +153,8 @@ export default function StatusDialog({ open, toggle, stage = '', stageStatus = '
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant='outlined' onClick={onSubmit}>
-          Save Changes
+        <Button disabled={isLoading} variant='outlined' onClick={onSubmit}>
+          {isLoading ? 'Saving...' : 'Save Changes'}
         </Button>
       </DialogActions>
     </Dialog>
