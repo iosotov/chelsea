@@ -20,13 +20,13 @@ import MuiAccordionSummary, { AccordionSummaryProps } from '@mui/material/Accord
 import AssigneeDialog from './components/snapshot/AssigneeDialog'
 import StatusDialog from './components/snapshot/StatusDialog'
 import PersonalDialog from './components/snapshot/PersonalDialog'
+import LabelsDialog from './components/snapshot/LabelsDialog'
 
 //Icon Import
 import Icon from 'src/@core/components/icon'
 
 //Imported Types
-import { ProfileInfoType, ProfileLabelsType } from 'src/store/api/profileApiSlice'
-import { ProfileContactType } from 'src/store/api/profileApiSlice'
+import { ProfileInfoType } from 'src/store/api/profileApiSlice'
 import { ProfileCustomFieldType } from 'src/store/api/profileApiSlice'
 
 //Utils
@@ -40,8 +40,8 @@ import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
 import { useGetEnrollmentQuery } from 'src/store/api/apiHooks'
 import { Button, Fade, Menu, MenuItem } from '@mui/material'
 
+//Third Party Imports
 import { useConfirm } from 'material-ui-confirm'
-import LabelsDialog from './components/snapshot/LabelsDialog'
 
 //Entire View
 type Props = {
@@ -84,6 +84,7 @@ type ProfileStageStatusProps = {
 }
 
 type ProfileDetailsProps = {
+  profileId: string
   profileLabels: any[]
   profileAssignees: any[]
   status: number
@@ -260,6 +261,7 @@ const ProfileInfo = ({
         stageStatus={stageStatus}
       />
       <ProfileDetails
+        profileId={profileId}
         profileLabels={profileLabels}
         profileAssignees={profileAssignees}
         status={status}
@@ -379,6 +381,7 @@ const ProfileStageStatus = ({ stageName, stageStatusName, stage, stageStatus }: 
 }
 
 const ProfileDetails = ({
+  profileId,
   profileLabels,
   profileAssignees,
   status,
@@ -404,9 +407,10 @@ const ProfileDetails = ({
 
   const closeAssignee = () => setAssigneeDialog(false)
 
-  const [labelsDialog, setLabelsDialog] = useState<boolean>(false)
+  // Reenable when labels multiselect completed
+  // const [labelsDialog, setLabelsDialog] = useState<boolean>(false)
 
-  const closeLabels = () => setLabelsDialog(false)
+  // const closeLabels = () => setLabelsDialog(false)
 
   const editAssignee = (assigneeId: string, assigneeName: string, employeeId: string, employeeAlias: string) => {
     assignee.current = {
@@ -435,11 +439,13 @@ const ProfileDetails = ({
                 })}
               </Box>
             ) : (
-              <Button onClick={() => setLabelsDialog(true)}>
-                <Typography variant='body2' align='right'>
-                  None
-                </Typography>
-              </Button>
+              'None'
+
+              // <Button onClick={() => setLabelsDialog(true)}>
+              //   <Typography variant='body2' align='right'>
+              //     None
+              //   </Typography>
+              // </Button>
             )}
           </Box>
           <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
@@ -536,8 +542,9 @@ const ProfileDetails = ({
           ) : null}
         </Box>
       </CardContent>
-      <AssigneeDialog open={assigneeDialog} data={assignee.current} toggle={closeAssignee} />
-      <LabelsDialog open={labelsDialog} data={profileLabels} toggle={closeLabels} />
+      <AssigneeDialog open={assigneeDialog} data={assignee.current} toggle={closeAssignee} profileId={profileId} />
+
+      {/* <LabelsDialog open={labelsDialog} data={profileLabels} toggle={closeLabels} /> */}
     </>
   )
 }

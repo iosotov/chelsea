@@ -476,7 +476,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
             })
           })
 
-        const maintenanceData: { [key: string]: EnrollmentPreviewTableEntry } = {}
+        const maintenanceData: { [key: string]: Required<EnrollmentPreviewTableEntry> } = {}
 
         enrollmentScheduleInfoModels
           .filter((e: EnrollmentScheduleInfoType) => e.type === 2)
