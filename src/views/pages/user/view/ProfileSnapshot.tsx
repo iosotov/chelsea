@@ -336,7 +336,9 @@ const ProfileTitle = ({
             <MenuItem sx={{ minWidth: '150px' }} onClick={() => handleClick('delete')}>
               Delete
             </MenuItem>
-            <MenuItem>Reenroll</MenuItem>
+
+            {/* Disable Re-enroll until needed
+            <MenuItem>Reenroll</MenuItem> */}
           </Menu>
         </Box>
       </Box>

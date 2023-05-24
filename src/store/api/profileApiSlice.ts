@@ -137,7 +137,7 @@ type ProfileUpdateType = {
   lastName: string
   middleName?: string
   gender: number
-  birthdate?: string
+  birthdate?: Date
   ssn?: string
   parentProfileId?: string
   campaignId: string
