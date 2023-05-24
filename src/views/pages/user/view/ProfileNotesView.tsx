@@ -33,7 +33,6 @@ import Box from '@mui/material/Box'
 // import FormControlLabel from '@mui/material/FormControlLabel'
 
 import {
-  // useGetNoteQuery,
   useGetProfileNotesQuery,
   usePostNoteCreateMutation,
   usePutNoteUpdateMutation,
@@ -199,7 +198,6 @@ const ProfileNotes = ({ id }: any) => {
       noteId: props.selectedNote,
       targets: props.notifyUsers,
 
-      // profileId,
       content: props.message,
       mentionedEmails: props.noteEmails,
 
