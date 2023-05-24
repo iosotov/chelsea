@@ -23,11 +23,6 @@ import Dialog from '@mui/material/Dialog'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 
-//wysiwyg editor
-// import { EditorState, ContentState } from 'draft-js'
-// import { EditorState } from 'draft-js'
-// import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
-
 // ** Styles Import
 import 'react-credit-cards/es/styles-compiled.css'
 
@@ -90,9 +85,8 @@ const ProfileEmail = ({ id }: ProfileEmailProps) => {
       sentTo: sentTo
     }
     console.log(payload)
-
-    const postResponse = await triggerCreate(payload).unwrap()
-    console.log(postResponse)
+    const createResponse = await triggerCreate(payload).unwrap()
+    console.log(createResponse)
   }
 
   const handleEditEmailOpen = () => {
@@ -151,9 +145,6 @@ const ProfileEmail = ({ id }: ProfileEmailProps) => {
   }
 
   const handleSelectChange = ({ target }: SelectChangeEvent<string>) => {
-    // console.log(event)
-    // const target = event.target
-
     if (target.name === 'email-template') {
       setTemplate(target.value)
     }
@@ -245,9 +236,7 @@ const ProfileEmail = ({ id }: ProfileEmailProps) => {
                 sx={{ mb: 7, mt: 3, mr: 3 }}
                 onClick={actionChecker}
 
-                // onClick={actionChecker}
-
-                // disabled={checkedValues.length > 1} is loading api
+                // disabled={triggerSuccess}
               >
                 Compose Email
               </Button>
@@ -257,8 +246,6 @@ const ProfileEmail = ({ id }: ProfileEmailProps) => {
             <Grid container spacing={6}>
               <Grid item xs={12}>
                 <Box sx={{ height: 400, width: '100%' }}>
-                  {isLoading}
-                  {isError}
                   <DataGridPro rows={rows} columns={columns} sx={{ mt: 7 }}></DataGridPro>
                 </Box>
               </Grid>
