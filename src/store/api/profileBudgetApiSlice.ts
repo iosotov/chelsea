@@ -144,7 +144,7 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
     }),
 
     // ****************************************************************** GET setting/budgets
-    getBudgets: builder.query<BudgetSettingType[] | null, undefined>({
+    getBudgets: builder.query<BudgetSettingType[] | null, void>({
       query: () => ({
         url: `/setting/budgets`,
         method: 'GET'
