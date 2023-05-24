@@ -3,6 +3,7 @@ import { BankAccountType } from './api/bankAccountApiSlice'
 import { selectAllCreditCards } from './creditCardSlice'
 
 import { RootState } from './store'
+import { CreditCardType, CreditCardTypeEnum } from './api/creditCardApiSlice'
 
 const bankAccountAdapter = createEntityAdapter({
   selectId: (bankAccount: BankAccountType) => bankAccount.bankAccountId
@@ -46,6 +47,36 @@ export const selectBankAccountsByProfileId = createSelector(
     return bankaccounts.filter(bank => bank.profileId === profileId)
   }
 )
+
+export type BankingOrCreditCardType = {
+  bankAccountId?: string
+  bankRoutingNumber?: string
+  bankName?: string
+  bankAccountNumber?: string
+  phoneNumber?: string | null
+  bankAccountType?: number
+  bankAccountTypeName?: string
+  accountName?: string | null
+  createdAt?: string | null
+  creditCardId?: string
+  name?: string
+  type?: CreditCardTypeEnum
+  creditCardTypeName?: string
+  cardNumber?: string
+  expirationMonth?: string
+  expirationYear?: string
+  securityCode?: string
+  address?: string
+  address2?: string
+  city?: string
+  state?: string
+  zipcode?: string
+  profileId?: string
+  firstName?: string
+  lastName?: string
+  expYear?: string
+  paymentType?: 'card'
+}
 
 export const selectPaymentsByProfileId = createSelector(
   selectAllBankAccounts,

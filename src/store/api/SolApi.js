@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { faker } from '@faker-js/faker'
 
-const baseUrl = 'http://localhost:3001/api'
+const baseUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api`
 
 class SolApi {
   static axiosInstance = axios.create({

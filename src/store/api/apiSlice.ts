@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
 import { RootState } from 'src/store/store'
 
-export const baseUrl = 'http://localhost:3001/api'
+const baseUrl = `${process.env.NEXT_PUBLIC_API_BASE_URL}/api`
 
 const baseQuery = fetchBaseQuery({
   baseUrl,
