@@ -1,6 +1,6 @@
-import { useEffect, useState, memo, useRef } from 'react'
+import { useEffect, useState, memo, useRef, useMemo } from 'react'
 
-import { useForm, useWatch } from 'react-hook-form'
+import { useForm } from 'react-hook-form'
 
 //MUI
 import Box from '@mui/material/Box'
@@ -36,7 +36,11 @@ import Icon from 'src/@core/components/icon'
 import { addWeeks, addMonths, isSameDay } from 'date-fns'
 
 //API
-import { useGetEnrollmentPreviewMutation } from 'src/store/api/apiHooks'
+import {
+  useGetEnrollmentPreviewMutation,
+  usePostEnrollmentCreateMutation,
+  usePutEnrollmentUpdateMutation
+} from 'src/store/api/apiHooks'
 
 //Redux Store
 import { useAppSelector } from 'src/store/hooks'
@@ -47,9 +51,8 @@ import MoneyConverter from 'src/views/shared/utils/money-converter'
 
 //Imported Types
 import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
-import { EnrollmentPreviewType } from 'src/store/api/enrollmentApiSlice'
+import { EnrollmentPreviewMutatedType, EnrollmentPreviewType } from 'src/store/api/enrollmentApiSlice'
 import DateConverter from 'src/views/shared/utils/date-converter'
-import { get } from 'http'
 
 //Typing
 type EnrollmentModalProps = {
@@ -71,75 +74,41 @@ const CardContainer = styled(CardContent)<CardContentProps>(({ theme }) => ({
 
 //Dropdown Options
 
-const serviceFixedOptions: SingleSelectOption[] = [
-  {
-    label: '100',
-    value: 100
-  },
-  {
-    label: '200',
-    value: 200
-  },
-  {
-    label: '300',
-    value: 300
-  },
-  {
-    label: '400',
-    value: 400
-  },
-  {
-    label: '500',
-    value: 500
-  }
-]
+// Reenable when fixed fee options added
+// const serviceFixedOptions: SingleSelectOption[] = [
+//   {
+//     label: '100',
+//     value: 100
+//   },
+//   {
+//     label: '200',
+//     value: 200
+//   },
+//   {
+//     label: '300',
+//     value: 300
+//   },
+//   {
+//     label: '400',
+//     value: 400
+//   },
+//   {
+//     label: '500',
+//     value: 500
+//   }
+// ]
 
-const servicePercentageOptions: SingleSelectOption[] = [
-  {
-    label: '35%',
-    value: 0.35
-  },
-  {
-    label: '36%',
-    value: 0.36
-  },
-  {
-    label: '37%',
-    value: 0.37
-  },
-  {
-    label: '38%',
-    value: 0.38
-  },
-  {
-    label: '39%',
-    value: 0.39
-  },
-  {
-    label: '40%',
-    value: 0.4
-  },
-  {
-    label: '41%',
-    value: 0.41
-  },
-  {
-    label: '42%',
-    value: 0.42
-  },
-  {
-    label: '43%',
-    value: 0.43
-  },
-  {
-    label: '44%',
-    value: 0.44
-  },
-  {
-    label: '45%',
-    value: 0.45
+const generateServicePercentageOptions = (): SingleSelectOption[] => {
+  const options: SingleSelectOption[] = []
+  for (let i = 1; i <= 100; i++) {
+    options.push({
+      label: `${i}%`,
+      value: i / 100
+    })
   }
-]
+
+  return options
+}
 
 const recurringOptions: SingleSelectOption[] = [
   {
@@ -157,45 +126,70 @@ const recurringOptions: SingleSelectOption[] = [
 ]
 
 const serviceFeeOptions: SingleSelectOption[] = [
-  {
-    label: 'Fixed Amount',
-    value: 0
-  },
+  // Enable when fixed amount is implemented
+  // {
+  //   label: 'Fixed Amount',
+  //   value: 0
+  // },
+
   {
     label: 'Percentage',
     value: 1
   }
 ]
 
-const lengthOptions: SingleSelectOption[] = [
-  {
-    label: '10 Payments',
-    value: 10
-  },
-  {
-    label: '12 Payments',
-    value: 12
-  },
-  {
-    label: '14 Payments',
-    value: 14
-  },
-  {
-    label: '16 Payments',
-    value: 16
-  },
-  {
-    label: '18 Payments',
-    value: 18
+const generateLengthOptions = (): SingleSelectOption[] => {
+  const options: SingleSelectOption[] = []
+  console.log('generated')
+  for (let i = 1; i <= 60; i++) {
+    options.push({
+      label: `${i} Payments`,
+      value: i
+    })
   }
-]
+
+  return options
+}
+
+// const lengthOptions: SingleSelectOption[] = [
+//   {
+//     label: '10 Payments',
+//     value: 10
+//   },
+//   {
+//     label: '12 Payments',
+//     value: 12
+//   },
+//   {
+//     label: '14 Payments',
+//     value: 14
+//   },
+//   {
+//     label: '16 Payments',
+//     value: 16
+//   },
+//   {
+//     label: '18 Payments',
+//     value: 18
+//   }
+// ]
 
 const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalProps) => {
   //Data
   const enrollmentData = useAppSelector(state => selectEnrollmentByProfileId(state, profileId))
-  const [previewData, setPreviewData] = useState<EnrollmentPreviewType | null>(null)
+  const [previewData, setPreviewData] = useState<EnrollmentPreviewMutatedType | null>(null)
 
   const [getPreview, previewStatus] = useGetEnrollmentPreviewMutation()
+  const { isLoading: previewLoading } = previewStatus
+
+  const [createEnrollment, createEnrollmentStatus] = usePostEnrollmentCreateMutation()
+  const { isLoading: createEnrollmentLoading } = createEnrollmentStatus
+
+  const [editEnrollment, editEnrollmentStatus] = usePutEnrollmentUpdateMutation()
+  const { isLoading: editEnrollmentLoading } = editEnrollmentStatus
+
+  const lengthOptions = useMemo(generateLengthOptions, [profileId])
+  const servicePercentageOptions = useMemo(generateServicePercentageOptions, [profileId])
 
   const defaultValues = {
     maintenanceFee: 80.0,
@@ -214,11 +208,50 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
     getValues,
     setValue,
     watch,
+    reset,
     formState: { errors }
   } = enrollmentForm
 
-  const onSubmit = (data: any) => {
-    console.log(data)
+  const onSubmit = () => {
+    const data = {
+      profileId: profileId,
+      paymentMethod: 2,
+      basePlan: 'Base Plan',
+      serviceFeeType: getValues('serviceFeeType'),
+      recurringType: getValues('recurringType'),
+      enrollmentFee: getValues('serviceFee'),
+      programLength: getValues('programLength'),
+      gateway: 'settingservice_paymentprocessor_nacha',
+      firstPaymentDate: getValues('firstPaymentDate'),
+      recurringPaymentDate: getValues('recurringPaymentDate'),
+      initialFeeAmount: null,
+      additionalFees: [
+        {
+          feeName: 'Maintenance Fee',
+          feeType: 0,
+          amount: 80,
+          feeStart: 1,
+          feeEnd: getValues('programLength')
+        }
+      ]
+    }
+    enrollmentData?.enrollmentId
+      ? editEnrollment(data)
+          .unwrap()
+          .then(res => {
+            if (res) {
+              reset()
+              handleClose()
+            }
+          })
+      : createEnrollment(data)
+          .unwrap()
+          .then(res => {
+            if (res) {
+              reset()
+              handleClose()
+            }
+          })
   }
 
   const previewRequest = () => {
@@ -233,6 +266,7 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
       firstPaymentDate: getValues('firstPaymentDate'),
       recurringType: getValues('recurringType'),
       recurringPaymentDate: getValues('recurringPaymentDate'),
+
       //if initialFeeAmount is not a null value, check backend to make sure numbers match up.
       //currently returned total service fee is dividing by original plan length rather than plan length - 1 to account for initial down payment
       initialFeeAmount: null,
@@ -247,18 +281,18 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
       ]
     })
       .unwrap()
-      .then(res => setPreviewData(res))
-      .catch(err => console.error(err))
+      .then(res => {
+        if (res) {
+          setPreviewData(res)
+        }
+      })
   }
 
   const [page, setPage] = useState(0)
   const [rowsPerPage, setRowsPerPage] = useState(10)
 
-  console.log('rerendering enrollmentdialog')
-
   // Avoid a layout jump when reaching the last page with empty rows.
   //PreviewData !== null when empty rows is checked
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - previewData.transactions.length ?? 0) : 0
 
   const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage)
@@ -280,7 +314,8 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
   let serviceOptions: SingleSelectOption[] = []
 
   if (selectedFeeType === 0) {
-    serviceOptions = serviceFixedOptions
+    // reenable when fixed fee type enabled
+    // serviceOptions = serviceFixedOptions
   } else if (selectedFeeType === 1) {
     serviceOptions = servicePercentageOptions
   }
@@ -397,8 +432,8 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
               />
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'center' }}>
-              <Button variant='outlined' size='small' onClick={handleSubmit(previewRequest)}>
-                Preview
+              <Button disabled={previewLoading} variant='outlined' size='small' onClick={handleSubmit(previewRequest)}>
+                {previewLoading ? 'Generating...' : 'Preview'}
               </Button>
             </Box>
           </form>
@@ -441,11 +476,20 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
                         <TableCell align='center'>{MoneyConverter(row.total)}</TableCell>
                       </TableRow>
                     ))}
-                  {emptyRows > 0 && (
-                    <TableRow style={{ height: 50 * emptyRows }}>
-                      <TableCell colSpan={6} />
-                    </TableRow>
-                  )}
+                  {page > 0
+                    ? Math.max(0, (1 + page) * rowsPerPage - previewData.transactions.length ?? 0)
+                    : 0 > 0 && (
+                        <TableRow
+                          style={{
+                            height:
+                              50 * page > 0
+                                ? Math.max(0, (1 + page) * rowsPerPage - previewData.transactions.length ?? 0)
+                                : 0
+                          }}
+                        >
+                          <TableCell colSpan={6} />
+                        </TableRow>
+                      )}
                 </TableBody>
               </Table>
               <TablePagination
@@ -476,8 +520,12 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
       </DialogContent>
       <DialogActions className='dialog-actions-dense'>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button disabled={!previewData} variant='outlined' onClick={onSubmit}>
-          Save Changes
+        <Button
+          disabled={!previewData || createEnrollmentLoading || editEnrollmentLoading}
+          variant='outlined'
+          onClick={onSubmit}
+        >
+          {createEnrollmentLoading || editEnrollmentLoading ? 'Saving...' : 'Save Changes'}
         </Button>
       </DialogActions>
     </Dialog>

@@ -1,11 +1,10 @@
+import Box from '@mui/material/Box'
+import CircularProgress from '@mui/material/CircularProgress'
 import Grid from '@mui/material/Grid'
-import { Box, CircularProgress, Typography } from '@mui/material'
+import Typography from '@mui/material/Typography'
 
 import Link from 'next/link'
-
 import { useRouter } from 'next/router'
-import { useSelector } from 'react-redux'
-import { useEffect, useState } from 'react'
 
 //Imported Views
 import ProfileTabs from 'src/views/pages/user/view/ProfileTabs'
@@ -15,7 +14,6 @@ import ProfileSnapshot from 'src/views/pages/user/view/ProfileSnapshot'
 import { useGetProfileInfoQuery } from 'src/store/api/apiHooks'
 
 //Imported Types
-import { ProfileInfoType } from 'src/store/api/profileApiSlice'
 import { useAppSelector } from 'src/store/hooks'
 import { selectProfileById } from 'src/store/profileSlice'
 
@@ -29,7 +27,7 @@ export default function UserProfile({ tab }: Props) {
 
   const data = useAppSelector(state => selectProfileById(state, String(profileId)))
 
-  let { isError, isLoading, isFetching, isSuccess } = useGetProfileInfoQuery(String(profileId), {
+  const { isError, isLoading, isFetching, isSuccess } = useGetProfileInfoQuery(String(profileId), {
     skip: !profileId
   })
 
