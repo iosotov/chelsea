@@ -1,6 +1,6 @@
 // ** React Imports
 
-import { useState, ReactNode } from 'react'
+import { useState, ReactNode, useEffect } from 'react'
 
 
 // ** MUI Components
@@ -40,8 +40,9 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 // ** Hook Imports
 import { usePostAuthLoginMutation } from 'src/store/api/apiHooks'
-import FooterIllustrationsV2 from 'src/views/pages/auth/FooterIllustrationsV2'
 import { CircularProgress } from '@mui/material'
+
+const imageSource = 'chelsea_app_1'
 
 // ** Styled Components
 const LoginIllustrationWrapper = styled(Box)<BoxProps>(({ theme }) => ({
@@ -112,13 +113,14 @@ const LoginPage = () => {
   const theme = useTheme()
   const [login, { isLoading, error }] = usePostAuthLoginMutation()
 
-  // const bgColors = useBgColor()
   const { settings } = useSettings()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
 
   // ** Vars
   const { skin } = settings
 
+
+  // ** React Hook Forms
   const {
     control,
     setError,
@@ -130,16 +132,21 @@ const LoginPage = () => {
     resolver: yupResolver(schema)
   })
 
+  // Handle Submit
   const onSubmit = async (data: FormData) => {
     const { email, password } = data
-    await login({ username: email, password })
+    login({ username: email, password })
+
+  }
+
+  // *** use setError - error will reset when user changes input values
+  // useEffect sets form error when invalid credentials provided
+  useEffect(() => {
     if (error && 'message' in error) setError('email', {
       type: 'manual',
       message: error.message
     })
-  }
-
-  const imageSource = 'chelsea_app_1'
+  }, [error, setError])
 
   return (
     <Box className='content-right'>
@@ -148,7 +155,6 @@ const LoginPage = () => {
           <LoginIllustrationWrapper>
             <LoginIllustration alt='login-illustration' src={`/images/pages/${imageSource}.svg`} />
           </LoginIllustrationWrapper>
-          <FooterIllustrationsV2 />
         </Box>
       ) : null}
       <RightWrapper sx={skin === 'bordered' && !hidden ? { borderLeft: `1px solid ${theme.palette.divider}` } : {}}>
