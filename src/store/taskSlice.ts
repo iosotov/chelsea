@@ -1,4 +1,5 @@
 import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit'
+import { startOfWeek, endOfWeek, isWithinInterval, getDay, parseISO } from 'date-fns'
 
 import { RootState } from './store'
 import { TaskType } from './api/taskApiSlice'
@@ -42,5 +43,66 @@ export const selectTaskByProfileId = createSelector(
   (_: RootState, profileId: string) => profileId,
   (tasks, profileId) => {
     return tasks.filter(task => task.profileId === profileId)
+  }
+)
+
+export const selectCompletedTasksForCurrentWeek = createSelector(selectAllTasks, tasks => {
+  const currentWeekStart = startOfWeek(new Date(), { weekStartsOn: 1 }) // Monday
+  const currentWeekEnd = endOfWeek(new Date(), { weekStartsOn: 1 }) // Sunday
+
+  // Filter tasks that were completed this week
+  const completedTasksThisWeek = tasks.filter((task: TaskType) => {
+    if (task.completedDate) {
+      const completedDate = parseISO(task.completedDate)
+
+      return isWithinInterval(completedDate, { start: currentWeekStart, end: currentWeekEnd })
+    }
+
+    return false
+  })
+
+  // Array to hold task counts for Monday through Friday
+  const weeklyTasks: number[] = new Array(5).fill(0)
+
+  // Populate the weeklyTasks array
+  completedTasksThisWeek.forEach((task: TaskType) => {
+    const completedDate = parseISO(task.completedDate!)
+    console.log(completedDate)
+    const dayOfWeek = getDay(completedDate) - 1 // subtract 1 because getDay() returns 1 for Monday and we need 0
+
+    console.log(dayOfWeek)
+    if (dayOfWeek >= 0 && dayOfWeek <= 4) {
+      // Monday through Friday
+      weeklyTasks[dayOfWeek]++
+    }
+  })
+
+  return weeklyTasks
+})
+
+export const selectTaskCountByStatus = createSelector(selectAllTasks, tasks => {
+  const count = [0, 0, 0]
+
+  for (const task of tasks) {
+    if (task.status === 0) {
+      count[0] += 1
+    } else if (task.status === 1) {
+      count[1] += 1
+    } else if (task.status === 2) {
+      count[2] += 1
+    }
+  }
+
+  return count
+})
+
+export const selectTasksByStatusTypes = createSelector(
+  selectAllTasks,
+  (_: RootState, statusTypes: number[]) => statusTypes,
+  (tasks, statusTypes) => {
+    if (!statusTypes.length) return []
+    if (statusTypes.length === 3) return tasks
+
+    return tasks.filter(task => statusTypes.includes(task.status))
   }
 )

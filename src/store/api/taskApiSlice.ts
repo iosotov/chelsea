@@ -16,6 +16,7 @@ export type TaskType = {
   rescheduleDate: string
   profileId: string
   liabilityId: string
+  createdAt: string
   createdBy: string
   createdCompanyId: string
   createdCompanyName: string
