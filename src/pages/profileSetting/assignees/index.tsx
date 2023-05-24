@@ -1,68 +1,69 @@
 // import { MouseEvent, SyntheticEvent, useState } from 'react';
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
+import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import Button from '@mui/material/Button'
+import { useGetAssigneesQuery } from 'src/store/api/apiHooks'
+import { useAppSelector } from 'src/store/hooks'
+import { selectAllAssignees } from 'src/store/settingSlice'
+import { Box, Card, CardContent, CircularProgress } from '@mui/material'
 
 const AssigneeSetting = () => {
+
+
+  const { isLoading, isError, isSuccess } = useGetAssigneesQuery()
+  const assignees = useAppSelector(selectAllAssignees)
+
   const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 90 },
     {
-      field: 'type',
-      headerName: 'Type',
-      width: 150,
-      editable: true
-    },
-    {
-      field: 'createdBy',
-      headerName: 'Created By ',
-      width: 150,
+      field: 'assigneeName',
+      headerName: 'Name',
+      flex: 1,
       editable: true
     },
     {
       field: 'description',
-      headerName: 'Age',
-
-      // type: 'text',
-      width: 110,
+      headerName: 'Description',
+      flex: 1,
+      editable: true
+    },
+    {
+      field: 'companyName',
+      headerName: 'Company Name',
+      flex: 1,
+      editable: true
+    },
+    {
+      field: 'createdByName',
+      headerName: 'Created By',
+      flex: 1,
+      editable: true
+    },
+    {
+      field: 'active',
+      headerName: 'Active',
+      flex: 1,
       editable: true
     }
-
-    // {
-    //   field: 'fullName',
-    //   headerName: 'Full name',
-    //   description: 'This column has a value getter and is not sortable.',
-    //   sortable: false,
-    //   width: 160,
-    //   valueGetter: (params: GridValueGetterParams) => `${params.row.firstName || ''} ${params.row.lastName || ''}`
-    // }
   ]
 
-  const rows = [
-    { id: 1, type: 'Snow', createdBy: 'Jon', description: 35 },
-    { id: 2, type: 'Lannister', createdBy: 'Cersei', description: 42 },
-    { id: 3, type: 'Lannister', createdBy: 'Jaime', description: 45 },
-    { id: 4, type: 'Stark', createdBy: 'Arya', description: 16 },
-    { id: 5, type: 'Targaryen', createdBy: 'Daenerys', description: null },
-    { id: 6, type: 'Melisandre', createdBy: null, description: 150 },
-    { id: 7, type: 'Clifford', createdBy: 'Ferrara', description: 44 },
-    { id: 8, type: 'Frances', createdBy: 'Rossini', description: 36 },
-    { id: 9, type: 'Roxie', createdBy: 'Harvey', description: 65 }
-  ]
+  if (isError) return <div>There was an error on this page</div>
 
   return (
-    <>
-      <Button
-        size='medium'
-        type='submit'
-        variant='contained'
-        color='secondary'
-        sx={{ mb: 7, position: 'absolute', right: '150px' }}
-      >
-        Create
-      </Button>
-      <br></br>
-
-      <DataGrid rows={rows} columns={columns} checkboxSelection sx={{ mt: 7 }} />
-    </>
+    <Card>
+      <CardContent >
+        <Box sx={{ mb: 7 }}>
+          <Button
+            size='medium'
+            type='submit'
+            variant='contained'
+            color='secondary'
+          >
+            Create Assignee
+          </Button>
+        </Box>
+        {isLoading && <CircularProgress />}
+        {isSuccess && <DataGrid getRowId={r => r.assigneeId} rows={assignees} columns={columns} checkboxSelection sx={{ height: 400 }} />}
+      </CardContent>
+    </Card>
   )
 }
 
