@@ -22,15 +22,20 @@ import Icon from 'src/@core/components/icon'
 
 //API
 import { useGetAssigneeDatasourceQuery } from 'src/store/api/apiHooks'
+import { usePostProfileAssignMutation } from 'src/store/api/apiHooks'
 
 type Props = {
   data: { assigneeId: string; assigneeName: string; employeeId: string; employeeAlias: string }
   toggle: () => void
   open: boolean
+  profileId: string
 }
 
-const AssigneeDialog = ({ data, toggle, open }: Props): ReactElement => {
+const AssigneeDialog = ({ data, toggle, open, profileId }: Props): ReactElement => {
   const { assigneeId, assigneeName, employeeId = '', employeeAlias } = data
+  const [setAssignees, status] = usePostProfileAssignMutation()
+
+  const { isLoading } = status
 
   // call api for status/stage
   const assigneeForm = useForm({ shouldUnregister: true })
@@ -50,17 +55,25 @@ const AssigneeDialog = ({ data, toggle, open }: Props): ReactElement => {
   const onSubmit = () => {
     const check = assigneeForm.getValues('assignee')
     if (check !== employeeId) {
-      const data = getValues('assignee')
-      console.log(data)
+      const data = {
+        profileId: profileId,
+        employeeId: getValues('assignee'),
+        assigneeId: assigneeId
+      }
+
+      setAssignees(data)
+        .unwrap()
+        .then(res => {
+          if (res) {
+            reset()
+            onClose()
+          }
+        })
     }
-    onClose()
   }
 
   //temp measure until i find the right selector
   const { data: assigneeList } = useGetAssigneeDatasourceQuery(assigneeId, { skip: !assigneeId })
-
-  // use app selector to eventually select the right one
-  // const assigneeList = useAppSelector(state => selectAllAssignees(state))
 
   return (
     <Dialog open={open} maxWidth='xs' fullWidth onClose={onClose} aria-labelledby='form-dialog-title'>
@@ -99,8 +112,8 @@ const AssigneeDialog = ({ data, toggle, open }: Props): ReactElement => {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant='outlined' onClick={handleSubmit(onSubmit)}>
-          Save Changes
+        <Button disabled={isLoading} variant='outlined' onClick={handleSubmit(onSubmit)}>
+          {isLoading ? 'Saving...' : 'Save Changes'}
         </Button>
       </DialogActions>
     </Dialog>

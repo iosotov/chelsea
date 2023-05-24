@@ -26,7 +26,7 @@ import Icon from 'src/@core/components/icon'
 
 //API Hooks
 import { useAppSelector } from 'src/store/hooks'
-import { useGetCampaignsQuery } from 'src/store/api/apiHooks'
+import { useGetCampaignsQuery, usePutProfileUpdateMutation } from 'src/store/api/apiHooks'
 
 //API Slices
 import { selectAllCampaigns } from 'src/store/campaignSlice'
@@ -132,6 +132,10 @@ export default function PersonalDialog({ open, toggle, data }: Props): ReactElem
 
   const [campaignOptions, setCampaignOptions] = useState<SingleSelectOption[]>([])
 
+  const [editProfile, editProfileStatus] = usePutProfileUpdateMutation()
+
+  const { isSuccess: editProfileSuccess } = editProfileStatus
+
   useEffect(() => {
     if (campaigns.length > 0) {
       const mappedCampaigns = campaigns.map((campaign: CampaignType) => {
@@ -141,7 +145,6 @@ export default function PersonalDialog({ open, toggle, data }: Props): ReactElem
           value: campaignId
         }
       })
-      console.log(mappedCampaigns)
       setCampaignOptions(mappedCampaigns)
     }
   }, [campaigns])
@@ -153,19 +156,30 @@ export default function PersonalDialog({ open, toggle, data }: Props): ReactElem
     middleName = '',
     birthdate = '',
     ssn = '',
-    gender = ''
+    gender = 0,
+    profileAddresses = [],
+    profileContacts = [],
+    profileId
   } = data
 
   // call api for
   const personalForm = useForm({
     defaultValues: {
-      campaign: campaignId,
+      campaignId: campaignId,
       firstName,
       lastName,
       middleName,
       ssn,
       gender,
-      birthdate: new Date(birthdate)
+      birthdate: new Date(birthdate),
+      address1: profileAddresses?.[0]?.address1,
+      address2: profileAddresses?.[0]?.address2,
+      city: profileAddresses?.[0]?.city,
+      state: profileAddresses?.[0]?.state,
+      zipCode: profileAddresses?.[0]?.zipCode,
+      email: profileContacts.filter(e => e.contactId === 'c7713ff2-1bea-4f69-84c0-404e0e5fb0bd')?.[0].value,
+      phoneNumber: profileContacts.filter(e => e.contactId === '5f2421ec-6016-4355-92aa-67dd5f2c8abc')?.[0].value,
+      phoneNumber2: profileContacts.filter(e => e.contactId === '88262882-9a7e-4a78-b70c-82036b6c3a45')?.[0].value
     }
   })
 
@@ -174,7 +188,8 @@ export default function PersonalDialog({ open, toggle, data }: Props): ReactElem
     control,
     handleSubmit,
     reset,
-    setValue
+    setValue,
+    getValues
   } = personalForm
 
   const onClose = () => {
@@ -183,15 +198,54 @@ export default function PersonalDialog({ open, toggle, data }: Props): ReactElem
   }
 
   const onSubmit = () => {
-    const data = personalForm.getValues()
-    onClose()
+    const data = {
+      profileId,
+      campaignId: getValues('campaignId'),
+      firstName: getValues('firstName'),
+      lastName: getValues('lastName'),
+      middleName: getValues('middleName'),
+      ssn: getValues('ssn'),
+      birthdate: getValues('birthdate'),
+      gender: getValues('gender'),
+      profileAddresses: [
+        {
+          addressId: '133898fc-bbe4-4556-8694-a6291e045907',
+          address1: getValues('address1'),
+          address2: getValues('address2'),
+          city: getValues('city'),
+          state: getValues('state'),
+          zipCode: getValues('zipCode')
+        }
+      ],
+      profileContacts: [
+        {
+          contactId: '5f2421ec-6016-4355-92aa-67dd5f2c8abc',
+          value: getValues('phoneNumber')
+        },
+        {
+          contactId: '88262882-9a7e-4a78-b70c-82036b6c3a45',
+          value: getValues('phoneNumber2')
+        },
+        {
+          contactId: 'c7713ff2-1bea-4f69-84c0-404e0e5fb0bd',
+          value: getValues('email')
+        }
+      ]
+    }
+    editProfile(data)
+      .unwrap()
+      .then(res => {
+        if (res) {
+          onClose()
+        }
+      })
   }
 
   //clears entry upon campaign Id that doesnt exist
   useEffect(() => {
-    if (isSuccess) {
+    if (isSuccess && campaignOptions.length > 0) {
       if (campaignOptions.filter(c => c.value === campaignId).length === 0) {
-        setValue('campaign', '')
+        setValue('campaignId', '')
       }
     }
   }, [isSuccess])
@@ -214,7 +268,7 @@ export default function PersonalDialog({ open, toggle, data }: Props): ReactElem
             <Grid container spacing={4} sx={{ mb: 6 }}>
               <Grid item xs={12} md={6} lg={4}>
                 <SingleSelect
-                  name='campaign'
+                  name='campaignId'
                   label='Campaign'
                   defaultLabel='Select Campaign'
                   options={campaignOptions}
@@ -276,13 +330,13 @@ export default function PersonalDialog({ open, toggle, data }: Props): ReactElem
                 <TextInput label='Email Address' name='email' control={control} placeholder='example@sample.com' />
               </Grid>
               <Grid item xs={12} lg={6}>
-                <TextInput label='Home Address' name='address1' control={control} />
+                <TextInput label='Home Address' name='address1' control={control} errors={errors} required />
               </Grid>
               <Grid item xs={12} lg={6}>
                 <TextInput label='Address 2' name='address2' control={control} />
               </Grid>
               <Grid item xs={12} md={6} lg={4}>
-                <TextInput label='City' name='city' control={control} />
+                <TextInput label='City' name='city' control={control} errors={errors} required />
               </Grid>
               <Grid item xs={12} md={6} lg={4}>
                 <SingleSelect
@@ -291,35 +345,22 @@ export default function PersonalDialog({ open, toggle, data }: Props): ReactElem
                   name='state'
                   options={stateOptions}
                   control={control}
+                  errors={errors}
+                  required
                 />
               </Grid>
               <Grid item xs={12} md={6} lg={4}>
-                <TextInput label='Zipcode' name='zipCode' control={control} />
+                <TextInput label='Zipcode' name='zipCode' control={control} errors={errors} required />
               </Grid>
               <Grid item xs={12} md={6} lg={4}></Grid>
-              <Grid item xs={12}>
-                <Typography variant='h5'>Additional Information</Typography>
-              </Grid>
-              <Grid item xs={12} md={6} lg={4}>
-                <TextInput label='Authorized First Name' name='authorizedFirstName' control={control} />
-              </Grid>
-              <Grid item xs={12} md={6} lg={4}>
-                <TextInput label='Authorized Last Name' name='authorizedLastName' control={control} />
-              </Grid>
-              <Grid item xs={12} md={6} lg={4}>
-                <TextInput label='Authorized Phone Number' name='authorizedPhoneNumber' control={control} />
-              </Grid>
-              <Grid item xs={12} md={6} lg={4}>
-                <TextInput label='Authorized Email' name='authorizedEmail' control={control} />
-              </Grid>
             </Grid>
           </form>
         </Box>
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant='outlined' onClick={handleSubmit(onSubmit)}>
-          Save Changes
+        <Button disabled={editProfileSuccess} variant='outlined' onClick={handleSubmit(onSubmit)}>
+          {editProfileSuccess ? 'Saving...' : 'Save Changes'}
         </Button>
       </DialogActions>
     </Dialog>

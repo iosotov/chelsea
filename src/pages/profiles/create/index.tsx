@@ -148,7 +148,6 @@ export default function CreateProfile() {
     const profile = await postProfile(data).unwrap()
 
     if (typeof profile === 'string') {
-      console.log(profile)
       router.push({
         pathname: `/profiles/${profile}/debts/`
       })
