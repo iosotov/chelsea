@@ -3,7 +3,7 @@ import { BankAccountType } from './api/bankAccountApiSlice'
 import { selectAllCreditCards } from './creditCardSlice'
 
 import { RootState } from './store'
-import { CreditCardType, CreditCardTypeEnum } from './api/creditCardApiSlice'
+import { CreditCardTypeEnum } from './api/creditCardApiSlice'
 
 const bankAccountAdapter = createEntityAdapter({
   selectId: (bankAccount: BankAccountType) => bankAccount.bankAccountId
