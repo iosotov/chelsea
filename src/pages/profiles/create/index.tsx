@@ -176,6 +176,7 @@ export default function CreateProfile() {
     if (campaigns.length > 0) {
       const mappedCampaigns = campaigns.map((campaign: CampaignType) => {
         const { displayName, campaignId, companyName } = campaign
+
         return {
           label: `${displayName} - ${companyName}`,
           value: campaignId

@@ -1,21 +1,17 @@
-import { ChangeEvent, MouseEvent, useState } from 'react'
+import { useState } from 'react'
 
-import { Button, CardContent, Typography } from '@mui/material'
+//MUI
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
 import Grid from '@mui/material/Grid'
-import ButtonGroup from '@mui/material/ButtonGroup'
+import Typography from '@mui/material/Typography'
 
 // ** MUI Imports
 import Toolbar from '@mui/material/Toolbar'
 import Tooltip from '@mui/material/Tooltip'
-import { visuallyHidden } from '@mui/utils'
-import { alpha } from '@mui/material/styles'
-import Checkbox from '@mui/material/Checkbox'
 import IconButton from '@mui/material/IconButton'
-import TableSortLabel from '@mui/material/TableSortLabel'
-import TablePagination from '@mui/material/TablePagination'
-import { useTheme } from '@mui/material/styles'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableRow from '@mui/material/TableRow'
@@ -24,32 +20,37 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 
+//MUI Grid Imports
+import { DataGridPro, GridColDef, GridValueFormatterParams, GridRowSelectionModel } from '@mui/x-data-grid-pro'
+
+//Styling
+import { alpha } from '@mui/material/styles'
+import { useTheme } from '@mui/material/styles'
+
 // ** Third Party Imports
 import { ApexOptions } from 'apexcharts'
 
 // ** Custom Components Imports
 import CustomChip from 'src/@core/components/mui/chip'
-import OptionsMenu from 'src/@core/components/option-menu'
 import ReactApexcharts from 'src/@core/components/react-apexcharts'
 
 import Icon from 'src/@core/components/icon'
 
-import { useEffect } from 'react'
+//API Hooks
 import { useGetCreditReportsQuery, useGetProfileLiabilitiesQuery } from 'src/store/api/apiHooks'
 import { useAppSelector } from 'src/store/hooks'
-import { selectCreditReportByProfileId } from 'src/store/creditReportSlice'
-
-import { CreditScoreCodeType, CreditScoreType } from 'src/store/api/creditReportApiSlice'
-import { selectLiabilityByProfileId } from 'src/store/liabilitySlice'
-
-import MoneyConverter from 'src/views/shared/utils/money-converter'
-
-import { DataGridPro, GridColDef, GridValueFormatterParams, GridRowSelectionModel } from '@mui/x-data-grid-pro'
-
-import { LiabilityType } from 'src/store/api/liabilityApiSlice'
 import { usePostProfileCreditReportMutation } from 'src/store/api/apiHooks'
 
-type Order = 'asc' | 'desc'
+//API Slices
+import { selectCreditReportByProfileId } from 'src/store/creditReportSlice'
+import { selectLiabilityByProfileId } from 'src/store/liabilitySlice'
+
+//Types
+import { CreditScoreCodeType } from 'src/store/api/creditReportApiSlice'
+import { LiabilityType } from 'src/store/api/liabilityApiSlice'
+
+//Utils
+import MoneyConverter from 'src/views/shared/utils/money-converter'
 
 type Props = {
   id?: string | string[]
@@ -100,6 +101,7 @@ function CreditScore({ id }: Props) {
             fontSize: '2rem',
             color: theme.palette.text.primary,
             formatter: val => {
+              console.log(val)
               return creditReport?.creditScores[0]?.scoreValue ?? '0'
             }
           }

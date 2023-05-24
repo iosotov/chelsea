@@ -1,6 +1,15 @@
-import { Dialog, DialogContent, DialogTitle, IconButton, DialogActions, Button } from '@mui/material'
+//MUI
+import Button from '@mui/material/Button'
+import IconButton from '@mui/material/IconButton'
+
+//Dialog
+import Dialog from '@mui/material/Dialog'
+import DialogTitle from '@mui/material/DialogTitle'
+import DialogContent from '@mui/material/DialogContent'
+import DialogActions from '@mui/material/DialogActions'
+
+//Custom Import
 import Icon from 'src/@core/components/icon'
-import SingleSelect from 'src/views/shared/form-input/single-select'
 
 type Props = {
   open: boolean
@@ -9,6 +18,9 @@ type Props = {
 }
 
 export default function LabelsDialog({ open, toggle, data }: Props) {
+  //needs data to create labels, need multiselect dropdown with chips
+  console.log(data)
+
   return (
     <>
       <Dialog open={open} maxWidth='xs' fullWidth onClose={toggle}>

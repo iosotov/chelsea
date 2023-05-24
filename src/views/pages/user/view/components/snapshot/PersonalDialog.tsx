@@ -1,28 +1,39 @@
 import { ReactElement, useEffect, useState } from 'react'
 
+//MUI
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
+import TextInput from 'src/views/shared/form-input/text-input'
+
+//Dialog
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 
-import { Grid, Typography, Box } from '@mui/material'
-import { useForm, useWatch } from 'react-hook-form'
-import TextInput from 'src/views/shared/form-input/text-input'
+//Custom Components
 import SingleSelect from 'src/views/shared/form-input/single-select'
-import Button from '@mui/material/Button'
 import SelectDate from 'src/views/shared/form-input/date-picker'
-import IconButton from '@mui/material/IconButton'
 
-import { useAppSelector } from 'src/store/hooks'
-import { ProfileInfoType } from 'src/store/api/profileApiSlice'
+//Forms
+import { useForm } from 'react-hook-form'
 
-import format from 'date-fns/format'
-
+//Custom Imports
 import Icon from 'src/@core/components/icon'
 
+//API Hooks
+import { useAppSelector } from 'src/store/hooks'
 import { useGetCampaignsQuery } from 'src/store/api/apiHooks'
+
+//API Slices
 import { selectAllCampaigns } from 'src/store/campaignSlice'
+
+//Types
 import { CampaignType } from 'src/store/api/campaignApiSlice'
+import { ProfileInfoType } from 'src/store/api/profileApiSlice'
 import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
 
 type Props = {
@@ -142,10 +153,7 @@ export default function PersonalDialog({ open, toggle, data }: Props): ReactElem
     middleName = '',
     birthdate = '',
     ssn = '',
-    gender = '',
-    profileContacts,
-    profileAddresses,
-    profileCustomFields
+    gender = ''
   } = data
 
   // call api for
@@ -176,7 +184,6 @@ export default function PersonalDialog({ open, toggle, data }: Props): ReactElem
 
   const onSubmit = () => {
     const data = personalForm.getValues()
-    console.log(data)
     onClose()
   }
 

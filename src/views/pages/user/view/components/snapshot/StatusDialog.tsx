@@ -5,23 +5,22 @@ import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 
-import { Grid, Typography, Box } from '@mui/material'
-import { useForm, useWatch } from 'react-hook-form'
-import TextInput from 'src/views/shared/form-input/text-input'
+import Box from '@mui/material/Box'
+import Grid from '@mui/material/Grid'
 import SingleSelect from 'src/views/shared/form-input/single-select'
 import Button from '@mui/material/Button'
-import SelectDate from 'src/views/shared/form-input/date-picker'
 import IconButton from '@mui/material/IconButton'
+
+import { useForm } from 'react-hook-form'
 
 import Icon from 'src/@core/components/icon'
 
+//API Hooks
 import { useAppSelector } from 'src/store/hooks'
 import { usePostSettingSearchQuery } from 'src/store/api/apiHooks'
-import {
-  selectSettingByParentValueOptions,
-  selectSettingByType,
-  selectSettingByTypeOptions
-} from 'src/store/settingSlice'
+
+//API Slices
+import { selectSettingByParentValueOptions, selectSettingByTypeOptions } from 'src/store/settingSlice'
 
 type Props = {
   open: boolean
@@ -50,7 +49,7 @@ export default function StatusDialog({ open, toggle, stage = '', stageStatus = '
       previousStage.current = getValues('stage')
       setValue('stageStatus', '')
     }
-  }, [watch('stage')])
+  }, [watch('stage'), getValues, setValue])
 
   //closes dialog, resets form, reassigns ref to prop stage
   const onClose = () => {
