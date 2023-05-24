@@ -30,6 +30,7 @@ import { toast } from 'react-hot-toast'
  */
 export const rtkQueryErrorLogger: Middleware = () => next => action => {
   // RTK Query uses `createAsyncThunk` from redux-toolkit under the hood, so we're able to utilize these matchers!
+
   if (isRejectedWithValue(action)) {
     console.log(action)
     toast.error(`API Error: ${action.payload.message}`)
