@@ -121,27 +121,14 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
       content: props.message,
       mentionedEmails: props.noteEmails,
       important: props.important
-
-      // targets: props.targets
     }
     console.log(payload)
-
-    // const testData = {
-    //   profileId,
-    //   taskName: taskName,
-    //   dueDate: paymentDate,
-    //   assignedTo: 'b12557c2-3a35-4ce6-9e52-959c07e13ce5',
-    //   assignType: 2,
-    //   notes: note
-    // }
 
     const postResponse = await triggerCreate(payload).unwrap()
     console.log(postResponse)
   }
 
   async function handleUpdateByIdClick(props: any) {
-    //do pinning check if important, then pin if not remove
-    //delete removes important
     const payload: NoteUpdateType = {
       noteId: props.selectedNote,
       targets: props.notifyUsers,
@@ -157,23 +144,11 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
   }
 
   async function handleEditButtonById(params: string) {
-    console.log(params)
-
-    //ONLY USE FOR UPDATING IMPORTANT MIGHT CHANGE LATER
-    //SET FIELDS TO UPDATED AND MAKE DISABLED BUT SHOW PIN OR NOT
-    //SEND SAME PAYLOAD BUT CHANGE IMPORTANT TAG
-    //check if params, to know edit/create, conditional api call and  button rendering
-    //set update or edit to know which button to create
     const myNote = profileNotes.find(note => note.noteId == params)
-    console.log(myNote)
 
     if (myNote) {
       console.log(myNote.targets)
       setNoteEmails(myNote.mentionedEmails)
-
-      // setNotifyUsers(myNote.targets)
-
-      // setCreatedAt(myNote.createdAt)
       setMessage(myNote.content)
       setImportant(myNote.important)
       setSelectedNote(myNote.noteId)
