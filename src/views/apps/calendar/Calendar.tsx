@@ -1,5 +1,5 @@
 // ** React Import
-import { useEffect, useRef } from 'react'
+import { useRef } from 'react'
 
 // ** Full Calendar & it's Plugins
 import FullCalendar from '@fullcalendar/react'
@@ -126,9 +126,6 @@ const Calendar = (props: CalendarType) => {
     navLinks: true,
 
     eventClassNames({ event: calendarEvent }: any) {
-
-      console.log(calendarEvent._def.extendedProps.calendar)
-
       // @ts-ignore
       const colorName = calendarsColor[calendarEvent._def.extendedProps.calendar]
 
@@ -139,7 +136,6 @@ const Calendar = (props: CalendarType) => {
     },
 
     eventClick({ event: clickedEvent }: any) {
-      console.log(clickedEvent._def.publicId)
 
       // dispatch(handleSelectEvent(clickedEvent))
       handleUpdateTaskSidebarToggle(clickedEvent._def.publicId)

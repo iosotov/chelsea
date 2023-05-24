@@ -1,11 +1,10 @@
 // ** React Imports
-import { useState, useEffect, forwardRef, useCallback, Fragment, Dispatch, SetStateAction } from 'react'
+import { forwardRef, Fragment } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Drawer from '@mui/material/Drawer'
 import Select from '@mui/material/Select'
-import Switch from '@mui/material/Switch'
 import Button from '@mui/material/Button'
 import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
@@ -14,7 +13,6 @@ import InputLabel from '@mui/material/InputLabel'
 import Typography from '@mui/material/Typography'
 import FormControl from '@mui/material/FormControl'
 import FormHelperText from '@mui/material/FormHelperText'
-import FormControlLabel from '@mui/material/FormControlLabel'
 
 // ** Third Party Imports
 import DatePicker from 'react-datepicker'
@@ -27,9 +25,8 @@ import Icon from 'src/@core/components/icon'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 
 // ** Types
-import { EventDateType } from 'src/types/apps/calendarTypes'
-import { TaskCreateType, TaskStatusEnum, TaskType } from 'src/store/api/taskApiSlice'
-import { usePostProfilesSearchQuery, usePostTaskCreateMutation } from 'src/store/api/apiHooks'
+import { TaskCreateType } from 'src/store/api/taskApiSlice'
+import { usePostProfilesSearchQuery } from 'src/store/api/apiHooks'
 import { useAppSelector } from 'src/store/hooks'
 import { selectAllProfiles } from 'src/store/profileSlice'
 
@@ -39,18 +36,8 @@ interface PickerProps {
   registername?: string
 }
 
-interface DefaultStateType {
-  url: string
-  title: string
-  allDay: boolean
-  calendar: string
-  description: string
-  endDate: Date | string
-  startDate: Date | string
-  guests: string[] | string | undefined
-}
 
-const capitalize = (string: string) => string && string[0].toUpperCase() + string.slice(1)
+// const capitalize = (string: string) => string && string[0].toUpperCase() + string.slice(1)
 
 
 type AddTaskSidebarType = {
@@ -68,7 +55,7 @@ const AddTaskSidebar = (props: AddTaskSidebarType) => {
     handleAddTaskSidebarToggle
   } = props
 
-  const {  isSuccess: profileSuccess } = usePostProfilesSearchQuery({})
+  const { isSuccess: profileSuccess } = usePostProfilesSearchQuery({})
 
   const profiles = useAppSelector(selectAllProfiles)
 

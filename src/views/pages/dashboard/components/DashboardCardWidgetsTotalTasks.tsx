@@ -23,8 +23,6 @@ const DashboardCardWidgetsWeeklyOverview = () => {
   const theme = useTheme()
   const data = useAppSelector(state => selectTaskCountByStatus(state))
 
-  console.log(data)
-
   const options: ApexOptions = {
     chart: {
       sparkline: { enabled: true }

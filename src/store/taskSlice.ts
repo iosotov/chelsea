@@ -67,10 +67,8 @@ export const selectCompletedTasksForCurrentWeek = createSelector(selectAllTasks,
   // Populate the weeklyTasks array
   completedTasksThisWeek.forEach((task: TaskType) => {
     const completedDate = parseISO(task.completedDate!)
-    console.log(completedDate)
     const dayOfWeek = getDay(completedDate) - 1 // subtract 1 because getDay() returns 1 for Monday and we need 0
 
-    console.log(dayOfWeek)
     if (dayOfWeek >= 0 && dayOfWeek <= 4) {
       // Monday through Friday
       weeklyTasks[dayOfWeek]++

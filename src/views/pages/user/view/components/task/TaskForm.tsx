@@ -22,6 +22,7 @@ export type TaskFormProps = {
   setOpenTaskModal: (state: boolean) => void
   selectedTasks: string[]
   profileId?: string
+  drawerWidth?: number
 }
 
 interface PickerProps {
@@ -78,7 +79,7 @@ const Header = styled(Box)<BoxProps>(({ theme }) => ({
   backgroundColor: theme.palette.background.default
 }))
 
-export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskModal, selectedTasks, profileId = "" }: TaskFormProps) {
+export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskModal, selectedTasks, profileId = "", drawerWidth = 400 }: TaskFormProps) {
 
   const { isSuccess: profileSuccess } = usePostProfilesSearchQuery({})
   usePostEmployeeSearchQuery({})
@@ -225,7 +226,7 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
       anchor='right'
       variant='temporary'
       ModalProps={{ keepMounted: true }}
-      sx={{ '& .MuiDrawer-paper': { width: [300, 400] } }}
+      sx={{ '& .MuiDrawer-paper': { width: ['100%', drawerWidth] } }}
     >
       <Header>
         <Typography variant='h6'>{DrawerTitles[formMode]}</Typography>

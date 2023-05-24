@@ -34,8 +34,6 @@ const CardWelcomeBack = () => {
 
   const employee = useAppSelector(state => state.auth.employee)
 
-  console.log(employee)
-
   return (
     <Card sx={{ position: 'relative', overflow: 'visible', mt: { xs: 0, sm: 14.4, md: 0 } }}>
       <CardContent sx={{ p: theme => theme.spacing(7.25, 7.5, 7.75, 7.5) }}>
@@ -58,7 +56,7 @@ const CardWelcomeBack = () => {
             </Box>
           </Grid>
           <StyledGrid item xs={12} sm={6}>
-            <Img alt='Welcome back John' src='/images/cards/pose_f9.png' />
+            <Img alt='Welcome back' src='/images/cards/pose_f9.png' />
           </StyledGrid>
         </Grid>
       </CardContent>

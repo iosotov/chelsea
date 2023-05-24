@@ -36,7 +36,7 @@ const DashboardCardWidgetsWeeklyOverview = () => {
     },
     stroke: {
       width: 2,
-      colors: [theme.palette.background.paper]
+      colors: [theme.palette.primary.main]
     },
     legend: { show: false },
     grid: {
@@ -46,12 +46,9 @@ const DashboardCardWidgetsWeeklyOverview = () => {
     },
     dataLabels: { enabled: false },
     colors: [
-      theme.palette.customColors.trackBg,
-      theme.palette.customColors.trackBg,
-      theme.palette.customColors.trackBg,
+
+      // theme.palette.customColors.trackBg,
       theme.palette.primary.main,
-      theme.palette.customColors.trackBg,
-      theme.palette.customColors.trackBg
     ],
     states: {
       hover: {
@@ -86,7 +83,6 @@ const DashboardCardWidgetsWeeklyOverview = () => {
     }
   }
 
-  console.log(data)
 
   return (
     <Card sx={{ height: '100%' }} >

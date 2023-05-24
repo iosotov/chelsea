@@ -111,8 +111,8 @@ const SidebarLeft = (props: SidebarLeftType) => {
               color='secondary'
               checked={selectedTasks.length === 3}
               onChange={e => {
-                if (e.target.checked) setSelectedTasks(state => [0, 1, 2])
-                else setSelectedTasks(state => [])
+                if (e.target.checked) setSelectedTasks([0, 1, 2])
+                else setSelectedTasks([])
               }} />
           }
         />

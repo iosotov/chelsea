@@ -1,6 +1,6 @@
 
 // ** Styled Component Import
-import { Grid, Stack } from '@mui/material'
+import { Grid } from '@mui/material'
 import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
 import CardWidgetsTotalRevenue from './components/DashboardCardWidgetsTotalTasks'
 import DashboardCardWidgetsWeeklyOverview from './components/DashboardCardWidgetsWeeklyOverview'
@@ -14,10 +14,8 @@ export default function DashboardTasksView() {
 
   return (
     <>
-      <Stack>
-        {isLoading || isFetching && <FallbackSpinner />}
-        {isSuccess && <DashboardTasksWidgets />}
-      </Stack>
+      {isLoading || isFetching && <FallbackSpinner />}
+      {isSuccess && <DashboardTasksWidgets />}
     </>
   )
 
