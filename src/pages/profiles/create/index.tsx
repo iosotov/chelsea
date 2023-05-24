@@ -1,32 +1,31 @@
 import { useEffect, useState } from 'react'
+import { useRouter } from 'next/router'
 
-import Divider from '@mui/material/Divider'
-import Box from '@mui/material/Box'
+//MUI Imports
 import Button from '@mui/material/Button'
+import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
-import Typography from '@mui/material/Typography'
+import Divider from '@mui/material/Divider'
 import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
 
-// custom components
-import CustomInput from 'src/views/pages/user/view/components/create/PickersComponent'
+//Third Party Imports
+import { useForm } from 'react-hook-form'
+
+//Custom Components
 import SingleSelect from 'src/views/shared/form-input/single-select'
 import TextInput from 'src/views/shared/form-input/text-input'
-
-import { useForm } from 'react-hook-form'
 import SelectDate from 'src/views/shared/form-input/date-picker'
-import { useGetCampaignsQuery } from 'src/store/api/apiHooks'
+
+//API Imports
+import { useGetCampaignsQuery, usePostProfileCreateMutation } from 'src/store/api/apiHooks'
 import { useAppSelector } from 'src/store/hooks'
 import { selectAllCampaigns } from 'src/store/campaignSlice'
+
+//Imported Types
 import { CampaignType } from 'src/store/api/campaignApiSlice'
 import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
-import StepperWrapper from 'src/@core/styles/mui/stepper'
-import Stepper from '@mui/material/Stepper'
-import StepperCustomDot from 'src/views/pages/user/view/components/document/stepperCustomDot'
-import { StepLabel } from '@mui/material'
-import Step from '@mui/material/Step'
-
-import toast from 'react-hot-toast'
 
 const genderOptions = [
   {
@@ -98,16 +97,63 @@ const stateOptions = [
 ]
 
 export default function CreateProfile() {
+  const router = useRouter()
   const profileForm = useForm()
 
   const {
     handleSubmit,
+    getValues,
     control,
     formState: { errors }
   } = profileForm
 
-  const onSubmit = (data: any) => {
-    console.log(data)
+  const [postProfile, postProfileStatus] = usePostProfileCreateMutation()
+
+  const { isLoading } = postProfileStatus
+
+  const onSubmit = async () => {
+    const data = {
+      campaignId: getValues('campaignId'),
+      firstName: getValues('firstName'),
+      lastName: getValues('lastName'),
+      middleName: getValues('middleName'),
+      ssn: getValues('ssn'),
+      birthdate: getValues('birthdate'),
+      gender: getValues('gender'),
+      profileAddresses: [
+        {
+          addressId: '133898fc-bbe4-4556-8694-a6291e045907',
+          address1: getValues('address1'),
+          address2: getValues('address2'),
+          city: getValues('city'),
+          state: getValues('state'),
+          zipCode: getValues('zipCode')
+        }
+      ],
+      profileContacts: [
+        {
+          contactId: '5f2421ec-6016-4355-92aa-67dd5f2c8abc',
+          value: getValues('phoneNumber')
+        },
+        {
+          contactId: '88262882-9a7e-4a78-b70c-82036b6c3a45',
+          value: getValues('phoneNumber2')
+        },
+        {
+          contactId: 'c7713ff2-1bea-4f69-84c0-404e0e5fb0bd',
+          value: getValues('email')
+        }
+      ]
+    }
+    const profile = await postProfile(data).unwrap()
+
+    if (typeof profile === 'string') {
+      console.log(profile)
+      router.push({
+        pathname: `/profiles/${profile}/debts/`
+      })
+      profileForm.reset()
+    }
   }
 
   const campaigns = useAppSelector(state => selectAllCampaigns(state))
@@ -125,6 +171,7 @@ export default function CreateProfile() {
 
   const [campaignOptions, setCampaignOptions] = useState<SingleSelectOption[]>([])
 
+  //Maps campaigns data to usable label/value for campaign select dropdown
   useEffect(() => {
     if (campaigns.length > 0) {
       const mappedCampaigns = campaigns.map((campaign: CampaignType) => {
@@ -134,155 +181,9 @@ export default function CreateProfile() {
           value: campaignId
         }
       })
-      console.log(mappedCampaigns)
       setCampaignOptions(mappedCampaigns)
     }
   }, [campaigns])
-
-  // const {
-  //   reset: accountReset,
-  //   control: accountControl,
-  //   handleSubmit: accountSubmit,
-  //   formState: { errors: accountErrors }
-  // } = useForm()
-  // const {
-  //   reset: contactReset,
-  //   control: contactControl,
-  //   handleSubmit: contactSubmit,
-  //   formState: { errors: contactErrors }
-  // } = useForm()
-  // const {
-  //   reset: AdditionalReset,
-  //   control: AdditionalControl,
-  //   handleSubmit: AdditionalSubmit,
-  //   formState: { errors: AdditionalErrors }
-  // } = useForm()
-
-  // const steps = [
-  //   {
-  //     title: 'Account Details',
-  //     subtitle: 'Enter Client Account Details'
-  //   },
-  //   {
-  //     title: 'Contact Info',
-  //     subtitle: 'Setup Contact Information'
-  //   },
-  //   {
-  //     title: 'Additional Info',
-  //     subtitle: 'Add Additional Information'
-  //   },
-  //   {
-  //     title: 'Overview',
-  //     subtitle: 'Review Submitted Information'
-  //   }
-  // ]
-
-  // const [activeStep, setActiveStep] = useState<number>(0)
-
-  // const handleBack = () => {
-  //   setActiveStep(prevActiveStep => prevActiveStep - 1)
-  // }
-
-  // const onSubmit = () => {
-  //   setActiveStep(activeStep + 1)
-  //   if (activeStep === steps.length - 1) {
-  //     toast.success('Form Submitted')
-  //   }
-  // }
-
-  // const renderContent = () => {
-  //   if (activeStep === steps.length) {
-  //     return (
-  //       <>
-  //         <Typography>All steps are completed!</Typography>
-  //         <Box sx={{ mt: 4, display: 'flex', justifyContent: 'flex-end' }}>
-  //           <Button size='large' variant='contained'>
-  //             Create new profile
-  //           </Button>
-  //         </Box>
-  //       </>
-  //     )
-  //   } else {
-  //     return getStepContent(activeStep)
-  //   }
-  // }
-
-  // const getStepContent = (step: number) => {
-  //   switch (step) {
-  //     case 0:
-  //       return (
-  //         <>
-  //           <Box>
-  //             <Typography>{step}</Typography>
-  //             <Grid container>
-  //               <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-  //                 <Button size='large' variant='outlined' color='secondary' disabled>
-  //                   Back
-  //                 </Button>
-  //                 <Button size='large' type='submit' variant='contained'>
-  //                   Next
-  //                 </Button>
-  //               </Grid>
-  //             </Grid>
-  //           </Box>
-  //         </>
-  //       )
-  //     case 1:
-  //       return (
-  //         <>
-  //           <Box>
-  //             <Typography>{step}</Typography>
-  //             <Grid container>
-  //               <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-  //                 <Button size='large' variant='outlined' color='secondary' disabled>
-  //                   Back
-  //                 </Button>
-  //                 <Button size='large' type='submit' variant='contained'>
-  //                   Next
-  //                 </Button>
-  //               </Grid>
-  //             </Grid>
-  //           </Box>
-  //         </>
-  //       )
-  //       break
-  //     case 2:
-  //       return (
-  //         <>
-  //           <Box>
-  //             <Typography>{step}</Typography>
-  //             <Grid container>
-  //               <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-  //                 <Button size='large' variant='outlined' color='secondary' disabled>
-  //                   Back
-  //                 </Button>
-  //                 <Button size='large' type='submit' variant='contained'>
-  //                   Next
-  //                 </Button>
-  //               </Grid>
-  //             </Grid>
-  //           </Box>
-  //         </>
-  //       )
-  //     case 3:
-  //       ;<>
-  //         <Box>
-  //           <Typography>{step}</Typography>
-  //           <Grid container>
-  //             <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'space-between' }}>
-  //               <Button size='large' variant='outlined' color='secondary' disabled>
-  //                 Back
-  //               </Button>
-  //               <Button size='large' type='submit' variant='contained'>
-  //                 Next
-  //               </Button>
-  //             </Grid>
-  //           </Grid>
-  //         </Box>
-  //       </>
-  //       break
-  //   }
-  // }
 
   return (
     <Card>
@@ -294,7 +195,7 @@ export default function CreateProfile() {
           <Grid container spacing={4} sx={{ mb: 6 }}>
             <Grid item xs={12} md={6} lg={4}>
               <SingleSelect
-                name='campaign'
+                name='campaignId'
                 label='Campaign'
                 defaultLabel='Select Campaign'
                 options={campaignOptions}
@@ -356,13 +257,13 @@ export default function CreateProfile() {
               <TextInput label='Email Address' name='email' control={control} placeholder='example@sample.com' />
             </Grid>
             <Grid item xs={12} lg={6}>
-              <TextInput label='Home Address' name='address1' control={control} />
+              <TextInput label='Home Address' name='address1' control={control} errors={errors} required />
             </Grid>
             <Grid item xs={12} lg={6}>
               <TextInput label='Address 2' name='address2' control={control} />
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <TextInput label='City' name='city' control={control} />
+              <TextInput label='City' name='city' control={control} errors={errors} required />
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
               <SingleSelect
@@ -371,90 +272,22 @@ export default function CreateProfile() {
                 name='state'
                 options={stateOptions}
                 control={control}
+                errors={errors}
+                required
               />
             </Grid>
             <Grid item xs={12} md={6} lg={4}>
-              <TextInput label='Zipcode' name='zipCode' control={control} />
+              <TextInput label='Zipcode' name='zipCode' control={control} errors={errors} required />
             </Grid>
             <Grid item xs={12} md={6} lg={4}></Grid>
-            <Grid item xs={12}>
-              <Typography variant='h5'>Additional Information</Typography>
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <TextInput label='Authorized First Name' name='authorizedFirstName' control={control} />
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <TextInput label='Authorized Last Name' name='authorizedLastName' control={control} />
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <TextInput label='Authorized Phone Number' name='authorizedPhoneNumber' control={control} />
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <TextInput label='Authorized Email' name='authorizedEmail' control={control} />
-            </Grid>
           </Grid>
           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button color='primary' variant='outlined' onClick={handleSubmit(onSubmit)}>
-              Save Profile
+            <Button disabled={isLoading} color='primary' variant='outlined' onClick={handleSubmit(onSubmit)}>
+              {isLoading ? 'Saving...' : 'Save Profile'}
             </Button>
           </Box>
         </form>
       </CardContent>
-      {/* <CardContent>
-        <StepperWrapper>
-          <Stepper activeStep={activeStep}>
-            {steps.map((step, index) => {
-              const labelProps: {
-                error?: boolean
-              } = {}
-              // if (index === activeStep) {
-              //   labelProps.error = false
-              //   if (
-              //     (accountErrors.email ||
-              //       accountErrors.username ||
-              //       accountErrors.password ||
-              //       accountErrors['confirm-password']) &&
-              //     activeStep === 0
-              //   ) {
-              //     labelProps.error = true
-              //   } else if (
-              //     (personalErrors.country ||
-              //       personalErrors.language ||
-              //       personalErrors['last-name'] ||
-              //       personalErrors['first-name']) &&
-              //     activeStep === 1
-              //   ) {
-              //     labelProps.error = true
-              //   } else if (
-              //     (socialErrors.google || socialErrors.twitter || socialErrors.facebook || socialErrors.linkedIn) &&
-              //     activeStep === 2
-              //   ) {
-              //     labelProps.error = true
-              //   } else {
-              //     labelProps.error = false
-              //   }
-              // }
-
-              return (
-                <Step key={index}>
-                  <StepLabel {...labelProps} StepIconComponent={StepperCustomDot}>
-                    <div className='step-label'>
-                      <Typography className='step-number'>{`0${index + 1}`}</Typography>
-                      <div>
-                        <Typography className='step-title'>{step.title}</Typography>
-                        <Typography className='step-subtitle'>{step.subtitle}</Typography>
-                      </div>
-                    </div>
-                  </StepLabel>
-                </Step>
-              )
-            })}
-          </Stepper>
-        </StepperWrapper>
-      </CardContent>
-
-      <Divider />
-      <CardContent>{renderContent()}</CardContent> */}
     </Card>
   )
 }
