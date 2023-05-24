@@ -235,6 +235,7 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
       recurringPaymentDate: getValues('recurringPaymentDate'),
       //if initialFeeAmount is not a null value, check backend to make sure numbers match up.
       //currently returned total service fee is dividing by original plan length rather than plan length - 1 to account for initial down payment
+
       initialFeeAmount: null,
       additionalFees: [
         {
@@ -294,7 +295,6 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
   }, [selectedFeeType])
 
   useEffect(() => {
-    console.log('settingValues')
     if (getValues('recurringType') === 0) {
       setValue('recurringPaymentDate', addMonths(getValues('firstPaymentDate'), 1))
     } else if (getValues('recurringType') === 1) {
@@ -304,17 +304,18 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
     }
   }, [selectedRecurringType, selectedFirstPaymentDate])
 
-  const shallow1 = useRef(JSON.stringify(getValues()))
+  // Will implement preview check to make sure up to date before creating preview
+  // const shallow1 = useRef(JSON.stringify(getValues()))
 
-  useEffect(() => {
-    if (previewData) {
-      const shallow2 = JSON.stringify(getValues())
-      if (shallow1.current !== shallow2) {
-        console.log('theyre the same, dont refresh')
-        shallow1.current = shallow2
-      }
-    }
-  }, [watch()])
+  // useEffect(() => {
+  //   if (previewData) {
+  //     const shallow2 = JSON.stringify(getValues())
+  //     if (shallow1.current !== shallow2) {
+  //       console.log('theyre the same, dont refresh')
+  //       shallow1.current = shallow2
+  //     }
+  //   }
+  // }, [watch()])
 
   return (
     <Dialog open={open} maxWidth='xl' fullWidth onClose={handleClose} aria-labelledby='form-dialog-title'>
