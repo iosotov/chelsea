@@ -5,7 +5,7 @@ import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 
-import { Grid, Typography, Box } from '@mui/material'
+import { Grid, Box } from '@mui/material'
 import { useForm } from 'react-hook-form'
 import TextInput from 'src/views/shared/form-input/text-input'
 import SingleSelect from 'src/views/shared/form-input/single-select'

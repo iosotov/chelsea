@@ -267,7 +267,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
     }),
 
     // ****************************************************************** GET /setting/addresses
-    getAddresses: builder.query<AddressSettingType[] | null, undefined>({
+    getAddresses: builder.query<AddressSettingType[] | null, void>({
       query: () => ({
         url: `/setting/addresses`,
         method: 'GET'
@@ -524,7 +524,7 @@ export const settingApiSlice = apiSlice.injectEndpoints({
     }),
 
     // ****************************************************************** GET /setting/assignees
-    getAssignees: builder.query<AssigneeSettingType[] | null, undefined>({
+    getAssignees: builder.query<AssigneeSettingType[] | null, void>({
       query: () => ({
         url: `/setting/assignees`,
         method: 'GET'

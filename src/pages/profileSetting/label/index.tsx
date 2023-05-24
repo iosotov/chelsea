@@ -1,69 +1,65 @@
 // import { MouseEvent, SyntheticEvent, useState } from 'react';
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
+import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import Button from '@mui/material/Button'
+import { usePostLabelSearchQuery } from 'src/store/api/apiHooks'
+import { useAppSelector } from 'src/store/hooks'
+import { selectAllLabels } from 'src/store/settingSlice'
+import { Box, Card, CardContent, CircularProgress } from '@mui/material'
 
 const LabelSetting = () => {
+
+  const { isLoading, isError, isSuccess } = usePostLabelSearchQuery({})
+  const labels = useAppSelector(selectAllLabels)
+
   const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 90 },
     {
-      field: 'type',
+      field: 'name',
+      headerName: 'Name',
+      flex: 1
+    },
+    {
+      field: 'typeName',
       headerName: 'Type',
-      width: 150,
-      editable: true
+      flex: 1
     },
     {
-      field: 'createdBy',
-      headerName: 'Created By ',
-      width: 150,
-      editable: true
+      field: 'required',
+      headerName: 'Required',
+      flex: 1
     },
     {
-      field: 'description',
-      headerName: 'Age',
-
-      // type: 'text',
-      width: 110,
-      editable: true
+      field: 'createdByName',
+      headerName: 'Created By',
+      flex: 1
+    },
+    {
+      field: 'active',
+      headerName: 'Active',
+      flex: 1
     }
-
-    // {
-    //   field: 'fullName',
-    //   headerName: 'Full name',
-    //   description: 'This column has a value getter and is not sortable.',
-    //   sortable: false,
-    //   width: 160,
-    //   valueGetter: (params: GridValueGetterParams) => `${params.row.firstName || ''} ${params.row.lastName || ''}`
-    // }
   ]
 
-  const rows = [
-    { id: 1, type: 'Snow', createdBy: 'Jon', description: 35 },
-    { id: 2, type: 'Lannister', createdBy: 'Cersei', description: 42 },
-    { id: 3, type: 'Lannister', createdBy: 'Jaime', description: 45 },
-    { id: 4, type: 'Stark', createdBy: 'Arya', description: 16 },
-    { id: 5, type: 'Targaryen', createdBy: 'Daenerys', description: null },
-    { id: 6, type: 'Melisandre', createdBy: null, description: 150 },
-    { id: 7, type: 'Clifford', createdBy: 'Ferrara', description: 44 },
-    { id: 8, type: 'Frances', createdBy: 'Rossini', description: 36 },
-    { id: 9, type: 'Roxie', createdBy: 'Harvey', description: 65 }
-  ]
+  if (isError) return <div>There was error on this page</div>
 
   return (
-    <>
-      <Button
-        size='medium'
-        type='submit'
-        variant='contained'
-        color='secondary'
-        sx={{ mb: 7, position: 'absolute', right: '150px' }}
-      >
-        Create
-      </Button>
-      <br></br>
-
-      <DataGrid rows={rows} columns={columns} checkboxSelection sx={{ mt: 7 }} />
-    </>
+    <Card>
+      <CardContent >
+        <Box sx={{ mb: 7 }}>
+          <Button
+            size='medium'
+            type='submit'
+            variant='contained'
+            color='secondary'
+          >
+            Create Labels
+          </Button>
+        </Box>
+        {isLoading && <CircularProgress />}
+        {isSuccess && <DataGrid getRowId={r => r.labelId} rows={labels} columns={columns} checkboxSelection sx={{ height: 400 }} />}
+      </CardContent>
+    </Card>
   )
+
 }
 
 export default LabelSetting

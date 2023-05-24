@@ -110,11 +110,6 @@ const navigation = (): VerticalNavItemsType => {
           path: '/system/ipwhitelist'
         }
       ]
-    },
-    {
-      title: 'test',
-      icon: 'mdi:cog',
-      path: '/tester'
     }
   ]
 }

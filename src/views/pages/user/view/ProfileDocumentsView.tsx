@@ -1,13 +1,10 @@
-import { Fragment, useEffect, useState } from 'react'
+import { useState } from 'react'
 
 // ** MUI Imports
 import Button from '@mui/material/Button'
 import Dialog from '@mui/material/Dialog'
-import TextField from '@mui/material/TextField'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
-import DialogActions from '@mui/material/DialogActions'
-import DialogContentText from '@mui/material/DialogContentText'
 import IconButton from '@mui/material/IconButton'
 import CardContent from '@mui/material/CardContent'
 import Box from '@mui/material/Box'
@@ -21,14 +18,14 @@ import Tab from '@mui/material/Tab'
 import CircularProgress from '@mui/material/CircularProgress'
 
 // import TabList from '@mui/lab/TabList'
-import { Grid, Table } from '@mui/material'
+import { Grid } from '@mui/material'
 import MuiTabList, { TabListProps } from '@mui/lab/TabList'
 
 import StepperCustomDot from './components/document/stepperCustomDot'
 
 import { CardContentProps } from '@mui/material/CardContent'
 
-import { Badge, Card, Chip, styled } from '@mui/material'
+import { Card, styled } from '@mui/material'
 
 //Icon Import
 import Icon from 'src/@core/components/icon'
@@ -44,7 +41,6 @@ import TableColumns from './components/document/table'
 //API calls
 import { useAppSelector } from 'src/store/hooks'
 import { selectDocumentsByProfileId } from 'src/store/documentSlice'
-import { DocumentType } from 'src/store/api/documentApiSlice'
 import { useGetDocumentsQuery } from 'src/store/api/apiHooks'
 
 const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
@@ -53,6 +49,7 @@ const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
   },
   '& .Mui-selected': {
     backgroundColor: theme.palette.primary.main,
+
     //hard coded color b/c change in tablist variant
     color: 'white !important'
   },
@@ -197,6 +194,11 @@ const UploadDialog = ({ open, toggle }: DialogProps) => {
     }
   }
 
+  const handleUpload = () => {
+    toggle()
+    setActiveStep(0)
+  }
+
   const renderContent = () => {
     return getStepContent(activeStep)
   }
@@ -230,7 +232,7 @@ const UploadDialog = ({ open, toggle }: DialogProps) => {
           variant='contained'
           color={stepCondition ? 'success' : 'primary'}
           {...(!stepCondition ? { endIcon: <Icon icon='mdi:arrow-right' /> } : {})}
-          onClick={() => (stepCondition ? alert('Submitted..!!') : handleNext())}
+          onClick={() => (stepCondition ? handleUpload() : handleNext())}
         >
           {stepCondition ? 'Submit' : 'Next'}
         </Button>

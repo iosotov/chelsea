@@ -22,6 +22,7 @@ import { Settings } from 'src/@core/context/settingsContext'
 
 // ** Hook Imports
 import { usePostAuthRevokeTokenMutation } from 'src/store/api/apiHooks'
+import { CircularProgress } from '@mui/material'
 
 interface Props {
   settings: Settings
@@ -45,7 +46,7 @@ const UserDropdown = (props: Props) => {
   const [anchorEl, setAnchorEl] = useState<Element | null>(null)
 
   // ** Hooks
-  const [logout] = usePostAuthRevokeTokenMutation()
+  const [logout, { isLoading }] = usePostAuthRevokeTokenMutation()
   const router = useRouter()
 
   // ** Vars
@@ -173,7 +174,8 @@ const UserDropdown = (props: Props) => {
           sx={{ py: 2, '& svg': { mr: 2, fontSize: '1.375rem', color: 'text.primary' } }}
         >
           <Icon icon='mdi:logout-variant' />
-          Logout
+          {isLoading && <CircularProgress />}
+          {!isLoading && "Logout"}
         </MenuItem>
       </Menu>
     </Fragment>

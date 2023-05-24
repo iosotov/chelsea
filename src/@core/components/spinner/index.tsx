@@ -7,8 +7,6 @@ const FallbackSpinner = ({ sx }: { sx?: BoxProps['sx'] }) => {
   // ** Hook
   const theme = useTheme()
 
-  console.log(theme)
-
   return (
     <Box
       sx={{

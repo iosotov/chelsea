@@ -4,113 +4,76 @@ import { useState } from 'react'
 import Button from '@mui/material/Button'
 import CreateBudgetDrawer from './CreateBudgetDrawer'
 
-import { useAppDispatch, useAppSelector } from 'src/store/hooks'
+import { useAppSelector } from 'src/store/hooks'
 
-import { useGetBudgetsQuery, useGetProfileBudgetsQuery } from 'src/store/api/profileBudgetApiSlice'
-import { selectAllBudgets, selectAllProfileBudgets } from 'src/store/profileBudgetSlice'
+import { selectAllBudgets } from 'src/store/profileBudgetSlice'
+import { useGetBudgetsQuery } from 'src/store/api/apiHooks'
+import { BudgetEnum } from 'src/store/api/profileBudgetApiSlice'
+import { Box, Card, CardContent, CircularProgress } from '@mui/material'
 
 const BudgetSetting = () => {
-  // const [data, setData] = useState<Profile[] | {}>({})
-  // const profiles = useAppSelector(selectAllProfiles)
 
   const budgets = useAppSelector(selectAllBudgets)
   const [openBudgetDrawer, setOpenBudgetDrawer] = useState<boolean>(false)
 
-  // const profileBudgets = useAppSelector(selectAllProfileBudgets)
-
-  // val stores state for header filters
-  // const [value, setValue] = useState<string>('')
-
-  // useGetProfilesQuery(data)
-  // useGetProfileBudgetsQuery('1327485548')
-  useGetBudgetsQuery({})
+  const { isLoading, isError, isSuccess } = useGetBudgetsQuery()
   const toggleDrawer = () => setOpenBudgetDrawer(!openBudgetDrawer)
 
-  // useEffect(() => {
-  //   setData(budgets)
-  // }, [])
-
   const columns: GridColDef[] = [
-    { field: 'id', headerName: 'ID', width: 90 },
     {
       field: 'name',
       headerName: 'Budget Name',
-      width: 150,
+      flex: 1,
       editable: true
     },
     {
       field: 'active',
       headerName: 'Status',
-      width: 150,
+      flex: 1,
       editable: true
     },
     {
       field: 'budgetType',
       headerName: 'Budget Type',
-
-      // type: 'text',
-      width: 110,
-      editable: true
+      flex: 1,
+      editable: true,
+      valueGetter: (params: GridValueGetterParams) =>
+        `${BudgetEnum[params.row.budgetType]}`
     },
     {
       field: 'description',
-      headerName: 'Age',
-
-      // type: 'text',
-      width: 110,
-      editable: true
-    },
-    {
-      field: 'budgetId',
-      headerName: 'budgetId',
-
-      // type: 'text',
-      width: 180,
+      headerName: 'Description',
+      flex: 1,
       editable: true
     }
-
-    // {
-    //   field: 'fullName',
-    //   headerName: 'Full name',
-    //   description: 'This column has a value getter and is not sortable.',
-    //   sortable: false,
-    //   width: 160,
-    //   valueGetter: (params: GridValueGetterParams) => `${params.row.firstName || ''} ${params.row.lastName || ''}`
-    // }
   ]
 
-  const mapRows = budgets.map((budget, index) => {
-    //easier way to add index needed for rows prop?
-    return {
-      id: index,
-      budgetId: budget.budgetId,
-      name: budget.name,
-      budgetType: budget.budgetType,
-      description: budget.description,
-      active: budget.active
-    }
-  })
-
-  console.log(mapRows)
+  if (isError) return <div>There was an error on this page</div>
 
   return (
     <>
-      <Button
-        size='medium'
-        type='submit'
-        variant='contained'
-        color='secondary'
-        sx={{ mb: 7, position: 'absolute', right: '150px' }}
-        onClick={toggleDrawer}
-      >
-        Create
-      </Button>
-      <br></br>
-
-      <DataGrid rows={mapRows} columns={columns} checkboxSelection sx={{ mt: 7 }} />
+      <Card>
+        <CardContent >
+          <Box sx={{ mb: 7 }}>
+            <Button
+              size='medium'
+              type='submit'
+              variant='contained'
+              color='secondary'
+              onClick={toggleDrawer}
+            >
+              Create Budget
+            </Button>
+          </Box>
+          {isLoading && <CircularProgress />}
+          {isSuccess && <DataGrid getRowId={r => r.budgetId} rows={budgets} columns={columns} checkboxSelection sx={{ height: 400 }} />}
+        </CardContent>
+      </Card>
       <CreateBudgetDrawer open={openBudgetDrawer} toggle={toggleDrawer} />
     </>
   )
+
+
 }
 
 export default BudgetSetting
