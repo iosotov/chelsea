@@ -32,7 +32,6 @@ import { ApexOptions } from 'apexcharts'
 
 // ** Custom Components Imports
 import CustomChip from 'src/@core/components/mui/chip'
-import OptionsMenu from 'src/@core/components/option-menu'
 import ReactApexcharts from 'src/@core/components/react-apexcharts'
 
 import Icon from 'src/@core/components/icon'
@@ -102,6 +101,7 @@ function CreditScore({ id }: Props) {
             fontSize: '2rem',
             color: theme.palette.text.primary,
             formatter: val => {
+              console.log(val)
               return creditReport?.creditScores[0]?.scoreValue ?? '0'
             }
           }

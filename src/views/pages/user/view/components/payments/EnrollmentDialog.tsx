@@ -1,4 +1,7 @@
-import { useEffect, useState, memo, useRef, useMemo } from 'react'
+import { useEffect, useState, useMemo } from 'react'
+
+// reenable when type selection enabled
+// import { useRef } from 'react'
 
 import { useForm } from 'react-hook-form'
 
@@ -33,7 +36,7 @@ import TextInput from 'src/views/shared/form-input/text-input'
 import Icon from 'src/@core/components/icon'
 
 //Third-Party Packages
-import { addWeeks, addMonths, isSameDay } from 'date-fns'
+import { addWeeks, addMonths } from 'date-fns'
 
 //API
 import {
@@ -51,7 +54,7 @@ import MoneyConverter from 'src/views/shared/utils/money-converter'
 
 //Imported Types
 import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
-import { EnrollmentPreviewMutatedType, EnrollmentPreviewType } from 'src/store/api/enrollmentApiSlice'
+import { EnrollmentPreviewMutatedType } from 'src/store/api/enrollmentApiSlice'
 import DateConverter from 'src/views/shared/utils/date-converter'
 
 //Typing
@@ -321,13 +324,15 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
     serviceOptions = servicePercentageOptions
   }
 
-  const previousSelected = useRef(getValues('serviceFeeType'))
-  useEffect(() => {
-    if (previousSelected.current !== getValues('serviceFeeType')) {
-      setValue('serviceFee', '')
-      previousSelected.current = selectedFeeType
-    }
-  }, [selectedFeeType])
+  // reenable when fixed fee type enabled
+  // resets the serviceFee value upon switching feetypes
+  // const previousSelected = useRef(getValues('serviceFeeType'))
+  // useEffect(() => {
+  //   if (previousSelected.current !== getValues('serviceFeeType')) {
+  //     setValue('serviceFee', '')
+  //     previousSelected.current = selectedFeeType
+  //   }
+  // }, [selectedFeeType])
 
   useEffect(() => {
     if (getValues('recurringType') === 0) {
@@ -337,7 +342,7 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
     } else if (getValues('recurringType') === 2) {
       setValue('recurringPaymentDate', addWeeks(getValues('firstPaymentDate'), 2))
     }
-  }, [selectedRecurringType, selectedFirstPaymentDate])
+  }, [selectedRecurringType, selectedFirstPaymentDate, setValue, getValues])
 
   // Will implement preview check to make sure up to date before creating preview
   // const shallow1 = useRef(JSON.stringify(getValues()))
@@ -533,4 +538,4 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
   )
 }
 
-export default memo(EnrollmentDialog)
+export default EnrollmentDialog

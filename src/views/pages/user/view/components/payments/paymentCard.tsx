@@ -47,7 +47,6 @@ const PaymentCard = ({
   paymentData: (BankDataType | CardDataType)[]
 }): ReactElement => {
   const [editModal, setEditModal] = useState<boolean>(false)
-  const [paymentModal, setPaymentModal] = useState<boolean>(false)
   const [dialogData, setDialogData] = useState<(BankDataType | CardDataType)[]>(paymentData)
 
   const toggleEdit = () => setEditModal(!editModal)

@@ -1,6 +1,13 @@
-import { Grid, Typography } from '@mui/material'
 import React, { ReactElement } from 'react'
+
+//MUI
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+
+//Forms
 import { useForm } from 'react-hook-form'
+
+//Custom Imports
 import TextInput from 'src/views/shared/form-input/text-input'
 import SingleSelect from 'src/views/shared/form-input/single-select'
 import ToggleSwitch from 'src/views/shared/form-input/toggle-switch'
@@ -96,6 +103,7 @@ const stateOptions = [
 export default function PaymentFormSubmit({ type, data, form }: Props): ReactElement {
   const submitForm = useForm({ defaultValues: { ...data } })
   const { control } = submitForm
+
   return (
     <Grid container spacing={4}>
       <Grid item xs={12}>
