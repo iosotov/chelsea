@@ -1,10 +1,9 @@
-import { ChangeEvent, MouseEvent, useState, useEffect, useRef, useCallback } from 'react'
+import { useState, useEffect, useRef } from 'react'
 
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import Collapse from '@mui/material/Collapse'
 import Grid from '@mui/material/Grid'
-import ButtonGroup from '@mui/material/ButtonGroup'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
@@ -12,37 +11,23 @@ import Button from '@mui/material/Button'
 // ** MUI Imports
 import Toolbar from '@mui/material/Toolbar'
 import Tooltip from '@mui/material/Tooltip'
-import { visuallyHidden } from '@mui/utils'
 import { alpha } from '@mui/material/styles'
-import Checkbox from '@mui/material/Checkbox'
 import IconButton from '@mui/material/IconButton'
-import TablePagination from '@mui/material/TablePagination'
-import Paper from '@mui/material/Paper'
-import Table from '@mui/material/Table'
-import TableRow from '@mui/material/TableRow'
-import TableHead from '@mui/material/TableHead'
-import TableBody from '@mui/material/TableBody'
-import TableCell from '@mui/material/TableCell'
-import TableContainer from '@mui/material/TableContainer'
 
 // ** Custom Components Imports
 import Icon from 'src/@core/components/icon'
 import Alert from '@mui/material/Alert'
 import AlertTitle from '@mui/material/AlertTitle'
-import LinearProgress, { linearProgressClasses } from '@mui/material/LinearProgress'
-import { styled } from '@mui/material/styles'
+import LinearProgress from '@mui/material/LinearProgress'
 import { CardHeader } from '@mui/material'
 
-import { ThemeColor } from 'src/@core/layouts/types'
 
 import CustomChip from 'src/@core/components/mui/chip'
 import TransactionDialog from './components/payments/TransactionDialog'
 
 import { useAppSelector } from 'src/store/hooks'
 import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
-import { EnrollmentInfoModel, EnrollmentListItemModel } from 'src/store/api/enrollmentApiSlice'
-import { selectAllBankAccounts, selectBankAccountsByProfileId } from 'src/store/bankAccountSlice'
-import { selectAllCreditCards, selectCreditCardsByProfileId } from 'src/store/creditCardSlice'
+import { BankingOrCreditCardType } from 'src/store/bankAccountSlice'
 import { selectPaymentByProfileId } from 'src/store/paymentSlice'
 import {
   useGetBankAccountsQuery,
@@ -50,8 +35,6 @@ import {
   useGetProfileLiabilitiesQuery,
   useGetProfilePaymentsQuery
 } from 'src/store/api/apiHooks'
-import { BankAccountType } from 'src/store/api/bankAccountApiSlice'
-import { CreditCardType } from 'src/store/api/creditCardApiSlice'
 import { selectLiabilityByProfileId } from 'src/store/liabilitySlice'
 
 import MoneyConverter from 'src/views/shared/utils/money-converter'
@@ -61,10 +44,10 @@ import { PaymentDetailInfoModel } from 'src/store/api/enrollmentApiSlice'
 import { selectPaymentsByProfileId } from 'src/store/bankAccountSlice'
 
 //test
-import { DataGridPro, GridColDef, GridValueFormatterParams, GridRowSelectionModel } from '@mui/x-data-grid-pro'
+import { DataGridPro, GridColDef, GridValueFormatterParams, GridRowId } from '@mui/x-data-grid-pro'
 
 //Table Types
-type Order = 'asc' | 'desc'
+// type Order = 'asc' | 'desc'
 
 //Dynamic Imports
 import dynamic from 'next/dynamic'
@@ -73,15 +56,15 @@ const PaymentDialog = dynamic(() => import('./components/payments/PaymentDialog'
 const EnrollmentDialog = dynamic(() => import('./components/payments/EnrollmentDialog'))
 const EditPaymentDialog = dynamic(() => import('./components/payments/EditPaymentDialog'))
 
-interface TableData {
-  processedDate: string
-  amount: number
-  clearedDate: number
-  status: string
-  memo: string
-  description: string
-  paymentTypeName: string
-}
+// interface TableData {
+//   processedDate: string
+//   amount: number
+//   clearedDate: number
+//   status: string
+//   memo: string
+//   description: string
+//   paymentTypeName: string
+// }
 
 interface EnhancedTableToolbarProps {
   numSelected: number
@@ -159,6 +142,7 @@ function Overview({ enrollmentData, paymentData, id }: any) {
 
   const [enrollmentModal, setEnrollmentModal] = useState<boolean>(false)
   const toggleEnrollment = () => setEnrollmentModal(!enrollmentModal)
+
   return (
     <>
       <Grid item xs={12}>
@@ -186,7 +170,7 @@ function Overview({ enrollmentData, paymentData, id }: any) {
                     <Typography component='span' sx={{ fontWeight: 600 }}>
                       {MoneyConverter(
                         (enrollmentData?.enrollmentFee * Number(enrollmentData?.enrolledBalance)) /
-                          enrollmentData?.programLength
+                        enrollmentData?.programLength
                       )}
                     </Typography>
                   </Typography>
@@ -359,7 +343,7 @@ function PaymentMethod({ paymentData, enrollmentData }: { paymentData: any; enro
           />
           <CardContent>
             {paymentData?.length > 0 ? (
-              paymentData.map((item: CreditCardType | BankAccountType, index: number) => (
+              paymentData.map((item: BankingOrCreditCardType, index: number) => (
                 <Box
                   key={'payments ' + index}
                   sx={{
@@ -386,7 +370,7 @@ function PaymentMethod({ paymentData, enrollmentData }: { paymentData: any; enro
                       <Typography sx={{ fontWeight: 600 }}>
                         {item.paymentType === 'card' ? item.name : item.accountName}
                       </Typography>
-                      {item.status ? (
+                      {/* {item.status ? (
                         <CustomChip
                           skin='light'
                           size='small'
@@ -394,12 +378,11 @@ function PaymentMethod({ paymentData, enrollmentData }: { paymentData: any; enro
                           label={item.status}
                           color={item.badgeColor}
                         />
-                      ) : null}
+                      ) : null} */}
                     </Box>
                     <Typography variant='body2'>
-                      {item.paymentType === 'card'
-                        ? '**** **** **** ' + item.cardNumber.substring(item.cardNumber.length - 4)
-                        : '*********' + item.bankAccountNumber.substring(item.bankAccountNumber.length - 4)}
+                      {item.cardNumber && item.cardNumber.substring(item.cardNumber.length - 4)}
+                      {item.bankAccountNumber && item.bankAccountNumber.substring(item.bankAccountNumber.length - 4)}
                     </Typography>
                   </Box>
                   <Box sx={{ mt: [3, 0], textAlign: ['start', 'end'] }}>
@@ -410,9 +393,7 @@ function PaymentMethod({ paymentData, enrollmentData }: { paymentData: any; enro
                       Delete
                     </Button>
                     <Typography variant='caption' sx={{ mt: 4, display: 'block' }}>
-                      {item.paymentType === 'card'
-                        ? `Card expires at ${item.expirationMonth}/${item.expirationYear}`
-                        : null}
+                      {item.paymentType === 'card' && `Card expires at ${item.expirationMonth}/${item.expirationYear}`}
                     </Typography>
                   </Box>
                 </Box>
@@ -456,7 +437,7 @@ const EnhancedTable = ({
 }) => {
   useGetProfilePaymentsQuery(id)
   const rows = useAppSelector(state => selectPaymentByProfileId(state, id))
-  const [selected, setSelected] = useState<GridRowSelectionModel[]>([])
+  const [selected, setSelected] = useState<GridRowId[]>([])
 
   const [paginationModel, setPaginationModel] = useState({ pageSize: 10, page: 0 })
 
@@ -479,7 +460,9 @@ const EnhancedTable = ({
     toggleDialog()
   }
 
-  const chipDictionary: string[] = [
+  type ChipColor = "info" | "primary" | "success" | "error" | "warning"
+
+  const chipDictionary: ChipColor[] = [
     'info',
     'primary',
     'success',
@@ -627,6 +610,7 @@ const EnhancedTable = ({
 export default function ProfilePayments({ id: profileId }: ProfileProps) {
   //Enrollment Data
   const enrollmentData = useAppSelector(state => selectEnrollmentByProfileId(state, profileId))
+
   //Payment Data
   const { isSuccess: bankSuccess } = useGetBankAccountsQuery(profileId, { skip: !profileId })
   const { isSuccess: cardSuccess, isUninitialized, isLoading } = useGetCreditCardsQuery(profileId, { skip: !profileId })

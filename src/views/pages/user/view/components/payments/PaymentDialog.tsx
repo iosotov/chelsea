@@ -16,7 +16,6 @@ import IconButton from '@mui/material/IconButton'
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
-import DialogActions from '@mui/material/DialogActions'
 
 //MUI Custom Styles
 import { styled } from '@mui/material/styles'
@@ -24,7 +23,6 @@ import { CardContentProps } from '@mui/material/CardContent'
 import StepperWrapper from 'src/@core/styles/mui/stepper'
 
 //Custom Components
-import StepperCustomDot from '../document/stepperCustomDot'
 import PaymentFormType from './PaymentFormType'
 import PaymentFormInformation from './PaymentFormInformation'
 import PaymentFormBilling from './PaymentFormBilling'
@@ -36,7 +34,6 @@ import Icon from 'src/@core/components/icon'
 type PaymentDialogProps = {
   open: boolean
   handleClose: () => void
-  data: any
 }
 
 //Custom Styling
@@ -49,7 +46,7 @@ const StepperHeaderContainer = styled(CardContent)<CardContentProps>(({ theme })
   }
 }))
 
-const PaymentDialog = ({ open, handleClose, data }: PaymentDialogProps): ReactElement => {
+const PaymentDialog = ({ open, handleClose }: PaymentDialogProps): ReactElement => {
   const [activeStep, setActiveStep] = useState<number>(0)
 
   const steps = [
@@ -221,11 +218,7 @@ const PaymentDialog = ({ open, handleClose, data }: PaymentDialogProps): ReactEl
             <Stepper connector={<></>} activeStep={activeStep} orientation='vertical'>
               {steps.map((step, index) => {
                 return (
-                  <Step
-                    key={index}
-                    // onClick={() => setActiveStep(index)}
-                    sx={{ '&.Mui-completed + svg': { color: 'primary.main' } }}
-                  >
+                  <Step key={index} sx={{ '&.Mui-completed + svg': { color: 'primary.main' } }}>
                     <StepLabel>
                       <div className='step-label'>
                         <div>

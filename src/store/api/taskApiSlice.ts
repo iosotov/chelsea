@@ -16,6 +16,7 @@ export type TaskType = {
   rescheduleDate: string
   profileId: string
   liabilityId: string
+  createdAt: string
   createdBy: string
   createdCompanyId: string
   createdCompanyName: string
@@ -25,7 +26,7 @@ export type TaskType = {
 
 export type TaskCreateType = {
   taskName: string
-  dueDate: string
+  dueDate: string | Date
   assignedTo: string
   assignType?: number
   notes?: string
@@ -50,10 +51,11 @@ export type TaskUpdateType = {
 
 export type TaskBulkUpdateType = {
   taskIds: string[]
-  status: number
+  status: TaskStatusEnum
   dueDate: string
-  notes: string
+  notes?: string
   assignedTo: string
+  assignType?: number
 }
 
 export enum TaskStatusEnum {
@@ -117,7 +119,7 @@ export const taskApiSlice = apiSlice.injectEndpoints({
       async onQueryStarted(taskId, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
-          if (data) dispatch(updateTasks(data))
+          if (data) dispatch(setTasks(data))
         } catch (err: any) {
           console.error('API error in getProfileTasks:', err.error.data.message)
         }

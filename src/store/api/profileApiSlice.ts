@@ -16,7 +16,7 @@ export type ProfileInfoType = {
   status: number
   statusName: string
 
-  stage: number
+  stage: string
   stageName: string
   stageStatus: string
   stageStatusName: string
@@ -61,7 +61,7 @@ export type ProfileLabelsType = {
 
 export type ProfileStatusUpdateType = {
   profileId: string
-  status: string
+  stage: string
   stageStatus: string
 }
 
@@ -137,7 +137,7 @@ type ProfileUpdateType = {
   lastName: string
   middleName?: string
   gender: number
-  birthdate?: string
+  birthdate?: Date
   ssn?: string
   parentProfileId?: string
   campaignId: string
@@ -566,7 +566,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
     }),
 
     // ***************************************************** POST profile
-    postProfileCreate: builder.mutation<boolean, ProfileCreateType>({
+    postProfileCreate: builder.mutation<string | boolean, ProfileCreateType>({
       query: body => ({
         url: `/profile`,
         method: 'POST',
@@ -580,7 +580,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         }
       },
       transformResponse: async (res: LunaResponseType) => {
-        return res.success
+        return res.success ? res.data : res.success
       },
       async onQueryStarted(body, { queryFulfilled }) {
         try {

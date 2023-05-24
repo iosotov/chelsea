@@ -17,6 +17,7 @@ const DateConverter = (date: string | undefined, tz?: string) => {
 
   //currently need to check for type of info coming in from api
   if (tz) return format(utcToZonedTime(parsedDate, tz), 'P')
+
   return format(new Date(date), 'P')
 }
 

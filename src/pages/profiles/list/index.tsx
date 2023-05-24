@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, useEffect, MouseEvent, useCallback } from 'react'
+import { useState, MouseEvent, useCallback } from 'react'
 
 // ** Next Imports
 import Link from 'next/link'
@@ -24,48 +24,25 @@ import Select, { SelectChangeEvent } from '@mui/material/Select'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
-// ** Store Imports
-import { useDispatch, useSelector } from 'react-redux'
-
 // ** Custom Components Imports
 import CustomChip from 'src/@core/components/mui/chip'
 import CustomAvatar from 'src/@core/components/mui/avatar'
 
-// ** Third Party Components
-import axios from 'axios'
-
 // ** Types Imports
 import { ThemeColor } from 'src/@core/layouts/types'
-import { UsersType } from 'src/types/apps/userTypes'
-import { CardStatsHorizontalProps } from 'src/@core/components/card-statistics/types'
 
 // ** Custom Table Components Imports
-import { useAppDispatch, useAppSelector } from 'src/store/hooks'
+import { useAppSelector } from 'src/store/hooks'
 import { ProfileInfoType } from 'src/store/api/profileApiSlice'
 import { selectAllProfiles } from 'src/store/profileSlice'
 
 // import SidebarAddUser from 'src/views/pages/user/list/AddUserDrawer'
 // import TableHeader from 'src/views/pages/user/list/TableHeader'
-// import { useGetBudgetsQuery, useGetProfileBudgetsQuery } from 'src/store/api/profileBudgetApiSlice'
-import { selectAllBudgets, selectAllProfileBudgets } from 'src/store/profileBudgetSlice'
 import { usePostProfilesSearchQuery } from 'src/store/api/apiHooks'
-
-interface UserRoleType {
-  [key: string]: { icon: string; color: string }
-}
 
 interface UserStatusType {
   [key: string]: ThemeColor
 }
-
-// ** Vars
-// const userRoleObj: UserRoleType = {
-//   admin: { icon: 'mdi:laptop', color: 'error.main' },
-//   author: { icon: 'mdi:cog-outline', color: 'warning.main' },
-//   editor: { icon: 'mdi:pencil-outline', color: 'info.main' },
-//   maintainer: { icon: 'mdi:chart-donut', color: 'success.main' },
-//   subscriber: { icon: 'mdi:account-outline', color: 'primary.main' }
-// }
 
 interface CellType {
   row: ProfileInfoType
@@ -75,22 +52,6 @@ const userStatusObj: UserStatusType = {
   active: 'success',
   pending: 'warning',
   inactive: 'secondary'
-}
-
-interface ContactType {
-  profileId: string
-  createdAt: string
-  createdCompanyName: string
-  stageName: string
-  stageStatusName: string
-  statusName: string
-  submittedDate: string
-  enrolledDate: string
-  cancelledDate: string
-
-  firstName: string
-  lastName: string
-  avatar: string
 }
 
 const LinkStyled = styled(Link)(({ theme }) => ({
@@ -128,6 +89,7 @@ const RowOptions = ({ profileId }: { profileId: number | string }) => {
 
   const handleRowOptionsClick = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
+    console.log(profileId)
   }
   const handleRowOptionsClose = () => {
     setAnchorEl(null)
@@ -288,7 +250,7 @@ const columns = [
     sortable: false,
     field: 'actions',
     headerName: 'Actions',
-    renderCell: ({ row }: CellType) => <RowOptions id={row.profileId} />
+    renderCell: ({ row }: CellType) => <RowOptions profileId={row.profileId} />
   }
 ]
 
@@ -303,15 +265,12 @@ const ProfileList = () => {
   usePostProfilesSearchQuery({})
 
   // val stores state for header filters
-  const [value, setValue] = useState<string>('')
+  // const [value, setValue] = useState<string>('')
+  // const [addUserOpen, setAddUserOpen] = useState<boolean>(false)
 
   // state for UI
   const [pageSize, setPageSize] = useState<number>(10)
-  const [addUserOpen, setAddUserOpen] = useState<boolean>(false)
 
-  const handleFilter = useCallback((val: string) => {
-    setValue(val)
-  }, [])
 
   const handleRoleChange = useCallback((e: SelectChangeEvent) => {
     setRole(e.target.value)
@@ -325,7 +284,11 @@ const ProfileList = () => {
     setStatus(e.target.value)
   }, [])
 
-  const toggleAddUserDrawer = () => setAddUserOpen(!addUserOpen)
+  // const toggleAddUserDrawer = () => setAddUserOpen(!addUserOpen)
+
+  // const handleFilter = useCallback((val: string) => {
+  //   setValue(val)
+  // }, [])
 
   return (
     <Grid container spacing={6}>
@@ -413,7 +376,6 @@ const ProfileList = () => {
           {/* </Box> */}
         </Card>
       </Grid>
-
       {/* <SidebarAddUser open={addUserOpen} toggle={toggleAddUserDrawer} /> */}
     </Grid>
   )

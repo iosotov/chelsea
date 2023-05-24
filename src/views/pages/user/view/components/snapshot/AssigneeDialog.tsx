@@ -1,32 +1,41 @@
-import { ReactElement, useEffect, memo } from 'react'
+import { ReactElement } from 'react'
 
+//MUI
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Grid from '@mui/material/Grid'
+import IconButton from '@mui/material/IconButton'
+import SingleSelect from 'src/views/shared/form-input/single-select'
+import Typography from '@mui/material/Typography'
+
+//Dialog
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
 import DialogContent from '@mui/material/DialogContent'
 import DialogActions from '@mui/material/DialogActions'
 
-import { Grid, Typography, Box } from '@mui/material'
-import { useForm, useWatch } from 'react-hook-form'
-import TextInput from 'src/views/shared/form-input/text-input'
-import SingleSelect from 'src/views/shared/form-input/single-select'
-import Button from '@mui/material/Button'
-import SelectDate from 'src/views/shared/form-input/date-picker'
-import IconButton from '@mui/material/IconButton'
+//Forms
+import { useForm } from 'react-hook-form'
 
+//Custom Import
 import Icon from 'src/@core/components/icon'
 
-import { useAppSelector } from 'src/store/hooks'
-
+//API
 import { useGetAssigneeDatasourceQuery } from 'src/store/api/apiHooks'
+import { usePostProfileAssignMutation } from 'src/store/api/apiHooks'
 
 type Props = {
   data: { assigneeId: string; assigneeName: string; employeeId: string; employeeAlias: string }
   toggle: () => void
   open: boolean
+  profileId: string
 }
 
-const AssigneeDialog = ({ data, toggle, open }: Props): ReactElement => {
+const AssigneeDialog = ({ data, toggle, open, profileId }: Props): ReactElement => {
   const { assigneeId, assigneeName, employeeId = '', employeeAlias } = data
+  const [setAssignees, status] = usePostProfileAssignMutation()
+
+  const { isLoading } = status
 
   // call api for status/stage
   const assigneeForm = useForm({ shouldUnregister: true })
@@ -46,17 +55,25 @@ const AssigneeDialog = ({ data, toggle, open }: Props): ReactElement => {
   const onSubmit = () => {
     const check = assigneeForm.getValues('assignee')
     if (check !== employeeId) {
-      const data = getValues('assignee')
-      console.log(data)
+      const data = {
+        profileId: profileId,
+        employeeId: getValues('assignee'),
+        assigneeId: assigneeId
+      }
+
+      setAssignees(data)
+        .unwrap()
+        .then(res => {
+          if (res) {
+            reset()
+            onClose()
+          }
+        })
     }
-    onClose()
   }
 
   //temp measure until i find the right selector
   const { data: assigneeList } = useGetAssigneeDatasourceQuery(assigneeId, { skip: !assigneeId })
-
-  // use app selector to eventually select the right one
-  // const assigneeList = useAppSelector(state => selectAllAssignees(state))
 
   return (
     <Dialog open={open} maxWidth='xs' fullWidth onClose={onClose} aria-labelledby='form-dialog-title'>
@@ -95,8 +112,8 @@ const AssigneeDialog = ({ data, toggle, open }: Props): ReactElement => {
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant='outlined' onClick={handleSubmit(onSubmit)}>
-          Save Changes
+        <Button disabled={isLoading} variant='outlined' onClick={handleSubmit(onSubmit)}>
+          {isLoading ? 'Saving...' : 'Save Changes'}
         </Button>
       </DialogActions>
     </Dialog>

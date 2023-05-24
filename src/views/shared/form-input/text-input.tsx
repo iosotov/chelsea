@@ -12,6 +12,7 @@ type Props = {
   required?: boolean
   errors?: any
   disabled?: any
+  InputProps?: any
 }
 
 export default function TextInput({

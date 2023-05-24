@@ -1,7 +1,11 @@
 import { ReactElement } from 'react'
-import SingleSelect from 'src/views/shared/form-input/single-select'
 
-import { Typography, Box, Grid } from '@mui/material'
+//MUI
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+
+//Custom Import
+import SingleSelect from 'src/views/shared/form-input/single-select'
 
 type Props = {
   control: any

@@ -1,4 +1,5 @@
 // ** Types
+import React, { SetStateAction } from 'react'
 import { Dispatch } from 'redux'
 
 // ** Theme Type Import
@@ -9,15 +10,13 @@ export type CalendarFiltersType = 'Personal' | 'Business' | 'Family' | 'Holiday'
 export type EventDateType = Date | null | undefined
 
 export type CalendarColors = {
-  ETC: ThemeColor
-  Family: ThemeColor
-  Holiday: ThemeColor
-  Personal: ThemeColor
-  Business: ThemeColor
+  Open: ThemeColor
+  Attempted: ThemeColor
+  Completed: ThemeColor
 }
 
 export type EventType = {
-  id: number
+  id: number | string
   url: string
   title: string
   allDay: boolean
@@ -77,16 +76,13 @@ export type CalendarType = {
 
 export type SidebarLeftType = {
   mdAbove: boolean
-  dispatch: Dispatch<any>
+  selectedTasks: number[]
+  setSelectedTasks: React.Dispatch<SetStateAction<number[]>>
   leftSidebarWidth: number
   leftSidebarOpen: boolean
-  store: CalendarStoreType
   calendarsColor: CalendarColors
   handleLeftSidebarToggle: () => void
   handleAddEventSidebarToggle: () => void
-  handleAllCalendars: (val: boolean) => void
-  handleSelectEvent: (event: null | EventType) => void
-  handleCalendarsUpdate: (val: CalendarFiltersType) => void
 }
 
 export type AddEventSidebarType = {

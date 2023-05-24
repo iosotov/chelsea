@@ -258,6 +258,22 @@ export type EnrollmentCreateType = {
   additionalFees?: AdditionalFeesType[]
 }
 
+export type EnrollmentPreviewTableEntry = {
+  processDate: string
+  serviceFee: number
+  maintenanceFee?: number
+}
+
+export type EnrollmentPreviewMutatedType = {
+  totalEnrolledDebt: string
+  totalAdditionalFee: number
+  totalFee: number
+  totalPayments: number
+  totalServiceFee: number
+  serviceFee: number
+  transactions: EnrollmentPreviewTableEntry[]
+}
+
 // Enrollment Cancel api/Enrollment/{profileId}/profile/cancel
 export type EnrollmentCancelModel = {
   profileId: string
@@ -412,7 +428,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
     }),
 
     // ******************************************************************** GET /enrollment/profileId/preview
-    getEnrollmentPreview: builder.mutation<EnrollmentPreviewType | null, EnrollmentCreateType>({
+    getEnrollmentPreview: builder.mutation<EnrollmentPreviewMutatedType | null, EnrollmentCreateType>({
       query: params => {
         const { profileId, ...body } = params
 
@@ -439,7 +455,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           serviceFee,
           enrollmentScheduleInfoModels
         } = res.data
-        const mappedData = {
+        const mappedData: EnrollmentPreviewMutatedType = {
           totalEnrolledDebt,
           totalAdditionalFee,
           totalFee,
@@ -449,7 +465,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           transactions: []
         }
 
-        const serviceData = {}
+        const serviceData: { [key: string]: EnrollmentPreviewTableEntry } = {}
 
         enrollmentScheduleInfoModels
           .filter((e: EnrollmentScheduleInfoType) => e.type === 0)
@@ -460,7 +476,7 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
             })
           })
 
-        const maintenanceData = {}
+        const maintenanceData: { [key: string]: Required<EnrollmentPreviewTableEntry> } = {}
 
         enrollmentScheduleInfoModels
           .filter((e: EnrollmentScheduleInfoType) => e.type === 2)
