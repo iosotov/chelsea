@@ -75,7 +75,7 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
   const [dialogMode, setDialogMode] = useState<string>('Create')
 
   let rows = []
-  const { isLoading, isSuccess, isError } = useGetProfileNotesQuery(profileId)
+  const { isLoading, isError } = useGetProfileNotesQuery(profileId)
 
   const dataWithIndex = profileNotes.map((obj, index) => {
     return { ...obj, id: index }
@@ -84,7 +84,7 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
 
   const {
     handleSubmit,
-    formState: {}
+    formState: { }
   } = useForm({ defaultValues })
 
   const onSubmit = () => {
@@ -230,7 +230,6 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
 
   if (isLoading) return <div>Loading</div>
 
-  if (isSuccess)
     return (
       <>
         <Card>
@@ -373,21 +372,22 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
                   )}
                 </Grid>
               </Grid>
-            </form>
-          </CardContent>
-        </Card>
+            </Grid>
+          </form>
+        </CardContent>
+      </Card>
 
-        <br></br>
-        <Card>
-          <CardHeader title='Notes' />
-          <CardContent>
-            <Box sx={{ height: 400, width: '100%' }}>
-              <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }} />
-            </Box>
-          </CardContent>
-        </Card>
-      </>
-    )
+      <br></br>
+      <Card>
+        <CardHeader title='Notes' />
+        <CardContent>
+          <Box sx={{ height: 400, width: '100%' }}>
+            <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }} />
+          </Box>
+        </CardContent>
+      </Card>
+    </>
+  )
 }
 
 export default ProfileNotes
