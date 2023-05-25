@@ -220,8 +220,9 @@ export default function ProfileDebts({ id }: Props) {
             <Card>
               <CardContent>
                 <Typography variant='caption'>Enrolled Debts</Typography>
-                <Typography variant='h4'>{`${debts.filter(debt => debt.enrolled === true).length} of ${debts.length
-                  }`}</Typography>
+                <Typography variant='h4'>{`${debts.filter(debt => debt.enrolled === true).length} of ${
+                  debts.length
+                }`}</Typography>
               </CardContent>
             </Card>
           </Grid>
