@@ -1,53 +1,22 @@
 import { ReactElement, useState } from 'react'
 import { Box, Typography, Button } from '@mui/material'
-import CustomChip from 'src/@core/components/mui/chip'
 import Icon from 'src/@core/components/icon'
 import EditPaymentDialog from './EditPaymentDialog'
 
-import { ThemeColor } from 'src/@core/layouts/types'
+import { BankingOrCreditCardType } from 'src/store/bankAccountSlice'
 
-interface CardDataType {
-  name: string
-  type: number
-  securityCode: string
-  expirationDate: string
-  cardNumber: string
-  status?: string
-  badgeColor?: ThemeColor
-  paymentType: 'card'
-  address: string
-  address2?: string
-  city: string
-  state: string
-  zipCode: string
-}
-interface BankDataType {
-  bankAccountNumber: string
-  bankName: string
-  bankRoutingNumber: string
-  bankAccountName: string
-  bankAccountType: number
-  status?: string
-  badgeColor?: ThemeColor
-  paymentType: 'ach'
-  address: string
-  address2?: string
-  city: string
-  state: string
-  zipCode: string
-}
 
 const PaymentCard = ({
   item,
   index,
   paymentData
 }: {
-  item: BankDataType | CardDataType
+  item: BankingOrCreditCardType
   index: number
-  paymentData: (BankDataType | CardDataType)[]
+  paymentData: (BankingOrCreditCardType)[]
 }): ReactElement => {
   const [editModal, setEditModal] = useState<boolean>(false)
-  const [dialogData, setDialogData] = useState<(BankDataType | CardDataType)[]>(paymentData)
+  const [dialogData, setDialogData] = useState<(BankingOrCreditCardType)>(paymentData[index])
 
   const toggleEdit = () => setEditModal(!editModal)
 
@@ -80,16 +49,15 @@ const PaymentCard = ({
           </Box>
           <Box sx={{ mt: 1, mb: 2.5, display: 'flex', alignItems: 'center' }}>
             <Typography sx={{ fontWeight: 600 }}>
-              {item.paymentType === 'card' ? item.name : item.bankAccountName}
+              {item.paymentType === 'card' ? item.name : item.bankName}
             </Typography>
-            {item.status ? (
+            {/* {item.status ? (
               <CustomChip skin='light' size='small' sx={{ ml: 4 }} label={item.status} color={item.badgeColor} />
-            ) : null}
+            ) : null} */}
           </Box>
           <Typography variant='body2'>
-            {item.paymentType === 'card'
-              ? '**** **** **** ' + item.cardNumber.substring(item.cardNumber.length - 4)
-              : '*********' + item.bankAccountNumber.substring(item.bankAccountNumber.length - 4)}
+            {item.cardNumber && '**** **** **** ' + item.cardNumber.substring(item.cardNumber.length - 4)}
+            {item.bankAccountNumber && '*********' + item.bankAccountNumber.substring(item.bankAccountNumber.length - 4)}
           </Typography>
         </Box>
         <Box sx={{ mt: [3, 0], textAlign: ['start', 'end'] }}>
@@ -100,7 +68,7 @@ const PaymentCard = ({
             Delete
           </Button>
           <Typography variant='caption' sx={{ mt: 4, display: 'block' }}>
-            {item.paymentType === 'card' ? `Card expires at ${item.expirationDate}` : null}
+            {item.paymentType === 'card' ? `Card expires at ${item.expirationMonth}/${item.expYear}` : null}
           </Typography>
         </Box>
       </Box>

@@ -33,7 +33,7 @@ const ProfileTasks = ({ id }: ProfileTasksProps) => {
   // ** Hooks
   const profileId = id
 
-  const { isLoading, isSuccess, isError } = useGetProfileTasksQuery(profileId)
+  const { isLoading, isError } = useGetProfileTasksQuery(profileId)
 
   // Global State
   const profileTasks = useAppSelector(state => selectTaskByProfileId(state, profileId))
@@ -126,39 +126,39 @@ const ProfileTasks = ({ id }: ProfileTasksProps) => {
 
   if (isLoading) return <div>Loading</div>
 
-  if (isSuccess)
-    return (
-      <>
-        <Card>
-          <CardContent>
-            <Grid container spacing={6}>
-              <Grid item xs={12}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
 
-                  <Typography variant='h5'>Tasks</Typography>
-                  <Button
-                    size='medium'
-                    type='submit'
-                    variant='contained'
-                    color='secondary'
-                    onClick={() => setOpenTaskModal(true)}
-                  >
-                    {DrawerTitles[selectedTasks.length > 2 ? 2 : selectedTasks.length]}
-                  </Button>
-                </Box>
-              </Grid>
-              <Grid item xs={12}>
-                <DataGrid getRowId={r => r.taskId} rows={profileTasks} columns={columns} sx={!profileTasks.length ? { height: '250px' } : { height: '500px' }} />
-              </Grid>
-              <Grid item xs={12}>
-                <TaskForm formMode={selectedTasks.length} calendarMode={false} openTaskModal={openTaskModal} setOpenTaskModal={setOpenTaskModal} selectedTasks={selectedTasks} profileId={profileId} />
-              </Grid>
+  return (
+    <>
+      <Card>
+        <CardContent>
+          <Grid container spacing={6}>
+            <Grid item xs={12}>
+              <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+
+                <Typography variant='h5'>Tasks</Typography>
+                <Button
+                  size='medium'
+                  type='submit'
+                  variant='contained'
+                  color='secondary'
+                  onClick={() => setOpenTaskModal(true)}
+                >
+                  {DrawerTitles[selectedTasks.length > 2 ? 2 : selectedTasks.length]}
+                </Button>
+              </Box>
             </Grid>
-          </CardContent>
+            <Grid item xs={12}>
+              <DataGrid getRowId={r => r.taskId} rows={profileTasks} columns={columns} sx={!profileTasks.length ? { height: '250px' } : { height: '500px' }} />
+            </Grid>
+            <Grid item xs={12}>
+              <TaskForm formMode={selectedTasks.length} calendarMode={false} openTaskModal={openTaskModal} setOpenTaskModal={setOpenTaskModal} selectedTasks={selectedTasks} profileId={profileId} />
+            </Grid>
+          </Grid>
+        </CardContent>
 
-        </Card>
-      </>
-    )
+      </Card>
+    </>
+  )
 }
 
 export default ProfileTasks

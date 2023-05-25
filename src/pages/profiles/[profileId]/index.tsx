@@ -65,7 +65,7 @@ export default function UserProfile({ tab }: Props) {
             <ProfileSnapshot data={data} />
           </Grid>
           <Grid item xs={12} md={8} lg={8}>
-            <ProfileTabs id={profileId} tab={tab} />
+            <ProfileTabs id={typeof profileId === 'string' ? profileId : profileId[0]} tab={tab} />
           </Grid>
         </Grid>
       ) : null}
