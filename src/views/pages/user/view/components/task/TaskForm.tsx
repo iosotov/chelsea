@@ -14,6 +14,7 @@ import { selectAllRoleSelectOptions } from "src/store/roleSlice"
 import { v4 as uuid } from 'uuid';
 import { selectTaskById } from "src/store/taskSlice"
 import { toast } from "react-hot-toast"
+import { store } from "src/store/store"
 
 export type TaskFormProps = {
   formMode: number
@@ -54,7 +55,7 @@ export const DrawerTitles = ["Create Task", "Edit Task", "Bulk Update Tasks"]
 const StatusValues = ["Open", "Attempted", "Completed", "Closed"]
 const assignTypes = ["Employees", "Groups", "Roles"]
 
-let values: FormValues = {
+const values: FormValues = {
   profileId: "",
   taskName: "",
   dueDate: new Date(),
@@ -96,13 +97,16 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
   const { handleSubmit, reset, control, getValues, formState: { errors } } = useForm<FormValues>({ defaultValues, values, shouldUnregister: true })
 
   useEffect(() => {
-    if (formMode === 1 && task) {
-      const { taskName, dueDate, assignedTo, notes, completedDate, rescheduleDate, status } = task
-      values = { ...values, taskName, dueDate: new Date(dueDate), assignedTo, notes, completedDate, rescheduleDate, status }
+    if (formMode === 1) {
+      const task = store.getState().task.entities[selectedTasks[0]]
+      if (task) {
+        const { taskName, dueDate, assignedTo, notes, completedDate, rescheduleDate, status, profileId } = task
+        reset({ ...values, taskName, dueDate: new Date(dueDate), assignedTo, notes, completedDate, rescheduleDate, status, profileId })
+      }
     } else {
-      values = defaultValues
+      reset({ ...defaultValues })
     }
-  }, [formMode, task])
+  }, [formMode, profileId, reset, selectedTasks, task])
 
   const [createTask, { isLoading: createLoading }] = usePostTaskCreateMutation()
   const [updateTask, { isLoading: updateLoading }] = usePutTaskUpdateMutation()
@@ -114,7 +118,10 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
   async function onSubmit(data: FormValues) {
 
     if (formMode === 0) {
-      const createData: TaskCreateType = { ...data, profileId, assignType, dueDate: data.dueDate.toISOString() }
+      const currProfileId = calendarMode && data.profileId ? data.profileId : profileId
+      const createData: TaskCreateType = { ...data, assignType, dueDate: data.dueDate.toISOString(), profileId: currProfileId }
+      console.log(createData)
+
       const success = await createTask(createData)
       if (success) {
         toast.success("You successfully created a task")
