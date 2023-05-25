@@ -54,6 +54,7 @@ export const apiSlice = createApi({
     'SETTING-CUSTOMFIELD',
     'SETTING-LABEL',
     'TASK',
+    'TEMPLATE',
     'USER'
   ],
 
