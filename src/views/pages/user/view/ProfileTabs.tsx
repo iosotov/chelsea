@@ -22,7 +22,7 @@ import ProfileBudget from './ProfileBudgetView'
 import ProfileEmail from './ProfileEmailView'
 
 type Props = {
-  id: string | string[] | undefined
+  id: string
   tab: string
 }
 
@@ -86,7 +86,7 @@ export default function ProfileTabs({ id, tab }: Props) {
               <ProfileBudget id={id} />
             </TabPanel>
             <TabPanel value='activity'>
-              <ProfileActivity id={id} />
+              <ProfileActivity />
             </TabPanel>
             <TabPanel value='email'>
               <ProfileEmail id={id} />
