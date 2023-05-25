@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useRef } from 'react'
+import { ReactElement, useEffect } from 'react'
 
 import Dialog from '@mui/material/Dialog'
 import DialogTitle from '@mui/material/DialogTitle'
@@ -19,7 +19,6 @@ type EditPaymentDialogProps = {
   data: any
   open: boolean
   handleClose: () => void
-  index: number
 }
 
 const paymentTypeOptions = [
@@ -104,12 +103,7 @@ const stateOptions = [
   { label: 'Wyoming', value: 'WY' }
 ]
 
-export default function EditPaymentDialog({
-  data: paymentData,
-  open,
-  handleClose,
-  index
-}: EditPaymentDialogProps): ReactElement {
+export default function EditPaymentDialog({ data, open, handleClose }: EditPaymentDialogProps): ReactElement {
   const editForm = useForm()
   const {
     control,
@@ -118,17 +112,15 @@ export default function EditPaymentDialog({
     formState: { errors }
   } = editForm
 
-  const data = useRef<any>(paymentData[index])
-
   useEffect(() => {
-    if (data.current) {
-      for (const prop in data.current) {
-        setValue(prop, data.current[prop])
+    if (data) {
+      for (const prop in data) {
+        setValue(prop, data[prop])
       }
     }
-  }, [data.current, setValue])
+  }, [data, setValue])
 
-  const type = data.current.bankName ? true : false
+  const type = data.bankName ? true : false
   const onSubmit = async () => {
     const valid = await trigger()
     valid ? console.log(editForm.getValues()) : console.log('missing fields')

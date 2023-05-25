@@ -67,7 +67,7 @@ const ProfileEmail = ({ id }: ProfileEmailProps) => {
   //Api INIT
   const [triggerCreate, { isSuccess: triggerSuccess }] = usePostProfileEmailMutation()
 
-  const { isLoading, isSuccess, isError } = useGetProfileEmailsQuery(profileId)
+  const { isLoading, isError } = useGetProfileEmailsQuery(profileId)
 
   //Sets DataGrid with index
   const dataWithIndex = profileEmail.map((obj, index) => {
@@ -221,80 +221,79 @@ const ProfileEmail = ({ id }: ProfileEmailProps) => {
 
   if (isLoading) return <div>Loading</div>
 
-  if (isSuccess)
-    return (
-      <>
-        <Card>
-          <CardHeader
-            title='Emails'
-            action={
-              <Button
-                size='medium'
-                type='submit'
-                variant='contained'
-                color='secondary'
-                sx={{ mb: 7, mt: 3, mr: 3 }}
-                onClick={actionChecker}
+  return (
+    <>
+      <Card>
+        <CardHeader
+          title='Emails'
+          action={
+            <Button
+              size='medium'
+              type='submit'
+              variant='contained'
+              color='secondary'
+              sx={{ mb: 7, mt: 3, mr: 3 }}
+              onClick={actionChecker}
 
-                // disabled={triggerSuccess}
+            // disabled={triggerSuccess}
+            >
+              Compose Email
+            </Button>
+          }
+        />
+        <CardContent>
+          <Grid container spacing={6}>
+            <Grid item xs={12}>
+              <Box sx={{ height: 400, width: '100%' }}>
+                <DataGridPro rows={rows} columns={columns} sx={{ mt: 7 }}></DataGridPro>
+              </Box>
+            </Grid>
+
+            <Grid item xs={12}>
+              <Dialog
+                fullWidth
+                open={openAddEmail}
+                maxWidth='md'
+                scroll='body'
+                onClose={() => handleAddEmailClose()}
+                sx={{ '& .MuiDrawer-paper': { width: [300, 400] } }}
               >
-                Compose Email
-              </Button>
-            }
-          />
-          <CardContent>
-            <Grid container spacing={6}>
-              <Grid item xs={12}>
-                <Box sx={{ height: 400, width: '100%' }}>
-                  <DataGridPro rows={rows} columns={columns} sx={{ mt: 7 }}></DataGridPro>
-                </Box>
-              </Grid>
-
-              <Grid item xs={12}>
-                <Dialog
-                  fullWidth
-                  open={openAddEmail}
-                  maxWidth='md'
-                  scroll='body'
-                  onClose={() => handleAddEmailClose()}
-                  sx={{ '& .MuiDrawer-paper': { width: [300, 400] } }}
+                <DialogContent
+                  sx={{
+                    position: 'relative',
+                    pb: theme => `${theme.spacing(8)} !important`,
+                    px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
+                    pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
+                  }}
                 >
-                  <DialogContent
-                    sx={{
-                      position: 'relative',
-                      pb: theme => `${theme.spacing(8)} !important`,
-                      px: theme => [`${theme.spacing(5)} !important`, `${theme.spacing(15)} !important`],
-                      pt: theme => [`${theme.spacing(8)} !important`, `${theme.spacing(12.5)} !important`]
-                    }}
-                  >
-                    <form>
-                      <Grid container spacing={5}>
-                        <Grid item xs={12}>
-                          <InputLabel>Email Template</InputLabel>
-                          <Select
-                            fullWidth
-                            name='email-template'
-                            value={template ?? ''}
-                            label='Email Template'
-                            defaultValue='select-method'
-                            placeholder='Select Template'
-                            onChange={handleSelectChange}
-                            disabled={dialogTitle == 'Edit'}
-                            onFocus={e => setFocus(e.target.name as Focused)}
-                            inputProps={{ maxLength: 1000 }}
-                            onBlur={handleBlur}
-                          >
-                            <MenuItem value='select-method' disabled>
-                              Select Template
+                  <form>
+                    <Grid container spacing={5}>
+                      <Grid item xs={12}>
+                        <InputLabel>Email Template</InputLabel>
+                        <Select
+                          fullWidth
+                          name='email-template'
+                          value={template ?? ''}
+                          label='Email Template'
+                          defaultValue='select-method'
+                          placeholder='Select Template'
+                          onChange={handleSelectChange}
+                          disabled={dialogTitle == 'Edit'}
+                          onFocus={e => setFocus(e.target.name as Focused)}
+                          inputProps={{ maxLength: 1000 }}
+                          onBlur={handleBlur}
+                        >
+                          <MenuItem value='select-method' disabled>
+                            Select Template
+                          </MenuItem>
+                          {fakeTemplate.map(option => (
+                            <MenuItem key={option.value} value={option.value}>
+                              {option.label}
                             </MenuItem>
-                            {fakeTemplate.map(option => (
-                              <MenuItem key={option.value} value={option.value}>
-                                {option.label}
-                              </MenuItem>
-                            ))}
-                          </Select>
+                          ))}
+                        </Select>
 
-                          {/* <TextField
+                        {/* <TextField
                             fullWidth
                             label='Template'
                             name='email-template'
@@ -306,91 +305,91 @@ const ProfileEmail = ({ id }: ProfileEmailProps) => {
                             onFocus={e => setFocus(e.target.name as Focused)}
                             disabled={dialogTitle == 'Edit'}
                           /> */}
-                        </Grid>
-                        <Grid item xs={6} sm={6}>
-                          <TextField
-                            label='To'
-                            name='email-sentTo'
-                            value={sentTo ?? ''}
-                            placeholder='Send To...'
-                            onBlur={handleBlur}
-                            onChange={handleInputChange}
-                            inputProps={{ maxLength: 1000 }}
-                            onFocus={e => setFocus(e.target.name as Focused)}
-                            disabled={dialogTitle == 'Edit'}
-                          />
-                        </Grid>
-                        <Grid item xs={12} sm={6}>
-                          <TextField
-                            label='From'
-                            name='email-sentFrom'
-                            value={sentFrom ?? ''}
-                            placeholder='Recieve from...'
-                            onBlur={handleBlur}
-                            onChange={handleInputChange}
-                            inputProps={{ maxLength: 1000 }}
-                            onFocus={e => setFocus(e.target.name as Focused)}
-                            disabled={dialogTitle == 'Edit'}
-                          />
-                        </Grid>
-                        <Grid item xs={12}>
-                          <TextField
-                            fullWidth
-                            name='email-subject'
-                            value={subject ?? ''}
-                            label='Subject'
-                            onBlur={handleBlur}
-                            onChange={handleInputChange}
-                            inputProps={{ maxLength: 1000 }}
-                            onFocus={e => setFocus(e.target.name as Focused)}
-                            disabled={dialogTitle == 'Edit'}
-                          />
-                        </Grid>
-                        <Grid item xs={12}>
-                          {/* ADD WISIWYG FEATURE */}
-                          <TextField
-                            fullWidth
-                            name='email-body'
-                            value={body ?? ''}
-                            rows={6}
-                            label='Body'
-                            multiline
-                            placeholder='Message'
-                            onBlur={handleBlur}
-                            onChange={handleInputChange}
-                            inputProps={{ maxLength: 1000 }}
-                            onFocus={e => setFocus(e.target.name as Focused)}
-                            disabled={dialogTitle == 'Edit'}
-                          />
-                        </Grid>
-                        <Grid item xs={12}>
-                          {dialogTitle === 'Create' && (
-                            <Button
-                              type='submit'
-                              disabled={triggerSuccess}
-                              variant='contained'
-                              sx={{ mr: 4 }}
-                              onClick={handleCreateEmailClick}
-                            >
-                              Send Email
-                            </Button>
-                          )}
-                          {dialogTitle === 'Create' && (
-                            <Button variant='outlined' color='secondary'>
-                              Discard
-                            </Button>
-                          )}
-                        </Grid>
                       </Grid>
-                    </form>
-                  </DialogContent>
-                </Dialog>
-              </Grid>
+                      <Grid item xs={6} sm={6}>
+                        <TextField
+                          label='To'
+                          name='email-sentTo'
+                          value={sentTo ?? ''}
+                          placeholder='Send To...'
+                          onBlur={handleBlur}
+                          onChange={handleInputChange}
+                          inputProps={{ maxLength: 1000 }}
+                          onFocus={e => setFocus(e.target.name as Focused)}
+                          disabled={dialogTitle == 'Edit'}
+                        />
+                      </Grid>
+                      <Grid item xs={12} sm={6}>
+                        <TextField
+                          label='From'
+                          name='email-sentFrom'
+                          value={sentFrom ?? ''}
+                          placeholder='Recieve from...'
+                          onBlur={handleBlur}
+                          onChange={handleInputChange}
+                          inputProps={{ maxLength: 1000 }}
+                          onFocus={e => setFocus(e.target.name as Focused)}
+                          disabled={dialogTitle == 'Edit'}
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        <TextField
+                          fullWidth
+                          name='email-subject'
+                          value={subject ?? ''}
+                          label='Subject'
+                          onBlur={handleBlur}
+                          onChange={handleInputChange}
+                          inputProps={{ maxLength: 1000 }}
+                          onFocus={e => setFocus(e.target.name as Focused)}
+                          disabled={dialogTitle == 'Edit'}
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        {/* ADD WISIWYG FEATURE */}
+                        <TextField
+                          fullWidth
+                          name='email-body'
+                          value={body ?? ''}
+                          rows={6}
+                          label='Body'
+                          multiline
+                          placeholder='Message'
+                          onBlur={handleBlur}
+                          onChange={handleInputChange}
+                          inputProps={{ maxLength: 1000 }}
+                          onFocus={e => setFocus(e.target.name as Focused)}
+                          disabled={dialogTitle == 'Edit'}
+                        />
+                      </Grid>
+                      <Grid item xs={12}>
+                        {dialogTitle === 'Create' && (
+                          <Button
+                            type='submit'
+                            disabled={triggerSuccess}
+                            variant='contained'
+                            sx={{ mr: 4 }}
+                            onClick={handleCreateEmailClick}
+                          >
+                            Send Email
+                          </Button>
+                        )}
+                        {dialogTitle === 'Create' && (
+                          <Button variant='outlined' color='secondary'>
+                            Discard
+                          </Button>
+                        )}
+                      </Grid>
+                    </Grid>
+                  </form>
+                </DialogContent>
+              </Dialog>
             </Grid>
-          </CardContent>
-        </Card>
-      </>
-    )
+          </Grid>
+        </CardContent>
+      </Card>
+    </>
+  )
 }
 
 export default ProfileEmail

@@ -75,7 +75,7 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
   const [dialogMode, setDialogMode] = useState<string>('Create')
 
   let rows = []
-  const { isLoading, isSuccess, isError } = useGetProfileNotesQuery(profileId)
+  const { isLoading, isError } = useGetProfileNotesQuery(profileId)
 
   const dataWithIndex = profileNotes.map((obj, index) => {
     return { ...obj, id: index }
@@ -84,7 +84,7 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
 
   const {
     handleSubmit,
-    formState: {}
+    formState: { }
   } = useForm({ defaultValues })
 
   const onSubmit = () => {
@@ -115,7 +115,6 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
   }
 
   async function handleCreateClick(props: any) {
-    console.log(props)
     const payload: NoteCreateType = {
       profileId,
       content: props.message,
@@ -231,163 +230,163 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
 
   if (isLoading) return <div>Loading</div>
 
-  if (isSuccess)
-    return (
-      <>
-        <Card>
-          <CardHeader title='Create Note' />
-          <CardContent>
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <Grid container spacing={5}>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <InputLabel>Choose..</InputLabel>
-                    <Select
-                      name='notes-template'
-                      label='Select Template'
-                      labelId='notes-template'
-                      id='notes-template-select'
-                      value={noteTemplate}
-                      defaultValue='select-method'
-                      onChange={handleSelectChange}
-                    >
-                      <MenuItem value='select-method' disabled>
-                        Select Template
-                      </MenuItem>
-                      <MenuItem value='ccTemplate'>Credit Card</MenuItem>
-                      <MenuItem value='addressTemplate'>Address Template</MenuItem>
-                      <MenuItem value='debtTemplate'>Debt Template</MenuItem>
-                      <MenuItem value='paymentTemplate'>Payment Template</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <InputLabel>Template Type</InputLabel>
-                    <Select
-                      name='notes-type'
-                      label='noteType'
-                      labelId='notes-type'
-                      id='notes-type-select'
-                      value={noteType}
-                      defaultValue='select-method'
-                      onChange={handleSelectChange}
-                      disabled={noteTemplate == ''}
-                    >
-                      <MenuItem value='select-method' disabled>
-                        Select Template
-                      </MenuItem>
-
-                      <MenuItem value='ccTemplate'>General</MenuItem>
-                      <MenuItem value='specific'>Specific</MenuItem>
-                      <MenuItem value='notetype'>Note Type</MenuItem>
-                      <MenuItem value='paymentType'>Payment Type</MenuItem>
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth>
-                    <InputLabel>Notify to Users</InputLabel>
-                    <Select
-                      name='notes-users'
-                      value={''}
-                      label='Notify to Users'
-                      labelId='notes-users'
-                      id='notes-users-select'
-                      defaultValue='select-method'
-                      onChange={handleSelectChange}
-                      disabled={noteTemplate == ''}
-                    >
-                      <MenuItem value='select-method' disabled>
-                        Select User
-                      </MenuItem>
-                      {employeeList.map(option => (
-                        <MenuItem key={option.value} value={option.value}>
-                          {option.label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    name='notes-email'
-                    label='CC Emails'
-                    value={noteEmails ?? ''}
-                    placeholder='Emails'
-                    onChange={handleChange}
-                    disabled={noteTemplate == ''}
-
-                    // required={true}
-                  />
-                </Grid>
-
-                <Grid item xs={12} sm={12}>
-                  <TextField
-                    rows={6}
-                    multiline
-                    fullWidth
-                    name='notes-message'
-                    value={message}
-                    label='Message'
-                    placeholder='Message'
-                    onChange={handleChange}
-                    disabled={noteTemplate == ''}
-                  />
-                </Grid>
-
-                <Grid item xs={12} textAlign={'right'}>
-                  {dialogMode === 'Create' && (
-                    <Button
-                      size='large'
-                      disabled={triggerPostSuccess}
-                      variant='contained'
-                      sx={{ mr: 4 }}
-                      onClick={() => handleCreateClick({ message, noteType, noteTemplate, noteEmails, important })}
-                    >
-                      Create
-                    </Button>
-                  )}
-                  {dialogMode === 'Edit' && (
-                    <Button
-                      size='large'
-                      variant='contained'
-                      disabled={triggerPutSuccess}
-                      sx={{ mr: 4 }}
-                      onClick={() =>
-                        handleUpdateByIdClick({
-                          message,
-
-                          noteType,
-                          noteTemplate,
-                          noteEmails,
-                          important,
-                          selectedNote
-                        })
-                      }
-                    >
-                      Update
-                    </Button>
-                  )}
-                </Grid>
+  return (
+    <>
+      <Card>
+        <CardHeader title='Create Note' />
+        <CardContent>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <Grid container spacing={5}>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel>Choose..</InputLabel>
+                  <Select
+                    name='notes-template'
+                    label='Select Template'
+                    labelId='notes-template'
+                    id='notes-template-select'
+                    value={noteTemplate}
+                    defaultValue='select-method'
+                    onChange={handleSelectChange}
+                    disabled={dialogMode == 'Edit'}
+                  >
+                    <MenuItem value='select-method' disabled>
+                      Select Template
+                    </MenuItem>
+                    <MenuItem value='ccTemplate'>Credit Card</MenuItem>
+                    <MenuItem value='addressTemplate'>Address Template</MenuItem>
+                    <MenuItem value='debtTemplate'>Debt Template</MenuItem>
+                    <MenuItem value='paymentTemplate'>Payment Template</MenuItem>
+                  </Select>
+                </FormControl>
               </Grid>
-            </form>
-          </CardContent>
-        </Card>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel>Template Type</InputLabel>
+                  <Select
+                    name='notes-type'
+                    label='noteType'
+                    labelId='notes-type'
+                    id='notes-type-select'
+                    value={noteType}
+                    defaultValue='select-method'
+                    onChange={handleSelectChange}
+                    disabled={noteTemplate == '' || dialogMode == 'Edit'}
+                  >
+                    <MenuItem value='select-method' disabled>
+                      Select Template
+                    </MenuItem>
 
-        <br></br>
-        <Card>
-          <CardHeader title='Notes' />
-          <CardContent>
-            <Box sx={{ height: 400, width: '100%' }}>
-              <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }} />
-            </Box>
-          </CardContent>
-        </Card>
-      </>
-    )
+                    <MenuItem value='ccTemplate'>General</MenuItem>
+                    <MenuItem value='specific'>Specific</MenuItem>
+                    <MenuItem value='notetype'>Note Type</MenuItem>
+                    <MenuItem value='paymentType'>Payment Type</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <FormControl fullWidth>
+                  <InputLabel>Notify to Users</InputLabel>
+                  <Select
+                    name='notes-users'
+                    value={''}
+                    label='Notify to Users'
+                    labelId='notes-users'
+                    id='notes-users-select'
+                    defaultValue='select-method'
+                    onChange={handleSelectChange}
+                    disabled={noteTemplate == '' || dialogMode == 'Edit'}
+                  >
+                    <MenuItem value='select-method' disabled>
+                      Select User
+                    </MenuItem>
+                    {employeeList.map(option => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Grid>
+
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  fullWidth
+                  name='notes-email'
+                  label='CC Emails'
+                  value={noteEmails ?? ''}
+                  placeholder='Emails'
+                  onChange={handleChange}
+                  disabled={noteTemplate == '' || dialogMode == 'Edit'}
+
+                // required={true}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={12}>
+                <TextField
+                  rows={6}
+                  multiline
+                  fullWidth
+                  name='notes-message'
+                  value={message}
+                  label='Message'
+                  placeholder='Message'
+                  onChange={handleChange}
+                  disabled={noteTemplate == '' || dialogMode == 'Edit'}
+                />
+              </Grid>
+
+              <Grid item xs={12} textAlign={'right'}>
+                {dialogMode === 'Create' && (
+                  <Button
+                    size='large'
+                    disabled={triggerPostSuccess}
+                    variant='contained'
+                    sx={{ mr: 4 }}
+                    onClick={() => handleCreateClick({ message, noteType, noteTemplate, noteEmails, important })}
+                  >
+                    Create
+                  </Button>
+                )}
+                {dialogMode === 'Edit' && (
+                  <Button
+                    size='large'
+                    variant='contained'
+                    disabled={triggerPutSuccess}
+                    sx={{ mr: 4 }}
+                    onClick={() =>
+                      handleUpdateByIdClick({
+                        message,
+
+                        noteType,
+                        noteTemplate,
+                        noteEmails,
+                        important,
+                        selectedNote
+                      })
+                    }
+                  >
+                    Update
+                  </Button>
+                )}
+              </Grid>
+            </Grid>
+          </form>
+        </CardContent>
+      </Card>
+
+      <br></br>
+      <Card>
+        <CardHeader title='Notes' />
+        <CardContent>
+          <Box sx={{ height: 400, width: '100%' }}>
+            <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }} />
+          </Box>
+        </CardContent>
+      </Card>
+    </>
+  )
 }
 
 export default ProfileNotes

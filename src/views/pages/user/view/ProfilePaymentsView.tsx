@@ -416,7 +416,7 @@ function PaymentMethod({ paymentData, enrollmentData }: { paymentData: any; enro
           </CardContent>
         </Card>
       </Grid>
-      {paymentModal && <PaymentDialog open={paymentModal} handleClose={togglePayment} data={null} />}
+      {paymentModal && <PaymentDialog open={paymentModal} handleClose={togglePayment} />}
       {editModal && <EditPaymentDialog open={editModal} handleClose={toggleEdit} data={dialogData} />}
     </>
   )

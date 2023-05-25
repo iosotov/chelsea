@@ -140,6 +140,7 @@ export default function PersonalDialog({ open, toggle, data }: Props): ReactElem
     if (campaigns.length > 0) {
       const mappedCampaigns = campaigns.map((campaign: CampaignType) => {
         const { displayName, campaignId, companyName } = campaign
+
         return {
           label: `${displayName} - ${companyName}`,
           value: campaignId
@@ -248,6 +249,7 @@ export default function PersonalDialog({ open, toggle, data }: Props): ReactElem
         setValue('campaignId', '')
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isSuccess])
 
   return (

@@ -1,5 +1,5 @@
 // import { MouseEvent, SyntheticEvent, useState } from 'react';
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
+import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import Button from '@mui/material/Button'
 
 const AccessUsers = () => {

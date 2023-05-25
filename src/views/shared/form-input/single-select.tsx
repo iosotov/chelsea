@@ -21,12 +21,10 @@ export default function SingleSelect({
   name,
   control,
   label,
-  defaultLabel,
   options,
   required,
   defaultValue,
   errors,
-  placeholder,
   ...props
 }: Props) {
   const generateOptions = () => {
@@ -63,10 +61,10 @@ export default function SingleSelect({
       />
       {errors
         ? errors[name] && (
-            <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-select'>
-              This field is required
-            </FormHelperText>
-          )
+          <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-select'>
+            This field is required
+          </FormHelperText>
+        )
         : null}
     </FormControl>
   )

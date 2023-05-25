@@ -12,7 +12,7 @@ import TabList from '@mui/lab/TabList'
 import Typography from '@mui/material/Typography'
 
 // Profile View Imports
-import ProfileCredit from './ProfileCreditView'
+import ProfileDebts from './ProfileDebtsView'
 import ProfilePayments from './ProfilePaymentsView'
 import ProfileDocuments from './ProfileDocumentsView'
 import ProfileNotes from './ProfileNotesView'
@@ -22,7 +22,7 @@ import ProfileBudget from './ProfileBudgetView'
 import ProfileEmail from './ProfileEmailView'
 
 type Props = {
-  id: string | string[] | undefined
+  id: string
   tab: string
 }
 
@@ -68,7 +68,7 @@ export default function ProfileTabs({ id, tab }: Props) {
         ) : (
           <>
             <TabPanel value='debts'>
-              <ProfileCredit id={id} />
+              <ProfileDebts id={id} />
             </TabPanel>
             <TabPanel value='payments'>
               <ProfilePayments id={id} />
@@ -86,7 +86,7 @@ export default function ProfileTabs({ id, tab }: Props) {
               <ProfileBudget id={id} />
             </TabPanel>
             <TabPanel value='activity'>
-              <ProfileActivity id={id} />
+              <ProfileActivity />
             </TabPanel>
             <TabPanel value='email'>
               <ProfileEmail id={id} />

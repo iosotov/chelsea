@@ -21,7 +21,7 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 
 //MUI Grid Imports
-import { DataGridPro, GridColDef, GridValueFormatterParams, GridRowSelectionModel } from '@mui/x-data-grid-pro'
+import { DataGridPro, GridColDef, GridValueFormatterParams, GridRowId } from '@mui/x-data-grid-pro'
 
 //Styling
 import { alpha } from '@mui/material/styles'
@@ -102,6 +102,7 @@ function CreditScore({ id }: Props) {
             color: theme.palette.text.primary,
             formatter: val => {
               console.log(val)
+
               return creditReport?.creditScores[0]?.scoreValue ?? '0'
             }
           }
@@ -109,6 +110,7 @@ function CreditScore({ id }: Props) {
       }
     }
   }
+
   return (
     <Card sx={{ p: 2, mb: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
@@ -116,7 +118,7 @@ function CreditScore({ id }: Props) {
         <Button onClick={pullReport}>New Report</Button>
       </Box>
       <Grid container spacing={4}>
-        {creditReport?.creditScores?.length > 0 ? (
+        {creditReport && creditReport?.creditScores?.length > 0 ? (
           <>
             <Grid item xs={12} lg={6}>
               <CardContent
@@ -200,9 +202,8 @@ export default function ProfileCredit({ id }: Props) {
             <Card>
               <CardContent>
                 <Typography variant='caption'>Enrolled Debts</Typography>
-                <Typography variant='h4'>{`${debts.filter(debt => debt.enrolled === true).length} of ${
-                  debts.length
-                }`}</Typography>
+                <Typography variant='h4'>{`${debts.filter(debt => debt.enrolled === true).length} of ${debts.length
+                  }`}</Typography>
               </CardContent>
             </Card>
           </Grid>
@@ -284,13 +285,13 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
 }
 
 const DebtTable = ({ debts }: { debts: LiabilityType[] }) => {
-  const [selected, setSelected] = useState<GridRowSelectionModel[]>([])
+  const [selected, setSelected] = useState<GridRowId[]>([])
 
   const [paginationModel, setPaginationModel] = useState({ pageSize: 10, page: 0 })
 
-  const [transDialog, setTransDialog] = useState<boolean>(false)
+  // const [transDialog, setTransDialog] = useState<boolean>(false)
 
-  const toggleDialog = () => setTransDialog(!transDialog)
+  // const toggleDialog = () => setTransDialog(!transDialog)
 
   // const handleAdd = () => {
   //   setTransData(null)

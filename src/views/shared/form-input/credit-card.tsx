@@ -44,6 +44,7 @@ export default function CreditCard({
     } else if (type === 'cvc') {
       value = formatCVC(val, cardNumber ?? '1111111111111111', Payment)
     }
+
     return value
   }
 
@@ -56,7 +57,7 @@ export default function CreditCard({
         rules={{ required: required ?? false }}
         render={({ field: { onChange, value } }) => (
           <TextField
-            onChange={(e: ChangeEvent) => {
+            onChange={(e: ChangeEvent<HTMLInputElement>) => {
               const val = handleInputChange(e.target.value)
               onChange(val)
             }}
@@ -70,10 +71,10 @@ export default function CreditCard({
       />
       {errors
         ? errors[name] && (
-            <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-select'>
-              This field is required
-            </FormHelperText>
-          )
+          <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-select'>
+            This field is required
+          </FormHelperText>
+        )
         : null}
     </FormControl>
   )
