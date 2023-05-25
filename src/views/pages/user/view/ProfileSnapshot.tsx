@@ -2,19 +2,23 @@ import { useState, ReactElement, useRef } from 'react'
 
 //MUI components
 import AccordionDetails from '@mui/material/AccordionDetails'
+import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import Divider from '@mui/material/Divider'
+import Fade from '@mui/material/Fade'
 import Grid from '@mui/material/Grid'
-import Typography from '@mui/material/Typography'
-import CustomChip from 'src/@core/components/mui/chip'
 import IconButton from '@mui/material/IconButton'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
+import Typography from '@mui/material/Typography'
 
 //Custom Components
 import { styled } from '@mui/material/styles'
 import MuiAccordion, { AccordionProps } from '@mui/material/Accordion'
 import MuiAccordionSummary, { AccordionSummaryProps } from '@mui/material/AccordionSummary'
+import CustomChip from 'src/@core/components/mui/chip'
 
 //Imported Components
 import AssigneeDialog from './components/snapshot/AssigneeDialog'
@@ -38,8 +42,17 @@ import DateConverter from 'src/views/shared/utils/date-converter'
 //API Calls
 import { useAppSelector } from 'src/store/hooks'
 import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
-import { useGetEnrollmentQuery } from 'src/store/api/apiHooks'
-import { Button, Fade, Menu, MenuItem } from '@mui/material'
+import {
+  useGetEnrollmentQuery,
+  usePostEnrollmentCancelMutation,
+  usePostEnrollmentPauseMutation,
+  usePostEnrollmentResumeMutation,
+  usePostProfileApproveMutation,
+  usePostProfileEnrollMutation,
+  usePostProfileRejectMutation,
+  usePostProfileSubmitMutation,
+  usePutProfileDeleteMutation
+} from 'src/store/api/apiHooks'
 
 //Third Party Imports
 import { useConfirm } from 'material-ui-confirm'
@@ -211,6 +224,15 @@ const ProfileInfo = ({
   //Confirmation Modal
   const confirm = useConfirm()
 
+  const [submitProfile] = usePostProfileSubmitMutation()
+  const [approveProfile] = usePostProfileApproveMutation()
+  const [rejectProfile] = usePostProfileRejectMutation()
+  const [enrollProfile] = usePostProfileEnrollMutation()
+  const [deleteProfile] = usePutProfileDeleteMutation()
+  const [pauseProfile] = usePostEnrollmentPauseMutation()
+  const [cancelProfile] = usePostEnrollmentCancelMutation()
+  const [resumeProfile] = usePostEnrollmentResumeMutation()
+
   const handleClick = (type: string) => {
     confirm({
       title: 'Confirmation',
@@ -220,28 +242,29 @@ const ProfileInfo = ({
     }).then(() => {
       switch (type) {
         case 'submit':
-          console.log(`submitting profileId: ${profileId}`)
+          submitProfile(profileId)
           break
         case 'approve':
-          console.log(`approving profileId: ${profileId}`)
+          approveProfile(profileId)
           break
         case 'reject':
-          console.log(`rejecting profileId: ${profileId}`)
+          rejectProfile(profileId)
           break
         case 'enroll':
-          console.log(`enrolling profileId: ${profileId}`)
+          enrollProfile(profileId)
           break
         case 'delete':
-          console.log(`deleting profileId: ${profileId}`)
+          deleteProfile(profileId)
           break
         case 'pause':
-          console.log(`pause profileId: ${profileId}`)
+          pauseProfile(profileId)
           break
         case 'cancel':
-          console.log(`cancel profileId: ${profileId}`)
+          // need to add modal to add cancel disposition
+          cancelProfile({ profileId, cancelDisposition: '' })
           break
         case 'resume':
-          console.log(`resume profileId: ${profileId}`)
+          resumeProfile(profileId)
           break
       }
     })
