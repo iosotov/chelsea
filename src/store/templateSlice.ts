@@ -41,7 +41,7 @@ export const {
   selectIds: selectTemplateIds
 } = templateAdapter.getSelectors((state: RootState) => state.template)
 
-export const selectSettingByType = createSelector(
+export const selectTemplatesByType = createSelector(
   selectAllTemplates,
   (_: RootState, type: number) => type,
   (templates, type) => {
