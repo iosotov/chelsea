@@ -60,7 +60,7 @@ export default function StatusDialog({ open, toggle, stage = '', stageStatus = '
       previousStage.current = getValues('stage')
       setValue('stageStatus', '')
     }
-  }, [watch('stage'), getValues, setValue])
+  }, [getValues, setValue])
 
   //closes dialog, resets form, reassigns ref to prop stage
   const onClose = () => {
