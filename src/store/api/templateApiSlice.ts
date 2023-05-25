@@ -1,3 +1,4 @@
+import { setTemplates } from '../templateSlice'
 import { apiSlice } from './apiSlice'
 import { FeeType } from './enrollmentApiSlice'
 import { LunaResponseType, SearchFilterType } from './sharedTypes'
@@ -96,11 +97,9 @@ export const templateApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: LunaResponseType) => {
         return res.success ? res.data : res.success
       },
-      async onQueryStarted(body, { dispatch, queryFulfilled }) {
+      async onQueryStarted(body, { queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled
-
-          // if (data) dispatch(updateRoles([data]))
+          await queryFulfilled
         } catch (err: any) {
           console.error('API error in postTemplateCreate:', err.error.data.message)
         }
@@ -162,6 +161,7 @@ export const templateApiSlice = apiSlice.injectEndpoints({
       async onQueryStarted(body, { dispatch, queryFulfilled }) {
         try {
           const { data } = await queryFulfilled
+          if (data) dispatch(setTemplates(data))
         } catch (err: any) {
           console.error('API error in postTemplateSearch:', err.error.data.message)
         }
@@ -190,9 +190,9 @@ export const templateApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: LunaResponseType) => {
         return res.success ? res.data.data : res.success
       },
-      async onQueryStarted(body, { dispatch, queryFulfilled }) {
+      async onQueryStarted(body, { queryFulfilled }) {
         try {
-          const { data } = await queryFulfilled
+          await queryFulfilled
         } catch (err: any) {
           console.error('API error in postTemplateEnrollmentCreate:', err.error.data.message)
         }
