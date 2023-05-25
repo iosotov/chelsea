@@ -36,6 +36,7 @@ export type NoteType = {
   createdAt: string
   mentionedEmails: string
   profileId: string
+  targets?: NoteTargetCreateType[]
 }
 
 export type NoteTargetCreateType = {

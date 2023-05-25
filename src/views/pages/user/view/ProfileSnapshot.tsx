@@ -1,4 +1,4 @@
-import { useState, SyntheticEvent, useEffect, ReactElement, useRef } from 'react'
+import { useState, ReactElement, useRef } from 'react'
 
 //MUI components
 import AccordionDetails from '@mui/material/AccordionDetails'
@@ -24,7 +24,8 @@ import CustomChip from 'src/@core/components/mui/chip'
 import AssigneeDialog from './components/snapshot/AssigneeDialog'
 import StatusDialog from './components/snapshot/StatusDialog'
 import PersonalDialog from './components/snapshot/PersonalDialog'
-import LabelsDialog from './components/snapshot/LabelsDialog'
+
+// import LabelsDialog from './components/snapshot/LabelsDialog'
 
 //Icon Import
 import Icon from 'src/@core/components/icon'
@@ -268,6 +269,7 @@ const ProfileInfo = ({
       }
     })
   }
+
   return (
     <Card>
       <ProfileTitle
@@ -300,6 +302,21 @@ const ProfileInfo = ({
   )
 }
 
+type StatusColor = 'secondary' | 'success' | 'info' | "warning" | 'primary' | 'error'
+const statusDictionary: StatusColor[] = [
+  'secondary',
+  'success',
+  'info',
+  'warning',
+  'secondary',
+  'error',
+  'secondary',
+  'secondary',
+  'primary',
+  'secondary',
+  'secondary'
+]
+
 const ProfileTitle = ({
   handleClick,
   firstName,
@@ -308,22 +325,10 @@ const ProfileTitle = ({
   statusName,
   status
 }: ProfileTitleProps): ReactElement => {
-  const statusDictionary = [
-    'secondary',
-    'success',
-    'info',
-    'warning',
-    'secondary',
-    'error',
-    'secondary',
-    'secondary',
-    'primary',
-    'secondary',
-    'secondary'
-  ]
+
 
   const [anchor, setAnchor] = useState<HTMLElement | null>(null)
-  const menuClick = (event: MouseEvent<HTMLButtonElement>) => {
+  const menuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchor(event.currentTarget)
   }
 
@@ -695,8 +700,8 @@ const EnrollmentInfo = ({ profileId }: EnrollmentInfoProps): ReactElement => {
               {!enrollmentData?.firstPaymentDate && !enrollmentData?.firstPaymentAmount
                 ? 'N/A'
                 : `${DateConverter(enrollmentData?.firstPaymentDate)} - ${MoneyConverter(
-                    enrollmentData?.firstPaymentAmount
-                  )}`}
+                  enrollmentData?.firstPaymentAmount
+                )}`}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
@@ -705,8 +710,8 @@ const EnrollmentInfo = ({ profileId }: EnrollmentInfoProps): ReactElement => {
               {!enrollmentData?.lastPaymentDate && !enrollmentData?.lastPaymentAmount
                 ? 'N/A'
                 : `${DateConverter(enrollmentData?.lastPaymentDate)} - ${MoneyConverter(
-                    enrollmentData?.lastPaymentAmount
-                  )}`}
+                  enrollmentData?.lastPaymentAmount
+                )}`}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
@@ -721,8 +726,8 @@ const EnrollmentInfo = ({ profileId }: EnrollmentInfoProps): ReactElement => {
               {!enrollmentData?.nextPaymentDate && !enrollmentData?.nextPaymentAmount
                 ? 'N/A'
                 : `${DateConverter(enrollmentData?.nextPaymentDate)} - ${MoneyConverter(
-                    enrollmentData?.nextPaymentAmount
-                  )}`}
+                  enrollmentData?.nextPaymentAmount
+                )}`}
             </Typography>
           </Box>
         </Box>
