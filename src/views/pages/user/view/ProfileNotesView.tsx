@@ -115,7 +115,6 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
   }
 
   async function handleCreateClick(props: any) {
-    console.log(props)
     const payload: NoteCreateType = {
       profileId,
       content: props.message,
@@ -231,7 +230,6 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
 
   if (isLoading) return <div>Loading</div>
 
-
   return (
     <>
       <Card>
@@ -250,6 +248,7 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
                     value={noteTemplate}
                     defaultValue='select-method'
                     onChange={handleSelectChange}
+                    disabled={dialogMode == 'Edit'}
                   >
                     <MenuItem value='select-method' disabled>
                       Select Template
@@ -272,7 +271,7 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
                     value={noteType}
                     defaultValue='select-method'
                     onChange={handleSelectChange}
-                    disabled={noteTemplate == ''}
+                    disabled={noteTemplate == '' || dialogMode == 'Edit'}
                   >
                     <MenuItem value='select-method' disabled>
                       Select Template
@@ -296,7 +295,7 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
                     id='notes-users-select'
                     defaultValue='select-method'
                     onChange={handleSelectChange}
-                    disabled={noteTemplate == ''}
+                    disabled={noteTemplate == '' || dialogMode == 'Edit'}
                   >
                     <MenuItem value='select-method' disabled>
                       Select User
@@ -318,7 +317,7 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
                   value={noteEmails ?? ''}
                   placeholder='Emails'
                   onChange={handleChange}
-                  disabled={noteTemplate == ''}
+                  disabled={noteTemplate == '' || dialogMode == 'Edit'}
 
                 // required={true}
                 />
@@ -334,7 +333,7 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
                   label='Message'
                   placeholder='Message'
                   onChange={handleChange}
-                  disabled={noteTemplate == ''}
+                  disabled={noteTemplate == '' || dialogMode == 'Edit'}
                 />
               </Grid>
 

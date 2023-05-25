@@ -114,11 +114,11 @@ export default function EditPaymentDialog({ data, open, handleClose }: EditPayme
 
   useEffect(() => {
     if (data) {
-      for (let prop in data) {
+      for (const prop in data) {
         setValue(prop, data[prop])
       }
     }
-  }, [data])
+  }, [data, setValue])
 
   const type = data.bankName ? true : false
   const onSubmit = async () => {
