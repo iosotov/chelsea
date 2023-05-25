@@ -1,5 +1,5 @@
 import { forwardRef, ChangeEvent } from 'react'
-import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
+import DatePicker from 'react-datepicker'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 import FormControl from '@mui/material/FormControl'
 import TextField from '@mui/material/TextField'
@@ -35,9 +35,7 @@ export default function SelectDate({
   label,
   control,
   errors,
-  placeholder,
   required,
-  defaultValue,
   isClearable,
   ...props
 }: Props) {
@@ -69,10 +67,10 @@ export default function SelectDate({
       </DatePickerWrapper>
       {errors
         ? errors[name] && (
-            <FormHelperText sx={{ mx: 3.5, color: 'error.main' }} id='validation-basic-dob'>
-              This field is required
-            </FormHelperText>
-          )
+          <FormHelperText sx={{ mx: 3.5, color: 'error.main' }} id='validation-basic-dob'>
+            This field is required
+          </FormHelperText>
+        )
         : null}
     </FormControl>
   )

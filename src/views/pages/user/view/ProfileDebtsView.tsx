@@ -1,14 +1,12 @@
 //hidden for now, consolidated with credit report.
 
 // ** React Imports
-import { useState, useEffect } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import { DataGrid } from '@mui/x-data-grid'
 import { styled } from '@mui/material/styles'
-import TextField from '@mui/material/TextField'
 import CardHeader from '@mui/material/CardHeader'
 import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'

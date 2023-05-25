@@ -4,6 +4,7 @@ import { UserAuthResponseType } from './api/authApiSlice'
 const initialState: UserAuthResponseType = {
   employee: {
     employeeId: '',
+    employeeAlias: '',
     firstName: '',
     lastName: '',
     middleName: '',

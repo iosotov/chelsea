@@ -22,6 +22,7 @@ export type EmployeeInfoType = {
   lastName: string
   middleName: string
   employeeAlias: string
+  alias?: string
   primaryEmail: string
   primaryPhone: string
   hasAuthentication: boolean | null
