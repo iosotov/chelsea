@@ -21,13 +21,7 @@ import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 
 //MUI Grid Imports
-import {
-  DataGridPro,
-  GridColDef,
-  GridValueFormatterParams,
-  GridRowSelectionModel,
-  GridRowId
-} from '@mui/x-data-grid-pro'
+import { DataGridPro, GridColDef, GridValueFormatterParams, GridRowId } from '@mui/x-data-grid-pro'
 
 //Styling
 import { alpha } from '@mui/material/styles'
@@ -78,6 +72,8 @@ const creditEval = ['Poor', 'Fair', 'Good', 'Excellent']
 function CreditScore({ id }: Props) {
   const theme = useTheme()
 
+  const confirm = useConfirm()
+
   const { isSuccess } = useGetCreditReportsQuery(id, { skip: !id })
   const creditReport = useAppSelector(state => selectCreditReportByProfileId(state, String(id)))
 
@@ -90,9 +86,16 @@ function CreditScore({ id }: Props) {
     }
   }, [creditReport])
 
-  const [call, status] = usePostProfileCreditReportMutation()
+  const [call] = usePostProfileCreditReportMutation()
   const pullReport = () => {
-    call(String(id))
+    confirm({
+      title: 'Confirmation',
+      description: 'Pull new report?',
+      confirmationText: 'Accept',
+      dialogProps: { maxWidth: 'xs' }
+    }).then(() => {
+      call(String(id))
+    })
   }
 
   const options: ApexOptions = {
