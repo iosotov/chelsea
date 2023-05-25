@@ -10,11 +10,11 @@ import DashboardCalendar from './components/DashboardCalendar'
 
 export default function DashboardTasksView() {
 
-  const { isLoading, isSuccess, isFetching } = usePostTaskSearchQuery({})
+  const { isLoading, isSuccess } = usePostTaskSearchQuery({})
 
   return (
     <>
-      {isLoading || isFetching && <FallbackSpinner />}
+      {isLoading && <FallbackSpinner />}
       {isSuccess && <DashboardTasksWidgets />}
     </>
   )

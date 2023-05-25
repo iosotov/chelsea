@@ -178,9 +178,9 @@ export default function PersonalDialog({ open, toggle, data }: Props): ReactElem
       city: profileAddresses?.[0]?.city,
       state: profileAddresses?.[0]?.state,
       zipCode: profileAddresses?.[0]?.zipCode,
-      email: profileContacts.filter(e => e.contactId === 'c7713ff2-1bea-4f69-84c0-404e0e5fb0bd')?.[0].value,
-      phoneNumber: profileContacts.filter(e => e.contactId === '5f2421ec-6016-4355-92aa-67dd5f2c8abc')?.[0].value,
-      phoneNumber2: profileContacts.filter(e => e.contactId === '88262882-9a7e-4a78-b70c-82036b6c3a45')?.[0].value
+      email: profileContacts.filter(e => e.contactId === 'c7713ff2-1bea-4f69-84c0-404e0e5fb0bd')?.[0]?.value,
+      phoneNumber: profileContacts.filter(e => e.contactId === '5f2421ec-6016-4355-92aa-67dd5f2c8abc')?.[0]?.value,
+      phoneNumber2: profileContacts.filter(e => e.contactId === '88262882-9a7e-4a78-b70c-82036b6c3a45')?.[0]?.value
     }
   })
 
