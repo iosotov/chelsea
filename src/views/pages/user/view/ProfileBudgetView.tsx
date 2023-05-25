@@ -60,7 +60,7 @@ export default function ProfileBudget({ id }: ProfileBudgetProps) {
     cashFlow = enrollments.enrolledBalance - allTotal
   }
 
-  const { isLoading, isSuccess, isError } = useGetProfileBudgetsQuery(profileId, { skip: !profileId })
+  const { isLoading, isError } = useGetProfileBudgetsQuery(profileId, { skip: !profileId })
 
   const [putTrigger, { isLoading: putTriggerLoading }] = usePutProfileBudgetsUpdateMutation()
 
@@ -87,69 +87,69 @@ export default function ProfileBudget({ id }: ProfileBudgetProps) {
 
   if (isLoading) return <div>Loading</div>
 
-  if (isSuccess)
-    return (
-      <>
-        <Grid container spacing={6}>
-          <Grid item xs={12}>
-            <Typography variant='h5'>Monthly Budget Summary</Typography>
-          </Grid>
-          <Grid item xs={12}>
-            <Box sx={{ mt: 1, mb: 2.5, display: 'flex', alignItems: 'center', width: 1, gap: 3 }}>
-              <Card sx={{ width: 1 / 3, height: 150, mr: 'auto' }}>
-                <CardContent>
-                  <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography variant='h6'>{`Cash Funds Available`}</Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-                      <Typography variant='subtitle1'>Income: ${incomeTotal ?? ''}</Typography>
-                      <Typography variant='subtitle1'>Expense: ${expenseTotal ?? ''}</Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-              <Card sx={{ width: 1 / 3, height: 150, mr: 'auto' }}>
-                <CardContent>
-                  <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography variant='h6'>{`Total Balance`}</Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-                      <Typography variant='h6'>${allTotal}</Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-              <Card sx={{ width: 1 / 3, height: 150, mr: 'auto' }}>
-                <CardContent>
-                  <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Typography variant='h6'>{`Cash Flow`}</Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-                      <Typography variant='h6'>${cashFlow}</Typography>
-                    </Box>
-                  </Box>
-                </CardContent>
-              </Card>
-            </Box>
-          </Grid>
-          <Grid item xs={12}>
-            <IncomeTable control={control} onSubmit={handleSubmit(onSubmit)} data={incomeBudgets}></IncomeTable>
-          </Grid>
-          <Grid item xs={12}>
-            <ExpenseTable control={control} onSubmit={handleSubmit(onSubmit)} data={expenseBudgets}></ExpenseTable>
-          </Grid>
-          <Grid item xs={12} textAlign={'right'}>
-            <Button variant='outlined' color='secondary' sx={{ mr: 4 }} onClick={resetForm}>
-              Clear Form
-            </Button>
-            <Button disabled={putTriggerLoading} variant='contained' onClick={handleSubmit(onSubmit)}>
-              Submit Budget
-            </Button>
-          </Grid>
+
+  return (
+    <>
+      <Grid container spacing={6}>
+        <Grid item xs={12}>
+          <Typography variant='h5'>Monthly Budget Summary</Typography>
         </Grid>
-      </>
-    )
+        <Grid item xs={12}>
+          <Box sx={{ mt: 1, mb: 2.5, display: 'flex', alignItems: 'center', width: 1, gap: 3 }}>
+            <Card sx={{ width: 1 / 3, height: 150, mr: 'auto' }}>
+              <CardContent>
+                <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant='h6'>{`Cash Funds Available`}</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
+                    <Typography variant='subtitle1'>Income: ${incomeTotal ?? ''}</Typography>
+                    <Typography variant='subtitle1'>Expense: ${expenseTotal ?? ''}</Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+            <Card sx={{ width: 1 / 3, height: 150, mr: 'auto' }}>
+              <CardContent>
+                <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant='h6'>{`Total Balance`}</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
+                    <Typography variant='h6'>${allTotal}</Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+            <Card sx={{ width: 1 / 3, height: 150, mr: 'auto' }}>
+              <CardContent>
+                <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography variant='h6'>{`Cash Flow`}</Typography>
+                </Box>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+                  <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
+                    <Typography variant='h6'>${cashFlow}</Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </Box>
+        </Grid>
+        <Grid item xs={12}>
+          <IncomeTable control={control} onSubmit={handleSubmit(onSubmit)} data={incomeBudgets}></IncomeTable>
+        </Grid>
+        <Grid item xs={12}>
+          <ExpenseTable control={control} onSubmit={handleSubmit(onSubmit)} data={expenseBudgets}></ExpenseTable>
+        </Grid>
+        <Grid item xs={12} textAlign={'right'}>
+          <Button variant='outlined' color='secondary' sx={{ mr: 4 }} onClick={resetForm}>
+            Clear Form
+          </Button>
+          <Button disabled={putTriggerLoading} variant='contained' onClick={handleSubmit(onSubmit)}>
+            Submit Budget
+          </Button>
+        </Grid>
+      </Grid>
+    </>
+  )
 }

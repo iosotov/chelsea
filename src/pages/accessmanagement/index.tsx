@@ -5,7 +5,6 @@ import Tab from '@mui/material/Tab'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
 import TabContext from '@mui/lab/TabContext'
-import Typography from '@mui/material/Typography'
 import Divider from '@mui/material/Divider'
 
 import Box from '@mui/material/Box'
