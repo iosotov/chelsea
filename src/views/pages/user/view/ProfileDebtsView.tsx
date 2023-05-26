@@ -1,190 +1,471 @@
-//hidden for now, consolidated with credit report.
+import { useState, useRef, useEffect } from 'react'
 
-// ** React Imports
+//MUI
+import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
+import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
 
 // ** MUI Imports
-import Box from '@mui/material/Box'
-import Card from '@mui/material/Card'
-import { DataGrid } from '@mui/x-data-grid'
-import { styled } from '@mui/material/styles'
-import CardHeader from '@mui/material/CardHeader'
-import Typography from '@mui/material/Typography'
-import CardContent from '@mui/material/CardContent'
-import LinearProgress from '@mui/material/LinearProgress'
-import Grid from '@mui/material/Grid'
+import Toolbar from '@mui/material/Toolbar'
+import Tooltip from '@mui/material/Tooltip'
+import IconButton from '@mui/material/IconButton'
+import Paper from '@mui/material/Paper'
+import Table from '@mui/material/Table'
+import TableRow from '@mui/material/TableRow'
+import TableHead from '@mui/material/TableHead'
+import TableBody from '@mui/material/TableBody'
+import TableCell from '@mui/material/TableCell'
+import TableContainer from '@mui/material/TableContainer'
+
+//MUI Grid Imports
+import { DataGridPro, GridColDef, GridValueFormatterParams, GridRowId } from '@mui/x-data-grid-pro'
+
+//Styling
+import { alpha } from '@mui/material/styles'
+import { useTheme } from '@mui/material/styles'
 
 // ** Third Party Imports
-// import axios from 'axios'
+import { ApexOptions } from 'apexcharts'
+import { useConfirm } from 'material-ui-confirm'
+import ReactApexcharts from 'src/@core/components/react-apexcharts'
 
-// ** Type Imports
-// import { ProjectListDataType } from 'src/types/apps/userTypes'
+// ** Custom Components Imports
+import Icon from 'src/@core/components/icon'
+import CustomChip from 'src/@core/components/mui/chip'
+import DebtsDialog from './components/debts/DebtsDialog'
+import AddDebtDrawer from './components/debts/AddDebtDrawer'
 
-interface CellType {
-  row: any
+//API Hooks
+import { useGetCreditReportsQuery, useGetProfileLiabilitiesQuery } from 'src/store/api/apiHooks'
+import { useAppSelector } from 'src/store/hooks'
+import { usePostProfileCreditReportMutation } from 'src/store/api/apiHooks'
+import { usePutLiabilitiesEnrollMutation } from 'src/store/api/apiHooks'
+import { usePutLiabilitiesWithdrawMutation } from 'src/store/api/apiHooks'
+
+//API Slices
+import { selectCreditReportByProfileId } from 'src/store/creditReportSlice'
+import { selectLiabilityByProfileId } from 'src/store/liabilitySlice'
+
+//Types
+import { CreditScoreCodeType } from 'src/store/api/creditReportApiSlice'
+import { LiabilityType } from 'src/store/api/liabilityApiSlice'
+
+//Utils
+import MoneyConverter from 'src/views/shared/utils/money-converter'
+
+type Props = {
+  id: string
 }
-const Img = styled('img')(({ theme }) => ({
-  width: 34,
-  height: 34,
-  borderRadius: '50%',
-  marginRight: theme.spacing(3)
-}))
+interface EnhancedTableToolbarProps {
+  selected: GridRowId[]
+  data: LiabilityType[]
+  profileId: string
+  toggle: () => void
+}
 
-const columns = [
-  {
-    flex: 0.3,
-    minWidth: 230,
-    field: 'projectTitle',
-    headerName: 'Project',
-    renderCell: ({ row }: CellType) => (
-      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-        <Img src={row.img} alt={`project-${row.projectTitle}`} />
-        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Typography variant='subtitle2' sx={{ color: 'text.primary' }}>
-            {row.projectTitle}
-          </Typography>
-          <Typography variant='caption'>{row.projectType}</Typography>
-        </Box>
-      </Box>
-    )
-  },
-  {
-    flex: 0.15,
-    minWidth: 100,
-    field: 'totalTask',
-    headerName: 'Total Tasks',
-    renderCell: ({ row }: CellType) => (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {row.totalTask}
-      </Typography>
-    )
-  },
-  {
-    flex: 0.15,
-    minWidth: 200,
-    headerName: 'Progress',
-    field: 'progressValue',
-    renderCell: ({ row }: CellType) => (
-      <Box sx={{ width: '100%' }}>
-        <Typography variant='body2' sx={{ color: 'text.primary' }}>
-          {row.progressValue}%
-        </Typography>
-        <LinearProgress
-          variant='determinate'
-          value={row.progressValue}
-          color={row.progressColor}
-          sx={{ height: 6, borderRadius: '5px' }}
-        />
-      </Box>
-    )
-  },
-  {
-    flex: 0.15,
-    minWidth: 100,
-    field: 'hours',
-    headerName: 'Hours',
-    renderCell: ({ row }: CellType) => (
-      <Typography variant='body2' sx={{ color: 'text.primary' }}>
-        {row.hours}
-      </Typography>
-    )
+const creditEval = ['Poor', 'Fair', 'Good', 'Excellent']
+
+//Credit Score + Table Card
+function CreditScore({ id }: Props) {
+  const theme = useTheme()
+
+  const confirm = useConfirm()
+
+  const { isSuccess } = useGetCreditReportsQuery(id, { skip: !id })
+  const creditReport = useAppSelector(state => selectCreditReportByProfileId(state, String(id)))
+
+  const creditScore = useRef<number>(0)
+
+  useEffect(() => {
+    if (creditReport && creditReport?.creditScores.length > 0) {
+      creditScore.current = (Number(creditReport.creditScores[0].scoreValue) / 850) * 100
+      console.log(creditScore.current)
+    }
+  }, [creditReport])
+
+  const [call] = usePostProfileCreditReportMutation()
+  const pullReport = () => {
+    confirm({
+      title: 'Confirmation',
+      description: 'Pull new report?',
+      confirmationText: 'Accept',
+      dialogProps: { maxWidth: 'xs' }
+    }).then(() => {
+      call(String(id))
+    })
   }
-]
-const rows = [
-  { id: 1, type: 'Snow', createdBy: 'Jon', description: 35 },
-  { id: 2, type: 'Lannister', createdBy: 'Cersei', description: 42 },
-  { id: 3, type: 'Lannister', createdBy: 'Jaime', description: 45 },
-  { id: 4, type: 'Stark', createdBy: 'Arya', description: 16 },
-  { id: 5, type: 'Targaryen', createdBy: 'Daenerys', description: null },
-  { id: 6, type: 'Melisandre', createdBy: null, description: 150 },
-  { id: 7, type: 'Clifford', createdBy: 'Ferrara', description: 44 },
-  { id: 8, type: 'Frances', createdBy: 'Rossini', description: 36 },
-  { id: 9, type: 'Roxie', createdBy: 'Harvey', description: 65 }
-]
 
-const ProfileDebts = () => {
-  // ** State
-  // const [value, setValue] = useState<string>('')
-  // const [pageSize, setPageSize] = useState<number>(7)
-  // const [data, setData] = useState<ProjectListDataType[]>([])
-
-  // useEffect(() => {
-  //   axios
-  //     .get('/apps/users/project-list', {
-  //       params: {
-  //         q: value
-  //       }
-  //     })
-  //     .then(res => setData(res.data))
-  // }, [value])
+  const options: ApexOptions = {
+    chart: {
+      sparkline: { enabled: true }
+    },
+    stroke: { dashArray: 5 },
+    colors: [theme.palette.primary.main],
+    states: {
+      hover: {
+        filter: { type: 'none' }
+      },
+      active: {
+        filter: { type: 'none' }
+      }
+    },
+    plotOptions: {
+      radialBar: {
+        endAngle: 90,
+        startAngle: -90,
+        hollow: { size: '55%' },
+        track: { background: theme.palette.customColors.trackBg },
+        dataLabels: {
+          name: { show: false },
+          value: {
+            offsetY: -5,
+            fontWeight: 500,
+            fontSize: '2rem',
+            color: theme.palette.text.primary,
+            formatter: () => {
+              return creditReport?.creditScores[0]?.scoreValue ?? '0'
+            }
+          }
+        }
+      }
+    }
+  }
 
   return (
-    <Grid container spacing={6}>
-      <Grid item xs={12}>
-        <Box sx={{ mt: 1, mb: 2.5, display: 'flex', alignItems: 'center', width: 1, gap: 5 }}>
-          {/* <Card sx={{ width: 1 / 3, mr: 'auto' }}>
-            <CardHeader title='Enrolled Debts'></CardHeader>
-            <CardContent>
-              <Typography variant='body2'>2 of 10</Typography>
-            </CardContent>
-
-          </Card> */}
-          <Card sx={{ width: 1 / 3, mr: 'auto' }}>
-            <CardContent>
-              <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant='body2'>{`Enrolled Debts`}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-                  <Typography variant='h6'>1 of 10 Enrolled</Typography>
-                  <Typography variant='body2' sx={{ color: 'primary.main', textDecoration: 'none' }}>
-                    Edit Role
-                  </Typography>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-          <Card sx={{ width: 1 / 3, mr: 'auto' }}>
-            <CardContent>
-              <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant='body2'>{`Enrolled Debts`}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-                  <Typography variant='h6'>1 of 10 Enrolled</Typography>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-          <Card sx={{ width: 1 / 3, mr: 'auto' }}>
-            <CardContent>
-              <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <Typography variant='body2'>{`Total Enrolled Balance`}</Typography>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-                <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-                  <Typography variant='h6'>$999,999,999</Typography>
-                </Box>
-              </Box>
-            </CardContent>
-          </Card>
-        </Box>
-      </Grid>
-      <Grid item xs={12}>
-        <Card>
-          <CardHeader title='Projects List' />
-          <CardContent>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
-              <Typography variant='body2' sx={{ mr: 2 }}>
-                Search:
+    <Card sx={{ p: 2, mb: 4 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+        <Button disabled={creditReport?.creditScores?.length === 0}>View</Button>
+        <Button onClick={pullReport}>New Report</Button>
+      </Box>
+      <Grid container spacing={4}>
+        {isSuccess && creditReport && creditReport.creditScores.length > 0 ? (
+          <>
+            <Grid item xs={12} lg={6}>
+              <CardContent
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  flexDirection: 'column',
+                  mb: 4
+                }}
+              >
+                <ReactApexcharts type='radialBar' height={280} series={[creditScore.current]} options={options} />
+                <Typography sx={{ mt: 5, mb: 2.5 }} variant='h5'>
+                  {creditEval[creditReport.creditScores[0].evaluation] ?? 'Unknown'}
+                </Typography>
+                <Typography variant='caption'>{creditReport?.creditScores?.[0]?.scoreName ?? 'N/A'}</Typography>
+              </CardContent>
+            </Grid>
+            <Grid item xs={12} lg={6}>
+              <TableContainer sx={{ maxHeight: '250px' }} component={Paper}>
+                <Table aria-label='simple table'>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Code</TableCell>
+                      <TableCell align='left'>Description</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {creditReport.creditScores?.[0]?.creditScoreCodes.map((row: CreditScoreCodeType, i: number) => (
+                      <TableRow
+                        key={`score-${row.scoreFactorCode}-${i}`}
+                        sx={{
+                          '&:last-of-type td, &:last-of-type th': {
+                            border: 0
+                          }
+                        }}
+                      >
+                        <TableCell component='th' scope='row'>
+                          {row.scoreFactorCode}
+                        </TableCell>
+                        <TableCell align='left'>{row.scoreFactorText}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Grid>
+          </>
+        ) : (
+          <Grid item xs={12}>
+            <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', my: 12 }}>
+              <Typography mb={2} variant='caption'>
+                No credit report found.
               </Typography>
-              {/* <TextField size='small' placeholder='Search Project' value={value} onChange={e => setValue(e.target.value)} /> */}
+              <Typography variant='body2'>Please pull a report to get started.</Typography>
             </Box>
+          </Grid>
+        )}
+      </Grid>
+    </Card>
+  )
+}
+
+export default function ProfileDebts({ id }: Props) {
+  //API Calls
+  useGetProfileLiabilitiesQuery(String(id), { skip: !id })
+  const debts = useAppSelector(state => selectLiabilityByProfileId(state, String(id)))
+
+  //States
+  return (
+    <Grid container spacing={4}>
+      <Grid item xs={12}>
+        <CreditScore id={id} />
+        {/* Debts Info */}
+        <Grid container sx={{ mb: 4 }} spacing={4}>
+          <Grid item xs={6}>
+            <Card>
+              <CardContent>
+                <Typography variant='caption'>Enrolled Debts</Typography>
+                <Typography variant='h4'>{`${debts.filter(debt => debt.enrolled === true).length} of ${
+                  debts.length
+                }`}</Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+          <Grid item xs={6}>
+            <Card>
+              <CardContent>
+                <Typography variant='caption'>Total Enrolled Balance</Typography>
+                <Typography variant='h4'>
+                  {MoneyConverter(
+                    debts
+                      .filter(debt => debt.enrolled === true)
+                      .map(debt => debt.currentBalance)
+                      .reduce((prev, next) => prev + next, 0)
+                  )}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+        {/* Debts Table */}
+        <Card>
+          <CardContent>
+            <DebtTable debts={debts} id={id} />
           </CardContent>
-          <DataGrid autoHeight rows={rows} columns={columns} />
         </Card>
       </Grid>
     </Grid>
   )
 }
 
-export default ProfileDebts
+const EnhancedTableToolbar = ({ selected, data, profileId, toggle }: EnhancedTableToolbarProps) => {
+  const [addDrawer, setAddDrawer] = useState<boolean>(false)
+  const toggleDrawer = () => setAddDrawer(!addDrawer)
+
+  const [enrollLiability] = usePutLiabilitiesEnrollMutation()
+  const [withdrawLiability] = usePutLiabilitiesWithdrawMutation()
+
+  const confirm = useConfirm()
+
+  const filter = (arg: string) => {
+    const enrolled: GridRowId[] = data.filter(liability => liability.enrolled === true).map(e => e.liabilityId)
+
+    const filteredData =
+      arg === 'enroll'
+        ? (selected.filter(x => !enrolled.includes(x)) as string[])
+        : (selected.filter(x => enrolled.includes(x)) as string[])
+
+    const enrolledData = {
+      profileId,
+      ids: filteredData
+    }
+
+    return enrolledData
+  }
+
+  const Enroll = () => {
+    confirm({
+      title: 'Enroll Debt',
+      description: 'Are you sure you want to enroll this debt?',
+      confirmationText: 'Accept',
+      dialogProps: { maxWidth: 'xs' }
+    }).then(() => {
+      const data = filter('enroll')
+
+      if (data.ids.length > 0) {
+        enrollLiability(data)
+      }
+    })
+  }
+
+  const Withdraw = () => {
+    confirm({
+      title: 'Withdraw Debt',
+      description: 'Are you sure you want to withdraw this debt?',
+      confirmationText: 'Accept',
+      dialogProps: { maxWidth: 'xs' }
+    }).then(() => {
+      const data = filter('withdraw')
+
+      if (data.ids.length > 0) {
+        withdrawLiability(data)
+      }
+    })
+  }
+
+  return (
+    <>
+      <Toolbar
+        sx={{
+          px: theme => `${theme.spacing(5)} !important`,
+          ...(selected.length > 0 && {
+            bgcolor: theme => alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity)
+          })
+        }}
+      >
+        {selected.length > 0 ? (
+          <Typography sx={{ flex: '1 1 100%' }} color='inherit' variant='subtitle1' component='div'>
+            {selected.length} selected
+          </Typography>
+        ) : (
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+            <Typography variant='h5'>Debts</Typography>
+            <Button onClick={toggleDrawer} variant='contained' size='small'>
+              Add Debt
+            </Button>
+          </Box>
+        )}
+        {selected.length > 0 ? (
+          <Box sx={{ display: 'flex', gap: 2 }}>
+            {selected.length === 1 && (
+              <Tooltip title='View Debt'>
+                <IconButton onClick={toggle} sx={{ color: 'text.secondary' }}>
+                  <Icon icon='ic:outline-remove-red-eye' />
+                </IconButton>
+              </Tooltip>
+            )}
+            <Tooltip title='Enroll Debt'>
+              <IconButton onClick={Enroll} sx={{ color: 'text.secondary' }}>
+                <Icon icon='material-symbols:add-box-outline-rounded' />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title='Withdraw Debt'>
+              <IconButton onClick={Withdraw} sx={{ color: 'text.secondary' }}>
+                <Icon icon='mdi:minus-box-outline' />
+              </IconButton>
+            </Tooltip>
+          </Box>
+        ) : null}
+      </Toolbar>
+      <AddDebtDrawer open={addDrawer} toggle={toggleDrawer} profileId={profileId} />
+    </>
+  )
+}
+
+const DebtTable = ({ debts, id }: { debts: LiabilityType[]; id: string }) => {
+  const [selected, setSelected] = useState<GridRowId[]>([])
+
+  const [paginationModel, setPaginationModel] = useState({ pageSize: 10, page: 0 })
+
+  const [transDialog, setTransDialog] = useState<boolean>(false)
+  const toggleDialog = () => setTransDialog(!transDialog)
+
+  const columns: GridColDef[] = [
+    {
+      field: 'name',
+      headerName: 'Creditor',
+      headerAlign: 'center',
+      align: 'center',
+      minWidth: 200,
+      pinnable: false
+    },
+    {
+      field: 'accountNumber',
+      headerName: 'Account Number',
+      headerAlign: 'center',
+      align: 'center',
+      minWidth: 150,
+      pinnable: false
+    },
+    {
+      field: 'currentBalance',
+      headerName: 'Balance',
+      headerAlign: 'center',
+      align: 'right',
+      minWidth: 150,
+      pinnable: false,
+      valueFormatter: (params: GridValueFormatterParams<number>) => {
+        return MoneyConverter(params.value)
+      }
+    },
+    {
+      field: 'enrolled',
+      headerName: 'Enrollment Status',
+      headerAlign: 'center',
+      align: 'center',
+      minWidth: 150,
+      pinnable: false,
+      renderCell: params => {
+        return (
+          <CustomChip
+            sx={{ width: '100%' }}
+            color={params.value ? 'success' : 'error'}
+            skin='light'
+            label={params.value ? 'Enrolled' : 'Not Enrolled'}
+          />
+        )
+      }
+    },
+    {
+      field: 'currentPaymentAmount',
+      headerName: 'Current Payment Amount',
+      headerAlign: 'center',
+      align: 'center',
+      minWidth: 200,
+      pinnable: false
+    },
+    {
+      field: 'legalStatus',
+      headerName: 'Legal Status',
+      headerAlign: 'center',
+      align: 'center',
+      minWidth: 200,
+      pinnable: false,
+      renderCell: params => {
+        return (
+          <CustomChip
+            sx={{ width: '100%' }}
+            color={params.value ? 'success' : 'error'}
+            skin='light'
+            label={params.value ? 'Legal' : 'Illegal'}
+          />
+        )
+      }
+    }
+  ]
+
+  return (
+    <>
+      <EnhancedTableToolbar selected={selected} data={debts} profileId={id} toggle={toggleDialog} />
+      <DataGridPro
+        sx={debts?.length === 0 ? { height: '250px' } : { height: '630px' }}
+        hideFooterSelectedRowCount
+        getRowId={debt => debt.liabilityId}
+        onRowSelectionModelChange={ids => {
+          setSelected(ids)
+        }}
+        checkboxSelection
+        pagination
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
+        pageSizeOptions={[5, 10, 25]}
+        columns={columns}
+        rows={debts}
+        initialState={{
+          sorting: {
+            sortModel: [{ field: 'enrolled', sort: 'desc' }]
+          },
+          pagination: {
+            paginationModel: { pageSize: 10 }
+          }
+        }}
+      />
+      {transDialog && <DebtsDialog open={transDialog} handleClose={toggleDialog} selected={selected} />}
+    </>
+  )
+}

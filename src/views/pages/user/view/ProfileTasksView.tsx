@@ -1,13 +1,10 @@
-import { useState, ChangeEvent } from 'react'
+import { useState } from 'react'
+import { format } from 'date-fns'
 
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 
-import Checkbox from '@mui/material/Checkbox'
-
-// ** Types
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
 
 // ** Styles Import
 import 'react-credit-cards/es/styles-compiled.css'
@@ -24,6 +21,9 @@ import { useAppSelector } from 'src/store/hooks'
 import { selectTaskByProfileId } from 'src/store/taskSlice'
 import { DrawerTitles, TaskForm } from './components/task/TaskForm'
 import { Card, CardContent } from '@mui/material'
+import { DataGridPro, GridColDef, GridValueGetterParams } from '@mui/x-data-grid-pro'
+import { TaskType } from 'src/store/api/taskApiSlice'
+import { store } from 'src/store/store'
 
 export type ProfileTasksProps = {
   id: string
@@ -42,7 +42,6 @@ const ProfileTasks = ({ id }: ProfileTasksProps) => {
   const [selectedTasks, setSelectedTasks] = useState<string[]>([])
   const [openTaskModal, setOpenTaskModal] = useState<boolean>(false)
 
-  const label = { inputProps: { 'aria-label': 'Checkbox demo' } }
 
   const getCompletedDate = (params: GridValueGetterParams) => {
     if (`${params.row.completedDate}`) {
@@ -52,47 +51,36 @@ const ProfileTasks = ({ id }: ProfileTasksProps) => {
     }
   }
 
-  const handleCheckboxChange = ({ target: { checked, value } }: ChangeEvent<HTMLInputElement>) => {
-    if (checked) {
-      setSelectedTasks(state => [...state, value])
-    } else {
-      setSelectedTasks(state => state.filter(t => t !== value))
-    }
-
-  }
-
-  const renderEditTaskCheckbox = (params: any) => {
-    return <Checkbox {...label} value={params.row.taskId} onChange={handleCheckboxChange} />
-  }
-
-  const columns: GridColDef[] = [
-    { field: 'taskId', headerName: '', width: 60, renderCell: renderEditTaskCheckbox },
+  const columns: GridColDef<TaskType>[] = [
     {
       field: 'taskName',
       headerName: 'Task Name',
-      width: 130,
-      editable: true
+      width: 200,
     },
     {
       field: 'assignedToName',
       headerName: 'Assigned To ',
-      width: 120,
-      editable: true
+      width: 200,
     },
     {
       field: 'dueDate',
       headerName: 'Due Date',
 
       // type: 'text',
-      width: 120,
-      editable: true
+      width: 150,
+      editable: true,
+      valueGetter: row => {
+        const date = new Date(row.value)
+
+        return format(date, 'MM/dd/yyyy')
+      }
     },
     {
       field: 'completedDate',
       headerName: 'Completed Date',
 
       // type: 'text',
-      width: 110,
+      width: 150,
       editable: true,
       valueGetter: row => getCompletedDate(row)
     },
@@ -101,24 +89,29 @@ const ProfileTasks = ({ id }: ProfileTasksProps) => {
       headerName: 'Status',
 
       // type: 'text',
-      width: 90,
-      editable: true
+      width: 150,
     },
     {
       field: 'createdAt',
       headerName: 'Created At',
 
       // type: 'text',
-      width: 110,
-      editable: true
+      width: 150,
+      valueGetter: row => {
+        const date = new Date(row.value)
+
+        return format(date, 'MM/dd/yyyy')
+      }
     },
     {
       field: 'createdBy',
       headerName: 'Created By',
-
-      // type: 'text',
       width: 110,
-      editable: true
+      valueGetter: row => {
+        const employee = store.getState().employee.entities[row.value]
+
+        return employee?.employeeAlias ? employee.employeeAlias : "SYSTEM"
+      }
     }
   ]
 
@@ -148,7 +141,7 @@ const ProfileTasks = ({ id }: ProfileTasksProps) => {
               </Box>
             </Grid>
             <Grid item xs={12}>
-              <DataGrid getRowId={r => r.taskId} rows={profileTasks} columns={columns} sx={!profileTasks.length ? { height: '250px' } : { height: '500px' }} />
+              <DataGridPro checkboxSelection onRowSelectionModelChange={(n) => setSelectedTasks(n as string[])} getRowId={r => r.taskId} rows={profileTasks} columns={columns} sx={!profileTasks.length ? { height: '250px' } : { height: '500px' }} />
             </Grid>
             <Grid item xs={12}>
               <TaskForm formMode={selectedTasks.length} calendarMode={false} openTaskModal={openTaskModal} setOpenTaskModal={setOpenTaskModal} selectedTasks={selectedTasks} profileId={profileId} />

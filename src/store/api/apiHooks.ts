@@ -17,6 +17,7 @@ import { profileBudgetApiSlice } from './profileBudgetApiSlice'
 import { roleApiSlice } from './roleApiSlice'
 import { settingApiSlice } from './settingApiSlice'
 import { taskApiSlice } from './taskApiSlice'
+import { templateApiSlice } from './templateApiSlice'
 import { userApiSlice } from './userApiSlice'
 
 // SOL REDUX API POINTS
@@ -263,7 +264,10 @@ export const {
   usePostEnrollmentResumeMutation,
 
   // POST enrollment/profileId/preview
-  useGetEnrollmentPreviewMutation
+  useGetEnrollmentPreviewMutation,
+
+  // PUT enrollment/profileId/profile/payment-method
+  usePutEnrollmentPaymentMethodMutation
 } = enrollmentApiSlice
 
 // ********************************************************************** GROUP
@@ -585,6 +589,16 @@ export const {
   // DELETE task/taskId/
   useDeleteTaskMutation
 } = taskApiSlice
+
+// ********************************************** TEMPLATE
+
+export const {
+  // POST template
+  usePostTemplateCreateMutation,
+
+  // POST template/search
+  usePostTemplateSearchQuery
+} = templateApiSlice
 
 // ********************************************** USERS
 

@@ -37,3 +37,10 @@ export const selectDocumentsByProfileId = createSelector(
     return documents.filter(document => document.profileId === profileId)
   }
 )
+
+export const selectDocumentsByProfileIdAndType = createSelector(
+  [selectAllDocuments, (state: RootState, profileId: string, type: number) => ({ profileId, type })],
+  (documents, { profileId, type }) => {
+    return documents.filter(document => document.profileId === profileId && document.type === type)
+  }
+)

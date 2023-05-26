@@ -11,6 +11,7 @@ import { ApexOptions } from 'apexcharts'
 import ReactApexcharts from 'src/@core/components/react-apexcharts'
 import { useAppSelector } from 'src/store/hooks'
 import { selectCompletedTasksForCurrentWeek } from 'src/store/taskSlice'
+import { Typography } from '@mui/material'
 
 
 
@@ -48,7 +49,7 @@ const DashboardCardWidgetsWeeklyOverview = () => {
     colors: [
 
       // theme.palette.customColors.trackBg,
-      theme.palette.primary.main,
+      theme.palette.primary.light,
     ],
     states: {
       hover: {
@@ -93,7 +94,8 @@ const DashboardCardWidgetsWeeklyOverview = () => {
         }}
       />
       <CardContent sx={{ '& .apexcharts-xcrosshairs.apexcharts-active': { opacity: 0 } }}>
-        <ReactApexcharts type='bar' height={275} series={[{ name: 'Completed Tasks', data }]} options={options} />
+        <ReactApexcharts type='bar' height={250} series={[{ name: 'Completed Tasks', data }]} options={options} />
+        <Typography variant='h5' sx={{ mt: 3, ml: 1 }}>Total Completed: {data.reduce((prev, curr) => prev + curr, 0)}</Typography>
       </CardContent>
     </Card >
   )

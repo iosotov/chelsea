@@ -23,11 +23,11 @@ type TransactionDialogProps = {
 const typeOptions = [
   {
     label: 'Bank Account',
-    value: 'ach'
+    value: 0
   },
   {
     label: 'Debit Card',
-    value: 'card'
+    value: 1
   }
 ]
 
@@ -72,13 +72,17 @@ export default function TransactionDialog({ data, open, toggle }: TransactionDia
             <Grid container spacing={4}>
               <Grid item xs={12}>
                 <SingleSelect
-                  name='amount'
+                  name='paymentType'
                   label='Payment Type'
+                  defaultValue={data?.paymentType}
                   options={typeOptions}
                   control={control}
                   errors={errors}
                   required
                 />
+              </Grid>
+              <Grid item xs={12}>
+                <TextInput name='amount' label='Amount' control={control} errors={errors} required />
               </Grid>
               <Grid sx={{ overflow: 'visible' }} item xs={12}>
                 <SelectDate name='processDate' label='Process Date' control={control} errors={errors} required />
@@ -88,9 +92,6 @@ export default function TransactionDialog({ data, open, toggle }: TransactionDia
               </Grid>
               <Grid item xs={12}>
                 <TextInput name='memo' label='Memo' control={control} errors={errors} required />
-              </Grid>
-              <Grid item xs={12}>
-                <TextInput name='description' label='Description' control={control} errors={errors} required />
               </Grid>
             </Grid>
           </form>

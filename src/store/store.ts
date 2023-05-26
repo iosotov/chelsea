@@ -23,6 +23,7 @@ import group from './groupSlice'
 import permission from './permissionSlice'
 import role from './roleSlice'
 import user from './userSlice'
+import template from './templateSlice'
 import { toast } from 'react-hot-toast'
 
 /**
@@ -63,7 +64,8 @@ export const store = configureStore({
     group,
     permission,
     role,
-    user
+    user,
+    template
   },
   middleware: getDefaultMiddleware => getDefaultMiddleware().concat([apiSlice.middleware, rtkQueryErrorLogger]),
   devTools: true

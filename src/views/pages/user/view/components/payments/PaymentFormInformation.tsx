@@ -8,7 +8,7 @@ import { Typography, Grid } from '@mui/material'
 type Props = {
   control: any
   errors: any
-  type: string
+  type: number
 }
 
 const options = [
@@ -24,7 +24,7 @@ const options = [
 const cardOptions = [
   {
     label: 'Debit Card',
-    value: 0
+    value: 1
   }
 ]
 
@@ -32,9 +32,9 @@ export default function PaymentFormInformation({ control, errors, type }: Props)
   return (
     <Grid container spacing={4}>
       <Grid item xs={12}>
-        <Typography variant='h6'>{type === 'ach' ? 'Bank' : 'Card'} Information</Typography>
+        <Typography variant='h6'>{type === 0 ? 'Bank' : 'Card'} Information</Typography>
       </Grid>
-      {type === 'ach' ? (
+      {type === 0 ? (
         <>
           <Grid item xs={12} lg={6}>
             <SingleSelect
@@ -58,7 +58,7 @@ export default function PaymentFormInformation({ control, errors, type }: Props)
           </Grid>
           <Grid item xs={12}>
             <TextInput
-              name='bankAccountName'
+              name='accountName'
               label='Account Holder'
               placeholder='ex: John Smith'
               errors={errors}
@@ -67,10 +67,10 @@ export default function PaymentFormInformation({ control, errors, type }: Props)
             />
           </Grid>
           <Grid item xs={6}>
-            <TextInput name='accountNumber' label='Account Number' errors={errors} control={control} required />
+            <TextInput name='bankAccountNumber' label='Account Number' errors={errors} control={control} required />
           </Grid>
           <Grid item xs={6}>
-            <TextInput name='routingNumber' label='Routing Number' errors={errors} control={control} required />
+            <TextInput name='bankRoutingNumber' label='Routing Number' errors={errors} control={control} required />
           </Grid>
         </>
       ) : (

@@ -50,7 +50,7 @@ const navigation = (): VerticalNavItemsType => {
       sectionTitle: 'Accounting'
     },
     {
-      // disabled: true,
+      disabled: true,
       title: 'Search Transactions',
       icon: 'mdi:credit-card-search-outline',
       path: '/transactions/list',

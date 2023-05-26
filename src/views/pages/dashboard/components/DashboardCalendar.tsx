@@ -21,8 +21,6 @@ import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 import { ThemeColor } from 'src/@core/layouts/types'
 import { useAppSelector } from 'src/store/hooks'
 import { selectTasksByStatusTypes } from 'src/store/taskSlice'
-import { store } from 'src/store/store'
-import { TaskType } from 'src/store/api/taskApiSlice'
 import { TaskForm } from '../../user/view/components/task/TaskForm'
 
 type CalendarColors = {
@@ -41,16 +39,12 @@ const calendarsColor: CalendarColors = {
 const DashboardCalendar = () => {
   // ** States
   const [selectedTasks, setSelectedTasks] = useState<number[]>([0, 1, 2])
-  const [selectedTask, setSelectedTask] = useState<TaskType | null>()
+  const [selectedTask, setSelectedTask] = useState<string[]>([])
   const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false)
   const [addTaskSidebarOpen, setAddTaskSidebarOpen] = useState<boolean>(false)
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [updateTaskSidebarOpen, setUpdateTaskSidebarOpen] = useState<boolean>(false)
-
 
   const tasks = useAppSelector(state => selectTasksByStatusTypes(state, selectedTasks))
-
 
 
   // ** Hooks
@@ -70,12 +64,6 @@ const DashboardCalendar = () => {
     setAddTaskSidebarOpen(!addTaskSidebarOpen)
   }
 
-  // handle update task modal
-  const handleUpdateTaskSidebarToggle = (taskId: string) => {
-    const task = store.getState().task.entities[taskId]
-    setSelectedTask(task)
-    setUpdateTaskSidebarOpen(!addTaskSidebarOpen)
-  }
 
   return (
     <CalendarWrapper
@@ -88,6 +76,7 @@ const DashboardCalendar = () => {
       <SidebarLeft
         mdAbove={mdAbove}
         selectedTasks={selectedTasks}
+        setSelectedTask={setSelectedTask}
         setSelectedTasks={setSelectedTasks}
         calendarsColor={calendarsColor}
         leftSidebarOpen={leftSidebarOpen}
@@ -110,12 +99,12 @@ const DashboardCalendar = () => {
           tasks={tasks}
           direction={direction}
           calendarsColor={calendarsColor}
+          setSelectedTask={setSelectedTask}
           handleLeftSidebarToggle={handleLeftSidebarToggle}
-          handleUpdateTaskSidebarToggle={handleUpdateTaskSidebarToggle}
           handleAddTaskSidebarToggle={handleAddTaskSidebarToggle}
         />
       </Box>
-      <TaskForm drawerWidth={addEventSidebarWidth} formMode={selectedTask ? 1 : 0} calendarMode={true} openTaskModal={addTaskSidebarOpen} setOpenTaskModal={setAddTaskSidebarOpen} selectedTasks={selectedTask ? [selectedTask.taskId] : []} />
+      <TaskForm drawerWidth={addEventSidebarWidth} formMode={selectedTask.length} calendarMode={true} openTaskModal={addTaskSidebarOpen} setOpenTaskModal={setAddTaskSidebarOpen} selectedTasks={selectedTask} />
     </CalendarWrapper>
   )
 }

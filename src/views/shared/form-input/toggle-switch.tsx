@@ -8,9 +8,10 @@ type Props = {
   label: string
   name: string
   defaultChecked?: boolean
+  disabled?: boolean
 }
 
-export default function ToggleSwitch({ control, label, name, defaultChecked, ...props }: Props) {
+export default function ToggleSwitch({ control, label, name, defaultChecked, disabled, ...props }: Props) {
   return (
     <FormControl fullWidth>
       <Typography variant='body1'>{label}</Typography>
@@ -25,6 +26,7 @@ export default function ToggleSwitch({ control, label, name, defaultChecked, ...
             }}
             value={value}
             defaultChecked={defaultChecked ?? false}
+            disabled={disabled ?? false}
             {...props}
           />
         )}

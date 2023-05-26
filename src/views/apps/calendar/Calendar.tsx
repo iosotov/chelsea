@@ -1,5 +1,5 @@
 // ** React Import
-import { useRef } from 'react'
+import { Dispatch, SetStateAction, useRef } from 'react'
 
 // ** Full Calendar & it's Plugins
 import FullCalendar from '@fullcalendar/react'
@@ -15,7 +15,7 @@ type CalendarType = {
   direction: 'ltr' | 'rtl'
   calendarsColor: CalendarColors
   handleLeftSidebarToggle: () => void
-  handleUpdateTaskSidebarToggle: (taskId: string) => void,
+  setSelectedTask: Dispatch<SetStateAction<string[]>>,
   handleAddTaskSidebarToggle: () => void,
 
 }
@@ -55,20 +55,12 @@ const Calendar = (props: CalendarType) => {
     direction,
     calendarsColor,
     handleLeftSidebarToggle,
-    handleUpdateTaskSidebarToggle,
+    setSelectedTask,
     handleAddTaskSidebarToggle
   } = props
 
   // ** Refs
   const calendarRef = useRef()
-
-  // useEffect(() => {
-  //   if (calendarApi === null) {
-  //     // @ts-ignore
-  //     setCalendarApi(calendarRef.current?.getApi())
-  //   }
-  // }, [calendarApi, setCalendarApi])
-
 
   // ** calendarOptions(Props)
   const calendarOptions = {
@@ -138,7 +130,8 @@ const Calendar = (props: CalendarType) => {
     eventClick({ event: clickedEvent }: any) {
 
       // dispatch(handleSelectEvent(clickedEvent))
-      handleUpdateTaskSidebarToggle(clickedEvent._def.publicId)
+      setSelectedTask([clickedEvent._def.publicId])
+      handleAddTaskSidebarToggle()
 
       // * Only grab required field otherwise it goes in infinity loop
       // ! Always grab all fields rendered by form (even if it get `undefined`) otherwise due to Vue3/Composition API you might get: "object is not extensible"
@@ -157,6 +150,7 @@ const Calendar = (props: CalendarType) => {
     },
 
     dateClick() {
+      setSelectedTask([])
       handleAddTaskSidebarToggle()
     },
 
