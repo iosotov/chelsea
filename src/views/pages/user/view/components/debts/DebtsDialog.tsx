@@ -1,11 +1,9 @@
-import { ReactElement, useEffect, useRef } from 'react'
+import { ReactElement } from 'react'
 
 //MUI
-import { Grid, Typography } from '@mui/material'
+import { Grid } from '@mui/material'
 import TextInput from 'src/views/shared/form-input/text-input'
 import SingleSelect from 'src/views/shared/form-input/single-select'
-import ToggleSwitch from 'src/views/shared/form-input/toggle-switch'
-import CreditCard from 'src/views/shared/form-input/credit-card'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
@@ -21,8 +19,6 @@ import { useForm } from 'react-hook-form'
 
 //Types
 import { GridRowId } from '@mui/x-data-grid'
-import { useGetLiabilityQuery } from 'src/store/api/apiHooks'
-import { LiabilityType } from 'src/store/api/liabilityApiSlice'
 import { useAppSelector } from 'src/store/hooks'
 import { selectLiabilityById } from 'src/store/liabilitySlice'
 
@@ -40,12 +36,7 @@ export default function DebtsDialog({ selected, open, handleClose }: DebtDialogP
   const defaultValues = {}
 
   const debtForm = useForm(defaultValues)
-  const {
-    control,
-    setValue,
-    trigger,
-    formState: { errors }
-  } = debtForm
+  const { control, trigger } = debtForm
 
   const onSubmit = async () => {
     const valid = await trigger()

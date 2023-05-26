@@ -20,7 +20,7 @@ export type BankAccountType = {
   profileId: string | null
   firstName: string | null
   lastName: string | null
-  paymentType?: string
+  paymentType?: 'ach'
 }
 
 export type BankAccountCreateType = {

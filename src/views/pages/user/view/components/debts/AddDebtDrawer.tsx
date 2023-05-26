@@ -22,7 +22,6 @@ import { useForm } from 'react-hook-form'
 import { useAppSelector } from 'src/store/hooks'
 import { selectSettingByTypeOptions } from 'src/store/settingSlice'
 import { usePostLiabilityCreateMutation, usePostSettingSearchQuery } from 'src/store/api/apiHooks'
-import { skipToken } from '@reduxjs/toolkit/dist/query'
 import { LiabilityCreateType } from 'src/store/api/liabilityApiSlice'
 
 type Props = {

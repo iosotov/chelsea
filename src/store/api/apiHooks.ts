@@ -263,7 +263,10 @@ export const {
   usePostEnrollmentResumeMutation,
 
   // POST enrollment/profileId/preview
-  useGetEnrollmentPreviewMutation
+  useGetEnrollmentPreviewMutation,
+
+  // PUT enrollment/profileId/profile/payment-method
+  usePutEnrollmentPaymentMethodMutation
 } = enrollmentApiSlice
 
 // ********************************************************************** GROUP

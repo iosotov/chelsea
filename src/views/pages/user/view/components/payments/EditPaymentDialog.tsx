@@ -14,6 +14,13 @@ import CreditCard from 'src/views/shared/form-input/credit-card'
 import Button from '@mui/material/Button'
 import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
+import {
+  usePutBankAccountUpdateMutation,
+  usePutCreditCardUpdateMutation,
+  usePutEnrollmentPaymentMethodMutation
+} from 'src/store/api/apiHooks'
+import { BankAccountUpdateType } from 'src/store/api/bankAccountApiSlice'
+import { CreditCardUpdateType } from 'src/store/api/creditCardApiSlice'
 
 type EditPaymentDialogProps = {
   data: any
@@ -24,11 +31,11 @@ type EditPaymentDialogProps = {
 const paymentTypeOptions = [
   {
     label: 'Bank Account',
-    value: 'ach'
+    value: 0
   },
   {
     label: 'Debit Card',
-    value: 'card'
+    value: 1
   }
 ]
 
@@ -45,7 +52,7 @@ const accountTypeOptions = [
 const cardOptions = [
   {
     label: 'Debit Card',
-    value: 0
+    value: 1
   }
 ]
 
@@ -105,25 +112,114 @@ const stateOptions = [
 
 export default function EditPaymentDialog({ data, open, handleClose }: EditPaymentDialogProps): ReactElement {
   const editForm = useForm()
+
   const {
     control,
     setValue,
-    trigger,
+    handleSubmit,
+    getValues,
     formState: { errors }
   } = editForm
 
+  const type = data.bankName ? true : false
+
+  const [editBank, { isLoading: bankLoading }] = usePutBankAccountUpdateMutation()
+  const [editCard, { isLoading: cardLoading }] = usePutCreditCardUpdateMutation()
+  const [setMethod, { isLoading: methodLoading }] = usePutEnrollmentPaymentMethodMutation()
+
   useEffect(() => {
     if (data) {
+      setValue('expirationDate', `${data.expirationMonth}/${data.expirationYear}`)
       for (const prop in data) {
         setValue(prop, data[prop])
       }
     }
   }, [data, setValue])
 
-  const type = data.bankName ? true : false
-  const onSubmit = async () => {
-    const valid = await trigger()
-    valid ? console.log(editForm.getValues()) : console.log('missing fields')
+  useEffect(() => {
+    if (open) {
+      setValue('paymentType', type ? 0 : 1)
+    }
+  }, [open, type, setValue])
+
+  const onSubmit = () => {
+    const { profileId } = data
+    const formData = getValues()
+    const makePrimary: boolean = formData.primaryPayment
+    const paymentMethod: number = formData.paymentType
+
+    if (type) {
+      const bankData: BankAccountUpdateType = {
+        bankAccountId: formData.bankAccountId,
+        bankRoutingNumber: formData.bankRoutingNumber,
+        bankName: formData.bankName,
+        bankAccountNumber: formData.bankAccountNumber,
+        bankAccountType: formData.bankAccountType,
+        address: formData.address,
+        address2: formData.address2,
+        city: formData.city,
+        zipcode: formData.zipcode,
+        state: formData.state,
+        accountName: formData.accountName
+      }
+
+      editBank(bankData)
+        .unwrap()
+        .then(res => {
+          if (res) {
+            if (makePrimary) {
+              setMethod({ profileId, paymentMethod })
+                .unwrap()
+                .then(res => {
+                  if (res) {
+                    onClose()
+                  }
+                })
+            } else {
+              onClose()
+            }
+          }
+        })
+    } else if (!type) {
+      formData.cardNumber = formData.cardNumber.split(' ').join('')
+
+      const [month, year] = formData.expirationDate.split('/')
+      formData.expirationMonth = month
+      formData.expirationYear = year
+
+      const creditData: CreditCardUpdateType = {
+        creditCardId: formData.creditCardId,
+        name: formData.name,
+        type: formData.type,
+        cardNumber: formData.cardNumber,
+        expirationMonth: month,
+        expirationYear: year,
+        securityCode: formData.securityCode,
+        address: formData.address,
+        address2: formData.address2,
+        city: formData.city,
+        state: formData.state,
+        zipcode: formData.zipcode
+      }
+
+      editCard(creditData)
+        .unwrap()
+        .then(res => {
+          if (res) {
+            if (makePrimary) {
+              setMethod({ profileId, paymentMethod })
+                .unwrap()
+                .then(res => {
+                  if (res) {
+                    onClose()
+                  }
+                })
+            } else {
+              onClose()
+            }
+          }
+        })
+    }
   }
 
   const onClose = () => {
@@ -148,7 +244,7 @@ export default function EditPaymentDialog({ data, open, handleClose }: EditPayme
           <Grid item xs={12}>
             <ToggleSwitch
               control={control}
-              label='Is this the primary payment method?'
+              label='Set as primary payment method?'
               name='primaryPayment'
               defaultChecked={false}
             />
@@ -163,6 +259,7 @@ export default function EditPaymentDialog({ data, open, handleClose }: EditPayme
               options={paymentTypeOptions}
               control={control}
               errors={errors}
+              InputProps={{ readOnly: true }}
               required
             />
           </Grid>
@@ -193,7 +290,7 @@ export default function EditPaymentDialog({ data, open, handleClose }: EditPayme
               </Grid>
               <Grid item xs={12}>
                 <TextInput
-                  name='bankAccountName'
+                  name='accountName'
                   label='Account Holder'
                   placeholder='ex: John Smith'
                   control={control}
@@ -278,14 +375,18 @@ export default function EditPaymentDialog({ data, open, handleClose }: EditPayme
             />
           </Grid>
           <Grid item xs={6} md={3}>
-            <TextInput name='zipCode' label='Zipcode' placeholder='00000' control={control} errors={errors} required />
+            <TextInput name='zipcode' label='Zipcode' placeholder='00000' control={control} errors={errors} required />
           </Grid>
         </Grid>
       </DialogContent>
       <DialogActions className='dialog-actions-dense'>
         <Button onClick={onClose}>Cancel</Button>
-        <Button variant='outlined' onClick={onSubmit}>
-          Save Changes
+        <Button
+          disabled={bankLoading || cardLoading || methodLoading}
+          variant='outlined'
+          onClick={handleSubmit(onSubmit)}
+        >
+          {bankLoading || cardLoading || methodLoading ? 'Saving...' : 'Save Changes'}
         </Button>
       </DialogActions>
     </Dialog>

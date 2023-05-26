@@ -133,6 +133,7 @@ function CreditScore({ id }: Props) {
       }
     }
   }
+
   return (
     <Card sx={{ p: 2, mb: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
