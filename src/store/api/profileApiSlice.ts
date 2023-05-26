@@ -272,6 +272,10 @@ export type ProfileBasicType = {
   stageStatusName: string
 }
 
+export type ProfileEncryptedSSNType = {
+  ssn: string
+}
+
 export const profileApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
     // ****************************************************************** POST profile/search
@@ -1044,6 +1048,32 @@ export const profileApiSlice = apiSlice.injectEndpoints({
               { type: 'PROFILE-LABEL', id: arg.profileId }
             ]
           : []
+    }),
+    getProfileSSN: builder.query<ProfileEncryptedSSNType | null, string>({
+      query: profileId => ({
+        url: `/profile/${profileId}/reveal-ssn`,
+        method: 'GET'
+      }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching profile',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        if (!res.success) return null
+
+        return res.data
+      },
+      async onQueryStarted(searchParams, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          if (data) dispatch(updateProfiles([data]))
+        } catch (err: any) {
+          console.error('API error in getProfileSSN:', err.error.data.message)
+        }
+      }
     })
   })
 })

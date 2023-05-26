@@ -354,6 +354,9 @@ export const {
   // GET profile/profileId/labels
   useGetProfileLabelsQuery,
 
+  // GET profile/profileId/reveal-ssn
+  useGetProfileSSNQuery,
+
   // POST profile/profileId/labels
   usePostProfileLabelCreateMutation,
 
