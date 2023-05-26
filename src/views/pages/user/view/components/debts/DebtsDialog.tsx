@@ -1,7 +1,7 @@
 import { ReactElement } from 'react'
 
 //MUI
-import { Grid } from '@mui/material'
+import Grid from '@mui/material/Grid'
 import TextInput from 'src/views/shared/form-input/text-input'
 import SingleSelect from 'src/views/shared/form-input/single-select'
 import Button from '@mui/material/Button'
@@ -36,7 +36,11 @@ export default function DebtsDialog({ selected, open, handleClose }: DebtDialogP
   const defaultValues = {}
 
   const debtForm = useForm(defaultValues)
-  const { control, trigger } = debtForm
+  const {
+    control,
+    trigger,
+    formState: { errors }
+  } = debtForm
 
   const onSubmit = async () => {
     const valid = await trigger()
@@ -63,7 +67,7 @@ export default function DebtsDialog({ selected, open, handleClose }: DebtDialogP
       <DialogContent>
         <Grid container spacing={4}>
           <Grid item xs={12} md={6} lg={4}>
-            <TextInput name='name' label='Name' control={control}></TextInput>
+            <TextInput name='name' label='Name' control={control} errors={errors} required />
           </Grid>
           <Grid item xs={12} md={6} lg={4}>
             <TextInput name='originalBalance' label='Original Balance' control={control}></TextInput>

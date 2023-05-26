@@ -4,7 +4,7 @@ import { Controller, useForm } from "react-hook-form"
 import Icon from 'src/@core/components/icon'
 import DatePickerWrapper from "src/@core/styles/libs/react-datepicker"
 import DatePicker from 'react-datepicker'
-import { useDeleteTaskMutation, useGetGroupsQuery, useGetRolesQuery, usePostEmployeeSearchQuery, usePostProfilesSearchQuery, usePostTaskCreateMutation, usePutTaskUpdateMutation, usePutTasksBulkUpdateMutation } from "src/store/api/apiHooks"
+import { useDeleteTaskMutation, useGetGroupsQuery, useGetRolesQuery, usePostEmployeeSearchQuery, usePostProfilesSearchQuery, usePostTaskCreateMutation, usePostTemplateSearchQuery, usePutTaskUpdateMutation, usePutTasksBulkUpdateMutation } from "src/store/api/apiHooks"
 import { TaskBulkUpdateType, TaskCreateType, TaskStatusEnum, TaskUpdateType } from "src/store/api/taskApiSlice"
 import { useAppSelector } from "src/store/hooks"
 import { selectAllProfiles } from "src/store/profileSlice"
@@ -14,6 +14,8 @@ import { selectAllRoleSelectOptions } from "src/store/roleSlice"
 import { v4 as uuid } from 'uuid';
 import { selectTaskById } from "src/store/taskSlice"
 import { toast } from "react-hot-toast"
+import { store } from "src/store/store"
+import { selectTemplatesByType } from "src/store/templateSlice"
 
 export type TaskFormProps = {
   formMode: number
@@ -54,7 +56,7 @@ export const DrawerTitles = ["Create Task", "Edit Task", "Bulk Update Tasks"]
 const StatusValues = ["Open", "Attempted", "Completed", "Closed"]
 const assignTypes = ["Employees", "Groups", "Roles"]
 
-let values: FormValues = {
+const values: FormValues = {
   profileId: "",
   taskName: "",
   dueDate: new Date(),
@@ -82,6 +84,8 @@ const Header = styled(Box)<BoxProps>(({ theme }) => ({
 export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskModal, selectedTasks, profileId = "", drawerWidth = 400 }: TaskFormProps) {
 
   const { isSuccess: profileSuccess } = usePostProfilesSearchQuery({})
+  const { isSuccess: templateSuccess } = usePostTemplateSearchQuery({})
+
   usePostEmployeeSearchQuery({})
   useGetGroupsQuery()
   useGetRolesQuery()
@@ -90,19 +94,26 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
   const groups: FilteredOptionsType[] = useAppSelector(state => selectAllGroupSelectOptions(state))
   const roles: FilteredOptionsType[] = useAppSelector(state => selectAllRoleSelectOptions(state))
 
+  const taskTemplates = useAppSelector(state => selectTemplatesByType(state, 4))
+  console.log(taskTemplates)
+
+
   const [assignType, setAssigneeType] = useState<number>(0)
   const task = useAppSelector(state => selectTaskById(state, selectedTasks[0]))
 
-  const { handleSubmit, reset, control, getValues, formState: { errors } } = useForm<FormValues>({ defaultValues, values, shouldUnregister: true })
+  const { handleSubmit, reset, control, getValues, formState: { errors }, setValue } = useForm<FormValues>({ defaultValues, shouldUnregister: true })
 
   useEffect(() => {
-    if (formMode === 1 && task) {
-      const { taskName, dueDate, assignedTo, notes, completedDate, rescheduleDate, status } = task
-      values = { ...values, taskName, dueDate: new Date(dueDate), assignedTo, notes, completedDate, rescheduleDate, status }
+    if (formMode === 1) {
+      const task = store.getState().task.entities[selectedTasks[0]]
+      if (task) {
+        const { taskName, dueDate, assignedTo, notes, completedDate, rescheduleDate, status, profileId } = task
+        reset({ ...values, taskName, dueDate: new Date(dueDate), assignedTo, notes, completedDate, rescheduleDate, status, profileId })
+      }
     } else {
-      values = defaultValues
+      reset({ ...defaultValues })
     }
-  }, [formMode, task])
+  }, [formMode, profileId, reset, selectedTasks, task])
 
   const [createTask, { isLoading: createLoading }] = usePostTaskCreateMutation()
   const [updateTask, { isLoading: updateLoading }] = usePutTaskUpdateMutation()
@@ -114,7 +125,10 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
   async function onSubmit(data: FormValues) {
 
     if (formMode === 0) {
-      const createData: TaskCreateType = { ...data, profileId, assignType, dueDate: data.dueDate.toISOString() }
+      const currProfileId = calendarMode && data.profileId ? data.profileId : profileId
+      const createData: TaskCreateType = { ...data, assignType, dueDate: data.dueDate.toISOString(), profileId: currProfileId }
+      console.log(createData)
+
       const success = await createTask(createData)
       if (success) {
         toast.success("You successfully created a task")
@@ -240,7 +254,7 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
           <form onSubmit={handleSubmit(onSubmit)} autoComplete='off'>
             {calendarMode && (
               <FormControl fullWidth sx={{ mb: 6 }}>
-                <InputLabel id='status'>Profile</InputLabel>
+                <InputLabel id='profileId'>Profile</InputLabel>
                 <Controller
                   name="profileId"
                   control={control}
@@ -253,7 +267,6 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
                       {profileSuccess && profiles.map(p => (
                         <MenuItem key={p.profileId} value={p.profileId}>{p.firstName} {p.lastName}</MenuItem>
                       ))}
-                      <MenuItem value='Personal'>Personal</MenuItem>
                     </Select>
                   )}
                 />
@@ -264,7 +277,43 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
                 )}
               </FormControl>
             )}
-            {formMode < 2 && <FormControl fullWidth sx={{ mb: 6 }}>
+            {formMode < 2 && (
+              <FormControl fullWidth sx={{ mb: 6 }}>
+                <InputLabel id='taskName'>Name</InputLabel>
+                <Controller
+                  name="taskName"
+                  control={control}
+                  render={({ field: { value } }) => (
+                    <Select
+                      labelId='taskName'
+                      label='Name'
+                      value={value}
+                      onChange={(e) => {
+                        const template = store.getState().template.entities[e.target.value]
+                        if (template?.content) setValue("notes", template.content)
+                        setValue('taskName', e.target.value)
+                      }
+                      }
+                    >
+                      {task && <MenuItem value={task.taskName}>{task.taskName}</MenuItem>}
+                      {formMode === 0 && <MenuItem value="" disabled>Name</MenuItem>}
+
+                      {templateSuccess && taskTemplates.map(t => {
+                        const currTaskName = getValues("taskName")
+
+                        return currTaskName === t.name ? "" : <MenuItem key={t.id} value={t.name}>{t.name}</MenuItem>
+                      })}
+                    </Select>
+                  )}
+                />
+                {errors.profileId && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='event-profileId-error'>
+                    This field is required
+                  </FormHelperText>
+                )}
+              </FormControl>
+            )}
+            {/* {formMode < 2 && <FormControl fullWidth sx={{ mb: 6 }}>
               <Controller
                 name='taskName'
                 control={control}
@@ -278,7 +327,7 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
                   This field is required
                 </FormHelperText>
               )}
-            </FormControl>}
+            </FormControl>} */}
             <Box sx={{ mb: 6 }}>
               <Controller
                 control={control}

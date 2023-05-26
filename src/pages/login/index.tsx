@@ -42,24 +42,19 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { usePostAuthLoginMutation } from 'src/store/api/apiHooks'
 import { CircularProgress } from '@mui/material'
 
-const imageSource = 'chelsea_app_1'
-
-// ** Styled Components
-const LoginIllustrationWrapper = styled(Box)<BoxProps>(({ theme }) => ({
-  padding: theme.spacing(20),
-  paddingRight: '0 !important',
-  [theme.breakpoints.down('lg')]: {
-    padding: theme.spacing(10)
-  }
-}))
 
 const LoginIllustration = styled('img')(() => ({
-  width: '100%',
+  height: '100%',
+  position: 'relative',
+  right: 20
 }))
 
 const RightWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
-  [theme.breakpoints.up('md')]: {
+  height: '100%',
+  position: 'fixed',
+  right: 0,
+  [theme.breakpoints.up('lg')]: {
     maxWidth: 450
   }
 }))
@@ -68,7 +63,7 @@ const BoxWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   [theme.breakpoints.down('xl')]: {
     width: '100%'
   },
-  [theme.breakpoints.down('md')]: {
+  [theme.breakpoints.down('lg')]: {
     maxWidth: 400
   }
 }))
@@ -92,11 +87,6 @@ const schema = yup.object().shape({
   password: yup.string().required()
 })
 
-const defaultValues = {
-  password: '123',
-  email: 'celine@prime-logix.co'
-}
-
 interface FormData {
   email: string
   password: string
@@ -109,7 +99,7 @@ const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState<boolean>(true)
   const [showPassword, setShowPassword] = useState<boolean>(false)
 
-  // ** Hooks
+  // ** Hook
   const theme = useTheme()
   const [login, { isLoading, error }] = usePostAuthLoginMutation()
 
@@ -126,8 +116,7 @@ const LoginPage = () => {
     setError,
     handleSubmit,
     formState: { errors }
-  } = useForm({
-    defaultValues,
+  } = useForm<FormData>({
     mode: 'onBlur',
     resolver: yupResolver(schema)
   })
@@ -149,12 +138,10 @@ const LoginPage = () => {
   }, [error, setError])
 
   return (
-    <Box className='content-right'>
+    <Box className='content-right' sx={{ height: '100vh' }}>
       {!hidden ? (
-        <Box sx={{ display: 'flex', position: 'relative', alignItems: 'center', justifyContent: 'center' }}>
-          <LoginIllustrationWrapper>
-            <LoginIllustration alt='login-illustration' src={`/images/pages/${imageSource}.svg`} />
-          </LoginIllustrationWrapper>
+        <Box sx={{ display: 'flex', position: 'relative', alignItems: 'center', justifyContent: 'center', width: '100%' }}>
+          <LoginIllustration alt='login-illustration' src={`/images/pages/chelsea_app_1.svg`} />
         </Box>
       ) : null}
       <RightWrapper sx={skin === 'bordered' && !hidden ? { borderLeft: `1px solid ${theme.palette.divider}` } : {}}>
@@ -192,7 +179,7 @@ const LoginPage = () => {
                     <g id='logo' transform='translate(95.000000, 50.000000)'>
                       <path
                         id='Combined-Shape'
-                        fill={theme.palette.primary.main}
+                        fill={theme.palette.primary.light}
                         d='M30,21.3918362 C30,21.7535219 29.9019196,22.1084381 29.7162004,22.4188007 C29.1490236,23.366632 27.9208668,23.6752135 26.9730355,23.1080366 L26.9730355,23.1080366 L23.714971,21.1584295 C23.1114106,20.7972624 22.7419355,20.1455972 22.7419355,19.4422291 L22.7419355,19.4422291 L22.741,12.7425689 L15,17.1774194 L7.258,12.7425689 L7.25806452,19.4422291 C7.25806452,20.1455972 6.88858935,20.7972624 6.28502902,21.1584295 L3.0269645,23.1080366 C2.07913318,23.6752135 0.850976404,23.366632 0.283799571,22.4188007 C0.0980803893,22.1084381 2.0190442e-15,21.7535219 0,21.3918362 L0,3.58469444 L0.00548573643,3.43543209 L0.00548573643,3.43543209 L0,3.5715689 C3.0881846e-16,2.4669994 0.8954305,1.5715689 2,1.5715689 C2.36889529,1.5715689 2.73060353,1.67359571 3.04512412,1.86636639 L15,9.19354839 L26.9548759,1.86636639 C27.2693965,1.67359571 27.6311047,1.5715689 28,1.5715689 C29.1045695,1.5715689 30,2.4669994 30,3.5715689 L30,3.5715689 Z'
                       />
                       <polygon
@@ -224,7 +211,7 @@ const LoginPage = () => {
                       <path
                         id='Rectangle'
                         fillOpacity='0.15'
-                        fill={theme.palette.common.white}
+                        fill={theme.palette.common.black}
                         d='M3.04512412,1.86636639 L15,9.19354839 L15,9.19354839 L15,17.1774194 L0,8.58649679 L0,3.5715689 C3.0881846e-16,2.4669994 0.8954305,1.5715689 2,1.5715689 C2.36889529,1.5715689 2.73060353,1.67359571 3.04512412,1.86636639 Z'
                       />
                       <path
@@ -266,18 +253,19 @@ const LoginPage = () => {
                     <TextField
                       autoFocus
                       label='Email'
+                      id='login-email'
                       value={value}
                       onBlur={onBlur}
                       onChange={onChange}
+                      disabled={isLoading}
                       error={Boolean(errors.email)}
-                      placeholder='admin@materio.com'
                     />
                   )}
                 />
                 {errors.email && <FormHelperText sx={{ color: 'error.main' }}>{errors.email.message}</FormHelperText>}
               </FormControl>
               <FormControl fullWidth>
-                <InputLabel htmlFor='auth-login-v2-password' error={Boolean(errors.password)}>
+                <InputLabel htmlFor='login-password' error={Boolean(errors.password)}>
                   Password
                 </InputLabel>
                 <Controller
@@ -290,7 +278,8 @@ const LoginPage = () => {
                       onBlur={onBlur}
                       label='Password'
                       onChange={onChange}
-                      id='auth-login-v2-password'
+                      disabled={isLoading}
+                      id='login-password'
                       error={Boolean(errors.password)}
                       type={showPassword ? 'text' : 'password'}
                       endAdornment={

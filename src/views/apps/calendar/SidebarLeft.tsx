@@ -19,6 +19,7 @@ type SidebarLeftType = {
   leftSidebarWidth: number
   handleLeftSidebarToggle: () => void
   handleAddTaskSidebarToggle: () => void
+  setSelectedTask: React.Dispatch<SetStateAction<string[]>>,
 }
 
 
@@ -27,6 +28,7 @@ const SidebarLeft = (props: SidebarLeftType) => {
     mdAbove,
     selectedTasks,
     setSelectedTasks,
+    setSelectedTask,
     calendarsColor,
     leftSidebarOpen,
     leftSidebarWidth,
@@ -59,9 +61,9 @@ const SidebarLeft = (props: SidebarLeftType) => {
     : null
 
   const handleSidebarToggleSidebar = () => {
+    setSelectedTask([])
     handleAddTaskSidebarToggle()
 
-    // dispatch(handleSelectEvent(null))
   }
 
   if (renderFilters) {
