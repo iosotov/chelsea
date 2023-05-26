@@ -280,6 +280,11 @@ export type EnrollmentCancelModel = {
   cancelDisposition: string
 }
 
+export type UpdatePaymentMethodType = {
+  profileId: string
+  paymentMethod: EnrollmentPaymentMethod
+}
+
 export const enrollmentApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
     // ***************************************************** GET enrollment/profileId/profile
@@ -703,6 +708,43 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           await queryFulfilled
         } catch (err: any) {
           console.error('API error in postEnrollmentCancel:', err.error.data.message)
+        }
+      },
+      invalidatesTags: (res, error, arg) =>
+        res
+          ? [
+              { type: 'ENROLLMENT', id: arg.profileId },
+              { type: 'ENROLLMENT-PAYMENT', id: arg.profileId }
+            ]
+          : []
+    }),
+
+    // ***************************************************** PUT enrollment/profileId/profile/payment-method
+    putEnrollmentPaymentMethod: builder.mutation<boolean, UpdatePaymentMethodType>({
+      query: params => {
+        const { profileId, ...body } = params
+
+        return {
+          url: `/enrollment/${profileId}/profile/payment-method`,
+          method: 'PUT',
+          body
+        }
+      },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error updating payment',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success
+      },
+      async onQueryStarted(params, { queryFulfilled }) {
+        try {
+          await queryFulfilled
+        } catch (err: any) {
+          console.error('API error in putPaymentUpdate:', err.error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) =>

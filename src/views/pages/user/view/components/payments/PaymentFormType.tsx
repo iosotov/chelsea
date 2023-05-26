@@ -15,11 +15,11 @@ type Props = {
 const options = [
   {
     label: 'Bank Account',
-    value: 'ach'
+    value: 0
   },
   {
     label: 'Debit Card',
-    value: 'card'
+    value: 1
   }
 ]
 

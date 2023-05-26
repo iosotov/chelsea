@@ -13,19 +13,20 @@ import SingleSelect from 'src/views/shared/form-input/single-select'
 import ToggleSwitch from 'src/views/shared/form-input/toggle-switch'
 
 type Props = {
-  type: string
+  type: number
   data: any
   form: any
+  paymentMethod: number
 }
 
 const paymentTypeOptions = [
   {
     label: 'Bank Account',
-    value: 'ach'
+    value: 0
   },
   {
     label: 'Debit Card',
-    value: 'card'
+    value: 1
   }
 ]
 
@@ -42,7 +43,7 @@ const accountTypeOptions = [
 const cardOptions = [
   {
     label: 'Debit Card',
-    value: 0
+    value: 1
   }
 ]
 
@@ -100,7 +101,7 @@ const stateOptions = [
   { label: 'Wyoming', value: 'WY' }
 ]
 
-export default function PaymentFormSubmit({ type, data, form }: Props): ReactElement {
+export default function PaymentFormSubmit({ type, data, form, paymentMethod }: Props): ReactElement {
   const submitForm = useForm({ defaultValues: { ...data } })
   const { control } = submitForm
 
@@ -108,18 +109,30 @@ export default function PaymentFormSubmit({ type, data, form }: Props): ReactEle
     <Grid container spacing={4}>
       <Grid item xs={12}>
         <Typography variant='h6'>Review</Typography>
-        <ToggleSwitch control={form.control} label='Make Primary Payment Method' name='primaryPayment' defaultChecked />
+        <ToggleSwitch
+          control={form.control}
+          label='Is this the primary payment method?'
+          name='primaryPayment'
+          defaultChecked
+          disabled={paymentMethod === 2}
+        />
       </Grid>
       <Grid item xs={12}>
         <Typography variant='body1'>Payment Type</Typography>
       </Grid>
       <Grid item xs={12} lg={6}>
-        <SingleSelect name='paymentType' label='Payment Type' options={paymentTypeOptions} control={control} disabled />
+        <SingleSelect
+          name='paymentType'
+          label='Payment Type'
+          options={paymentTypeOptions}
+          control={control}
+          InputProps={{ readOnly: true }}
+        />
       </Grid>
       <Grid item xs={12}>
         <Typography variant='body1'>Payment Information</Typography>
       </Grid>
-      {type === 'ach' ? (
+      {type === 0 ? (
         <>
           <Grid item xs={12} lg={6}>
             <SingleSelect
@@ -127,32 +140,44 @@ export default function PaymentFormSubmit({ type, data, form }: Props): ReactEle
               label='Bank Account Type'
               options={accountTypeOptions}
               control={control}
-              disabled
+              InputProps={{ readOnly: true }}
             />
-          </Grid>
-          <Grid item xs={12}>
-            <TextInput name='bankName' label='Bank Name' placeholder='ex: Chase' control={control} disabled />
           </Grid>
           <Grid item xs={12}>
             <TextInput
-              name='bankAccountName'
+              name='bankName'
+              label='Bank Name'
+              placeholder='ex: Chase'
+              control={control}
+              InputProps={{ readOnly: true }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <TextInput
+              name='accountName'
               label='Account Holder'
               placeholder='ex: John Smith'
               control={control}
-              disabled
+              InputProps={{ readOnly: true }}
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextInput name='accountNumber' label='Account Number' control={control} disabled />
+            <TextInput name='accountNumber' label='Account Number' control={control} InputProps={{ readOnly: true }} />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextInput name='routingNumber' label='Routing Number' control={control} disabled />
+            <TextInput name='routingNumber' label='Routing Number' control={control} InputProps={{ readOnly: true }} />
           </Grid>
         </>
       ) : (
         <>
           <Grid item xs={12} lg={6}>
-            <SingleSelect name='type' label='Card Type' options={cardOptions} control={control} disabled />
+            <SingleSelect
+              name='type'
+              label='Card Type'
+              options={cardOptions}
+              control={control}
+              InputProps={{ readOnly: true }}
+            />
           </Grid>
           <Grid item xs={12}>
             <TextInput
@@ -160,17 +185,35 @@ export default function PaymentFormSubmit({ type, data, form }: Props): ReactEle
               label='Card Number'
               placeholder='0000 0000 0000 0000'
               control={control}
-              disabled
+              InputProps={{ readOnly: true }}
             />
           </Grid>
           <Grid item xs={6}>
-            <TextInput name='expiration' label='Expiration Date' placeholder='MM/YYYY' control={control} disabled />
+            <TextInput
+              name='expirationDate'
+              label='Expiration Date'
+              placeholder='MM/YY'
+              control={control}
+              InputProps={{ readOnly: true }}
+            />
           </Grid>
           <Grid item xs={6}>
-            <TextInput name='securityCode' label='CVC/CVV' placeholder='000' control={control} disabled />
+            <TextInput
+              name='securityCode'
+              label='CVC/CVV'
+              placeholder='000'
+              control={control}
+              InputProps={{ readOnly: true }}
+            />
           </Grid>
           <Grid item xs={12}>
-            <TextInput name='name' label='Cardholder Name' placeholder='ex: John Smith' control={control} disabled />
+            <TextInput
+              name='name'
+              label='Cardholder Name'
+              placeholder='ex: John Smith'
+              control={control}
+              InputProps={{ readOnly: true }}
+            />
           </Grid>
         </>
       )}
@@ -178,19 +221,37 @@ export default function PaymentFormSubmit({ type, data, form }: Props): ReactEle
         <Typography variant='body1'>Billing Info</Typography>
       </Grid>
       <Grid item xs={12}>
-        <TextInput name='address' label='Address' control={control} disabled />
+        <TextInput name='address' label='Address' control={control} InputProps={{ readOnly: true }} />
       </Grid>
       <Grid item xs={12}>
-        <TextInput name='address2' label='Address 2' control={control} disabled />
+        <TextInput name='address2' label='Address 2' control={control} InputProps={{ readOnly: true }} />
       </Grid>
       <Grid item xs={12} sm={6}>
-        <TextInput name='city' label='City' placeholder='ex: Churchshire' control={control} disabled />
+        <TextInput
+          name='city'
+          label='City'
+          placeholder='ex: Churchshire'
+          control={control}
+          InputProps={{ readOnly: true }}
+        />
       </Grid>
       <Grid item xs={6} sm={3}>
-        <SingleSelect name='state' label='State' options={stateOptions} control={control} disabled />
+        <SingleSelect
+          name='state'
+          label='State'
+          options={stateOptions}
+          control={control}
+          InputProps={{ readOnly: true }}
+        />
       </Grid>
       <Grid item xs={6} sm={3}>
-        <TextInput name='zipCode' label='Zipcode' placeholder='00000' control={control} disabled />
+        <TextInput
+          name='zipCode'
+          label='Zipcode'
+          placeholder='00000'
+          control={control}
+          InputProps={{ readOnly: true }}
+        />
       </Grid>
     </Grid>
   )

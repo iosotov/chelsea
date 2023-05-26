@@ -15,6 +15,7 @@ type Props = {
   errors?: any
   disabled?: boolean
   placeholder?: string
+  InputProps?: any
 }
 
 export default function SingleSelect({
@@ -25,6 +26,7 @@ export default function SingleSelect({
   required,
   defaultValue,
   errors,
+  InputProps,
   ...props
 }: Props) {
   const generateOptions = () => {
@@ -53,6 +55,7 @@ export default function SingleSelect({
             label={label}
             value={value}
             error={errors ? Boolean(errors[name]) : false}
+            inputProps={InputProps}
             {...props}
           >
             {generateOptions()}
@@ -61,10 +64,10 @@ export default function SingleSelect({
       />
       {errors
         ? errors[name] && (
-          <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-select'>
-            This field is required
-          </FormHelperText>
-        )
+            <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-select'>
+              This field is required
+            </FormHelperText>
+          )
         : null}
     </FormControl>
   )

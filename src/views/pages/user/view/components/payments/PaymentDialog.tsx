@@ -28,12 +28,25 @@ import PaymentFormInformation from './PaymentFormInformation'
 import PaymentFormBilling from './PaymentFormBilling'
 import PaymentFormSubmit from './PaymentFormSubmit'
 
-//Materio Provided Comp
+//Materio Provided Components
 import Icon from 'src/@core/components/icon'
+
+//API Hooks
+import {
+  usePostBankAccountCreateMutation,
+  usePostCreditCardCreateMutation,
+  usePutEnrollmentPaymentMethodMutation
+} from 'src/store/api/apiHooks'
+
+//Types
+import { BankAccountCreateType } from 'src/store/api/bankAccountApiSlice'
+import { CreditCardCreateType } from 'src/store/api/creditCardApiSlice'
 
 type PaymentDialogProps = {
   open: boolean
   handleClose: () => void
+  paymentMethod: number
+  profileId: string
 }
 
 //Custom Styling
@@ -46,7 +59,7 @@ const StepperHeaderContainer = styled(CardContent)<CardContentProps>(({ theme })
   }
 }))
 
-const PaymentDialog = ({ open, handleClose }: PaymentDialogProps): ReactElement => {
+const PaymentDialog = ({ open, handleClose, paymentMethod, profileId }: PaymentDialogProps): ReactElement => {
   const [activeStep, setActiveStep] = useState<number>(0)
 
   const steps = [
@@ -68,8 +81,6 @@ const PaymentDialog = ({ open, handleClose }: PaymentDialogProps): ReactElement 
     }
   ]
 
-  //string arrays used for form validation triggers
-
   const paymentType = useForm()
   const {
     formState: { errors: typeErrors }
@@ -87,6 +98,10 @@ const PaymentDialog = ({ open, handleClose }: PaymentDialogProps): ReactElement 
 
   const paymentSubmit = useForm()
 
+  const [createBank, { isLoading: bankLoading }] = usePostBankAccountCreateMutation()
+  const [createCard, { isLoading: cardLoading }] = usePostCreditCardCreateMutation()
+  const [setMethod, { isLoading: methodLoading }] = usePutEnrollmentPaymentMethodMutation()
+
   const onSubmit = () => {
     const type = paymentType.getValues()
     const info = paymentInfo.getValues()
@@ -100,8 +115,55 @@ const PaymentDialog = ({ open, handleClose }: PaymentDialogProps): ReactElement 
       ...primary
     }
 
-    console.log(data)
-    onDialogClose()
+    const makePrimary: boolean = data.primaryPayment
+    const paymentMethod: number = data.paymentType
+    delete data.paymentType
+    delete data.primaryPayment
+
+    if (type.paymentType === 0) {
+      createBank({ ...data, profileId } as BankAccountCreateType)
+        .unwrap()
+        .then(res => {
+          if (res) {
+            if (makePrimary) {
+              setMethod({ profileId, paymentMethod })
+                .unwrap()
+                .then(res => {
+                  if (res) {
+                    onDialogClose()
+                  }
+                })
+            } else {
+              onDialogClose()
+            }
+          }
+        })
+    } else if (type.paymentType === 1) {
+      data.cardNumber = data.cardNumber.split(' ').join('')
+
+      const [month, year] = data.expirationDate.split('/')
+      data.expirationMonth = month
+      data.expirationYear = year
+      delete data.expirationDate
+
+      createCard({ ...data, profileId } as CreditCardCreateType)
+        .unwrap()
+        .then(res => {
+          if (res) {
+            if (makePrimary) {
+              setMethod({ profileId, paymentMethod })
+                .unwrap()
+                .then(res => {
+                  if (res) {
+                    onDialogClose()
+                  }
+                })
+            } else {
+              onDialogClose()
+            }
+          }
+        })
+    }
   }
 
   const handleNext = () => {
@@ -114,7 +176,6 @@ const PaymentDialog = ({ open, handleClose }: PaymentDialogProps): ReactElement 
   }
 
   const onDialogClose = () => {
-    console.log('closed')
     handleClose()
     paymentType.reset()
     paymentInfo.reset()
@@ -148,7 +209,14 @@ const PaymentDialog = ({ open, handleClose }: PaymentDialogProps): ReactElement 
 
         const data = { ...type, ...info, ...bill }
 
-        return <PaymentFormSubmit type={paymentType.getValues('paymentType')} form={paymentSubmit} data={data} />
+        return (
+          <PaymentFormSubmit
+            type={paymentType.getValues('paymentType')}
+            form={paymentSubmit}
+            data={data}
+            paymentMethod={paymentMethod}
+          />
+        )
       default:
         return null
     }
@@ -181,8 +249,9 @@ const PaymentDialog = ({ open, handleClose }: PaymentDialogProps): ReactElement 
           color={stepCondition ? 'success' : 'primary'}
           {...(!stepCondition ? { endIcon: <Icon icon='mdi:arrow-right' /> } : {})}
           onClick={handleTrigger}
+          disabled={bankLoading || cardLoading || methodLoading}
         >
-          {stepCondition ? 'Submit' : 'Next'}
+          {stepCondition ? (bankLoading || cardLoading || methodLoading ? 'Saving...' : 'Submit') : 'Next'}
         </Button>
       </Box>
     )

@@ -75,7 +75,7 @@ export type BankingOrCreditCardType = {
   firstName?: string
   lastName?: string
   expYear?: string
-  paymentType?: 'card'
+  paymentType?: 'card' | 'ach'
 }
 
 export const selectPaymentsByProfileId = createSelector(

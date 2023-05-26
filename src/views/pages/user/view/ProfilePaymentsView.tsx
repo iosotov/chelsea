@@ -1,53 +1,50 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 
+//MUI
+import Alert from '@mui/material/Alert'
+import AlertTitle from '@mui/material/AlertTitle'
 import Box from '@mui/material/Box'
+import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
+import CardContent from '@mui/material/CardContent'
+import CardHeader from '@mui/material/CardHeader'
 import Collapse from '@mui/material/Collapse'
 import Grid from '@mui/material/Grid'
-import CardContent from '@mui/material/CardContent'
-import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
-
-// ** MUI Imports
+import IconButton from '@mui/material/IconButton'
+import LinearProgress from '@mui/material/LinearProgress'
 import Toolbar from '@mui/material/Toolbar'
 import Tooltip from '@mui/material/Tooltip'
-import { alpha } from '@mui/material/styles'
-import IconButton from '@mui/material/IconButton'
+import Typography from '@mui/material/Typography'
+
+//MUI Grid Pro
+import { DataGridPro, GridColDef, GridValueFormatterParams, GridRowId } from '@mui/x-data-grid-pro'
 
 // ** Custom Components Imports
 import Icon from 'src/@core/components/icon'
-import Alert from '@mui/material/Alert'
-import AlertTitle from '@mui/material/AlertTitle'
-import LinearProgress from '@mui/material/LinearProgress'
-import { CardHeader } from '@mui/material'
-
-
+import { alpha } from '@mui/material/styles'
 import CustomChip from 'src/@core/components/mui/chip'
 import TransactionDialog from './components/payments/TransactionDialog'
 
+//API Hooks
 import { useAppSelector } from 'src/store/hooks'
-import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
-import { BankingOrCreditCardType } from 'src/store/bankAccountSlice'
-import { selectPaymentByProfileId } from 'src/store/paymentSlice'
 import {
   useGetBankAccountsQuery,
   useGetCreditCardsQuery,
   useGetProfileLiabilitiesQuery,
   useGetProfilePaymentsQuery
 } from 'src/store/api/apiHooks'
-import { selectLiabilityByProfileId } from 'src/store/liabilitySlice'
 
+//API Slices
+import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
+import { BankingOrCreditCardType } from 'src/store/bankAccountSlice'
+import { selectPaymentByProfileId } from 'src/store/paymentSlice'
+import { selectLiabilityByProfileId } from 'src/store/liabilitySlice'
+import { selectPaymentsByProfileId } from 'src/store/bankAccountSlice'
+import { PaymentDetailInfoModel } from 'src/store/api/enrollmentApiSlice'
+
+//Utils
 import MoneyConverter from 'src/views/shared/utils/money-converter'
 import DateConverter from 'src/views/shared/utils/date-converter'
-
-import { PaymentDetailInfoModel } from 'src/store/api/enrollmentApiSlice'
-import { selectPaymentsByProfileId } from 'src/store/bankAccountSlice'
-
-//test
-import { DataGridPro, GridColDef, GridValueFormatterParams, GridRowId } from '@mui/x-data-grid-pro'
-
-//Table Types
-// type Order = 'asc' | 'desc'
 
 //Dynamic Imports
 import dynamic from 'next/dynamic'
@@ -55,16 +52,6 @@ import dynamic from 'next/dynamic'
 const PaymentDialog = dynamic(() => import('./components/payments/PaymentDialog'))
 const EnrollmentDialog = dynamic(() => import('./components/payments/EnrollmentDialog'))
 const EditPaymentDialog = dynamic(() => import('./components/payments/EditPaymentDialog'))
-
-// interface TableData {
-//   processedDate: string
-//   amount: number
-//   clearedDate: number
-//   status: string
-//   memo: string
-//   description: string
-//   paymentTypeName: string
-// }
 
 interface EnhancedTableToolbarProps {
   numSelected: number
@@ -74,8 +61,9 @@ interface EnhancedTableToolbarProps {
   enrollmentId: string
 }
 
+const PaymentMethodDictionary = ['ACH', 'Credit', 'None']
+
 const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
-  // ** Prop
   const { numSelected, handleAdd, handleEdit, payments, enrollmentId } = props
 
   return (
@@ -121,27 +109,24 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
 }
 
 function Overview({ enrollmentData, paymentData, id }: any) {
-  //toggles alert
   const [alert, setAlert] = useState<boolean>(true)
-
-  //toggles for type of alert
-  const error = useRef<boolean>(false)
-
-  useGetProfileLiabilitiesQuery(id)
-  const debts = useAppSelector(state => selectLiabilityByProfileId(state, id))
-
-  useEffect(() => {
-    if ((enrollmentData && enrollmentData.enrollmentId === null) || Object.keys(paymentData).length === 0) {
-      error.current = true
-    } else {
-      error.current = false
-    }
-  }, [enrollmentData, paymentData])
-
-  console.log('overview', { paymentData, error, alert })
+  const [error, setError] = useState<boolean>(false)
 
   const [enrollmentModal, setEnrollmentModal] = useState<boolean>(false)
   const toggleEnrollment = () => setEnrollmentModal(!enrollmentModal)
+
+  //debts
+  useGetProfileLiabilitiesQuery(id)
+  const debts = useAppSelector(state => selectLiabilityByProfileId(state, id))
+  const enrolledDebts = useMemo(() => debts.filter(debt => debt.enrolled === true), [debts])
+
+  useEffect(() => {
+    if ((enrollmentData && enrollmentData.enrollmentId === null) || Object.keys(paymentData).length === 0) {
+      setError(true)
+    } else {
+      setError(false)
+    }
+  }, [enrollmentData, paymentData])
 
   return (
     <>
@@ -152,7 +137,7 @@ function Overview({ enrollmentData, paymentData, id }: any) {
             action={
               <Button
                 variant='contained'
-                disabled={!enrollmentData?.enrollmentId}
+                disabled={enrolledDebts.length === 0}
                 onClick={toggleEnrollment}
                 size='small'
                 sx={{ '& svg': { mr: 1 } }}
@@ -170,7 +155,7 @@ function Overview({ enrollmentData, paymentData, id }: any) {
                     <Typography component='span' sx={{ fontWeight: 600 }}>
                       {MoneyConverter(
                         (enrollmentData?.enrollmentFee * Number(enrollmentData?.enrolledBalance)) /
-                        enrollmentData?.programLength
+                          enrollmentData?.programLength
                       )}
                     </Typography>
                   </Typography>
@@ -185,7 +170,7 @@ function Overview({ enrollmentData, paymentData, id }: any) {
                   <Typography variant='body2'>
                     Number of Enrolled Debts:{' '}
                     <Typography component='span' sx={{ fontWeight: 600 }}>
-                      {debts?.filter(debt => debt.enrolled).length ?? 'N/A'}
+                      {enrolledDebts.length ?? 'N/A'}
                     </Typography>
                   </Typography>
                   <Typography variant='body2'>
@@ -214,7 +199,7 @@ function Overview({ enrollmentData, paymentData, id }: any) {
                 <Collapse in={alert}>
                   <Alert
                     icon={false}
-                    severity={error.current ? 'warning' : 'success'}
+                    severity={error ? 'warning' : 'success'}
                     action={
                       <IconButton size='small' color='inherit' aria-label='close' onClick={() => setAlert(false)}>
                         <Icon icon='mdi:close' fontSize='inherit' />
@@ -225,9 +210,9 @@ function Overview({ enrollmentData, paymentData, id }: any) {
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <AlertTitle>{error ? 'Attention!' : 'No Attention Needed'}</AlertTitle>
                     </Box>
-                    {error.current ? (
+                    {error ? (
                       <>
-                        {debts?.length === 0 ? (
+                        {enrolledDebts.length === 0 ? (
                           <Box sx={{ display: 'flex', alignContent: 'center' }}>
                             <Icon icon='ph:dot-outline-fill' />
                             <Typography variant='body2' color='inherit'>
@@ -266,10 +251,6 @@ function Overview({ enrollmentData, paymentData, id }: any) {
                     ) : (
                       'No issues with account payments.'
                     )}
-                    {/* Payment status is currently{' '}
-                    <Typography component='span' sx={{ fontSize: 'inherit', color: 'inherit', fontWeight: 600 }}>
-                      {AlertType}
-                    </Typography> */}
                   </Alert>
                 </Collapse>
                 <Box>
@@ -301,12 +282,10 @@ function Overview({ enrollmentData, paymentData, id }: any) {
   )
 }
 
-function PaymentMethod({ paymentData, enrollmentData }: { paymentData: any; enrollmentData: any }) {
+function PaymentMethod({ paymentData, enrollmentData, id }: { paymentData: any; enrollmentData: any; id: string }) {
   const [paymentModal, setPaymentModal] = useState<boolean>(false)
   const [editModal, setEditModal] = useState<boolean>(false)
   const [dialogData, setDialogData] = useState(paymentData)
-
-  console.log('rerender payment method')
 
   const togglePayment = () => setPaymentModal(!paymentModal)
 
@@ -381,8 +360,9 @@ function PaymentMethod({ paymentData, enrollmentData }: { paymentData: any; enro
                       ) : null} */}
                     </Box>
                     <Typography variant='body2'>
-                      {item.cardNumber && item.cardNumber.substring(item.cardNumber.length - 4)}
-                      {item.bankAccountNumber && item.bankAccountNumber.substring(item.bankAccountNumber.length - 4)}
+                      {item.cardNumber && '**** **** **** ' + item.cardNumber.substring(item.cardNumber.length - 4)}
+                      {item.bankAccountNumber &&
+                        '**********' + item.bankAccountNumber.substring(item.bankAccountNumber.length - 4)}
                     </Typography>
                   </Box>
                   <Box sx={{ mt: [3, 0], textAlign: ['start', 'end'] }}>
@@ -416,7 +396,14 @@ function PaymentMethod({ paymentData, enrollmentData }: { paymentData: any; enro
           </CardContent>
         </Card>
       </Grid>
-      {paymentModal && <PaymentDialog open={paymentModal} handleClose={togglePayment} />}
+      {paymentModal && (
+        <PaymentDialog
+          open={paymentModal}
+          handleClose={togglePayment}
+          paymentMethod={enrollmentData.paymentMethod}
+          profileId={id}
+        />
+      )}
       {editModal && <EditPaymentDialog open={editModal} handleClose={toggleEdit} data={dialogData} />}
     </>
   )
@@ -460,7 +447,7 @@ const EnhancedTable = ({
     toggleDialog()
   }
 
-  type ChipColor = "info" | "primary" | "success" | "error" | "warning"
+  type ChipColor = 'info' | 'primary' | 'success' | 'error' | 'warning'
 
   const chipDictionary: ChipColor[] = [
     'info',
@@ -555,12 +542,15 @@ const EnhancedTable = ({
       pinnable: false
     },
     {
-      field: 'paymentTypeName',
-      headerName: 'Payment Type',
+      field: 'paymentMethod',
+      headerName: 'Payment Method',
       headerAlign: 'center',
       align: 'center',
       minWidth: 225,
-      pinnable: false
+      pinnable: false,
+      valueGetter: params => {
+        return PaymentMethodDictionary[params.value]
+      }
     }
   ]
 
@@ -624,7 +614,7 @@ export default function ProfilePayments({ id: profileId }: ProfileProps) {
       {bankSuccess && cardSuccess && enrollmentData && (
         <Grid container spacing={4}>
           <Overview enrollmentData={enrollmentData} paymentData={paymentData} id={profileId} />
-          <PaymentMethod paymentData={paymentData} enrollmentData={enrollmentData} />
+          <PaymentMethod paymentData={paymentData} enrollmentData={enrollmentData} id={profileId} />
           <EnhancedTable enrollmentData={enrollmentData} paymentData={paymentData?.length ?? 0} id={profileId} />
         </Grid>
       )}
