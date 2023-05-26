@@ -1077,7 +1077,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         } catch (err: any) {
           console.error('API error in getProfileSSN:', err.error.data.message)
         }
-      }
+      },
+      providesTags: (res, error, arg) => (res ? [{ type: 'PROFILE', id: arg }] : [])
     })
   })
 })
