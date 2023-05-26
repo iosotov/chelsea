@@ -37,6 +37,7 @@ export type ProfileInfoType = {
   lastPaymentAmount: string
   lastPaymentStatus: string
   lastPaymentStatusName: string
+  last4SSN: string
 
   profileContacts: ProfileContactType[]
   profileAddresses: ProfileAddressType[]
