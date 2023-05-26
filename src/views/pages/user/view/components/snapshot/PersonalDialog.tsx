@@ -27,6 +27,7 @@ import Icon from 'src/@core/components/icon'
 //API Hooks
 import { useAppSelector } from 'src/store/hooks'
 import { useGetCampaignsQuery, usePutProfileUpdateMutation } from 'src/store/api/apiHooks'
+import { useGetProfileSSNQuery } from 'src/store/api/apiHooks'
 
 //API Slices
 import { selectAllCampaigns } from 'src/store/campaignSlice'
@@ -114,63 +115,29 @@ const stateOptions = [
 export default function PersonalDialog({ open, toggle, data }: Props): ReactElement {
   //assign basevalue of empty string rather than null for react hook forms
 
-  const campaigns = useAppSelector(state => selectAllCampaigns(state))
-
-  const { isSuccess } = useGetCampaignsQuery(
-    {
-      length: 10000,
-      order: [
-        {
-          columnName: 'campaignName',
-          direction: 0
-        }
-      ],
-      start: 0
-    },
-    { skip: !open }
-  )
-
-  const [campaignOptions, setCampaignOptions] = useState<SingleSelectOption[]>([])
-
-  const [editProfile, editProfileStatus] = usePutProfileUpdateMutation()
-
-  const { isSuccess: editProfileSuccess } = editProfileStatus
-
-  useEffect(() => {
-    if (campaigns.length > 0) {
-      const mappedCampaigns = campaigns.map((campaign: CampaignType) => {
-        const { displayName, campaignId, companyName } = campaign
-
-        return {
-          label: `${displayName} - ${companyName}`,
-          value: campaignId
-        }
-      })
-      setCampaignOptions(mappedCampaigns)
-    }
-  }, [campaigns])
-
   const {
     campaignId = '',
     firstName = '',
     lastName = '',
     middleName = '',
     birthdate = '',
-    ssn = '',
     gender = 0,
     profileAddresses = [],
     profileContacts = [],
     profileId
   } = data
 
-  // call api for
+  const { data: encryptedSSN, isSuccess: ssnQuerySuccess } = useGetProfileSSNQuery(profileId, {
+    skip: !profileId || !open
+  })
+
   const personalForm = useForm({
     defaultValues: {
       campaignId: campaignId,
       firstName,
       lastName,
       middleName,
-      ssn,
+      ssn: '',
       gender,
       birthdate: new Date(birthdate),
       address1: profileAddresses?.[0]?.address1,
@@ -192,6 +159,49 @@ export default function PersonalDialog({ open, toggle, data }: Props): ReactElem
     setValue,
     getValues
   } = personalForm
+
+  const [campaignOptions, setCampaignOptions] = useState<SingleSelectOption[]>([])
+
+  //API
+  const [editProfile, editProfileStatus] = usePutProfileUpdateMutation()
+  const { isSuccess: editProfileSuccess } = editProfileStatus
+
+  const { isSuccess } = useGetCampaignsQuery(
+    {
+      length: 10000,
+      order: [
+        {
+          columnName: 'campaignName',
+          direction: 0
+        }
+      ],
+      start: 0
+    },
+    { skip: !open }
+  )
+
+  //Redux
+  const campaigns = useAppSelector(state => selectAllCampaigns(state))
+
+  useEffect(() => {
+    if (ssnQuerySuccess) {
+      setValue('ssn', encryptedSSN)
+    }
+  }, [ssnQuerySuccess, setValue, encryptedSSN])
+
+  useEffect(() => {
+    if (campaigns.length > 0) {
+      const mappedCampaigns = campaigns.map((campaign: CampaignType) => {
+        const { displayName, campaignId, companyName } = campaign
+
+        return {
+          label: `${displayName} - ${companyName}`,
+          value: campaignId
+        }
+      })
+      setCampaignOptions(mappedCampaigns)
+    }
+  }, [campaigns])
 
   const onClose = () => {
     toggle()

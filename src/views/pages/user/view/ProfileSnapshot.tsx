@@ -44,6 +44,7 @@ import { useAppSelector } from 'src/store/hooks'
 import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
 import {
   useGetEnrollmentQuery,
+  useGetProfileSSNQuery,
   usePostEnrollmentCancelMutation,
   usePostEnrollmentPauseMutation,
   usePostEnrollmentResumeMutation,
@@ -302,7 +303,7 @@ const ProfileInfo = ({
   )
 }
 
-type StatusColor = 'secondary' | 'success' | 'info' | "warning" | 'primary' | 'error'
+type StatusColor = 'secondary' | 'success' | 'info' | 'warning' | 'primary' | 'error'
 const statusDictionary: StatusColor[] = [
   'secondary',
   'success',
@@ -325,8 +326,6 @@ const ProfileTitle = ({
   statusName,
   status
 }: ProfileTitleProps): ReactElement => {
-
-
   const [anchor, setAnchor] = useState<HTMLElement | null>(null)
   const menuClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchor(event.currentTarget)
@@ -588,7 +587,25 @@ const ProfileDetails = ({
 }
 
 const PersonalInfo = ({ data }: PersonalInfoProps): ReactElement => {
-  const { birthdate, ssn, genderName, profileContacts, profileAddresses } = data
+  const { birthdate, last4SSN, genderName, profileContacts, profileAddresses, profileId } = data
+
+  const confirm = useConfirm()
+  const [revealSSN, setRevealSSN] = useState<boolean>(false)
+
+  const { data: ssn, isSuccess } = useGetProfileSSNQuery(profileId, { skip: !revealSSN })
+
+  const toggleSSN = () => {
+    if (!revealSSN) {
+      confirm({
+        title: 'Confirmation',
+        description: 'Reveal profile SSN?',
+        confirmationText: 'Accept',
+        dialogProps: { maxWidth: 'xs' }
+      }).then(() => setRevealSSN(!revealSSN))
+    } else {
+      setRevealSSN(false)
+    }
+  }
 
   const [personalDialog, setPersonalDialog] = useState<boolean>(false)
   const togglePersonal = () => setPersonalDialog(!personalDialog)
@@ -614,7 +631,18 @@ const PersonalInfo = ({ data }: PersonalInfoProps): ReactElement => {
             </Box>
             <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
               <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>SSN:</Typography>
-              <Typography variant='body2'>{ssn ?? 'N/A'}</Typography>
+              <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+                {last4SSN && (
+                  <IconButton onClick={toggleSSN} size='small'>
+                    <Icon icon={revealSSN ? 'mdi:eye' : 'basil:eye-closed-outline'} />
+                  </IconButton>
+                )}
+                {isSuccess ? (
+                  <Typography variant='body2'>{ssn ?? 'N/A'}</Typography>
+                ) : (
+                  <Typography variant='body2'>{`XXX-XX-${last4SSN}` ?? 'N/A'}</Typography>
+                )}
+              </Box>
             </Box>
             <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
               <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>Gender:</Typography>
@@ -700,8 +728,8 @@ const EnrollmentInfo = ({ profileId }: EnrollmentInfoProps): ReactElement => {
               {!enrollmentData?.firstPaymentDate && !enrollmentData?.firstPaymentAmount
                 ? 'N/A'
                 : `${DateConverter(enrollmentData?.firstPaymentDate)} - ${MoneyConverter(
-                  enrollmentData?.firstPaymentAmount
-                )}`}
+                    enrollmentData?.firstPaymentAmount
+                  )}`}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
@@ -710,8 +738,8 @@ const EnrollmentInfo = ({ profileId }: EnrollmentInfoProps): ReactElement => {
               {!enrollmentData?.lastPaymentDate && !enrollmentData?.lastPaymentAmount
                 ? 'N/A'
                 : `${DateConverter(enrollmentData?.lastPaymentDate)} - ${MoneyConverter(
-                  enrollmentData?.lastPaymentAmount
-                )}`}
+                    enrollmentData?.lastPaymentAmount
+                  )}`}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
@@ -726,8 +754,8 @@ const EnrollmentInfo = ({ profileId }: EnrollmentInfoProps): ReactElement => {
               {!enrollmentData?.nextPaymentDate && !enrollmentData?.nextPaymentAmount
                 ? 'N/A'
                 : `${DateConverter(enrollmentData?.nextPaymentDate)} - ${MoneyConverter(
-                  enrollmentData?.nextPaymentAmount
-                )}`}
+                    enrollmentData?.nextPaymentAmount
+                  )}`}
             </Typography>
           </Box>
         </Box>
