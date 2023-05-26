@@ -272,20 +272,10 @@ export type ProfileBasicType = {
   stageStatusName: string
 }
 
-export type ProfileEncryptedSSNType = {
-  ssn: string
-}
-
-export type ProfileEncryptedSSNFullType = {
-  profileId: string
-  firstName: string
-  lastName: string
-  middleName: string
-  gender: number
-  genderName: string
-  birthdate: string
-  ssn: string
-}
+// For when data object returned by SSN API gets turned to object.
+// export type ProfileEncryptedSSNType = {
+//   ssn: string
+// }
 
 export const profileApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
@@ -998,7 +988,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: LunaResponseType) => {
         if (!res.success) return null
 
-        return res.data.map(e => e.ssn)
+        return res.data
       },
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
@@ -1060,7 +1050,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
             ]
           : []
     }),
-    getProfileSSN: builder.query<ProfileEncryptedSSNType | null, string>({
+    getProfileSSN: builder.query<string, string>({
       query: profileId => ({
         url: `/profile/${profileId}/reveal-ssn`,
         method: 'GET'
@@ -1075,7 +1065,9 @@ export const profileApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: LunaResponseType) => {
         if (!res.success) return null
 
-        //data might change from object to string
+        //api data will change from loose string to data object
+        // return res.data.ssn
+
         return res.data
       },
       async onQueryStarted(searchParams, { dispatch, queryFulfilled }) {
