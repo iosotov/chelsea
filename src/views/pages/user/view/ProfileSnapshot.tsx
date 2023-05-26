@@ -58,6 +58,7 @@ import {
 //Third Party Imports
 import { useConfirm } from 'material-ui-confirm'
 
+
 //Entire View
 type Props = {
   data: ProfileInfoType

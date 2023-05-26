@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { Divider, List, ListItem, ListItemText } from '@mui/material'
+import { Stack, Typography } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import Select from '@mui/material/Select'
@@ -25,7 +25,7 @@ import {
 } from 'src/store/api/apiHooks'
 
 import { useAppSelector } from 'src/store/hooks'
-import { selectNotesByProfileId, selectPinnedNotesByProfileId } from 'src/store/noteSlice'
+import { selectNotesByProfileId } from 'src/store/noteSlice'
 import { selectAllEmployees } from 'src/store/employeeSlice'
 
 // ** Third Party Imports
@@ -36,10 +36,9 @@ import 'react-credit-cards/es/styles-compiled.css'
 import { NoteCreateType } from 'src/store/api/noteApiSlice'
 import { selectTemplatesByType } from 'src/store/templateSlice'
 import { store } from 'src/store/store'
-import { DataGridPro, GridColDef, GridRowId, GridValueGetterParams } from '@mui/x-data-grid-pro'
+import { DataGridPro, GridColDef, GridRowId } from '@mui/x-data-grid-pro'
 import { toast } from 'react-hot-toast'
 import { format } from 'date-fns'
-import CloseIcon from '@mui/icons-material/Close';
 
 const defaultValues = {
   content: '',
@@ -75,7 +74,6 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
   const profileNotes = useAppSelector(state => selectNotesByProfileId(state, profileId))
   const noteTemplates = useAppSelector(state => selectTemplatesByType(state, 3))
   const users = useAppSelector(state => selectAllEmployees(state))
-  const pinnedNotes = useAppSelector(state => selectPinnedNotesByProfileId(state, profileId))
 
   // LOCAL STATE
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([])
@@ -137,34 +135,39 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
       field: 'type',
       headerName: 'Type',
       width: 90,
-      valueGetter: (params: GridValueGetterParams) => `${params.row.type || "General"}`
+      renderCell: params => (
+        <Stack>
+          <Typography variant='body2'>{params.row.type || "General"}</Typography>
+        </Stack>
+      )
     },
     {
+      flex: 1.5,
       field: 'content',
       headerName: 'Message',
-      width: 190
+      width: 190,
+      renderCell: params => (
+        <Stack>
+          <Typography sx={{ overflow: "wrap" }} variant='body2'>{params.row.content}</Typography>
+        </Stack>
+      )
     },
     {
-      field: 'createdAt',
-      headerName: 'created At',
-      valueGetter: (params) => format(new Date(params.value), "MM/dd/yyyy"),
-      width: 150
-    },
-    {
+      flex: .5,
       field: 'createdByName',
-      headerName: 'created By Name',
-      width: 150
+      headerName: 'created By',
+      minWidth: 150,
+      renderCell: params => (
+        <Stack>
+          <Typography variant='body2'>{params.row.createdByName}</Typography>
+          <Typography variant='body2'>{format(new Date(params.row.createdAt), "MM/dd/yyyy")}</Typography>
+        </Stack>
+      )
     },
-    {
-      field: 'important',
-      headerName: 'Important',
-      width: 110
-    },
-
     {
       field: 'Pin Note',
-
-      width: 70,
+      flex: .25,
+      minWidth: 70,
       renderCell: params => (
         <IconButton
           size='small'
@@ -180,7 +183,8 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
     {
       field: 'Delete',
 
-      width: 70,
+      flex: .25,
+      minWidth: 70,
       renderCell: params => (
         <IconButton
           size='small'
@@ -202,36 +206,6 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
 
   return (
     <>
-      <Card>
-        <CardHeader title='Pinned Notes' />
-        <CardContent>
-          <List >
-            <Divider />
-            {pinnedNotes.map(n => {
-              return (
-                <>
-                  <ListItem
-                    key={n.noteId}
-                    secondaryAction={
-                      <IconButton disabled={updateLoading} onClick={() => handleUpdateImportant(n.noteId)} edge="end" aria-label="delete">
-                        <CloseIcon />
-                      </IconButton>
-                    }
-                  >
-                    <ListItemText
-                      primary={n.content}
-                      secondary={n.type || "General"}
-                    />
-                  </ListItem>
-                  <Divider />
-                </>
-              )
-            })}
-          </List>
-        </CardContent>
-      </Card>
-
-      <br></br>
       <Card>
         <CardHeader title='Create Note' />
         <CardContent>
@@ -330,9 +304,7 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
                   />
                 </FormControl>
               </Grid>
-
               <Grid item xs={12} textAlign={'right'}>
-
                 <Button
                   size='large'
                   disabled={dialogMode || createLoading}
@@ -368,6 +340,7 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
               console.log(props)
             }}
               rowSelectionModel={selectionModel}
+              rowHeight={100}
               getRowId={r => r.noteId} rows={profileNotes} columns={columns} sx={{ mt: 7 }} />
           </Box>
         </CardContent>
