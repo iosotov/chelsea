@@ -311,21 +311,6 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
                 )}
               </FormControl>
             )}
-            {/* {formMode < 2 && <FormControl fullWidth sx={{ mb: 6 }}>
-              <Controller
-                name='taskName'
-                control={control}
-                rules={{ required: true }}
-                render={({ field: { value, onChange } }) => (
-                  <TextField disabled={formMode === 2} label='Name' value={value} onChange={onChange} error={Boolean(errors.taskName)} />
-                )}
-              />
-              {errors.taskName && (
-                <FormHelperText sx={{ color: 'error.main' }} id='event-taskName-error'>
-                  This field is required
-                </FormHelperText>
-              )}
-            </FormControl>} */}
             <Box sx={{ mb: 6 }}>
               <Controller
                 control={control}

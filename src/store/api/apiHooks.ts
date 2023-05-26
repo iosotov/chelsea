@@ -593,6 +593,14 @@ export const {
 // ********************************************** TEMPLATE
 
 export const {
+  // GET template/templateId/info
+  useGetTemplateQuery,
+  useLazyGetTemplateQuery,
+
+  // POST template/templateId/render
+  usePostTemplateRenderQuery,
+  useLazyPostTemplateRenderQuery,
+
   // POST template
   usePostTemplateCreateMutation,
 
