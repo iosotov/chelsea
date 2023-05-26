@@ -187,7 +187,7 @@ export default function PersonalDialog({ open, toggle, data }: Props): ReactElem
     if (ssnQuerySuccess) {
       setValue('ssn', encryptedSSN)
     }
-  }, [ssnQuerySuccess, setValue])
+  }, [ssnQuerySuccess, setValue, encryptedSSN])
 
   useEffect(() => {
     if (campaigns.length > 0) {
