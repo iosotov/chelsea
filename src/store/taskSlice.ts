@@ -5,7 +5,13 @@ import { RootState } from './store'
 import { TaskType } from './api/taskApiSlice'
 
 const taskAdapter = createEntityAdapter({
-  selectId: (task: TaskType) => task.taskId
+  selectId: (task: TaskType) => task.taskId,
+  sortComparer: (a: TaskType, b: TaskType) => {
+    const dateA = new Date(a.dueDate)
+    const dateB = new Date(b.dueDate)
+
+    return dateB.getTime() - dateA.getTime()
+  }
 })
 
 const initialState = taskAdapter.getInitialState()

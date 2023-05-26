@@ -40,8 +40,8 @@ import TableColumns from './components/document/table'
 
 //API calls
 import { useAppSelector } from 'src/store/hooks'
-import { selectDocumentsByProfileId } from 'src/store/documentSlice'
-import { useGetDocumentsQuery } from 'src/store/api/apiHooks'
+import { selectDocumentsByProfileIdAndType } from 'src/store/documentSlice'
+import { useGetDocumentsQuery, usePostEmployeeSearchQuery } from 'src/store/api/apiHooks'
 
 const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
   '& .MuiTabs-indicator': {
@@ -60,7 +60,7 @@ const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
   }
 }))
 
-export default function ProfileDocuments({ id }: { id: string | string[] }) {
+export default function ProfileDocuments({ id }: { id: string }) {
   const [openUploadDialog, setUploadDialog] = useState<boolean>(false)
   const [openGenerateDrawer, setGenerateDrawer] = useState<boolean>(false)
   const [tab, setTab] = useState<string>('esign')
@@ -68,8 +68,12 @@ export default function ProfileDocuments({ id }: { id: string | string[] }) {
 
   //rows for tables
 
-  useGetDocumentsQuery(String(id))
-  const data = useAppSelector(state => selectDocumentsByProfileId(state, String(id)))
+  const { isSuccess: docSuccess } = useGetDocumentsQuery(id, { skip: !id })
+  const { isSuccess: employeeSuccess } = usePostEmployeeSearchQuery({})
+
+  const esignDocs = useAppSelector(state => selectDocumentsByProfileIdAndType(state, id, 1))
+  const generateDocs = useAppSelector(state => selectDocumentsByProfileIdAndType(state, id, 3))
+  const uploadedDocs = useAppSelector(state => selectDocumentsByProfileIdAndType(state, id, 0))
 
   //toggles Upload Dialog
   const toggleDialog = () => setUploadDialog(!openUploadDialog)
@@ -92,7 +96,7 @@ export default function ProfileDocuments({ id }: { id: string | string[] }) {
           <Card>
             <CardContent>
               <Typography variant='caption'>E-Sign Contracts</Typography>
-              <Typography variant='h4'>{data.filter(e => e.type === 1).length}</Typography>
+              <Typography variant='h4'>{esignDocs.length}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -100,7 +104,7 @@ export default function ProfileDocuments({ id }: { id: string | string[] }) {
           <Card>
             <CardContent>
               <Typography variant='caption'>Generated Docs</Typography>
-              <Typography variant='h4'>{data.filter(e => e.type === 3).length}</Typography>
+              <Typography variant='h4'>{generateDocs.length}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -108,7 +112,7 @@ export default function ProfileDocuments({ id }: { id: string | string[] }) {
           <Card>
             <CardContent>
               <Typography variant='caption'>Uploaded Docs</Typography>
-              <Typography variant='h4'>{data.filter(e => e.type === 0).length}</Typography>
+              <Typography variant='h4'>{uploadedDocs.length}</Typography>
             </CardContent>
           </Card>
         </Grid>
@@ -119,7 +123,7 @@ export default function ProfileDocuments({ id }: { id: string | string[] }) {
                 <Button startIcon={<Icon icon='mdi:file-document-plus-outline' />} onClick={toggleDrawer}>
                   Generate
                 </Button>
-                <Button startIcon={<Icon icon='mdi:file-upload-outline' />} onClick={toggleDialog}>
+                <Button startIcon={<Icon icon='mdi:file-upload-outline' />} disabled onClick={toggleDialog}>
                   Upload
                 </Button>
               </Box>
@@ -140,13 +144,13 @@ export default function ProfileDocuments({ id }: { id: string | string[] }) {
                   ) : (
                     <>
                       <TabPanel value='esign'>
-                        <TableColumns rows={data.filter(e => e.type === 1)} />
+                        {docSuccess && employeeSuccess && <TableColumns rows={esignDocs} />}
                       </TabPanel>
                       <TabPanel value='generated'>
-                        <TableColumns rows={data.filter(e => e.type === 3)} />
+                        {docSuccess && employeeSuccess && <TableColumns rows={generateDocs} />}
                       </TabPanel>
                       <TabPanel value='uploaded'>
-                        <TableColumns rows={data.filter(e => e.type === 0)} />
+                        {docSuccess && employeeSuccess && <TableColumns rows={uploadedDocs} />}
                       </TabPanel>
                     </>
                   )}
@@ -156,7 +160,7 @@ export default function ProfileDocuments({ id }: { id: string | string[] }) {
           </Card>
         </Grid>
       </Grid>
-      <GenerateSidebar open={openGenerateDrawer} toggle={toggleDrawer} />
+      <GenerateSidebar open={openGenerateDrawer} toggle={toggleDrawer} profileId={id} />
       <UploadDialog open={openUploadDialog} toggle={toggleDialog} />
     </TabContext>
   )
@@ -248,6 +252,7 @@ const UploadDialog = ({ open, toggle }: DialogProps) => {
           <IconButton
             aria-label='close'
             onClick={toggle}
+
             sx={{
               position: 'absolute',
               right: 8,
