@@ -638,7 +638,7 @@ const PersonalInfo = ({ data }: PersonalInfoProps): ReactElement => {
                   </IconButton>
                 )}
                 {isSuccess ? (
-                  <Typography variant='body2'>{ssn}</Typography>
+                  <Typography variant='body2'>{ssn ?? 'N/A'}</Typography>
                 ) : (
                   <Typography variant='body2'>{`XXX-XX-${last4SSN}` ?? 'N/A'}</Typography>
                 )}

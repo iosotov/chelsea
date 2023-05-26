@@ -276,6 +276,17 @@ export type ProfileEncryptedSSNType = {
   ssn: string
 }
 
+export type ProfileEncryptedSSNFullType = {
+  profileId: string
+  firstName: string
+  lastName: string
+  middleName: string
+  gender: number
+  genderName: string
+  birthdate: string
+  ssn: string
+}
+
 export const profileApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
     // ****************************************************************** POST profile/search
@@ -987,7 +998,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: LunaResponseType) => {
         if (!res.success) return null
 
-        return res.data
+        return res.data.map(e => e.ssn)
       },
       async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
@@ -1064,6 +1075,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: LunaResponseType) => {
         if (!res.success) return null
 
+        //data might change from object to string
         return res.data
       },
       async onQueryStarted(searchParams, { dispatch, queryFulfilled }) {
