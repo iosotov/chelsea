@@ -39,6 +39,7 @@ import { store } from 'src/store/store'
 import { DataGridPro, GridColDef, GridRowId } from '@mui/x-data-grid-pro'
 import { toast } from 'react-hot-toast'
 import { format } from 'date-fns'
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 
 const defaultValues = {
   content: '',
@@ -113,6 +114,7 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
   // UPDATES IMPORTANT STATUS = PINNING
   async function handleUpdateImportant(noteId: string) {
     const note = store.getState().note.entities[noteId]
+
     if (note) {
       const { data = undefined }: { data?: any, error?: any } = await triggerUpdate({ noteId: note.noteId, content: note.content, important: !note.important })
       if (data) {
@@ -176,7 +178,7 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
           value={params.row.noteId}
           onClick={() => handleUpdateImportant(params.row.noteId)}
         >
-          <Icon icon='mdi:pin' />
+          {!params.row.important ? <Icon icon='mdi:pin' /> : <PushPinOutlinedIcon />}
         </IconButton>
       )
     },
