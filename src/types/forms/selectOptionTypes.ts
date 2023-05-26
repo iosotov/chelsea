@@ -1,5 +1,5 @@
 export type SingleSelectOption = {
   label: string
-  value: string | number
+  value: string | number | boolean
   disabled?: boolean
 }

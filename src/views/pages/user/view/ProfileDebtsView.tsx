@@ -333,9 +333,9 @@ const EnhancedTableToolbar = ({ selected, data, profileId, toggle }: EnhancedTab
         {selected.length > 0 ? (
           <Box sx={{ display: 'flex', gap: 2 }}>
             {selected.length === 1 && (
-              <Tooltip title='View Debt'>
+              <Tooltip title='Edit Debt'>
                 <IconButton onClick={toggle} sx={{ color: 'text.secondary' }}>
-                  <Icon icon='ic:outline-remove-red-eye' />
+                  <Icon icon='mdi:pencil-outline' />
                 </IconButton>
               </Tooltip>
             )}

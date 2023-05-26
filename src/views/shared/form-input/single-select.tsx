@@ -9,7 +9,7 @@ type Props = {
   label: string
   options?: SingleSelectOption[]
   props?: any
-  defaultValue?: string | number
+  defaultValue?: string | number | boolean
   defaultLabel?: string
   required?: boolean
   errors?: any
