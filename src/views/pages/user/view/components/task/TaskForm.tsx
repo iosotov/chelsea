@@ -1,19 +1,43 @@
-import { Box, BoxProps, Button, ButtonGroup, Drawer, FormControl, FormHelperText, IconButton, InputLabel, MenuItem, Select, TextField, Typography, styled } from "@mui/material"
-import { Fragment, forwardRef, useEffect, useState } from "react"
-import { Controller, useForm } from "react-hook-form"
+import {
+  Box,
+  BoxProps,
+  Button,
+  ButtonGroup,
+  Drawer,
+  FormControl,
+  FormHelperText,
+  IconButton,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
+  Typography,
+  styled
+} from '@mui/material'
+import { Fragment, forwardRef, useEffect, useState } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import Icon from 'src/@core/components/icon'
-import DatePickerWrapper from "src/@core/styles/libs/react-datepicker"
+import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 import DatePicker from 'react-datepicker'
-import { useDeleteTaskMutation, useGetGroupsQuery, useGetRolesQuery, usePostEmployeeSearchQuery, usePostProfilesSearchQuery, usePostTaskCreateMutation, usePutTaskUpdateMutation, usePutTasksBulkUpdateMutation } from "src/store/api/apiHooks"
-import { TaskBulkUpdateType, TaskCreateType, TaskStatusEnum, TaskUpdateType } from "src/store/api/taskApiSlice"
-import { useAppSelector } from "src/store/hooks"
-import { selectAllProfiles } from "src/store/profileSlice"
-import { selectAllEmployeeSelectOptions } from "src/store/employeeSlice"
-import { selectAllGroupSelectOptions } from "src/store/groupSlice"
-import { selectAllRoleSelectOptions } from "src/store/roleSlice"
-import { v4 as uuid } from 'uuid';
-import { selectTaskById } from "src/store/taskSlice"
-import { toast } from "react-hot-toast"
+import {
+  useDeleteTaskMutation,
+  useGetGroupsQuery,
+  useGetRolesQuery,
+  usePostEmployeeSearchQuery,
+  usePostProfilesSearchQuery,
+  usePostTaskCreateMutation,
+  usePutTaskUpdateMutation,
+  usePutTasksBulkUpdateMutation
+} from 'src/store/api/apiHooks'
+import { TaskBulkUpdateType, TaskCreateType, TaskStatusEnum, TaskUpdateType } from 'src/store/api/taskApiSlice'
+import { useAppSelector } from 'src/store/hooks'
+import { selectAllProfiles } from 'src/store/profileSlice'
+import { selectAllEmployeeSelectOptions } from 'src/store/employeeSlice'
+import { selectAllGroupSelectOptions } from 'src/store/groupSlice'
+import { selectAllRoleSelectOptions } from 'src/store/roleSlice'
+import { v4 as uuid } from 'uuid'
+import { selectTaskById } from 'src/store/taskSlice'
+import { toast } from 'react-hot-toast'
 
 export type TaskFormProps = {
   formMode: number
@@ -50,24 +74,24 @@ interface FormValues {
   taskIds?: string[]
 }
 
-export const DrawerTitles = ["Create Task", "Edit Task", "Bulk Update Tasks"]
-const StatusValues = ["Open", "Attempted", "Completed", "Closed"]
-const assignTypes = ["Employees", "Groups", "Roles"]
+export const DrawerTitles = ['Create Task', 'Edit Task', 'Bulk Update Tasks']
+const StatusValues = ['Open', 'Attempted', 'Completed', 'Closed']
+const assignTypes = ['Employees', 'Groups', 'Roles']
 
 let values: FormValues = {
-  profileId: "",
-  taskName: "",
+  profileId: '',
+  taskName: '',
   dueDate: new Date(),
-  assignedTo: "",
-  notes: ""
+  assignedTo: '',
+  notes: ''
 }
 
 const defaultValues = {
-  profileId: "",
-  taskName: "",
+  profileId: '',
+  taskName: '',
   dueDate: new Date(),
-  assignedTo: "",
-  notes: "",
+  assignedTo: '',
+  notes: '',
   status: 0
 }
 
@@ -79,8 +103,15 @@ const Header = styled(Box)<BoxProps>(({ theme }) => ({
   backgroundColor: theme.palette.background.default
 }))
 
-export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskModal, selectedTasks, profileId = "", drawerWidth = 400 }: TaskFormProps) {
-
+export function TaskForm({
+  formMode,
+  calendarMode,
+  openTaskModal,
+  setOpenTaskModal,
+  selectedTasks,
+  profileId = '',
+  drawerWidth = 400
+}: TaskFormProps) {
   const { isSuccess: profileSuccess } = usePostProfilesSearchQuery({})
   usePostEmployeeSearchQuery({})
   useGetGroupsQuery()
@@ -93,12 +124,27 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
   const [assignType, setAssigneeType] = useState<number>(0)
   const task = useAppSelector(state => selectTaskById(state, selectedTasks[0]))
 
-  const { handleSubmit, reset, control, getValues, formState: { errors } } = useForm<FormValues>({ defaultValues, values, shouldUnregister: true })
+  const {
+    handleSubmit,
+    reset,
+    control,
+    getValues,
+    formState: { errors }
+  } = useForm<FormValues>({ defaultValues, values, shouldUnregister: true })
 
   useEffect(() => {
     if (formMode === 1 && task) {
       const { taskName, dueDate, assignedTo, notes, completedDate, rescheduleDate, status } = task
-      values = { ...values, taskName, dueDate: new Date(dueDate), assignedTo, notes, completedDate, rescheduleDate, status }
+      values = {
+        ...values,
+        taskName,
+        dueDate: new Date(dueDate),
+        assignedTo,
+        notes,
+        completedDate,
+        rescheduleDate,
+        status
+      }
     } else {
       values = defaultValues
     }
@@ -112,30 +158,42 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
   const profiles = useAppSelector(selectAllProfiles)
 
   async function onSubmit(data: FormValues) {
-
     if (formMode === 0) {
       const createData: TaskCreateType = { ...data, profileId, assignType, dueDate: data.dueDate.toISOString() }
       const success = await createTask(createData)
       if (success) {
-        toast.success("You successfully created a task")
-      } handleClose()
-    }
-
-    if (formMode === 1 && task) {
-      const updateData: TaskUpdateType = { ...data, taskId: task.taskId, assignType, profileId, status: data.status || task.status, dueDate: data.dueDate.toISOString() }
-      const success = await updateTask(updateData)
-      if (success) {
-        toast.success("You successfully updated a task")
+        toast.success('You successfully created a task')
         handleClose()
       }
     }
 
+    if (formMode === 1 && task) {
+      const updateData: TaskUpdateType = {
+        ...data,
+        taskId: task.taskId,
+        assignType,
+        profileId,
+        status: data.status || task.status,
+        dueDate: data.dueDate.toISOString()
+      }
+      const success = await updateTask(updateData)
+      if (success) {
+        toast.success('You successfully updated a task')
+        handleClose()
+      }
+    }
 
     if (formMode > 1) {
-      const bulkUpdateData: TaskBulkUpdateType = { ...data, taskIds: selectedTasks, status: data.status || defaultValues.status, assignType, dueDate: data.dueDate.toISOString() }
+      const bulkUpdateData: TaskBulkUpdateType = {
+        ...data,
+        taskIds: selectedTasks,
+        status: data.status || defaultValues.status,
+        assignType,
+        dueDate: data.dueDate.toISOString()
+      }
       const success = await bulkUpdate(bulkUpdateData)
       if (success) {
-        toast.success("You successfully bulk updated a task")
+        toast.success('You successfully bulk updated a task')
         handleClose()
       }
     }
@@ -144,7 +202,7 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
   async function handleDelete() {
     const success = await deleteTask(selectedTasks[0])
     if (success) {
-      toast.success("You successfully deleted task")
+      toast.success('You successfully deleted task')
       handleClose()
     }
   }
@@ -163,17 +221,16 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
   })
 
   const RenderSidebarFooter = () => {
-
     return (
       <Box sx={{ mb: 6 }}>
         {formMode === 0 && (
-          <Button disabled={createLoading} size='medium' variant='contained' sx={{ mr: 4 }} type="submit" >
+          <Button disabled={createLoading} size='medium' variant='contained' sx={{ mr: 4 }} type='submit'>
             Create
           </Button>
         )}
         {formMode === 1 && (
           <>
-            <Button disabled={updateLoading} size='medium' variant='contained' sx={{ mr: 2 }} type="submit">
+            <Button disabled={updateLoading} size='medium' variant='contained' sx={{ mr: 2 }} type='submit'>
               Update
             </Button>
             <Button
@@ -189,7 +246,7 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
           </>
         )}
         {formMode > 1 && (
-          <Button disabled={bulkLoading} size='medium' variant='contained' type="submit" sx={{ mr: 1 }}>
+          <Button disabled={bulkLoading} size='medium' variant='contained' type='submit' sx={{ mr: 1 }}>
             Bulk Update
           </Button>
         )}
@@ -202,22 +259,17 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
 
   const selectedDataSource = [employees, groups, roles]
 
-
-  const selectedDataSourceType = assignType === 0 ? "Employee"
-    : assignType === 1 ? "Group"
-      : "Role"
-
+  const selectedDataSourceType = assignType === 0 ? 'Employee' : assignType === 1 ? 'Group' : 'Role'
 
   function changeAssignee(idx: number) {
     const { profileId, taskName, notes, dueDate, status, completedDate, rescheduleDate } = getValues()
-    reset({ profileId, taskName, notes, dueDate, status, completedDate, rescheduleDate, assignedTo: "" })
+    reset({ profileId, taskName, notes, dueDate, status, completedDate, rescheduleDate, assignedTo: '' })
     setAssigneeType(idx)
   }
 
   function handleClose() {
     setOpenTaskModal(false)
   }
-
 
   return (
     <Drawer
@@ -242,17 +294,16 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
               <FormControl fullWidth sx={{ mb: 6 }}>
                 <InputLabel id='status'>Profile</InputLabel>
                 <Controller
-                  name="profileId"
+                  name='profileId'
                   control={control}
                   render={({ field }) => (
-                    <Select
-                      labelId='profileId'
-                      label='Profile'
-                      {...field}
-                    >
-                      {profileSuccess && profiles.map(p => (
-                        <MenuItem key={p.profileId} value={p.profileId}>{p.firstName} {p.lastName}</MenuItem>
-                      ))}
+                    <Select labelId='profileId' label='Profile' {...field}>
+                      {profileSuccess &&
+                        profiles.map(p => (
+                          <MenuItem key={p.profileId} value={p.profileId}>
+                            {p.firstName} {p.lastName}
+                          </MenuItem>
+                        ))}
                       <MenuItem value='Personal'>Personal</MenuItem>
                     </Select>
                   )}
@@ -264,34 +315,41 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
                 )}
               </FormControl>
             )}
-            {formMode < 2 && <FormControl fullWidth sx={{ mb: 6 }}>
-              <Controller
-                name='taskName'
-                control={control}
-                rules={{ required: true }}
-                render={({ field: { value, onChange } }) => (
-                  <TextField disabled={formMode === 2} label='Name' value={value} onChange={onChange} error={Boolean(errors.taskName)} />
+            {formMode < 2 && (
+              <FormControl fullWidth sx={{ mb: 6 }}>
+                <Controller
+                  name='taskName'
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field: { value, onChange } }) => (
+                    <TextField
+                      disabled={formMode === 2}
+                      label='Name'
+                      value={value}
+                      onChange={onChange}
+                      error={Boolean(errors.taskName)}
+                    />
+                  )}
+                />
+                {errors.taskName && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='event-taskName-error'>
+                    This field is required
+                  </FormHelperText>
                 )}
-              />
-              {errors.taskName && (
-                <FormHelperText sx={{ color: 'error.main' }} id='event-taskName-error'>
-                  This field is required
-                </FormHelperText>
-              )}
-            </FormControl>}
+              </FormControl>
+            )}
             <Box sx={{ mb: 6 }}>
               <Controller
                 control={control}
                 rules={{ required: true }}
-                name="dueDate"
+                name='dueDate'
                 render={({ field: { value, onChange } }) => (
                   <DatePicker
                     selected={new Date(value)}
                     id='event-start-date'
-                    onChange={(date) => onChange(date)}
-                    dateFormat="MM/dd/yyyy"
+                    onChange={date => onChange(date)}
+                    dateFormat='MM/dd/yyyy'
                     customInput={<PickersComponent label='Due Date' registername='dueDate' />}
-
                   />
                 )}
               />
@@ -301,60 +359,63 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
                 </FormHelperText>
               )}
             </Box>
-            {formMode === 1 && <Box sx={{ mb: 6 }}>
-              <Controller
-                control={control}
-                name="completedDate"
-
-                render={({ field: { value, onChange } }) => (
-                  <DatePicker
-                    selected={value ? new Date(value) : null}
-                    id='event-completedDate'
-                    onChange={(date) => onChange(date)}
-                    dateFormat="MM/dd/yyyy"
-                    customInput={<PickersComponent label='Completed Date' registername='completedDate' />}
-
-                  />
+            {formMode === 1 && (
+              <Box sx={{ mb: 6 }}>
+                <Controller
+                  control={control}
+                  name='completedDate'
+                  render={({ field: { value, onChange } }) => (
+                    <DatePicker
+                      selected={value ? new Date(value) : null}
+                      id='event-completedDate'
+                      onChange={date => onChange(date)}
+                      dateFormat='MM/dd/yyyy'
+                      customInput={<PickersComponent label='Completed Date' registername='completedDate' />}
+                    />
+                  )}
+                />
+                {errors.completedDate && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='event-completedDate-error'>
+                    This field is required
+                  </FormHelperText>
                 )}
-              />
-              {errors.completedDate && (
-                <FormHelperText sx={{ color: 'error.main' }} id='event-completedDate-error'>
-                  This field is required
-                </FormHelperText>
-              )}
-            </Box>}
-            {formMode === 1 && <Box sx={{ mb: 6 }}>
-              <Controller
-                control={control}
-                name="rescheduleDate"
-                render={({ field: { value, onChange } }) => (
-                  <DatePicker
-                    selected={value ? new Date(value) : null}
-                    id='event-rescheduleDate'
-                    onChange={(date) => onChange(date)}
-                    dateFormat="MM/dd/yyyy"
-                    customInput={<PickersComponent label='Reschedule Date' registername='rescheduleDate' />}
-
-                  />
+              </Box>
+            )}
+            {formMode === 1 && (
+              <Box sx={{ mb: 6 }}>
+                <Controller
+                  control={control}
+                  name='rescheduleDate'
+                  render={({ field: { value, onChange } }) => (
+                    <DatePicker
+                      selected={value ? new Date(value) : null}
+                      id='event-rescheduleDate'
+                      onChange={date => onChange(date)}
+                      dateFormat='MM/dd/yyyy'
+                      customInput={<PickersComponent label='Reschedule Date' registername='rescheduleDate' />}
+                    />
+                  )}
+                />
+                {errors.rescheduleDate && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='event-rescheduleDate-error'>
+                    This field is required
+                  </FormHelperText>
                 )}
-              />
-              {errors.rescheduleDate && (
-                <FormHelperText sx={{ color: 'error.main' }} id='event-rescheduleDate-error'>
-                  This field is required
-                </FormHelperText>
-              )}
-            </Box>}
-            <Box sx={{ mb: 6, display: "grid", placeItems: 'center' }}>
+              </Box>
+            )}
+            <Box sx={{ mb: 6, display: 'grid', placeItems: 'center' }}>
               <ButtonGroup variant='contained'>
                 {assignTypes.map((a, i) => (
-                  <Button key={uuid()} onClick={(() => changeAssignee(i))}>{a}</Button>
+                  <Button key={uuid()} onClick={() => changeAssignee(i)}>
+                    {a}
+                  </Button>
                 ))}
               </ButtonGroup>
             </Box>
             <FormControl fullWidth sx={{ mb: 6 }}>
               <InputLabel htmlFor='assignedTo'>Select {selectedDataSourceType}</InputLabel>
               <Controller
-                name="assignedTo"
+                name='assignedTo'
                 control={control}
                 rules={{ required: true }}
                 render={({ field }) => (
@@ -370,11 +431,7 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
                         {task?.assignedToName || `Select ${selectedDataSourceType}`}
                       </MenuItem>
                     )}
-                    {formMode !== 1 && (
-                      <MenuItem value={""} >
-                        Select {selectedDataSourceType}
-                      </MenuItem>
-                    )}
+                    {formMode !== 1 && <MenuItem value={''}>Select {selectedDataSourceType}</MenuItem>}
 
                     {selectedDataSource[assignType].map((option: FilteredOptionsType) => (
                       <MenuItem key={option.value} value={option.value}>
@@ -390,43 +447,52 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
                 </FormHelperText>
               )}
             </FormControl>
-            {formMode > 0 && (<FormControl fullWidth sx={{ mb: 6 }}>
-              <InputLabel htmlFor='status'>Select Status</InputLabel>
-              <Controller
-                name="status"
-                control={control}
-                rules={{ required: true }}
-                render={({ field }) => (
-                  <Select
-                    label="Select Status"
-                    labelId='status'
-                    id='status'
-                    error={Boolean(errors.status)}
-                    {...field}
-                  >
-                    <MenuItem value={undefined} disabled>
-                      Select Status
-                    </MenuItem>
-                    {StatusValues.map((e, i) => (
-                      <MenuItem key={uuid()} value={i}>
-                        {e}
+            {formMode > 0 && (
+              <FormControl fullWidth sx={{ mb: 6 }}>
+                <InputLabel htmlFor='status'>Select Status</InputLabel>
+                <Controller
+                  name='status'
+                  control={control}
+                  rules={{ required: true }}
+                  render={({ field }) => (
+                    <Select
+                      label='Select Status'
+                      labelId='status'
+                      id='status'
+                      error={Boolean(errors.status)}
+                      {...field}
+                    >
+                      <MenuItem value={undefined} disabled>
+                        Select Status
                       </MenuItem>
-                    ))}
-                  </Select>
+                      {StatusValues.map((e, i) => (
+                        <MenuItem key={uuid()} value={i}>
+                          {e}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  )}
+                />
+                {errors.status && (
+                  <FormHelperText sx={{ color: 'error.main' }} id='event-status-error'>
+                    This field is required
+                  </FormHelperText>
                 )}
-              />
-              {errors.status && (
-                <FormHelperText sx={{ color: 'error.main' }} id='event-status-error'>
-                  This field is required
-                </FormHelperText>
-              )}
-            </FormControl>)}
+              </FormControl>
+            )}
             <FormControl fullWidth sx={{ mb: 6 }}>
               <Controller
                 name='notes'
                 control={control}
                 render={({ field: { value, onChange } }) => (
-                  <TextField label='Notes' multiline rows={4} value={value} onChange={onChange} error={Boolean(errors.taskName)} />
+                  <TextField
+                    label='Notes'
+                    multiline
+                    rows={4}
+                    value={value}
+                    onChange={onChange}
+                    error={Boolean(errors.taskName)}
+                  />
                 )}
               />
               {errors.notes && (
@@ -441,7 +507,6 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
           </form>
         </DatePickerWrapper>
       </Box>
-    </Drawer >
-
+    </Drawer>
   )
 }
