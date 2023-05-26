@@ -34,7 +34,7 @@ interface ProfileBudgetProps {
 }
 export default function ProfileBudget({ id }: ProfileBudgetProps) {
   const profileId = id
-  const { handleSubmit, control } = useForm()
+  const { handleSubmit, control, reset } = useForm()
 
   const onSubmit = (data: Record<string, { amount: string }>) => {
     console.log(data)
@@ -81,12 +81,12 @@ export default function ProfileBudget({ id }: ProfileBudgetProps) {
       }
     })
     console.log(formReset)
+    reset()
   }
 
   if (isError) return <div>An error occured</div>
 
   if (isLoading) return <div>Loading</div>
-
 
   return (
     <>

@@ -48,3 +48,11 @@ export const selectNotesByProfileId = createSelector(
     return notes.filter(note => note.profileId === profileId)
   }
 )
+
+export const selectPinnedNotesByProfileId = createSelector(
+  selectAllNotes,
+  (_: RootState, profileId: string) => profileId,
+  (notes, profileId) => {
+    return notes.filter(note => note.profileId === profileId && note.important === true)
+  }
+)

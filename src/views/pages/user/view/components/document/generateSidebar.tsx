@@ -43,7 +43,7 @@ export default function GenerateSidebar({ open, toggle, profileId }: Props) {
 
   const { isSuccess: templateSuccess } = usePostTemplateSearchQuery({})
   const [generateDoc, { isLoading }] = usePostDocumentGenerateMutation()
-  const noteTemplates = useAppSelector(state => selectTemplatesByType(state, 3))
+  const docTemplates = useAppSelector(state => selectTemplatesByType(state, 0))
 
   async function onSubmit(data: DocumentGenerateType) {
     const { profileId, templateId, title } = data
@@ -112,7 +112,7 @@ export default function GenerateSidebar({ open, toggle, profileId }: Props) {
                         <MenuItem value='' disabled>
                           Select Template
                         </MenuItem>
-                        {templateSuccess && noteTemplates.map(t => {
+                        {templateSuccess && docTemplates.map(t => {
                           return (
                             <MenuItem key={t.id} value={t.id}>{t.name}</MenuItem>
                           )
