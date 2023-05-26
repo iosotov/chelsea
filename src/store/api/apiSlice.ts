@@ -10,12 +10,13 @@ const baseQuery = fetchBaseQuery({
   prepareHeaders: (headers, { getState }) => {
     const token = (getState() as RootState).auth.token
     if (token) {
-      headers.set('Authorization', `Bearer ${token}`)
+      headers.set('Authorization', Bearer ${token})
     }
 
     return headers
   },
-  credentials: 'include'
+  mode: "cors",
+  credentials: 'same-origin'
 })
 
 export const apiSlice = createApi({

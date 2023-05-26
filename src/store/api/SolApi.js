@@ -7,10 +7,10 @@ class SolApi {
   static axiosInstance = axios.create({
     baseURL: baseUrl,
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*'
     },
-
-    withCredentials: true
+    withCredentials: false
   })
   static token = null
 
