@@ -1,4 +1,4 @@
-import { setTemplates } from '../templateSlice'
+import { setTemplates, updateTemplate } from '../templateSlice'
 import { apiSlice } from './apiSlice'
 import { FeeType } from './enrollmentApiSlice'
 import { LunaResponseType, SearchFilterType } from './sharedTypes'
@@ -49,6 +49,10 @@ export type TemplateType = {
   title: string
   content: string
   type: TemplateTypeEnum
+  typeName: string
+  sharedTargets: DataSourceSharingType
+  presetCCEmails: string[]
+  presetNotifiedEmployees: string[]
 }
 
 export type EnrollmentExtraFeeType = {
@@ -79,8 +83,37 @@ export type EnrollmentTemplateCreateType = {
 }
 
 export const templateApiSlice = apiSlice.injectEndpoints({
-  // ****************************************************************** POST template
   endpoints: builder => ({
+    // ****************************************************************** POST template
+    getTemplate: builder.query<TemplateType, string>({
+      query: templateId => ({
+        url: `/template/${templateId}/info`,
+        method: 'GET'
+      }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching template',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success ? res.data : res.success
+      },
+      async onQueryStarted(body, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          dispatch(updateTemplate(data))
+        } catch (err: any) {
+          console.error('API error in getTemplate:', err.error.data.message)
+        }
+      },
+      providesTags: res => {
+        return res ? [{ type: 'TEMPLATE', id: res.id }] : []
+      }
+    }),
+
+    // ****************************************************************** POST template
     postTemplateCreate: builder.mutation<string | boolean, TemplateCreateType>({
       query: body => ({
         url: `/template`,
