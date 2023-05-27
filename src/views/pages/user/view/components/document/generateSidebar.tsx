@@ -13,6 +13,7 @@ import {
 } from '@mui/material'
 import { BoxProps } from '@mui/material'
 import { styled } from '@mui/material'
+import { Dispatch, SetStateAction } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 
@@ -27,6 +28,7 @@ type Props = {
   open: boolean
   toggle: () => void
   profileId: string
+  setTab: Dispatch<SetStateAction<string>>
 }
 
 const Header = styled(Box)<BoxProps>(({ theme }) => ({
@@ -37,7 +39,7 @@ const Header = styled(Box)<BoxProps>(({ theme }) => ({
   backgroundColor: theme.palette.background.default
 }))
 
-export default function GenerateSidebar({ open, toggle, profileId }: Props) {
+export default function GenerateSidebar({ open, toggle, profileId, setTab }: Props) {
 
 
   const { control, handleSubmit, setValue, reset } = useForm<DocumentGenerateType>({ defaultValues: { templateId: "", title: "", esignService: "Bold Esign", profileId } })
@@ -57,6 +59,7 @@ export default function GenerateSidebar({ open, toggle, profileId }: Props) {
 
   function handleClose() {
     reset({ templateId: "", title: "", esignService: "Bold Esign", profileId })
+    setTab("generated")
     toggle()
 
   }

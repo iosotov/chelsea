@@ -166,7 +166,6 @@ export default function ProfileSnapshot({ data }: Props) {
     profileCustomFields
   } = data
 
-  console.log(data)
 
   return (
     <>
@@ -509,9 +508,9 @@ const ProfileDetails = ({
           </Box>
           {profileAssignees.map((assignee: any, index: number) => {
             return (
-              <>
+              <div key={assignee.assigneeId}
+              >
                 <Box
-                  key={assignee.assigneeId}
                   sx={{ display: 'flex', mb: 2, justifyContent: 'space-between', alignItems: 'center' }}
                 >
                   <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>{assignee.assigneeName}</Typography>
@@ -538,7 +537,7 @@ const ProfileDetails = ({
                     {assignee.companyName}
                   </Typography>
                 </Box>
-              </>
+              </div>
             )
           })}
         </Box>
@@ -729,8 +728,8 @@ const EnrollmentInfo = ({ profileId }: EnrollmentInfoProps): ReactElement => {
               {!enrollmentData?.firstPaymentDate && !enrollmentData?.firstPaymentAmount
                 ? 'N/A'
                 : `${DateConverter(enrollmentData?.firstPaymentDate)} - ${MoneyConverter(
-                    enrollmentData?.firstPaymentAmount
-                  )}`}
+                  enrollmentData?.firstPaymentAmount
+                )}`}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
@@ -739,8 +738,8 @@ const EnrollmentInfo = ({ profileId }: EnrollmentInfoProps): ReactElement => {
               {!enrollmentData?.lastPaymentDate && !enrollmentData?.lastPaymentAmount
                 ? 'N/A'
                 : `${DateConverter(enrollmentData?.lastPaymentDate)} - ${MoneyConverter(
-                    enrollmentData?.lastPaymentAmount
-                  )}`}
+                  enrollmentData?.lastPaymentAmount
+                )}`}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', mb: 2, justifyContent: 'space-between' }}>
@@ -755,8 +754,8 @@ const EnrollmentInfo = ({ profileId }: EnrollmentInfoProps): ReactElement => {
               {!enrollmentData?.nextPaymentDate && !enrollmentData?.nextPaymentAmount
                 ? 'N/A'
                 : `${DateConverter(enrollmentData?.nextPaymentDate)} - ${MoneyConverter(
-                    enrollmentData?.nextPaymentAmount
-                  )}`}
+                  enrollmentData?.nextPaymentAmount
+                )}`}
             </Typography>
           </Box>
         </Box>

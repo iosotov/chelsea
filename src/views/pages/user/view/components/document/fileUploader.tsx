@@ -1,6 +1,3 @@
-// ** React Imports
-import { useState } from 'react'
-
 // ** Next Import
 import Link from 'next/link'
 
@@ -11,6 +8,8 @@ import Typography, { TypographyProps } from '@mui/material/Typography'
 
 // ** Third Party Imports
 import { useDropzone } from 'react-dropzone'
+import { UseFormSetValue, UseFormWatch } from 'react-hook-form'
+import { UploadFormValueType } from '../../ProfileDocumentsView'
 
 interface FileProp {
   name: string
@@ -39,9 +38,14 @@ const HeadingTypography = styled(Typography)<TypographyProps>(({ theme }) => ({
   }
 }))
 
-const FileUploaderSingle = () => {
+interface FileUploaderSingleProps {
+  setValue: UseFormSetValue<UploadFormValueType>
+  watch: UseFormWatch<UploadFormValueType>
+}
+
+const FileUploaderSingle = ({ setValue, watch }: FileUploaderSingleProps) => {
   // ** State
-  const [files, setFiles] = useState<File[]>([])
+  const files = watch("file")
 
   // ** Hook
   const { getRootProps, getInputProps } = useDropzone({
@@ -51,7 +55,7 @@ const FileUploaderSingle = () => {
       'application/pdf': ['.pdf']
     },
     onDrop: (acceptedFiles: File[]) => {
-      setFiles(acceptedFiles.map((file: File) => Object.assign(file)))
+      setValue("file", acceptedFiles.map((file: File) => Object.assign(file)))
     }
   })
 
