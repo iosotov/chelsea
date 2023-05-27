@@ -8,9 +8,9 @@ class SolApi {
     baseURL: baseUrl,
     headers: {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*'
+      'Access-Control-Allow-Origin': `${process.env.NEXT_PUBLIC_API_BASE_URL}`
     },
-    withCredentials: false
+    withCredentials: true
   })
   static token = null
 
