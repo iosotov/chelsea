@@ -290,7 +290,7 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
                       label='Name'
                       onChange={(e) => {
                         const template = store.getState().template.entities[taskRef.current]
-                        if (template && template.content) setValue("notes", template.content)
+                        template && template.content ? setValue("notes", template.content) : setValue("notes", "")
                         onChange(e)
                       }}
                       {...rest}
