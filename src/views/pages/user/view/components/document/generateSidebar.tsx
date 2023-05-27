@@ -17,7 +17,7 @@ import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 
 import Icon from 'src/@core/components/icon'
-import { useLazyGetTemplateQuery, usePostDocumentGenerateMutation, usePostTemplateSearchQuery } from 'src/store/api/apiHooks'
+import { usePostDocumentGenerateMutation, usePostTemplateSearchQuery } from 'src/store/api/apiHooks'
 import { DocumentGenerateType } from 'src/store/api/documentApiSlice'
 import { useAppSelector } from 'src/store/hooks'
 import { store } from 'src/store/store'
