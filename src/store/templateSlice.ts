@@ -45,8 +45,6 @@ export const selectTemplatesByType = createSelector(
   selectAllTemplates,
   (_: RootState, type: number) => type,
   (templates, type) => {
-    console.log(templates)
-
     return templates.filter(template => template.type === type)
   }
 )
