@@ -1,4 +1,4 @@
-import { createEntityAdapter, createSlice } from '@reduxjs/toolkit'
+import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit'
 import { ProfileInfoType, ProfileStatusType } from './api/profileApiSlice'
 import { RootState } from './store'
 
@@ -49,5 +49,13 @@ export const {
   selectById: selectProfileById,
   selectIds: selectProfileIds
 } = profileAdapter.getSelectors((state: RootState) => state.profile)
+
+export const selectProfilesByStatus = createSelector(
+  selectAllProfiles,
+  (_: RootState, status: number) => status,
+  (tasks, status) => {
+    return tasks.filter(t => t.status === status)
+  }
+)
 
 export default profileSlice.reducer
