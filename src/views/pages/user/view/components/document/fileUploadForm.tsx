@@ -15,6 +15,8 @@ export default function FileUploadForm({ control, errors }: FileUploadedFormProp
   usePostSettingSearchQuery({})
   const categories = useAppSelector(state => selectSettingByType(state, 8))
 
+  console.log(categories)
+
   return (
     <>
       <Grid container spacing={4}>
@@ -50,7 +52,7 @@ export default function FileUploadForm({ control, errors }: FileUploadedFormProp
                   {...field}
                 >
                   <MenuItem value={""} disabled>
-                    Select Status
+                    Select Category
                   </MenuItem>
                   {categories.map(c => {
 
@@ -70,7 +72,7 @@ export default function FileUploadForm({ control, errors }: FileUploadedFormProp
 
           </FormControl>
         </Grid>
-        <Grid item xs={12} lg={6}>
+        <Grid item xs={12} lg={12}>
           <FormControl fullWidth>
             <Controller
               name='description'

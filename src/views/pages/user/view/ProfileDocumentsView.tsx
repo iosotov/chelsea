@@ -36,7 +36,6 @@ import FileUploaderSingle from './components/document/fileUploader'
 import FileUploadForm from './components/document/fileUploadForm'
 import GenerateSidebar from './components/document/generateSidebar'
 import { SyntheticEvent } from 'react-draft-wysiwyg'
-import TableColumns from './components/document/table'
 
 //API calls
 import { useAppSelector } from 'src/store/hooks'
@@ -45,6 +44,9 @@ import { useGetDocumentsQuery, usePostDocumentUploadMutation, usePostEmployeeSea
 import { useForm } from 'react-hook-form'
 import { DocumentUploadType } from 'src/store/api/documentApiSlice'
 import { toast } from 'react-hot-toast'
+import GeneratedDocTable from './components/document/GeneratedDocTable'
+import UploadedDocTable from './components/document/UploadedDocTable'
+import ContactDocTable from './components/document/ContractDocTable'
 
 const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
   '& .MuiTabs-indicator': {
@@ -62,6 +64,8 @@ const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
     borderRadius: theme.shape.borderRadius
   }
 }))
+
+
 
 export default function ProfileDocuments({ id }: { id: string }) {
   const [openUploadDialog, setUploadDialog] = useState<boolean>(false)
@@ -87,9 +91,7 @@ export default function ProfileDocuments({ id }: { id: string }) {
   const handleTabChange = (e: SyntheticEvent, newValue: string) => {
     setTabLoading(true)
     setTab(newValue)
-    setTimeout(() => {
-      setTabLoading(false)
-    }, 0)
+    setTabLoading(false)
   }
 
   return (
@@ -138,7 +140,7 @@ export default function ProfileDocuments({ id }: { id: string }) {
                   <Tab value='generated' label='Generated Docs' />
                   <Tab value='uploaded' label='Uploaded Docs' />
                 </TabList>
-                <Box sx={{ minHeight: 280 }}>
+                <Box sx={{ minHeight: 400 }}>
                   {tabLoading ? (
                     <Box sx={{ mt: 6, display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
                       <CircularProgress sx={{ mb: 4 }} />
@@ -147,13 +149,13 @@ export default function ProfileDocuments({ id }: { id: string }) {
                   ) : (
                     <>
                       <TabPanel value='esign'>
-                        {docSuccess && employeeSuccess && <TableColumns rows={esignDocs} />}
+                        {docSuccess && employeeSuccess && <ContactDocTable rows={esignDocs} />}
                       </TabPanel>
                       <TabPanel value='generated'>
-                        {docSuccess && employeeSuccess && <TableColumns rows={generateDocs} />}
+                        {docSuccess && employeeSuccess && <GeneratedDocTable rows={generateDocs} />}
                       </TabPanel>
                       <TabPanel value='uploaded'>
-                        {docSuccess && employeeSuccess && <TableColumns rows={uploadedDocs} />}
+                        {docSuccess && employeeSuccess && <UploadedDocTable rows={uploadedDocs} />}
                       </TabPanel>
                     </>
                   )}
