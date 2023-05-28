@@ -154,6 +154,7 @@ export const {
 
   // GET document/documentId/preview
   useGetDocumentPreviewQuery,
+  useLazyGetDocumentPreviewQuery,
 
   // POST document/profileId/profile/generate
   usePostDocumentGenerateMutation,
