@@ -36,11 +36,13 @@ import {
 
 //API Slices
 import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
-import { BankingOrCreditCardType } from 'src/store/bankAccountSlice'
 import { selectPaymentByProfileId } from 'src/store/paymentSlice'
 import { selectLiabilityByProfileId } from 'src/store/liabilitySlice'
 import { selectPaymentsByProfileId } from 'src/store/bankAccountSlice'
+
+//Types
 import { PaymentDetailInfoModel } from 'src/store/api/enrollmentApiSlice'
+import { BankingOrCreditCardType } from 'src/store/bankAccountSlice'
 
 //Utils
 import MoneyConverter from 'src/views/shared/utils/money-converter'
@@ -442,7 +444,6 @@ const EnhancedTable = ({
   const handleEdit = () => {
     const [paymentId] = selected
     const [selectedPayment] = rows.filter(payment => payment.enrollmentDetailId === String(paymentId))
-    console.log(selectedPayment)
     setTransData(selectedPayment)
     toggleDialog()
   }
@@ -606,8 +607,6 @@ export default function ProfilePayments({ id: profileId }: ProfileProps) {
   const { isSuccess: cardSuccess, isUninitialized, isLoading } = useGetCreditCardsQuery(profileId, { skip: !profileId })
 
   const paymentData = useAppSelector(state => selectPaymentsByProfileId(state, String(profileId)))
-
-  console.log('rerendering payments page', { paymentData })
 
   return (
     <>

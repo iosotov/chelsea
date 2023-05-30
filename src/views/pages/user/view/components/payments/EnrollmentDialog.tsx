@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react'
+import { useEffect, useState, useMemo, useRef } from 'react'
 
 // reenable when type selection enabled
 // import { useRef } from 'react'
@@ -48,14 +48,21 @@ import {
 //Redux Store
 import { useAppSelector } from 'src/store/hooks'
 import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
+import { BankingOrCreditCardType, selectPaymentsByProfileId } from 'src/store/bankAccountSlice'
 
 //Utils
 import MoneyConverter from 'src/views/shared/utils/money-converter'
 
 //Imported Types
 import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
-import { EnrollmentPreviewMutatedType } from 'src/store/api/enrollmentApiSlice'
+import {
+  EnrollmentInfoModel,
+  EnrollmentPreviewMutatedType,
+  EnrollmentSearchResultModel
+} from 'src/store/api/enrollmentApiSlice'
 import DateConverter from 'src/views/shared/utils/date-converter'
+import { BankAccountType } from 'src/store/api/bankAccountApiSlice'
+import { CreditCardType } from 'cleave.js/options/creditCard'
 
 //Typing
 type EnrollmentModalProps = {
@@ -143,7 +150,6 @@ const serviceFeeOptions: SingleSelectOption[] = [
 
 const generateLengthOptions = (): SingleSelectOption[] => {
   const options: SingleSelectOption[] = []
-  console.log('generated')
   for (let i = 1; i <= 60; i++) {
     options.push({
       label: `${i} Payments`,
@@ -179,7 +185,12 @@ const generateLengthOptions = (): SingleSelectOption[] => {
 
 const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalProps) => {
   //Data
-  const enrollmentData = useAppSelector(state => selectEnrollmentByProfileId(state, profileId))
+  const enrollmentData: EnrollmentSearchResultModel | undefined = useAppSelector(state =>
+    selectEnrollmentByProfileId(state, profileId)
+  )
+
+  const paymentData = useAppSelector(state => selectPaymentsByProfileId(state, String(profileId)))
+
   const [previewData, setPreviewData] = useState<EnrollmentPreviewMutatedType | null>(null)
 
   const [getPreview, previewStatus] = useGetEnrollmentPreviewMutation()
@@ -194,17 +205,19 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
   const lengthOptions = useMemo(generateLengthOptions, [profileId])
   const servicePercentageOptions = useMemo(generateServicePercentageOptions, [profileId])
 
-  const defaultValues = {
-    maintenanceFee: 80.0,
-    programLength: 12,
-    serviceFeeType: 1,
-    serviceFee: 0.35,
-    firstPaymentDate: new Date(),
-    recurringType: 1,
-    recurringPaymentDate: addMonths(new Date(), 1)
-  }
+  const enrollmentForm = useForm({
+    defaultValues: {
+      paymentMethod: 2,
+      maintenanceFee: 80.0,
+      programLength: 12,
+      serviceFeeType: 1,
+      serviceFee: 0.35,
+      firstPaymentDate: new Date(),
+      recurringType: 1,
+      recurringPaymentDate: addMonths(new Date(), 1)
+    }
+  })
 
-  const enrollmentForm = useForm({ defaultValues, ...enrollmentData })
   const {
     handleSubmit,
     control,
@@ -212,19 +225,54 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
     setValue,
     watch,
     reset,
+    unregister,
     formState: { errors }
   } = enrollmentForm
+
+  // function to check and return hardcoded gateways based on paymentMethod selected
+  const checkGateway = () => {
+    const method = getValues('paymentMethod')
+
+    switch (method) {
+      case 0:
+        //ach
+        return '53660F30-725B-4484-A70D-C43C35B96362'
+      case 1:
+        //cc
+        return '8D9F32FB-DB1A-49CA-9C33-773E660D1397'
+      default:
+        return 'EA3EDF07-4706-405A-B9A2-8263001E06F8'
+    }
+  }
+
+  //disables options based on paymentmethods provided
+  const paymentMethodOptions: SingleSelectOption[] = [
+    {
+      label: 'ACH',
+      value: 0,
+      disabled: paymentData?.filter(payment => payment.accountType === 'ach').length === 0 ? true : false
+    },
+    {
+      label: 'CC',
+      value: 1,
+      disabled: paymentData?.filter(payment => payment.accountType === 'card').length === 0 ? true : false
+    },
+    {
+      label: 'None',
+      value: 2
+    }
+  ]
 
   const onSubmit = () => {
     const data = {
       profileId: profileId,
-      paymentMethod: 2,
+      paymentMethod: getValues('paymentMethod') ?? 2,
       basePlan: 'Base Plan',
       serviceFeeType: getValues('serviceFeeType'),
       recurringType: getValues('recurringType'),
       enrollmentFee: getValues('serviceFee'),
       programLength: getValues('programLength'),
-      gateway: 'settingservice_paymentprocessor_nacha',
+      gateway: checkGateway(),
       firstPaymentDate: getValues('firstPaymentDate'),
       recurringPaymentDate: getValues('recurringPaymentDate'),
       initialFeeAmount: null,
@@ -238,6 +286,7 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
         }
       ]
     }
+
     enrollmentData?.enrollmentId
       ? editEnrollment(data)
           .unwrap()
@@ -260,12 +309,12 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
   const previewRequest = () => {
     getPreview({
       profileId: profileId,
-      paymentMethod: 2,
+      paymentMethod: getValues('paymentMethod') ?? 2,
       basePlan: 'Base Plan',
       serviceFeeType: getValues('serviceFeeType'),
       enrollmentFee: getValues('serviceFee'),
       programLength: getValues('programLength'),
-      gateway: 'settingservice_paymentprocessor_nacha',
+      gateway: checkGateway(),
       firstPaymentDate: getValues('firstPaymentDate'),
       recurringType: getValues('recurringType'),
       recurringPaymentDate: getValues('recurringPaymentDate'),
@@ -273,7 +322,7 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
       //if initialFeeAmount is not a null value, check backend to make sure numbers match up.
       //currently returned total service fee is dividing by original plan length rather than plan length - 1 to account for initial down payment
 
-      initialFeeAmount: null,
+      // initialFeeAmount: null,
       additionalFees: [
         {
           feeName: 'Maintenance Fee',
@@ -344,6 +393,29 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
     }
   }, [selectedRecurringType, selectedFirstPaymentDate, setValue, getValues])
 
+  useEffect(() => {
+    if (!enrollmentData?.enrollmentId) {
+      unregister('paymentMethod')
+    }
+  }, [enrollmentData, unregister])
+
+  useEffect(() => {
+    if (enrollmentData?.enrollmentId) {
+      reset({
+        paymentMethod: enrollmentData.paymentMethod,
+
+        // maint fee hardcoded, will need to grab from enrollment api another time
+        maintenanceFee: 80,
+        programLength: enrollmentData.programLength,
+        serviceFeeType: 1,
+        serviceFee: enrollmentData.enrollmentFee,
+        firstPaymentDate: new Date(enrollmentData.firstPaymentDate),
+        recurringType: 1,
+        recurringPaymentDate: addMonths(new Date(enrollmentData.firstPaymentDate), 1)
+      })
+    }
+  }, [enrollmentData])
+
   // Will implement preview check to make sure up to date before creating preview
   // const shallow1 = useRef(JSON.stringify(getValues()))
 
@@ -372,6 +444,17 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
       <DialogContent sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
         <CardContainer>
           <form>
+            {enrollmentData?.enrollmentId && (
+              <Box mb={4}>
+                <SingleSelect
+                  label='Payment Method'
+                  name='paymentMethod'
+                  errors={errors}
+                  control={control}
+                  options={paymentMethodOptions}
+                />
+              </Box>
+            )}
             <Box mb={4}>
               <SingleSelect
                 label='Plan Length'

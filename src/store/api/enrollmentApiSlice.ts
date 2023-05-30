@@ -186,6 +186,7 @@ export type EnrollmentSearchResultModel = {
   paymentAmount: number
   processor: string
   dayToProcess: string
+  gateway: string
 }
 
 export type PaymentInfoParams = {

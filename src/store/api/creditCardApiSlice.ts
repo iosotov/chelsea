@@ -20,7 +20,7 @@ export type CreditCardType = {
   firstName: string
   lastName: string
   expYear: string
-  paymentType?: 'card'
+  accountType?: 'card'
 }
 
 export enum CreditCardTypeEnum {
