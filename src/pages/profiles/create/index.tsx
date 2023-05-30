@@ -34,7 +34,7 @@ import { AddressSettingType, ContactSettingType, CustomFieldSettingType } from '
 import ContactInformation from 'src/views/pages/user/view/components/createForm/ContactInformation'
 import { useRouter } from 'next/router'
 import { Box, CircularProgress, Stack } from '@mui/material'
-import { PersonalInformationForm, personalSchema } from './validators'
+import { PersonalInformationForm, personalSchema } from '../../../views/pages/user/view/create/validators'
 
 // PROFILE CREATE STEPS
 const steps = [

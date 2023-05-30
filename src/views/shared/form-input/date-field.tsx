@@ -3,7 +3,7 @@ import InputMask from 'react-input-mask'
 import TextField from '@mui/material/TextField'
 import React from 'react'
 import { FormHelperText } from '@mui/material'
-import { PersonalInformationForm } from 'src/pages/profiles/create/validators'
+import { PersonalInformationForm } from 'src/views/pages/user/view/create/validators'
 
 interface DateFieldProps {
   control: Control<any, any>
