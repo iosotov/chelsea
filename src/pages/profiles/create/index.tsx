@@ -58,10 +58,9 @@ const additionalInfoDefault: AdditionalInformationForm = {
   profileAddresses: [],
 }
 
-const defaultProfile: ProfileCreateType = {
+const defaultProfile = {
   firstName: "",
   lastName: "",
-  gender: 2,
   campaignId: "",
   middleName: "",
   birthdate: "",
