@@ -10,8 +10,6 @@ import Typography from '@mui/material/Typography'
 
 // ** MUI Imports
 import Toolbar from '@mui/material/Toolbar'
-import Tooltip from '@mui/material/Tooltip'
-import IconButton from '@mui/material/IconButton'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableRow from '@mui/material/TableRow'
@@ -33,7 +31,6 @@ import { useConfirm } from 'material-ui-confirm'
 import ReactApexcharts from 'src/@core/components/react-apexcharts'
 
 // ** Custom Components Imports
-import Icon from 'src/@core/components/icon'
 import CustomChip from 'src/@core/components/mui/chip'
 import DebtsDialog from './components/debts/DebtsDialog'
 import AddDebtDrawer from './components/debts/AddDebtDrawer'
@@ -343,8 +340,8 @@ const EnhancedTableToolbar = ({ selected, data, profileId, toggle }: EnhancedTab
               </Button>
             )}
             <ButtonGroup size='small' variant='outlined'>
-              <Button>Enroll</Button>
-              <Button>Withdraw</Button>
+              <Button onClick={Enroll}>Enroll</Button>
+              <Button onClick={Withdraw}>Withdraw</Button>
             </ButtonGroup>
           </Box>
         ) : null}

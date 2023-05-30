@@ -1,9 +1,9 @@
-import { Controller, Control, FieldErrors } from 'react-hook-form';
-import InputMask from 'react-input-mask';
-import TextField from '@mui/material/TextField';
-import React from 'react';
-import { FormHelperText } from '@mui/material';
-import { PersonalInformationForm } from 'src/pages/profiles/create';
+import { Controller, Control, FieldErrors } from 'react-hook-form'
+import InputMask from 'react-input-mask'
+import TextField from '@mui/material/TextField'
+import React from 'react'
+import { FormHelperText } from '@mui/material'
+import { PersonalInformationForm } from 'src/pages/profiles/create/validators'
 
 interface DateFieldProps {
   control: Control<any, any>
@@ -20,13 +20,8 @@ const DateField = ({ control, errors, name, label, defaultValue }: DateFieldProp
       control={control}
       defaultValue={defaultValue ?? ''}
       render={({ field: { onChange, value } }) => (
-        <InputMask
-          onChange={onChange}
-          value={value}
-          mask="9999-99-99"
-        >
+        <InputMask onChange={onChange} value={value} mask='9999-99-99'>
           <div>
-
             <TextField
               error={errors ? Boolean(errors[name]) : false}
               label={label}
@@ -35,16 +30,16 @@ const DateField = ({ control, errors, name, label, defaultValue }: DateFieldProp
             />
             {errors
               ? errors[name] && (
-                <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-select'>
-                  {errors[name]?.message ? `${errors[name]?.message}` : "This field is required"}
-                </FormHelperText>
-              )
+                  <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-select'>
+                    {errors[name]?.message ? `${errors[name]?.message}` : 'This field is required'}
+                  </FormHelperText>
+                )
               : null}
           </div>
         </InputMask>
       )}
     />
-  );
-};
+  )
+}
 
-export default DateField;
+export default DateField

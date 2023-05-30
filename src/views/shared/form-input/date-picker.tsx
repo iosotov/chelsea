@@ -44,7 +44,7 @@ export default function SelectDate({ name, label, control, errors, required, isC
               selected={value || null}
               onChange={e => onChange(e)}
               placeholderText='MM/DD/YYYY'
-              isClearable={isClearable ?? true}
+              isClearable={isClearable && !disabled}
               disabled={disabled}
               {...props}
               customInput={

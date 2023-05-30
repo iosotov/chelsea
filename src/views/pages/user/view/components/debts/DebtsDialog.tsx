@@ -1,4 +1,4 @@
-import { ReactElement, useEffect } from 'react'
+import { ReactElement, useEffect, useRef } from 'react'
 
 //MUI
 import Grid from '@mui/material/Grid'
@@ -18,6 +18,7 @@ import { useForm } from 'react-hook-form'
 //Types
 import { GridRowId } from '@mui/x-data-grid'
 import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
+import { LiabilityUpdateType } from 'src/store/api/liabilityApiSlice'
 
 //API Hooks
 import { useAppSelector } from 'src/store/hooks'
@@ -34,7 +35,6 @@ import ToggleSwitch from 'src/views/shared/form-input/toggle-switch'
 
 //Dropdown Options
 import { stateOptions } from 'src/views/shared/options/shared'
-import { LiabilityUpdateType } from 'src/store/api/liabilityApiSlice'
 
 type DebtDialogProps = {
   selected: GridRowId[]
@@ -42,55 +42,84 @@ type DebtDialogProps = {
   handleClose: () => void
 }
 
-const enrolledOptions = [
-  {
-    label: 'Yes',
-    value: true
-  },
-  {
-    label: 'No',
-    value: false
-  }
-]
-
 type ViewDebtValues = {
   name: string
-  originalBalance: number
+  originalBalance?: number
   type: string
-  accountNumber: string
-  currentPayment: string | number
-  accountStatus: string
-  openedDate: string
-  term: string
-  highestBalance: number
-  lastPayment: string
-  inquiryDate: string
-  reportDate: string
-  thirtyDaysLateCount: string
-  sixtyDaysLateCount: string
-  nintyDaysLateCount: string
-  enrolled: boolean
+  accountNumber?: string
+  currentPayment?: string | number
+  accountStatus?: string
+  openedDate?: Date
+  term?: number
+  highestBalance?: number
+  lastPayment?: Date
+  inquiryDate?: Date
+  reportDate?: Date
+  thirtyDaysLateCount?: string
+  sixtyDaysLateCount?: string
+  nintyDaysLateCount?: string
+  enrolled?: boolean
   profileId: string
-  profileFirstName: string
-  profileLastName: string
-  currentBalance: number
-  currentCreditor: string
-  currentAccountNumber: string
-  thirdPartyAccountNumber: string
-  currentPaymentAmount: string
-  legalStatus: boolean
-  summon: boolean
-  judgement: boolean
-  garnishment: boolean
-  address1: string
-  address2: string
-  city: string
-  zipCode: string
-  state: string
-  caseNumber: string
-  courtName: string
-  courtDate: string
-  responseDate: string
+  profileFirstName?: string
+  profileLastName?: string
+  currentBalance?: number
+  currentCreditor?: string
+  currentAccountNumber?: string
+  thirdPartyAccountNumber?: string
+  currentPaymentAmount?: number
+  legalStatus?: boolean
+  summon?: boolean
+  judgement?: boolean
+  garnishment?: boolean
+  address1?: string
+  address2?: string
+  city?: string
+  zipCode?: string
+  state?: string
+  caseNumber?: string
+  courtName?: string
+  courtDate?: Date
+  responseDate?: Date
+}
+
+const baseValues: ViewDebtValues = {
+  name: '',
+  originalBalance: undefined,
+  type: '',
+  accountNumber: undefined,
+  currentPayment: undefined,
+  accountStatus: undefined,
+  openedDate: undefined,
+  term: undefined,
+  highestBalance: undefined,
+  lastPayment: undefined,
+  inquiryDate: undefined,
+  reportDate: undefined,
+  thirtyDaysLateCount: undefined,
+  sixtyDaysLateCount: undefined,
+  nintyDaysLateCount: undefined,
+  enrolled: false,
+  profileId: '',
+  profileFirstName: undefined,
+  profileLastName: undefined,
+  currentBalance: undefined,
+  currentCreditor: undefined,
+  currentAccountNumber: undefined,
+  thirdPartyAccountNumber: undefined,
+  currentPaymentAmount: undefined,
+  legalStatus: false,
+  summon: false,
+  judgement: false,
+  garnishment: false,
+  address1: undefined,
+  address2: undefined,
+  city: undefined,
+  zipCode: undefined,
+  state: undefined,
+  caseNumber: undefined,
+  courtName: undefined,
+  courtDate: undefined,
+  responseDate: undefined
 }
 
 export default function DebtsDialog({ selected, open, handleClose }: DebtDialogProps): ReactElement {
@@ -102,47 +131,9 @@ export default function DebtsDialog({ selected, open, handleClose }: DebtDialogP
 
   const [editLiability, { isLoading }] = usePutLiabilityUpdateMutation()
 
-  let defaultValues: ViewDebtValues = {
-    name: '',
-    originalBalance: 0,
-    type: '',
-    accountNumber: '',
-    currentPayment: 0,
-    accountStatus: '',
-    openedDate: '',
-    term: '',
-    highestBalance: 0,
-    lastPayment: '',
-    inquiryDate: '',
-    reportDate: '',
-    thirtyDaysLateCount: '',
-    sixtyDaysLateCount: '',
-    nintyDaysLateCount: '',
-    enrolled: false,
-    profileId: '',
-    profileFirstName: '',
-    profileLastName: '',
-    currentBalance: 0,
-    currentCreditor: '',
-    currentAccountNumber: '',
-    thirdPartyAccountNumber: '',
-    currentPaymentAmount: '',
-    legalStatus: false,
-    summon: false,
-    judgement: false,
-    garnishment: false,
-    address1: '',
-    address2: '',
-    city: '',
-    zipCode: '',
-    state: '',
-    caseNumber: '',
-    courtName: '',
-    courtDate: '',
-    responseDate: ''
-  }
+  const defaultValues = useRef<ViewDebtValues>(baseValues)
 
-  const debtForm = useForm({ defaultValues: defaultValues })
+  const debtForm = useForm({ defaultValues: defaultValues.current })
   const {
     control,
     unregister,
@@ -158,17 +149,15 @@ export default function DebtsDialog({ selected, open, handleClose }: DebtDialogP
       const { openedDate, lastPayment, inquiryDate, reportDate, courtDate, responseDate } = liability
       reset({
         ...liability,
-        openedDate: openedDate ? new Date(openedDate) : '',
-        lastPayment: lastPayment ? new Date(lastPayment) : '',
-        inquiryDate: inquiryDate ? new Date(inquiryDate) : '',
-        reportDate: reportDate ? new Date(reportDate) : '',
-        courtDate: courtDate ? new Date(courtDate) : '',
-        responseDate: responseDate ? new Date(responseDate) : ''
+        openedDate: openedDate ? new Date(openedDate) : undefined,
+        lastPayment: lastPayment ? new Date(lastPayment) : undefined,
+        inquiryDate: inquiryDate ? new Date(inquiryDate) : undefined,
+        reportDate: reportDate ? new Date(reportDate) : undefined,
+        courtDate: courtDate ? new Date(courtDate) : undefined,
+        responseDate: responseDate ? new Date(responseDate) : undefined
       })
-    } else {
-      defaultValues = { ...defaultValues }
     }
-  }, [liability])
+  }, [liability, reset])
 
   const onSubmit = () => {
     if (!liability) return
@@ -219,7 +208,7 @@ export default function DebtsDialog({ selected, open, handleClose }: DebtDialogP
     if (!legalStatus) {
       unregister(['caseNumber', 'courtName'])
     }
-  }, [legalStatus])
+  }, [legalStatus, unregister])
 
   return (
     <Dialog open={open} maxWidth='xl' fullWidth onClose={onClose} aria-labelledby='form-dialog-title'>
@@ -239,7 +228,14 @@ export default function DebtsDialog({ selected, open, handleClose }: DebtDialogP
             <SingleSelect name='type' label='Debt Type' control={control} options={debtOptions} />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <SingleSelect name='enrolled' label='Enrolled?' control={control} disabled options={enrolledOptions} />
+            <ToggleSwitch
+              name='enrolled'
+              label='Enrolled?'
+              control={control}
+              labelBefore='No'
+              labelAfter='Yes'
+              disabled
+            />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
             <TextInput name='currentCreditor' label='Current Creditor' control={control} errors={errors} required />
@@ -251,7 +247,7 @@ export default function DebtsDialog({ selected, open, handleClose }: DebtDialogP
             <TextInput name='currentAccountNumber' label='Current Account Number' control={control} />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <TextInput name='accountNumber' label='Original Account Number' disabled control={control} disabled />
+            <TextInput name='accountNumber' label='Original Account Number' control={control} disabled />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
             <TextInput name='currentBalance' label='Current Balance' control={control} />
@@ -266,10 +262,10 @@ export default function DebtsDialog({ selected, open, handleClose }: DebtDialogP
             />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <SelectDate name='currentPayment' label='Current Payment Date' control={control} disabled />
+            <SelectDate name='currentPayment' label='Current Payment Date' control={control} isClearable disabled />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <SelectDate name='lastPayment' label='Last Payment Date' control={control} />
+            <SelectDate name='lastPayment' label='Last Payment Date' control={control} isClearable />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
             <TextInput name='currentPaymentAmount' label='Current Payment Amount' control={control} disabled />
@@ -305,19 +301,19 @@ export default function DebtsDialog({ selected, open, handleClose }: DebtDialogP
             <SingleSelect name='state' label='State' control={control} options={stateOptions} />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <SelectDate name='courtDate' label='Court Date' control={control} />
+            <SelectDate name='courtDate' label='Court Date' control={control} isClearable />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <SelectDate name='responseDate' label='Response Date' control={control} />
+            <SelectDate name='responseDate' label='Response Date' control={control} isClearable />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <SelectDate name='inquiryDate' label='Inquiry Date' control={control} disabled />
+            <SelectDate name='inquiryDate' label='Inquiry Date' control={control} isClearable disabled />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <SelectDate name='reportDate' label='Report Date' control={control} disabled />
+            <SelectDate name='reportDate' label='Report Date' control={control} isClearable disabled />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <SelectDate name='openedDate' label='Opened Date' control={control} disabled />
+            <SelectDate name='openedDate' label='Opened Date' control={control} isClearable disabled />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
             <TextInput name='term' label='Term' control={control} disabled />

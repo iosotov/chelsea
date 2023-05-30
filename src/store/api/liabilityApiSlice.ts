@@ -89,9 +89,9 @@ export type LiabilityUpdateType = {
   openedDate?: string
   term?: number
   highestBalance?: number
-  lastPayment?: string
-  inquiryDate?: string
-  reportDate?: string
+  lastPayment?: Date
+  inquiryDate?: Date
+  reportDate?: Date
   thirtyDaysLateCount?: string
   sixtyDaysLateCount?: string
   nintyDaysLateCount?: string
@@ -112,8 +112,8 @@ export type LiabilityUpdateType = {
   state?: string
   caseNumber?: string
   courtName?: string
-  courtDate?: string
-  responseDate?: string
+  courtDate?: Date
+  responseDate?: Date
 }
 
 export type LiabilityEnrollType = {
