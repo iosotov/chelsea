@@ -10,20 +10,22 @@ type Props = {
   placeholder?: string
   defaultValue?: string | number
   required?: boolean
-  errors?: any
+  errors?: boolean
+  errMessage?: string | undefined
   disabled?: any
   InputProps?: any
   type?: "text" | "number" | "email" | "password" | "tel" | "date"
 }
 
-export default function TextInput({
+export default function FieldArrTextInput({
   control,
   label,
   name,
   placeholder,
   defaultValue,
-  required,
+  required = false,
   errors,
+  errMessage = "Please try again",
   type,
   ...props
 }: Props) {
@@ -35,12 +37,17 @@ export default function TextInput({
         control={control}
         name={name}
         defaultValue={defaultValue ?? ''}
-        rules={{ required: required ?? false }}
+        rules={{
+          required: {
+            value: required,
+            message: 'Required'
+          }
+        }}
         render={({ field }) => (
           <TextField
             type={type || 'text'}
             label={label}
-            error={errors ? Boolean(errors[name]) : false}
+            error={errors}
             placeholder={placeholder ?? ''}
             {...props}
             {...field}
@@ -48,9 +55,9 @@ export default function TextInput({
         )}
       />
       {errors
-        ? errors[name] && (
+        ? (
           <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-select'>
-            {errors[name]?.message ? `${errors[name]?.message}` : "This field is required"}
+            {errMessage}
           </FormHelperText>
         )
         : null}

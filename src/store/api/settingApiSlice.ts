@@ -22,6 +22,12 @@ export type AddressSettingType = {
   name: string
   order: number
   active: boolean
+  value?: string
+  address1?: string
+  address2?: string
+  city?: string
+  state?: string
+  zipCode?: string
 }
 
 export type AssigneeDatasourceType = {
@@ -92,6 +98,7 @@ export type ContactSettingType = {
   active: boolean
   required: boolean
   order: number
+  value?: string
 }
 
 export type ContactCreateType = {
@@ -118,6 +125,7 @@ export type CustomFieldSettingType = {
   createdByName: string
   fieldGroup: string
   order: number
+  value?: string
 }
 
 export type CustomFieldCreateType = {
