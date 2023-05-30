@@ -162,10 +162,20 @@ export default function PaymentFormSubmit({ type, data, form, paymentMethod }: P
             />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextInput name='accountNumber' label='Account Number' control={control} InputProps={{ readOnly: true }} />
+            <TextInput
+              name='bankAccountNumber'
+              label='Account Number'
+              control={control}
+              InputProps={{ readOnly: true }}
+            />
           </Grid>
           <Grid item xs={12} sm={6}>
-            <TextInput name='routingNumber' label='Routing Number' control={control} InputProps={{ readOnly: true }} />
+            <TextInput
+              name='bankRoutingNumber'
+              label='Routing Number'
+              control={control}
+              InputProps={{ readOnly: true }}
+            />
           </Grid>
         </>
       ) : (

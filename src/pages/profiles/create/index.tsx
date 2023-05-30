@@ -23,7 +23,12 @@ import { useForm } from 'react-hook-form'
 import PersonalInformation from 'src/views/pages/user/view/components/createForm/PersonalInformation'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { ProfileCreateType } from 'src/store/api/profileApiSlice'
-import { useLazyPostAddressSearchQuery, useLazyPostContactSearchQuery, useLazyPostCustomFieldSearchQuery, usePostProfileCreateMutation } from 'src/store/api/apiHooks'
+import {
+  useLazyPostAddressSearchQuery,
+  useLazyPostContactSearchQuery,
+  useLazyPostCustomFieldSearchQuery,
+  usePostProfileCreateMutation
+} from 'src/store/api/apiHooks'
 import AdditionalInformation from 'src/views/pages/user/view/components/createForm/AdditionalInformation'
 import { AddressSettingType, ContactSettingType, CustomFieldSettingType } from 'src/store/api/settingApiSlice'
 import ContactInformation from 'src/views/pages/user/view/components/createForm/ContactInformation'
@@ -35,40 +40,39 @@ import { PersonalInformationForm, personalSchema } from './validators'
 const steps = [
   {
     title: 'Account Information',
-    subtitle: 'Enter Account Details',
+    subtitle: 'Enter Account Details'
   },
   {
     title: 'Additional Information',
-    subtitle: 'Enter Additional Details',
+    subtitle: 'Enter Additional Details'
   },
   {
     title: 'Contact Information',
-    subtitle: 'Enter Contacts and Address Details',
+    subtitle: 'Enter Contacts and Address Details'
   }
 ]
 export interface AdditionalInformationForm {
   customFields: CustomFieldSettingType[]
-  profileContacts: ContactSettingType[],
+  profileContacts: ContactSettingType[]
   profileAddresses: AddressSettingType[]
 }
 
 const additionalInfoDefault: AdditionalInformationForm = {
   customFields: [],
   profileContacts: [],
-  profileAddresses: [],
+  profileAddresses: []
 }
 
 const defaultProfile = {
-  firstName: "",
-  lastName: "",
-  campaignId: "",
-  middleName: "",
-  birthdate: "",
-  ssn: ""
+  firstName: '',
+  lastName: '',
+  campaignId: '',
+  middleName: '',
+  birthdate: '',
+  ssn: ''
 }
 
 const CreateProfileStepper = () => {
-
   // LOCAL STATE
   const [activeStep, setActiveStep] = useState<number>(0)
 
@@ -88,29 +92,41 @@ const CreateProfileStepper = () => {
    * allows validation at different steps
    *
    */
-  const { control: personalControl, formState: { errors: personalErrors }, handleSubmit: personalSubmit, getValues, reset: personalReset } = useForm<PersonalInformationForm>({
+  const {
+    control: personalControl,
+    formState: { errors: personalErrors },
+    handleSubmit: personalSubmit,
+    getValues,
+    reset: personalReset
+  } = useForm<PersonalInformationForm>({
     resolver: yupResolver(personalSchema),
     defaultValues: defaultProfile
   })
-  const { setValue, control: additionalControl, formState: { errors: additionalErrors }, handleSubmit: additionalSubmit, reset: additionalReset } = useForm<AdditionalInformationForm>({
+  const {
+    setValue,
+    control: additionalControl,
+    formState: { errors: additionalErrors },
+    handleSubmit: additionalSubmit,
+    reset: additionalReset
+  } = useForm<AdditionalInformationForm>({
     defaultValues: additionalInfoDefault
   })
 
   // ASYNCHRONOUSLY FETCHES CREATE PROFILE FIELDS AND SETS THEM
   useEffect(() => {
     const fetchData = async () => {
-      const { data: customFields } = await getCustomFields({});
-      if (customFields) setValue('customFields', customFields);
+      const { data: customFields } = await getCustomFields({})
+      if (customFields) setValue('customFields', customFields)
 
-      const { data: profileContacts } = await getContacts({});
-      if (profileContacts) setValue('profileContacts', profileContacts);
+      const { data: profileContacts } = await getContacts({})
+      if (profileContacts) setValue('profileContacts', profileContacts)
 
-      const { data: profileAddresses } = await getAddresses({});
-      if (profileAddresses) setValue('profileAddresses', profileAddresses);
-    };
+      const { data: profileAddresses } = await getAddresses({})
+      if (profileAddresses) setValue('profileAddresses', profileAddresses)
+    }
 
-    fetchData();
-  }, [getAddresses, getContacts, getCustomFields, setValue]);
+    fetchData()
+  }, [getAddresses, getContacts, getCustomFields, setValue])
 
   // RESET ACTIVE STEP
   const handleReset = () => {
@@ -152,17 +168,24 @@ const CreateProfileStepper = () => {
     const profileCreateData: ProfileCreateType = {
       ...personalInformation,
 
-      profileContacts: data.profileContacts.
-        filter(({ value }) => value)
-        .map(c => ({ contactId: c.contactId, value: c.value || "" })),
+      profileContacts: data.profileContacts
+        .filter(({ value }) => value)
+        .map(c => ({ contactId: c.contactId, value: c.value || '' })),
 
-      profileAddresses: data.profileAddresses.
-        filter(({ addressId, address1, city, state, zipCode }) => (addressId && address1 && city && state && zipCode)).
-        map(({ addressId, address1 = "", address2 = "", city = "", state = "", zipCode = "" }) => ({ addressId, address1, address2, city, state, zipCode })),
+      profileAddresses: data.profileAddresses
+        .filter(({ addressId, address1, city, state, zipCode }) => addressId && address1 && city && state && zipCode)
+        .map(({ addressId, address1 = '', address2 = '', city = '', state = '', zipCode = '' }) => ({
+          addressId,
+          address1,
+          address2,
+          city,
+          state,
+          zipCode
+        })),
 
-      profileCustomFields: data.customFields.
-        filter(({ value }) => value).
-        map(({ customFieldId, value = "" }) => ({ customFieldId, value }))
+      profileCustomFields: data.customFields
+        .filter(({ value }) => value)
+        .map(({ customFieldId, value = '' }) => ({ customFieldId, value }))
     }
 
     const profileId = await createProfile(profileCreateData).unwrap()
@@ -181,16 +204,15 @@ const CreateProfileStepper = () => {
 
   // COMPONENTS FOR EVERY STEP
   const stepComponents = [
-    <PersonalInformation key={"personal"} control={personalControl} errors={personalErrors} />,
-    <AdditionalInformation key={"customField"} control={additionalControl} errors={additionalErrors} />,
-    <ContactInformation key={"contact"} control={additionalControl} errors={additionalErrors} />
+    <PersonalInformation key={'personal'} control={personalControl} errors={personalErrors} />,
+    <AdditionalInformation key={'customField'} control={additionalControl} errors={additionalErrors} />,
+    <ContactInformation key={'contact'} control={additionalControl} errors={additionalErrors} />
   ]
 
   // RENDERS APPROPRIATE BUTTON BASED
   const renderButton = () => {
-
     // CONDITIONAL ASSIGNMENT OF ONCHANGE
-    let onChange;
+    let onChange
     if (activeStep === 0) onChange = personalSubmit(handleAfterPersonal)
     if (activeStep === 1) onChange = () => handleSkip()
     if (activeStep === 2) onChange = additionalSubmit(handleAfterContact)
@@ -198,7 +220,7 @@ const CreateProfileStepper = () => {
     // CONDITIONAL BUTTON ASSIGNMENT
     return activeStep < 3 ? (
       <Button variant='contained' onClick={onChange} sx={{ ml: 4 }}>
-        {!isLoading && activeStep > 1 ? "Create Profile" : "Next"}
+        {!isLoading && activeStep > 1 ? 'Create Profile' : 'Next'}
         {isLoading && <CircularProgress />}
       </Button>
     ) : null
@@ -225,14 +247,11 @@ const CreateProfileStepper = () => {
                   <StepContent>
                     {stepComponents[index]}
                     <Box className='button-wrapper' sx={{ mb: 6 }}>
-                      {activeStep < steps.length && <Button
-                        color='secondary'
-                        variant='outlined'
-                        onClick={handleBack}
-                        disabled={activeStep === 0}
-                      >
-                        Back
-                      </Button>}
+                      {activeStep < steps.length && (
+                        <Button color='secondary' variant='outlined' onClick={handleBack} disabled={activeStep === 0}>
+                          Back
+                        </Button>
+                      )}
                       {renderButton()}
                     </Box>
                   </StepContent>
@@ -242,8 +261,10 @@ const CreateProfileStepper = () => {
           </Stepper>
         </StepperWrapper>
         {activeStep === steps.length && (
-          <Stack sx={{ mt: 2, display: "grid", placeItems: "center" }}>
-            <Typography variant='h6' sx={{ mb: 4 }}>All steps are completed!</Typography>
+          <Stack sx={{ mt: 2, display: 'grid', placeItems: 'center' }}>
+            <Typography variant='h6' sx={{ mb: 4 }}>
+              All steps are completed!
+            </Typography>
             <Typography sx={{ mb: 6 }}>Hold tight while you are routed to the new profile</Typography>
             <CircularProgress sx={{ mb: 6 }} color='primary' />
           </Stack>
