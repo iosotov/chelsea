@@ -1,7 +1,8 @@
-import { createEntityAdapter, createSlice } from '@reduxjs/toolkit'
+import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit'
 
 import { RootState } from './store'
-import { UserPermissionsType, UserType } from './api/userApiSlice'
+import { UserActivityType, UserPermissionsType, UserType } from './api/userApiSlice'
+import { defaultSuggestionsData } from 'src/layouts/components/vertical/Autocomplete'
 
 const userAdapter = createEntityAdapter({
   selectId: (user: UserType) => user.userId
@@ -11,9 +12,14 @@ const userPermissionAdapter = createEntityAdapter({
   selectId: (user: UserPermissionsType) => user.userId
 })
 
+const userActivityAdapter = createEntityAdapter({
+  selectId: (user: UserActivityType) => user.userActivityId
+})
+
 const initialState = {
   user: userAdapter.getInitialState(),
-  permission: userPermissionAdapter.getInitialState()
+  permission: userPermissionAdapter.getInitialState(),
+  activity: userActivityAdapter.getInitialState()
 }
 
 const userSlice = createSlice({
@@ -49,6 +55,21 @@ const userSlice = createSlice({
     },
     deleteUserPermission: (state, action) => {
       userPermissionAdapter.removeOne(state.permission, action.payload)
+    },
+    setUserActivitys: (state, action) => {
+      userActivityAdapter.setAll(state.activity, action.payload)
+    },
+    updateUserActivitys: (state, action) => {
+      userActivityAdapter.upsertMany(state.activity, action.payload)
+    },
+    addUserActivity: (state, action) => {
+      userActivityAdapter.addOne(state.activity, action.payload)
+    },
+    updateUserActivity: (state, action) => {
+      userActivityAdapter.upsertOne(state.activity, action.payload)
+    },
+    deleteUserActivity: (state, action) => {
+      userActivityAdapter.removeOne(state.activity, action.payload)
     }
   }
 })
@@ -63,7 +84,12 @@ export const {
   addUserPermission,
   updateUserPermission,
   updateUserPermissions,
-  deleteUserPermission
+  deleteUserPermission,
+  setUserActivitys,
+  addUserActivity,
+  updateUserActivity,
+  updateUserActivitys,
+  deleteUserActivity
 } = userSlice.actions
 
 export default userSlice.reducer
@@ -79,3 +105,22 @@ export const {
   selectById: selectUserPermissionById,
   selectIds: selectUserPermissionIds
 } = userPermissionAdapter.getSelectors((state: RootState) => state.user.permission)
+
+export const {
+  selectAll: selectAllUserActivitys,
+  selectById: selectUserActivityById,
+  selectIds: selectUserActivityIds
+} = userActivityAdapter.getSelectors((state: RootState) => state.user.activity)
+
+export const selectQuickSearchLinks = createSelector(selectAllUserActivitys, activities => {
+  const recentSearch = {
+    category: 'Recent Searches',
+    suggestions: activities.map(r => ({
+      icon: 'mdi:account-group',
+      suggestion: `${r.description}`,
+      link: `/profiles/${r.objectId}/debts/`
+    }))
+  }
+
+  return [...defaultSuggestionsData, recentSearch]
+})

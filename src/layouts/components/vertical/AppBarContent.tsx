@@ -11,6 +11,8 @@ import { Settings } from 'src/@core/context/settingsContext'
 // ** Components
 import ModeToggler from 'src/@core/layouts/components/shared-components/ModeToggler'
 import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'
+import { useAppSelector } from 'src/store/hooks'
+import AutocompleteComponent from './Autocomplete'
 
 interface Props {
   hidden: boolean
@@ -22,6 +24,7 @@ interface Props {
 const AppBarContent = (props: Props) => {
   // ** Props
   const { hidden, settings, saveSettings, toggleNavVisibility } = props
+  const token = useAppSelector(state => state.auth.token)
 
   return (
     <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -31,10 +34,12 @@ const AppBarContent = (props: Props) => {
             <Icon icon='mdi:menu' />
           </IconButton>
         ) : null}
-
         <ModeToggler settings={settings} saveSettings={saveSettings} />
       </Box>
       <Box className='actions-right' sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box sx={{ mr: 3 }}>
+          {token && <AutocompleteComponent hidden={hidden} settings={settings} />}
+        </Box>
         <UserDropdown settings={settings} />
       </Box>
     </Box>
