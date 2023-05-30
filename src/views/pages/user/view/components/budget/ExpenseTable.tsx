@@ -44,7 +44,7 @@ const ExpenseTable = ({ control, data }: Props) => {
                         }
                       }}
                     >
-                      <TableCell component='th' scope='row'>
+                      <TableCell sx={{ minWidth: 450 }} component='th' scope='row'>
                         {budget.name}
                       </TableCell>
                       <TableCell align='right'>

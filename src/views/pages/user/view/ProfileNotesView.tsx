@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-
+import { Stack, Typography } from '@mui/material'
 import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import Select from '@mui/material/Select'
@@ -7,165 +7,129 @@ import MenuItem from '@mui/material/MenuItem'
 import TextField from '@mui/material/TextField'
 import InputLabel from '@mui/material/InputLabel'
 import FormControl from '@mui/material/FormControl'
-import FormHelperText from '@mui/material/FormHelperText'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import CardHeader from '@mui/material/CardHeader'
 import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
-import { DataGrid, GridColDef, GridValueGetterParams } from '@mui/x-data-grid'
 import Box from '@mui/material/Box'
-import { toast } from 'react-hot-toast'
-import { Controller, useForm } from 'react-hook-form'
-import { v4 as uuid } from 'uuid'
 
 import {
   useGetProfileNotesQuery,
   usePostNoteCreateMutation,
   usePutNoteUpdateMutation,
   useDeleteNoteMutation,
-  usePostEmployeeSearchQuery
+  usePostEmployeeSearchQuery,
+  usePostTemplateSearchQuery,
+  useLazyGetTemplateQuery
 } from 'src/store/api/apiHooks'
 
 import { useAppSelector } from 'src/store/hooks'
-import { selectNoteById, selectNotesByProfileId } from 'src/store/noteSlice'
-import { selectAllEmployeeSelectOptions } from 'src/store/employeeSlice'
+import { selectNotesByProfileId } from 'src/store/noteSlice'
+import { selectAllEmployees } from 'src/store/employeeSlice'
+
+// ** Third Party Imports
+import { Controller, useForm } from 'react-hook-form'
 
 // ** Styles Import
 import 'react-credit-cards/es/styles-compiled.css'
-import { NoteCreateType, NoteUpdateType, NoteReferenceTypeEnum } from 'src/store/api/noteApiSlice'
+import { NoteCreateType } from 'src/store/api/noteApiSlice'
+import { selectTemplatesByType } from 'src/store/templateSlice'
+import { store } from 'src/store/store'
+import { DataGridPro, GridColDef, GridRowId } from '@mui/x-data-grid-pro'
+import { toast } from 'react-hot-toast'
+import { format } from 'date-fns'
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
 
+const defaultValues = {
+  content: '',
+  mentionedEmails: '',
+  usedTemplate: '',
+  targets: []
+}
 interface ProfileNotesProps {
   id: string
 }
 
-interface FilteredOptionsType {
-  label: string
-  value: string
-}
-
 interface FormValues {
   content: string
-  parentNoteId?: string
-  important?: boolean
-  mentionedEmails?: string
-  noteReferenceId?: string
-  referenceType?: NoteReferenceTypeEnum
-  type?: string
-  usedTemplate?: string
-  targets?: string
-  profileId: string
-}
-export const DrawerTitles = ['Create', 'Edit']
+  mentionedEmails: string
+  usedTemplate: string
+  targets: string[]
 
-const noteTemplates = ['Credit Card', 'Address Template', 'Debt Template', 'Payment Template']
-
-// const assignTypes = ['Employees', 'Groups', 'Roles']
-
-const defaultValues: FormValues = {
-  profileId: '',
-  content: '',
-  type: '',
-  mentionedEmails: '',
-  usedTemplate: '',
-  targets: ''
 }
 
 const ProfileNotes = ({ id }: ProfileNotesProps) => {
   const profileId = id
-  const [selectedNote, setSelectedNote] = useState<string>('')
-  const [formMode, setFormMode] = useState<number>(0)
-  const { isLoading, isError } = useGetProfileNotesQuery(profileId)
-  const profileNotes = useAppSelector(state => selectNotesByProfileId(state, profileId))
-
-  usePostEmployeeSearchQuery({})
-  const employees: FilteredOptionsType[] = useAppSelector(state => selectAllEmployeeSelectOptions(state))
-
-  // const [noteType, setNoteType] = useState<string>('')
-  const note = useAppSelector(state => selectNoteById(state, selectedNote))
-  const {
-    handleSubmit,
-    reset,
-    control,
-    formState: { errors }
-  } = useForm<FormValues>({ defaultValues, shouldUnregister: true })
-
-  useEffect(() => {
-    if (formMode === 1 && note) {
-      const { content, mentionedEmails } = note
-      reset({ content, mentionedEmails: mentionedEmails || '' })
-    } else {
-      reset({ ...defaultValues })
-    }
-  }, [formMode, note, reset])
-
-  let rows = []
-
-  const dataWithIndex = profileNotes.map((obj, index) => {
-    return { ...obj, id: index }
-  })
-  rows = dataWithIndex
 
   //API CALLS
-  const [createNote, { isLoading: createLoading }] = usePostNoteCreateMutation()
-  const [updateNote, { isLoading: updateLoading }] = usePutNoteUpdateMutation()
-  const [deleteNote, { isLoading: deleteLoading }] = useDeleteNoteMutation()
+  const { isSuccess: employeeSuccess } = usePostEmployeeSearchQuery({})
+  const { isSuccess: templateSuccess } = usePostTemplateSearchQuery({})
+  const [triggerCreate, { isLoading: createLoading }] = usePostNoteCreateMutation()
+  const [triggerUpdate, { isLoading: updateLoading }] = usePutNoteUpdateMutation()
+  const [triggerDelete, { isLoading: deleteLoading }] = useDeleteNoteMutation()
+  const [getTemplate] = useLazyGetTemplateQuery()
+  const { isLoading, isError } = useGetProfileNotesQuery(profileId, { skip: !profileId })
 
-  //LOAD DATA
+  // GLOBAL STATE
+  const profileNotes = useAppSelector(state => selectNotesByProfileId(state, profileId))
+  const noteTemplates = useAppSelector(state => selectTemplatesByType(state, 3))
+  const users = useAppSelector(state => selectAllEmployees(state))
 
-  async function onSubmit(data: FormValues) {
-    if (formMode === 0) {
-      const createData: NoteCreateType = { ...data, targets: [], profileId }
-      const success = await createNote(createData)
-      if (success) {
-        toast.success('You successfully created a task')
-        handleClose()
-      }
+  // LOCAL STATE
+  const [selectionModel, setSelectionModel] = useState<GridRowId[]>([])
+  const [dialogMode, setDialogMode] = useState<boolean>(false)
+
+
+  // USE HOOK FORM
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { }
+  } = useForm<FormValues>({ defaultValues })
+
+
+  // SUBMIT HANDLER
+  const onSubmit = async (data: FormValues) => {
+    const { targets, ...rest } = data
+    const createData: NoteCreateType = { ...rest, targets: targets.map(t => ({ type: 0, value: t })), profileId }
+    console.log(createData)
+
+    const success = await triggerCreate(createData).unwrap()
+    if (success) {
+      toast.success("You have successfully created a note for profile")
+      reset({ ...defaultValues })
     }
-
-    if (formMode === 1 && note) {
-      const updateData: NoteUpdateType = { ...data, noteId: note.noteId, targets: [] }
-      const success = await updateNote(updateData)
-      if (success) {
-        toast.success('You successfully updated a task')
-        handleClose()
-      }
-    }
   }
 
-  function handleClose() {
-    console.log('closing')
-  }
+  // AUTOMATICALLY DISABLES FORM IF NOTE SELECTED
+  useEffect(() => {
+    if (selectionModel.length) setDialogMode(true)
+    else setDialogMode(false)
+  }, [selectionModel.length])
 
-  const RenderSidebarFooter = () => {
-    return (
-      <Box sx={{ mb: 6 }}>
-        <Button disabled={createLoading} size='medium' variant='contained' sx={{ mr: 4 }} type='submit'>
-          Create
-        </Button>
-      </Box>
-    )
-  }
 
-  async function handleEditButtonById(params: string) {
-    setSelectedNote(params)
-    setFormMode(1)
-    console.log(updateLoading)
-  }
+  // UPDATES IMPORTANT STATUS = PINNING
+  async function handleUpdateImportant(noteId: string) {
+    const note = store.getState().note.entities[noteId]
 
-  async function handleDeleteButton(params: string) {
-    setSelectedNote(params)
-    setFormMode(1)
     if (note) {
-      const deleteData: string = note.noteId
-
-      const success = await deleteNote(deleteData)
-      if (success) {
-        toast.success('You successfully created a task')
-        handleClose()
+      const { data = undefined }: { data?: any, error?: any } = await triggerUpdate({ noteId: note.noteId, content: note.content, important: !note.important })
+      if (data) {
+        toast.success("You have updated note")
       }
     }
-    console.log(deleteLoading)
+  }
+
+  // HANDLE DELETE
+  async function handleDeleteButton(noteId: string) {
+    const { data = undefined }: { data?: any, error?: any } = await triggerDelete(noteId)
+    if (data) {
+      toast.success("You have successfully deleted note")
+    }
+
   }
 
   const columns: GridColDef[] = [
@@ -173,53 +137,62 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
       field: 'type',
       headerName: 'Type',
       width: 90,
-      valueGetter: (params: GridValueGetterParams) => `${params.row.type || 'null'}`
+      renderCell: params => (
+        <Stack>
+          <Typography variant='body2'>{params.row.type || "General"}</Typography>
+        </Stack>
+      )
     },
     {
+      flex: 1.5,
       field: 'content',
       headerName: 'Message',
-      width: 190
+      width: 190,
+      renderCell: params => (
+        <Stack>
+          <Typography sx={{ overflow: "wrap" }} variant='body2'>{params.row.content}</Typography>
+        </Stack>
+      )
     },
     {
-      field: 'createdAt',
-      headerName: 'created At',
-      width: 150
-    },
-    {
+      flex: .5,
       field: 'createdByName',
-      headerName: 'created By Name',
-      width: 150
+      headerName: 'created By',
+      minWidth: 150,
+      renderCell: params => (
+        <Stack>
+          <Typography variant='body2'>{params.row.createdByName}</Typography>
+          <Typography variant='body2'>{format(new Date(params.row.createdAt), "MM/dd/yyyy")}</Typography>
+        </Stack>
+      )
     },
-    {
-      field: 'important',
-      headerName: 'Important',
-      width: 110
-    },
-
     {
       field: 'Pin Note',
-
-      width: 70,
+      flex: .25,
+      minWidth: 70,
       renderCell: params => (
         <IconButton
           size='small'
           sx={{ color: 'text.primary' }}
+          disabled={updateLoading}
           value={params.row.noteId}
-          onClick={() => handleEditButtonById(params.row.noteId)}
+          onClick={() => handleUpdateImportant(params.row.noteId)}
         >
-          <Icon icon='mdi:pin' />
+          {!params.row.important ? <Icon icon='mdi:pin' /> : <PushPinOutlinedIcon />}
         </IconButton>
       )
     },
     {
       field: 'Delete',
 
-      width: 70,
+      flex: .25,
+      minWidth: 70,
       renderCell: params => (
         <IconButton
           size='small'
           sx={{ color: 'text.primary' }}
           value={params.row.noteId}
+          disabled={deleteLoading}
           onClick={() => handleDeleteButton(params.row.noteId)}
         >
           <Icon icon='mdi:delete' />
@@ -232,6 +205,7 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
 
   if (isLoading) return <div>Loading</div>
 
+
   return (
     <>
       <Card>
@@ -240,156 +214,108 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
           <form onSubmit={handleSubmit(onSubmit)}>
             <Grid container spacing={5}>
               <Grid item xs={12} sm={6}>
-                <FormControl fullWidth sx={{ mb: 2 }}>
-                  <InputLabel htmlFor='type'>Select Note Template...</InputLabel>
-                  <Controller
-                    name='type'
-                    control={control}
-                    rules={{ required: false }}
-                    render={({ field }) => (
-                      <Select
-                        disabled
-                        label='Select Template'
-                        labelId='type'
-                        id='type'
-                        error={Boolean(errors.type)}
-                        {...field}
-                      >
-                        <MenuItem value={undefined} disabled>
-                          Select Note Template
-                        </MenuItem>
-                        {noteTemplates.map((e, i) => (
-                          <MenuItem key={uuid()} value={i}>
-                            {e}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    )}
-                  />
-                  {errors.type && (
-                    <FormHelperText sx={{ color: 'error.main' }} id='event-status-error'>
-                      This field is required
-                    </FormHelperText>
-                  )}
-                </FormControl>
-              </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth sx={{ mb: 2 }}>
-                  <InputLabel htmlFor='usedTemplate'>Select Note Template Type...</InputLabel>
+                <FormControl disabled={dialogMode} fullWidth>
+                  <InputLabel htmlFor='note-template'>Note Template</InputLabel>
                   <Controller
                     name='usedTemplate'
                     control={control}
-                    rules={{ required: false }}
-                    render={({ field }) => (
-                      <Select
-                        disabled
-                        label='Select Note Template Type'
-                        labelId='usedTemplate'
-                        id='usedTemplate'
-                        error={Boolean(errors.usedTemplate)}
-                        {...field}
-                      >
-                        <MenuItem value={undefined} disabled>
-                          Select Note Type
-                        </MenuItem>
-                        {noteTemplates.map((e, i) => (
-                          <MenuItem key={uuid()} value={i}>
-                            {e}
+                    render={({ field: { onChange, ...rest } }) => {
+                      return (
+                        <Select
+                          label='Note Template'
+                          labelId='note-template'
+
+                          // disabled={isLoading}
+                          onChange={async (e) => {
+                            const { error, data } = await getTemplate(e.target.value)
+                            if (data) {
+                              const { content, presetNotifiedEmployees, presetCCEmails } = data
+                              content && setValue("content", content, { shouldValidate: true })
+                              presetCCEmails?.length && setValue("mentionedEmails", presetCCEmails.join(", "), { shouldValidate: true })
+                              presetNotifiedEmployees?.length && setValue("targets", presetNotifiedEmployees.map(e => e.toUpperCase()))
+                            }
+                            console.log(error, data)
+                            onChange(e)
+                          }}
+                          {...rest}
+                        >
+                          <MenuItem value='' disabled>
+                            Select Template
                           </MenuItem>
-                        ))}
-                      </Select>
-                    )}
+                          {templateSuccess && noteTemplates.map(t => {
+                            return (
+                              <MenuItem key={t.id} value={t.id}>{t.name}</MenuItem>
+                            )
+                          })}
+                        </Select>)
+                    }}
                   />
-                  {errors.type && (
-                    <FormHelperText sx={{ color: 'error.main' }} id='event-status-error'>
-                      This field is required
-                    </FormHelperText>
-                  )}
                 </FormControl>
               </Grid>
               <Grid item xs={12} sm={6}>
-                <FormControl fullWidth sx={{ mb: 2 }}>
-                  <InputLabel htmlFor='targets'>Notify To Users</InputLabel>
+                <FormControl fullWidth disabled={dialogMode}>
+                  <InputLabel htmlFor='note-targets'>Notify Users</InputLabel>
                   <Controller
                     name='targets'
                     control={control}
-                    rules={{ required: false }}
-                    render={({ field }) => (
-                      <Select
-                        disabled
-                        label='Select Users to Notify'
-                        labelId='targets'
-                        id='targets'
-                        error={Boolean(errors.targets)}
-                        {...field}
-                      >
-                        <MenuItem value={undefined} disabled>
-                          Select Users to Notify
-                        </MenuItem>
-                        {employees.map(employee => (
-                          <MenuItem key={employee.label} value={employee.value}>
-                            {employee.label}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    )}
+                    render={({ field }) => {
+                      return (
+                        <Select
+                          label='Notify Users'
+                          labelId='note-targets'
+                          multiple
+
+                          // disabled={isLoading}
+                          {...field}
+                        >
+                          {employeeSuccess && users.map(t => {
+                            return (
+                              <MenuItem key={t.employeeId} value={t.employeeId.toUpperCase()}>{t.employeeAlias}</MenuItem>
+                            )
+                          })}
+                        </Select>)
+                    }}
                   />
-                  {errors.targets && (
-                    <FormHelperText sx={{ color: 'error.main' }} id='event-status-error'>
-                      This field is required
-                    </FormHelperText>
-                  )}
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={6}>
-                <FormControl fullWidth sx={{ mb: 2 }}>
+
+              <Grid item xs={12} >
+                <FormControl fullWidth>
                   <Controller
                     name='mentionedEmails'
                     control={control}
-                    render={({ field: { value, onChange } }) => (
-                      <TextField
-                        fullWidth
-                        label='Email'
-                        value={value}
-                        onChange={onChange}
-                        error={Boolean(errors.mentionedEmails)}
-                      />
-                    )}
+                    render={({ field }) => {
+
+                      return <TextField disabled={dialogMode} label='Mention Email' {...field} />
+                    }}
+
                   />
-                  {errors.mentionedEmails && (
-                    <FormHelperText sx={{ color: 'error.main' }} id='event-content-error'>
-                      This field is required
-                    </FormHelperText>
-                  )}
                 </FormControl>
               </Grid>
 
               <Grid item xs={12} sm={12}>
-                <FormControl fullWidth sx={{ mb: 6 }}>
+                <FormControl fullWidth>
                   <Controller
                     name='content'
                     control={control}
-                    render={({ field: { value, onChange } }) => (
-                      <TextField
-                        fullWidth
-                        rows={6}
-                        label='Content'
-                        multiline
-                        value={value}
-                        onChange={onChange}
-                        error={Boolean(errors.content)}
-                      />
-                    )}
+                    render={({ field }) => {
+
+                      return <TextField disabled={dialogMode} multiline rows={4} label='content' {...field} />
+                    }}
+
                   />
-                  {errors.content && (
-                    <FormHelperText sx={{ color: 'error.main' }} id='event-content-error'>
-                      This field is required
-                    </FormHelperText>
-                  )}
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={12}>
-                <Box sx={{ display: 'flex', justifyContent: 'center' }}>{formMode == 0 && <RenderSidebarFooter />}</Box>
+              <Grid item xs={12} textAlign={'right'}>
+                <Button
+                  size='large'
+                  disabled={dialogMode || createLoading}
+                  variant='contained'
+                  sx={{ mr: 4 }}
+                  type='submit'
+                >
+                  Create
+                </Button>
               </Grid>
             </Grid>
           </form>
@@ -401,7 +327,23 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
         <CardHeader title='Notes' />
         <CardContent>
           <Box sx={{ height: 400, width: '100%' }}>
-            <DataGrid rows={rows} columns={columns} sx={{ mt: 7 }} />
+            <DataGridPro checkboxSelection onRowSelectionModelChange={(props) => {
+              setSelectionModel((state) =>
+                props.filter((newId: GridRowId) => !state.includes(newId))
+              );
+
+              if (props.length) {
+                const note = store.getState().note.entities[props[0]]
+                if (note) reset({ content: note.content, mentionedEmails: note.mentionedEmails || "", targets: note.targets?.map(t => t.value.toUpperCase()) })
+              } else {
+                reset(defaultValues)
+              }
+
+              console.log(props)
+            }}
+              rowSelectionModel={selectionModel}
+              rowHeight={100}
+              getRowId={r => r.noteId} rows={profileNotes} columns={columns} sx={{ mt: 7 }} />
           </Box>
         </CardContent>
       </Card>
@@ -410,3 +352,4 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
 }
 
 export default ProfileNotes
+

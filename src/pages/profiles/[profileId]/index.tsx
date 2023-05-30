@@ -31,8 +31,6 @@ export default function UserProfile({ tab }: Props) {
     skip: !profileId
   })
 
-  console.log(data)
-
   if (isError) {
     return (
       <>

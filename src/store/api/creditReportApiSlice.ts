@@ -106,7 +106,13 @@ export const creditReportApiSlice = apiSlice.injectEndpoints({
           console.error('API error in postProfileCreditReport:', err.error.data.message)
         }
       },
-      invalidatesTags: (res, error, arg) => (res ? [{ type: 'CREDITREPORT', id: arg }] : [])
+      invalidatesTags: (res, error, arg) =>
+        res
+          ? [
+              { type: 'CREDITREPORT', id: arg },
+              { type: 'LIABILITY', id: arg }
+            ]
+          : []
     }),
 
     // ***************************************************** POST creditreport/request

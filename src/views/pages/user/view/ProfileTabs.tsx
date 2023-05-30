@@ -20,6 +20,7 @@ import ProfileTasks from './ProfileTasksView'
 import ProfileActivity from './ProfileActivityView'
 import ProfileBudget from './ProfileBudgetView'
 import ProfileEmail from './ProfileEmailView'
+import PinnedNotes from './components/notes/PinnedNotes'
 
 type Props = {
   id: string
@@ -59,7 +60,9 @@ export default function ProfileTabs({ id, tab }: Props) {
         </TabList>
       </Box>
       {/* Add tab views here */}
+
       <Box sx={{ mt: 4 }}>
+        <PinnedNotes profileId={id} />
         {isLoading ? (
           <Box sx={{ mt: 6, display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
             <CircularProgress sx={{ mb: 4 }} />

@@ -61,8 +61,8 @@ export default function SelectDate({ name, label, control, errors, required, isC
       </DatePickerWrapper>
       {errors
         ? errors[name] && (
-            <FormHelperText sx={{ mx: 3.5, color: 'error.main' }} id='validation-basic-dob'>
-              This field is required
+            <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-select'>
+              {errors[name]?.message ? `${errors[name]?.message}` : 'This field is required'}
             </FormHelperText>
           )
         : null}

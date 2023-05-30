@@ -290,7 +290,7 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
                       label='Name'
                       onChange={(e) => {
                         const template = store.getState().template.entities[taskRef.current]
-                        if (template && template.content) setValue("notes", template.content)
+                        template && template.content ? setValue("notes", template.content) : setValue("notes", "")
                         onChange(e)
                       }}
                       {...rest}
@@ -311,21 +311,6 @@ export function TaskForm({ formMode, calendarMode, openTaskModal, setOpenTaskMod
                 )}
               </FormControl>
             )}
-            {/* {formMode < 2 && <FormControl fullWidth sx={{ mb: 6 }}>
-              <Controller
-                name='taskName'
-                control={control}
-                rules={{ required: true }}
-                render={({ field: { value, onChange } }) => (
-                  <TextField disabled={formMode === 2} label='Name' value={value} onChange={onChange} error={Boolean(errors.taskName)} />
-                )}
-              />
-              {errors.taskName && (
-                <FormHelperText sx={{ color: 'error.main' }} id='event-taskName-error'>
-                  This field is required
-                </FormHelperText>
-              )}
-            </FormControl>} */}
             <Box sx={{ mb: 6 }}>
               <Controller
                 control={control}

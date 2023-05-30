@@ -1,4 +1,4 @@
-import { createEntityAdapter, createSlice } from '@reduxjs/toolkit'
+import { createEntityAdapter, createSelector, createSlice } from '@reduxjs/toolkit'
 
 import { RootState } from './store'
 import { CampaignType } from './api/campaignApiSlice'
@@ -40,3 +40,7 @@ export const {
   selectById: selectCampaignById,
   selectIds: selectCampaignIds
 } = campaignAdapter.getSelectors((state: RootState) => state.campaign)
+
+export const selectAllCampaignOptions = createSelector(selectAllCampaigns, campaigns => {
+  return campaigns.map(c => ({ label: c.campaignName, value: c.campaignId }))
+})

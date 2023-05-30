@@ -37,6 +37,7 @@ export type ProfileInfoType = {
   lastPaymentAmount: string
   lastPaymentStatus: string
   lastPaymentStatusName: string
+  last4SSN: string
 
   profileContacts: ProfileContactType[]
   profileAddresses: ProfileAddressType[]
@@ -270,6 +271,11 @@ export type ProfileBasicType = {
   stageStatus: string
   stageStatusName: string
 }
+
+// For when data object returned by SSN API gets turned to object.
+// export type ProfileEncryptedSSNType = {
+//   ssn: string
+// }
 
 export const profileApiSlice = apiSlice.injectEndpoints({
   endpoints: builder => ({
@@ -1043,6 +1049,36 @@ export const profileApiSlice = apiSlice.injectEndpoints({
               { type: 'PROFILE-LABEL', id: arg.profileId }
             ]
           : []
+    }),
+    getProfileSSN: builder.query<string, string>({
+      query: profileId => ({
+        url: `/profile/${profileId}/reveal-ssn`,
+        method: 'GET'
+      }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching profile',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        if (!res.success) return null
+
+        //api data will change from loose string to data object
+        // return res.data.ssn
+
+        return res.data
+      },
+      async onQueryStarted(searchParams, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          if (data) dispatch(updateProfiles([data]))
+        } catch (err: any) {
+          console.error('API error in getProfileSSN:', err.error.data.message)
+        }
+      },
+      providesTags: (res, error, arg) => (res ? [{ type: 'PROFILE', id: arg }] : [])
     })
   })
 })

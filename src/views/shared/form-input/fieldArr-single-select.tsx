@@ -9,24 +9,26 @@ type Props = {
   label: string
   options?: SingleSelectOption[]
   props?: any
-  defaultValue?: string | number | boolean
+  defaultValue?: string | number
   defaultLabel?: string
   required?: boolean
-  errors?: any
+  errors?: boolean
+  errMsg?: string
   disabled?: boolean
   placeholder?: string
   InputProps?: any
 }
 
-export default function SingleSelect({
+export default function FieldArrSingleSelect({
   name,
   control,
   label,
   options,
-  required,
+  required = false,
   defaultValue,
-  errors,
+  errors = false,
   InputProps,
+  errMsg = "Please try again",
   ...props
 }: Props) {
   const generateOptions = () => {
@@ -48,11 +50,16 @@ export default function SingleSelect({
         control={control}
         name={name}
         defaultValue={defaultValue ?? ''}
-        rules={{ required: required ?? false }}
+        rules={{
+          required: {
+            value: required,
+            message: "Required"
+          }
+        }}
         render={({ field }) => (
           <Select
             label={label}
-            error={errors ? Boolean(errors[name]) : false}
+            error={errors}
             inputProps={InputProps}
             {...props}
             {...field}
@@ -62,9 +69,9 @@ export default function SingleSelect({
         )}
       />
       {errors
-        ? errors[name] && (
+        ? (
           <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-select'>
-            This field is required
+            {errMsg}
           </FormHelperText>
         )
         : null}

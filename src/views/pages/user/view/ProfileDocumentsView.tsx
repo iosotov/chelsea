@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 
 // ** MUI Imports
 import Button from '@mui/material/Button'
@@ -36,12 +36,17 @@ import FileUploaderSingle from './components/document/fileUploader'
 import FileUploadForm from './components/document/fileUploadForm'
 import GenerateSidebar from './components/document/generateSidebar'
 import { SyntheticEvent } from 'react-draft-wysiwyg'
-import TableColumns from './components/document/table'
 
 //API calls
 import { useAppSelector } from 'src/store/hooks'
 import { selectDocumentsByProfileIdAndType } from 'src/store/documentSlice'
-import { useGetDocumentsQuery, usePostEmployeeSearchQuery } from 'src/store/api/apiHooks'
+import { useGetDocumentsQuery, usePostDocumentUploadMutation, usePostEmployeeSearchQuery } from 'src/store/api/apiHooks'
+import { useForm } from 'react-hook-form'
+import { DocumentUploadType } from 'src/store/api/documentApiSlice'
+import { toast } from 'react-hot-toast'
+import GeneratedDocTable from './components/document/GeneratedDocTable'
+import UploadedDocTable from './components/document/UploadedDocTable'
+import ContactDocTable from './components/document/ContractDocTable'
 
 const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
   '& .MuiTabs-indicator': {
@@ -59,6 +64,8 @@ const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
     borderRadius: theme.shape.borderRadius
   }
 }))
+
+
 
 export default function ProfileDocuments({ id }: { id: string }) {
   const [openUploadDialog, setUploadDialog] = useState<boolean>(false)
@@ -84,9 +91,7 @@ export default function ProfileDocuments({ id }: { id: string }) {
   const handleTabChange = (e: SyntheticEvent, newValue: string) => {
     setTabLoading(true)
     setTab(newValue)
-    setTimeout(() => {
-      setTabLoading(false)
-    }, 0)
+    setTabLoading(false)
   }
 
   return (
@@ -123,7 +128,7 @@ export default function ProfileDocuments({ id }: { id: string }) {
                 <Button startIcon={<Icon icon='mdi:file-document-plus-outline' />} onClick={toggleDrawer}>
                   Generate
                 </Button>
-                <Button startIcon={<Icon icon='mdi:file-upload-outline' />} disabled onClick={toggleDialog}>
+                <Button startIcon={<Icon icon='mdi:file-upload-outline' />} onClick={toggleDialog}>
                   Upload
                 </Button>
               </Box>
@@ -135,7 +140,7 @@ export default function ProfileDocuments({ id }: { id: string }) {
                   <Tab value='generated' label='Generated Docs' />
                   <Tab value='uploaded' label='Uploaded Docs' />
                 </TabList>
-                <Box sx={{ minHeight: 280 }}>
+                <Box sx={{ minHeight: 400 }}>
                   {tabLoading ? (
                     <Box sx={{ mt: 6, display: 'flex', alignItems: 'center', flexDirection: 'column' }}>
                       <CircularProgress sx={{ mb: 4 }} />
@@ -144,13 +149,13 @@ export default function ProfileDocuments({ id }: { id: string }) {
                   ) : (
                     <>
                       <TabPanel value='esign'>
-                        {docSuccess && employeeSuccess && <TableColumns rows={esignDocs} />}
+                        {docSuccess && employeeSuccess && <ContactDocTable rows={esignDocs} />}
                       </TabPanel>
                       <TabPanel value='generated'>
-                        {docSuccess && employeeSuccess && <TableColumns rows={generateDocs} />}
+                        {docSuccess && employeeSuccess && <GeneratedDocTable rows={generateDocs} />}
                       </TabPanel>
                       <TabPanel value='uploaded'>
-                        {docSuccess && employeeSuccess && <TableColumns rows={uploadedDocs} />}
+                        {docSuccess && employeeSuccess && <UploadedDocTable rows={uploadedDocs} />}
                       </TabPanel>
                     </>
                   )}
@@ -160,8 +165,8 @@ export default function ProfileDocuments({ id }: { id: string }) {
           </Card>
         </Grid>
       </Grid>
-      <GenerateSidebar open={openGenerateDrawer} toggle={toggleDrawer} profileId={id} />
-      <UploadDialog open={openUploadDialog} toggle={toggleDialog} />
+      <GenerateSidebar setTab={setTab} open={openGenerateDrawer} toggle={toggleDrawer} profileId={id} />
+      <UploadDialog setTab={setTab} profileId={id} open={openUploadDialog} toggle={toggleDialog} />
     </TabContext>
   )
 }
@@ -169,12 +174,33 @@ export default function ProfileDocuments({ id }: { id: string }) {
 type DialogProps = {
   open: boolean
   toggle: () => void
+  profileId: string
+  setTab: Dispatch<SetStateAction<string>>
 }
 
 //Dialog
 
-const UploadDialog = ({ open, toggle }: DialogProps) => {
+
+export interface UploadFormValueType {
+  title: string
+  description: string
+  file: File[]
+  category: string
+}
+
+const uploadDefaultValue: UploadFormValueType = {
+  title: "",
+  description: "",
+  file: [],
+  category: ""
+}
+
+const UploadDialog = ({ open, toggle, profileId, setTab }: DialogProps) => {
   const [activeStep, setActiveStep] = useState<number>(0)
+
+  const { reset, handleSubmit, control, setValue, watch, formState: { errors } } = useForm<UploadFormValueType>({ defaultValues: uploadDefaultValue })
+
+  const [uploadDoc, { isLoading }] = usePostDocumentUploadMutation()
 
   const steps = [
     {
@@ -198,9 +224,27 @@ const UploadDialog = ({ open, toggle }: DialogProps) => {
     }
   }
 
-  const handleUpload = () => {
-    toggle()
-    setActiveStep(0)
+  const handleUpload = async (data: UploadFormValueType) => {
+    console.log(data)
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("category", data.category);
+    formData.append("file", data.file[0]);
+    formData.append("description", data.description);
+    const uploadData: DocumentUploadType = {
+      profileId,
+      data: formData
+    }
+
+    const { data: postData }: { data?: any, error?: any } = await uploadDoc(uploadData)
+
+    if (postData) {
+      toast.success("You successfully uploaded document")
+      reset(uploadDefaultValue)
+      setTab("uploaded")
+      toggle()
+      setActiveStep(0)
+    }
   }
 
   const renderContent = () => {
@@ -210,9 +254,9 @@ const UploadDialog = ({ open, toggle }: DialogProps) => {
   const getStepContent = (activeStep: number) => {
     switch (activeStep) {
       case 0:
-        return <FileUploaderSingle />
+        return <FileUploaderSingle setValue={setValue} watch={watch} />
       case 1:
-        return <FileUploadForm />
+        return <FileUploadForm errors={errors} control={control} />
       default:
         return null
     }
@@ -232,14 +276,25 @@ const UploadDialog = ({ open, toggle }: DialogProps) => {
         >
           Previous
         </Button>
-        <Button
-          variant='contained'
-          color={stepCondition ? 'success' : 'primary'}
-          {...(!stepCondition ? { endIcon: <Icon icon='mdi:arrow-right' /> } : {})}
-          onClick={() => (stepCondition ? handleUpload() : handleNext())}
-        >
-          {stepCondition ? 'Submit' : 'Next'}
-        </Button>
+        {stepCondition &&
+          <Button
+            variant='contained'
+            color={'success'}
+            disabled={isLoading}
+            onClick={handleSubmit(handleUpload)}
+          >
+            Submit
+          </Button>}
+        {!stepCondition &&
+          <Button
+            variant='contained'
+            color={'primary'}
+            endIcon={<Icon icon='mdi:arrow-right' />}
+            onClick={() => (handleNext())}
+          >
+            Next
+          </Button>}
+
       </Box>
     )
   }
@@ -285,6 +340,13 @@ const UploadDialog = ({ open, toggle }: DialogProps) => {
             </StepperWrapper>
           </StepperHeaderContainer>
           <Box sx={{ p: 4, width: '100%' }}>
+            {isLoading && <CircularProgress
+              sx={{
+                position: 'absolute',
+                right: '50%',
+                top: '25%'
+              }}
+            />}
             {renderContent()}
             {renderFooter()}
           </Box>
