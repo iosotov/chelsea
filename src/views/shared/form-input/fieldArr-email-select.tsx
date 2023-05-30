@@ -10,24 +10,23 @@ type Props = {
   placeholder?: string
   defaultValue?: string | number
   required?: boolean
-  errors?: any
+  errors?: boolean
+  errMsg?: string
   disabled?: any
   InputProps?: any
-  type?: "text" | "number" | "email" | "password" | "tel" | "date"
 }
 
-export default function TextInput({
+export default function FieldArrEmailInput({
   control,
   label,
   name,
   placeholder,
   defaultValue,
-  required,
+  required = false,
   errors,
-  type,
+  errMsg = "Please try again",
   ...props
 }: Props) {
-
 
   return (
     <FormControl fullWidth>
@@ -35,12 +34,21 @@ export default function TextInput({
         control={control}
         name={name}
         defaultValue={defaultValue ?? ''}
-        rules={{ required: required ?? false }}
+        rules={{
+          required: {
+            value: required,
+            message: 'Required'
+          },
+          pattern: {
+            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+            message: "Invalid email address"
+          }
+        }}
         render={({ field }) => (
           <TextField
-            type={type || 'text'}
+            type={'email'}
             label={label}
-            error={errors ? Boolean(errors[name]) : false}
+            error={errors}
             placeholder={placeholder ?? ''}
             {...props}
             {...field}
@@ -48,9 +56,9 @@ export default function TextInput({
         )}
       />
       {errors
-        ? errors[name] && (
+        ? (
           <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-select'>
-            {errors[name]?.message ? `${errors[name]?.message}` : "This field is required"}
+            {errMsg}
           </FormHelperText>
         )
         : null}

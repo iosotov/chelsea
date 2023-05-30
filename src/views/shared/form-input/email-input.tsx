@@ -1,4 +1,4 @@
-import { Controller } from 'react-hook-form'
+import { Controller, FieldErrors } from 'react-hook-form'
 import FormControl from '@mui/material/FormControl'
 import TextField from '@mui/material/TextField'
 import { FormHelperText } from '@mui/material'
@@ -10,24 +10,26 @@ type Props = {
   placeholder?: string
   defaultValue?: string | number
   required?: boolean
-  errors?: any
+  errors?: FieldErrors<any>
   disabled?: any
   InputProps?: any
   type?: "text" | "number" | "email" | "password" | "tel" | "date"
 }
 
-export default function TextInput({
+export default function EmailInput({
   control,
   label,
   name,
   placeholder,
   defaultValue,
-  required,
+  required = false,
   errors,
-  type,
   ...props
 }: Props) {
 
+
+
+  console.log(errors)
 
   return (
     <FormControl fullWidth>
@@ -35,15 +37,25 @@ export default function TextInput({
         control={control}
         name={name}
         defaultValue={defaultValue ?? ''}
-        rules={{ required: required ?? false }}
-        render={({ field }) => (
+        rules={{
+          required: {
+            value: required,
+            message: 'Required'
+          },
+          pattern: {
+            value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,4}$/i,
+            message: "invalid email address"
+          }
+        }}
+        render={({ field: { onChange, value } }) => (
           <TextField
-            type={type || 'text'}
+            type={'email'}
+            onChange={onChange}
+            value={value}
             label={label}
             error={errors ? Boolean(errors[name]) : false}
             placeholder={placeholder ?? ''}
             {...props}
-            {...field}
           />
         )}
       />
