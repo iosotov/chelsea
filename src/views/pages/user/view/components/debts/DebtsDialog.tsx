@@ -21,7 +21,7 @@ import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
 
 //API Hooks
 import { useAppSelector } from 'src/store/hooks'
-import { usePostSettingSearchQuery } from 'src/store/api/apiHooks'
+import { useGetLiabilityQuery, usePostSettingSearchQuery, usePutLiabilityUpdateMutation } from 'src/store/api/apiHooks'
 
 //API Slices
 import { selectSettingByTypeOptions } from 'src/store/settingSlice'
@@ -34,6 +34,7 @@ import ToggleSwitch from 'src/views/shared/form-input/toggle-switch'
 
 //Dropdown Options
 import { stateOptions } from 'src/views/shared/options/shared'
+import { LiabilityUpdateType } from 'src/store/api/liabilityApiSlice'
 
 type DebtDialogProps = {
   selected: GridRowId[]
@@ -52,29 +53,158 @@ const enrolledOptions = [
   }
 ]
 
-export default function DebtsDialog({ selected, open, handleClose }: DebtDialogProps): ReactElement {
-  // const liability = useAppSelector(state => selectLiabilityById(state, selected[0]))
+type ViewDebtValues = {
+  name: string
+  originalBalance: number
+  type: string
+  accountNumber: string
+  currentPayment: string | number
+  accountStatus: string
+  openedDate: string
+  term: string
+  highestBalance: number
+  lastPayment: string
+  inquiryDate: string
+  reportDate: string
+  thirtyDaysLateCount: string
+  sixtyDaysLateCount: string
+  nintyDaysLateCount: string
+  enrolled: boolean
+  profileId: string
+  profileFirstName: string
+  profileLastName: string
+  currentBalance: number
+  currentCreditor: string
+  currentAccountNumber: string
+  thirdPartyAccountNumber: string
+  currentPaymentAmount: string
+  legalStatus: boolean
+  summon: boolean
+  judgement: boolean
+  garnishment: boolean
+  address1: string
+  address2: string
+  city: string
+  zipCode: string
+  state: string
+  caseNumber: string
+  courtName: string
+  courtDate: string
+  responseDate: string
+}
 
-  // console.log(liability)
+export default function DebtsDialog({ selected, open, handleClose }: DebtDialogProps): ReactElement {
+  const { data: liability } = useGetLiabilityQuery(selected[0] as string, { skip: !open })
 
   //Debt Types
   usePostSettingSearchQuery({ length: 10000, start: 0 }, { skip: !open })
   const debtOptions: SingleSelectOption[] = useAppSelector(state => selectSettingByTypeOptions(state, 4))
 
-  const defaultValues = {}
+  const [editLiability, { isLoading }] = usePutLiabilityUpdateMutation()
 
-  const debtForm = useForm(defaultValues)
+  let defaultValues: ViewDebtValues = {
+    name: '',
+    originalBalance: 0,
+    type: '',
+    accountNumber: '',
+    currentPayment: 0,
+    accountStatus: '',
+    openedDate: '',
+    term: '',
+    highestBalance: 0,
+    lastPayment: '',
+    inquiryDate: '',
+    reportDate: '',
+    thirtyDaysLateCount: '',
+    sixtyDaysLateCount: '',
+    nintyDaysLateCount: '',
+    enrolled: false,
+    profileId: '',
+    profileFirstName: '',
+    profileLastName: '',
+    currentBalance: 0,
+    currentCreditor: '',
+    currentAccountNumber: '',
+    thirdPartyAccountNumber: '',
+    currentPaymentAmount: '',
+    legalStatus: false,
+    summon: false,
+    judgement: false,
+    garnishment: false,
+    address1: '',
+    address2: '',
+    city: '',
+    zipCode: '',
+    state: '',
+    caseNumber: '',
+    courtName: '',
+    courtDate: '',
+    responseDate: ''
+  }
+
+  const debtForm = useForm({ defaultValues: defaultValues })
   const {
     control,
     unregister,
     watch,
     getValues,
     handleSubmit,
+    reset,
     formState: { errors }
   } = debtForm
 
+  useEffect(() => {
+    if (liability) {
+      const { openedDate, lastPayment, inquiryDate, reportDate, courtDate, responseDate } = liability
+      reset({
+        ...liability,
+        openedDate: openedDate ? new Date(openedDate) : '',
+        lastPayment: lastPayment ? new Date(lastPayment) : '',
+        inquiryDate: inquiryDate ? new Date(inquiryDate) : '',
+        reportDate: reportDate ? new Date(reportDate) : '',
+        courtDate: courtDate ? new Date(courtDate) : '',
+        responseDate: responseDate ? new Date(responseDate) : ''
+      })
+    } else {
+      defaultValues = { ...defaultValues }
+    }
+  }, [liability])
+
   const onSubmit = () => {
-    console.log(getValues())
+    if (!liability) return
+
+    const editData: LiabilityUpdateType = {
+      liabilityId: liability.liabilityId,
+      name: getValues('name'),
+      originalBalance: getValues('originalBalance'),
+      type: getValues('type'),
+      lastPayment: getValues('lastPayment'),
+      profileId: liability.profileId,
+      currentBalance: getValues('currentBalance'),
+      currentCreditor: getValues('currentCreditor'),
+      currentAccountNumber: getValues('currentAccountNumber'),
+      legalStatus: getValues('legalStatus'),
+      summon: getValues('summon'),
+      judgement: getValues('judgement'),
+      garnishment: getValues('garnishment'),
+      address1: getValues('address1'),
+      address2: getValues('address2'),
+      city: getValues('city'),
+      zipCode: getValues('zipCode'),
+      state: getValues('state'),
+      caseNumber: getValues('caseNumber'),
+      courtName: getValues('courtName'),
+      courtDate: getValues('courtDate'),
+      responseDate: getValues('responseDate')
+    }
+
+    editLiability(editData)
+      .unwrap()
+      .then(res => {
+        if (res) {
+          onClose()
+        }
+      })
   }
 
   const onClose = () => {
@@ -121,7 +251,7 @@ export default function DebtsDialog({ selected, open, handleClose }: DebtDialogP
             <TextInput name='currentAccountNumber' label='Current Account Number' control={control} />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <TextInput name='accountNumber' label='Original Account Number' disabled control={control} />
+            <TextInput name='accountNumber' label='Original Account Number' disabled control={control} disabled />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
             <TextInput name='currentBalance' label='Current Balance' control={control} />
@@ -132,31 +262,32 @@ export default function DebtsDialog({ selected, open, handleClose }: DebtDialogP
               label='Original Balance'
               InputProps={{ readOnly: true }}
               control={control}
+              disabled
             />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <SelectDate name='currentPayment' label='Current Payment Date' control={control} />
+            <SelectDate name='currentPayment' label='Current Payment Date' control={control} disabled />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
             <SelectDate name='lastPayment' label='Last Payment Date' control={control} />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <TextInput name='currentPaymentAmount' label='Current Payment Amount' control={control} />
+            <TextInput name='currentPaymentAmount' label='Current Payment Amount' control={control} disabled />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <TextInput name='accountStatus' label='Account Status' control={control} />
+            <TextInput name='accountStatus' label='Account Status' control={control} disabled />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <TextInput name='thirdPartyAccountNumber' label='Third Party Account #' control={control} />
+            <TextInput name='thirdPartyAccountNumber' label='Third Party Account #' control={control} disabled />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <TextInput name='thirtyDaysLateCount' label='Thirty Days Late Count' control={control} />
+            <TextInput name='thirtyDaysLateCount' label='Thirty Days Late Count' control={control} disabled />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <TextInput name='sixtyDaysLateCount' label='Sixty Days Late Count' control={control} />
+            <TextInput name='sixtyDaysLateCount' label='Sixty Days Late Count' control={control} disabled />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <TextInput name='nintyDaysLateCount' label='Ninety Days Late Count' control={control} />
+            <TextInput name='nintyDaysLateCount' label='Ninety Days Late Count' control={control} disabled />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
             <TextInput name='address1' label='Address' control={control} />
@@ -180,19 +311,19 @@ export default function DebtsDialog({ selected, open, handleClose }: DebtDialogP
             <SelectDate name='responseDate' label='Response Date' control={control} />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <SelectDate name='inquirtyDate' label='Inquiry Date' control={control} />
+            <SelectDate name='inquiryDate' label='Inquiry Date' control={control} disabled />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <SelectDate name='reportDate' label='Report Date' control={control} />
+            <SelectDate name='reportDate' label='Report Date' control={control} disabled />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <SelectDate name='openedDate' label='Opened Date' control={control} />
+            <SelectDate name='openedDate' label='Opened Date' control={control} disabled />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <TextInput name='term' label='Term' control={control} />
+            <TextInput name='term' label='Term' control={control} disabled />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
-            <TextInput name='highestBalance' label='Highest Balance' control={control} />
+            <TextInput name='highestBalance' label='Highest Balance' control={control} disabled />
           </Grid>
           <Grid item xs={12} md={6} lg={3}>
             <ToggleSwitch
@@ -246,8 +377,8 @@ export default function DebtsDialog({ selected, open, handleClose }: DebtDialogP
         <Button size='small' onClick={onClose}>
           Cancel
         </Button>
-        <Button size='small' variant='outlined' onClick={handleSubmit(onSubmit)}>
-          Save Changes
+        <Button disabled={isLoading} size='small' variant='outlined' onClick={handleSubmit(onSubmit)}>
+          {isLoading ? 'Saving...' : 'Save Changes'}
         </Button>
       </DialogActions>
     </Dialog>

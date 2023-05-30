@@ -17,6 +17,7 @@ type Props = {
   required?: boolean
   defaultValue?: Date
   errors?: any
+  disabled?: boolean
 }
 
 interface CustomInputProps {
@@ -30,15 +31,7 @@ const CustomInput = forwardRef(({ ...props }: CustomInputProps, ref) => {
   return <TextField inputRef={ref} {...props} sx={{ width: '100%' }} />
 })
 
-export default function SelectDate({
-  name,
-  label,
-  control,
-  errors,
-  required,
-  isClearable,
-  ...props
-}: Props) {
+export default function SelectDate({ name, label, control, errors, required, isClearable, disabled, ...props }: Props) {
   return (
     <FormControl fullWidth>
       <DatePickerWrapper sx={{ '& .MuiFormControl-root': { width: '100%' } }}>
@@ -48,14 +41,15 @@ export default function SelectDate({
           rules={{ required: required ?? false }}
           render={({ field: { onChange, value } }) => (
             <DatePicker
-              selected={value}
+              selected={value || null}
               onChange={e => onChange(e)}
               placeholderText='MM/DD/YYYY'
               isClearable={isClearable ?? true}
+              disabled={disabled}
               {...props}
               customInput={
                 <CustomInput
-                  value={value}
+                  value={value || null}
                   onChange={onChange}
                   label={label}
                   error={errors ? Boolean(errors[name]) : false}
@@ -67,10 +61,10 @@ export default function SelectDate({
       </DatePickerWrapper>
       {errors
         ? errors[name] && (
-          <FormHelperText sx={{ mx: 3.5, color: 'error.main' }} id='validation-basic-dob'>
-            This field is required
-          </FormHelperText>
-        )
+            <FormHelperText sx={{ mx: 3.5, color: 'error.main' }} id='validation-basic-dob'>
+              This field is required
+            </FormHelperText>
+          )
         : null}
     </FormControl>
   )

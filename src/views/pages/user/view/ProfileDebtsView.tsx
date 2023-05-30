@@ -55,6 +55,7 @@ import { LiabilityType } from 'src/store/api/liabilityApiSlice'
 
 //Utils
 import MoneyConverter from 'src/views/shared/utils/money-converter'
+import { ButtonGroup } from '@mui/material'
 
 type Props = {
   id: string
@@ -137,8 +138,12 @@ function CreditScore({ id }: Props) {
   return (
     <Card sx={{ p: 2, mb: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-        <Button disabled={creditReport?.creditScores?.length === 0}>View</Button>
-        <Button onClick={pullReport}>New Report</Button>
+        <Button size='small' disabled={creditReport?.creditScores?.length === 0}>
+          View
+        </Button>
+        <Button variant='outlined' size='small' onClick={pullReport}>
+          New Report
+        </Button>
       </Box>
       <Grid container spacing={4}>
         {isSuccess && creditReport && creditReport.creditScores.length > 0 ? (
@@ -325,30 +330,22 @@ const EnhancedTableToolbar = ({ selected, data, profileId, toggle }: EnhancedTab
         ) : (
           <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
             <Typography variant='h5'>Debts</Typography>
-            <Button onClick={toggleDrawer} variant='contained' size='small'>
+            <Button onClick={toggleDrawer} variant='contained' size='small' color='info'>
               Add Debt
             </Button>
           </Box>
         )}
         {selected.length > 0 ? (
-          <Box sx={{ display: 'flex', gap: 2 }}>
+          <Box sx={{ display: 'flex', gap: 4 }}>
             {selected.length === 1 && (
-              <Tooltip title='Edit Debt'>
-                <IconButton onClick={toggle} sx={{ color: 'text.secondary' }}>
-                  <Icon icon='mdi:pencil-outline' />
-                </IconButton>
-              </Tooltip>
+              <Button variant='outlined' size='small' onClick={toggle}>
+                Edit
+              </Button>
             )}
-            <Tooltip title='Enroll Debt'>
-              <IconButton onClick={Enroll} sx={{ color: 'text.secondary' }}>
-                <Icon icon='material-symbols:add-box-outline-rounded' />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title='Withdraw Debt'>
-              <IconButton onClick={Withdraw} sx={{ color: 'text.secondary' }}>
-                <Icon icon='mdi:minus-box-outline' />
-              </IconButton>
-            </Tooltip>
+            <ButtonGroup size='small' variant='outlined'>
+              <Button>Enroll</Button>
+              <Button>Withdraw</Button>
+            </ButtonGroup>
           </Box>
         ) : null}
       </Toolbar>

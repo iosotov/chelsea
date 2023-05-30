@@ -39,6 +39,8 @@ export type LiabilityType = {
   state: string
   caseNumber: string
   courtName: string
+  courtDate: string
+  responseDate: string
 }
 
 export type LiabilityCreateType = {
@@ -81,8 +83,8 @@ export type LiabilityUpdateType = {
   name: string
   originalBalance?: number
   type: string
-  accountNumber: string
   currentPayment?: number
+  currentBalance?: number
   accountStatus?: string
   openedDate?: string
   term?: number
@@ -110,6 +112,8 @@ export type LiabilityUpdateType = {
   state?: string
   caseNumber?: string
   courtName?: string
+  courtDate?: string
+  responseDate?: string
 }
 
 export type LiabilityEnrollType = {

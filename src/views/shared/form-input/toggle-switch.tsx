@@ -39,7 +39,7 @@ export default function ToggleSwitch({
                 return onChange(value)
               }}
               value={value}
-              defaultChecked={defaultChecked ?? false}
+              checked={value}
               disabled={disabled ?? false}
               {...props}
             />
