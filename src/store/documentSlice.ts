@@ -14,7 +14,6 @@ const documentSlice = createSlice({
   initialState,
   reducers: {
     setDocuments: (state, action) => {
-      console.log(action.payload)
       documentAdapter.upsertMany(state, action.payload)
     }
   }

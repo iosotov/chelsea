@@ -36,7 +36,7 @@ type Props = {
   profileId: string
 }
 
-const stateOptions = [
+export const stateOptions = [
   { label: 'Alabama', value: 'AL' },
   { label: 'Alaska', value: 'AK' },
   { label: 'Arizona', value: 'AZ' },

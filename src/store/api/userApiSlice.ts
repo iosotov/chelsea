@@ -1,6 +1,7 @@
-import { updateUser } from '../userSlice'
+import { setUserActivitys, updateUser } from '../userSlice'
 import { apiSlice } from './apiSlice'
 import { LunaResponseType } from './sharedTypes'
+import { v4 as uuid } from 'uuid'
 
 export type UserType = {
   userId: string
@@ -40,6 +41,22 @@ export type UserCreateType = {
   companyId: string
   password: string
   roles: string[]
+}
+
+export type UserActivityType = {
+  userActivityId: string
+  description: string
+  userId: string
+  httpMethod: string
+  requestPath: string
+  requestedTime: string
+  responseStatusCode: number
+  responseTime: string
+  userAgent: string
+  userIpAddress: string
+  controllerName: string
+  actionName: string
+  objectId: string
 }
 
 export const userApiSlice = apiSlice.injectEndpoints({
@@ -282,6 +299,34 @@ export const userApiSlice = apiSlice.injectEndpoints({
               { type: 'EMPLOYEE', id: 'LIST' }
             ]
           : []
+    }),
+
+    // ****************************************************************** GET userActivity/recent`
+    getUserActivity: builder.query<UserActivityType[] | null, void | null | boolean>({
+      query: () => {
+        return {
+          url: `/userActivity/recent`,
+          method: 'GET'
+        }
+      },
+      transformErrorResponse(baseQueryReturnValue) {
+        return {
+          status: baseQueryReturnValue.status,
+          message: 'There was an error fetching user activity',
+          data: baseQueryReturnValue.data
+        }
+      },
+      transformResponse: (res: LunaResponseType) => {
+        return res.success ? res.data : null
+      },
+      async onQueryStarted(userId, { dispatch, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          if (data) dispatch(setUserActivitys(data.map(a => ({ ...a, userActivityId: uuid() }))))
+        } catch (err: any) {
+          console.error('API error in getUser:', err.error.data.message)
+        }
+      }
     })
   })
 })

@@ -58,6 +58,7 @@ import {
 //Third Party Imports
 import { useConfirm } from 'material-ui-confirm'
 
+
 //Entire View
 type Props = {
   data: ProfileInfoType
@@ -165,7 +166,6 @@ export default function ProfileSnapshot({ data }: Props) {
     profileCustomFields
   } = data
 
-  console.log(data)
 
   return (
     <>
@@ -508,9 +508,9 @@ const ProfileDetails = ({
           </Box>
           {profileAssignees.map((assignee: any, index: number) => {
             return (
-              <>
+              <div key={assignee.assigneeId}
+              >
                 <Box
-                  key={assignee.assigneeId}
                   sx={{ display: 'flex', mb: 2, justifyContent: 'space-between', alignItems: 'center' }}
                 >
                   <Typography sx={{ mr: 2, fontWeight: 500, fontSize: '0.875rem' }}>{assignee.assigneeName}</Typography>
@@ -537,7 +537,7 @@ const ProfileDetails = ({
                     {assignee.companyName}
                   </Typography>
                 </Box>
-              </>
+              </div>
             )
           })}
         </Box>

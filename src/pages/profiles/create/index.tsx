@@ -1,293 +1,277 @@
+// ** React Imports
 import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
 
-//MUI Imports
-import Button from '@mui/material/Button'
-import Box from '@mui/material/Box'
+// ** MUI Imports
 import Card from '@mui/material/Card'
-import CardContent from '@mui/material/CardContent'
-import Divider from '@mui/material/Divider'
-import Grid from '@mui/material/Grid'
+import Step from '@mui/material/Step'
+import Button from '@mui/material/Button'
+import Stepper from '@mui/material/Stepper'
+import StepLabel from '@mui/material/StepLabel'
+import CardHeader from '@mui/material/CardHeader'
 import Typography from '@mui/material/Typography'
+import CardContent from '@mui/material/CardContent'
+import StepContent from '@mui/material/StepContent'
 
-//Third Party Imports
+// ** Third Party Imports
+import clsx from 'clsx'
+import toast from 'react-hot-toast'
+
+// ** Styled Component
+import StepperWrapper from 'src/@core/styles/mui/stepper'
+import StepperCustomDot from 'src/views/pages/user/view/components/createForm/StepperCustomDot'
 import { useForm } from 'react-hook-form'
+import PersonalInformation from 'src/views/pages/user/view/components/createForm/PersonalInformation'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { ProfileCreateType } from 'src/store/api/profileApiSlice'
+import {
+  useLazyPostAddressSearchQuery,
+  useLazyPostContactSearchQuery,
+  useLazyPostCustomFieldSearchQuery,
+  usePostProfileCreateMutation
+} from 'src/store/api/apiHooks'
+import AdditionalInformation from 'src/views/pages/user/view/components/createForm/AdditionalInformation'
+import { AddressSettingType, ContactSettingType, CustomFieldSettingType } from 'src/store/api/settingApiSlice'
+import ContactInformation from 'src/views/pages/user/view/components/createForm/ContactInformation'
+import { useRouter } from 'next/router'
+import { Box, CircularProgress, Stack } from '@mui/material'
+import { PersonalInformationForm, personalSchema } from '../../../views/pages/user/view/create/validators'
 
-//Custom Components
-import SingleSelect from 'src/views/shared/form-input/single-select'
-import TextInput from 'src/views/shared/form-input/text-input'
-import SelectDate from 'src/views/shared/form-input/date-picker'
-
-//API Imports
-import { useGetCampaignsQuery, usePostProfileCreateMutation } from 'src/store/api/apiHooks'
-import { useAppSelector } from 'src/store/hooks'
-import { selectAllCampaigns } from 'src/store/campaignSlice'
-
-//Imported Types
-import { CampaignType } from 'src/store/api/campaignApiSlice'
-import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
-
-const genderOptions = [
+// PROFILE CREATE STEPS
+const steps = [
   {
-    label: 'Male',
-    value: 0
+    title: 'Account Information',
+    subtitle: 'Enter Account Details'
   },
   {
-    label: 'Female',
-    value: 1
+    title: 'Additional Information',
+    subtitle: 'Enter Additional Details'
   },
   {
-    label: 'Other',
-    value: 2
+    title: 'Contact Information',
+    subtitle: 'Enter Contacts and Address Details'
   }
 ]
+export interface AdditionalInformationForm {
+  customFields: CustomFieldSettingType[]
+  profileContacts: ContactSettingType[]
+  profileAddresses: AddressSettingType[]
+}
 
-const stateOptions = [
-  { label: 'Alabama', value: 'AL' },
-  { label: 'Alaska', value: 'AK' },
-  { label: 'Arizona', value: 'AZ' },
-  { label: 'Arkansas', value: 'AR' },
-  { label: 'California', value: 'CA' },
-  { label: 'Colorado', value: 'CO' },
-  { label: 'Connecticut', value: 'CT' },
-  { label: 'Delaware', value: 'DE' },
-  { label: 'District Of Columbia', value: 'DC' },
-  { label: 'Florida', value: 'FL' },
-  { label: 'Georgia', value: 'GA' },
-  { label: 'Hawaii', value: 'HI' },
-  { label: 'Idaho', value: 'ID' },
-  { label: 'Illinois', value: 'IL' },
-  { label: 'Indiana', value: 'IN' },
-  { label: 'Iowa', value: 'IA' },
-  { label: 'Kansas', value: 'KS' },
-  { label: 'Kentucky', value: 'KY' },
-  { label: 'Louisiana', value: 'LA' },
-  { label: 'Maine', value: 'ME' },
-  { label: 'Maryland', value: 'MD' },
-  { label: 'Massachusetts', value: 'MA' },
-  { label: 'Michigan', value: 'MI' },
-  { label: 'Minnesota', value: 'MN' },
-  { label: 'Mississippi', value: 'MS' },
-  { label: 'Missouri', value: 'MO' },
-  { label: 'Montana', value: 'MT' },
-  { label: 'Nebraska', value: 'NE' },
-  { label: 'Nevada', value: 'NV' },
-  { label: 'New Hampshire', value: 'NH' },
-  { label: 'New Jersey', value: 'NJ' },
-  { label: 'New Mexico', value: 'NM' },
-  { label: 'New York', value: 'NY' },
-  { label: 'North Carolina', value: 'NC' },
-  { label: 'North Dakota', value: 'ND' },
-  { label: 'Ohio', value: 'OH' },
-  { label: 'Oklahoma', value: 'OK' },
-  { label: 'Oregon', value: 'OR' },
-  { label: 'Pennsylvania', value: 'PA' },
-  { label: 'Rhode Island', value: 'RI' },
-  { label: 'South Carolina', value: 'SC' },
-  { label: 'South Dakota', value: 'SD' },
-  { label: 'Tennessee', value: 'TN' },
-  { label: 'Texas', value: 'TX' },
-  { label: 'Utah', value: 'UT' },
-  { label: 'Vermont', value: 'VT' },
-  { label: 'Virginia', value: 'VA' },
-  { label: 'Washington', value: 'WA' },
-  { label: 'West Virginia', value: 'WV' },
-  { label: 'Wisconsin', value: 'WI' },
-  { label: 'Wyoming', value: 'WY' }
-]
+const additionalInfoDefault: AdditionalInformationForm = {
+  customFields: [],
+  profileContacts: [],
+  profileAddresses: []
+}
 
-export default function CreateProfile() {
+const defaultProfile = {
+  firstName: '',
+  lastName: '',
+  campaignId: '',
+  middleName: '',
+  birthdate: '',
+  ssn: ''
+}
+
+const CreateProfileStepper = () => {
+  // LOCAL STATE
+  const [activeStep, setActiveStep] = useState<number>(0)
+
+  // HOOKS
   const router = useRouter()
-  const profileForm = useForm()
 
+  // API HOOKS
+  const [createProfile, { isLoading }] = usePostProfileCreateMutation()
+  const [getContacts] = useLazyPostContactSearchQuery()
+  const [getCustomFields] = useLazyPostCustomFieldSearchQuery()
+  const [getAddresses] = useLazyPostAddressSearchQuery()
+
+  // FORM MANAGEMENT
+  /**
+   *
+   * creating separate useForm states
+   * allows validation at different steps
+   *
+   */
   const {
-    handleSubmit,
+    control: personalControl,
+    formState: { errors: personalErrors },
+    handleSubmit: personalSubmit,
     getValues,
-    control,
-    formState: { errors }
-  } = profileForm
-
-  const [postProfile, postProfileStatus] = usePostProfileCreateMutation()
-
-  const { isLoading } = postProfileStatus
-
-  const onSubmit = async () => {
-    const data = {
-      campaignId: getValues('campaignId'),
-      firstName: getValues('firstName'),
-      lastName: getValues('lastName'),
-      middleName: getValues('middleName'),
-      ssn: getValues('ssn'),
-      birthdate: getValues('birthdate'),
-      gender: getValues('gender'),
-      profileAddresses: [
-        {
-          addressId: '133898fc-bbe4-4556-8694-a6291e045907',
-          address1: getValues('address1'),
-          address2: getValues('address2'),
-          city: getValues('city'),
-          state: getValues('state'),
-          zipCode: getValues('zipCode')
-        }
-      ],
-      profileContacts: [
-        {
-          contactId: '5f2421ec-6016-4355-92aa-67dd5f2c8abc',
-          value: getValues('phoneNumber')
-        },
-        {
-          contactId: '88262882-9a7e-4a78-b70c-82036b6c3a45',
-          value: getValues('phoneNumber2')
-        },
-        {
-          contactId: 'c7713ff2-1bea-4f69-84c0-404e0e5fb0bd',
-          value: getValues('email')
-        }
-      ]
-    }
-    const profile = await postProfile(data).unwrap()
-
-    if (typeof profile === 'string') {
-      router.push({
-        pathname: `/profiles/${profile}/debts/`
-      })
-      profileForm.reset()
-    }
-  }
-
-  const campaigns = useAppSelector(state => selectAllCampaigns(state))
-
-  useGetCampaignsQuery({
-    length: 10000,
-    order: [
-      {
-        columnName: 'campaignName',
-        direction: 0
-      }
-    ],
-    start: 0
+    reset: personalReset
+  } = useForm<PersonalInformationForm>({
+    resolver: yupResolver(personalSchema),
+    defaultValues: defaultProfile
+  })
+  const {
+    setValue,
+    control: additionalControl,
+    formState: { errors: additionalErrors },
+    handleSubmit: additionalSubmit,
+    reset: additionalReset
+  } = useForm<AdditionalInformationForm>({
+    defaultValues: additionalInfoDefault
   })
 
-  const [campaignOptions, setCampaignOptions] = useState<SingleSelectOption[]>([])
-
-  //Maps campaigns data to usable label/value for campaign select dropdown
+  // ASYNCHRONOUSLY FETCHES CREATE PROFILE FIELDS AND SETS THEM
   useEffect(() => {
-    if (campaigns.length > 0) {
-      const mappedCampaigns = campaigns.map((campaign: CampaignType) => {
-        const { displayName, campaignId, companyName } = campaign
+    const fetchData = async () => {
+      const { data: customFields } = await getCustomFields({})
+      if (customFields) setValue('customFields', customFields)
 
-        return {
-          label: `${displayName} - ${companyName}`,
-          value: campaignId
-        }
-      })
-      setCampaignOptions(mappedCampaigns)
+      const { data: profileContacts } = await getContacts({})
+      if (profileContacts) setValue('profileContacts', profileContacts)
+
+      const { data: profileAddresses } = await getAddresses({})
+      if (profileAddresses) setValue('profileAddresses', profileAddresses)
     }
-  }, [campaigns])
+
+    fetchData()
+  }, [getAddresses, getContacts, getCustomFields, setValue])
+
+  // RESET ACTIVE STEP
+  const handleReset = () => {
+    setActiveStep(0)
+  }
+
+  // MOVE TO NEXT STEP
+  const handleSkip = () => {
+    setActiveStep(prevActiveStep => prevActiveStep + 1)
+    if (activeStep === steps.length - 1) {
+      toast.success('Completed All Steps!!')
+    }
+  }
+
+  // MOVE BACK A STEP
+  const handleBack = () => {
+    setActiveStep(prevActiveStep => prevActiveStep - 1)
+  }
+
+  // HANDLE STEP AFTER PERSONAL INFORMATION
+  const handleAfterPersonal = () => {
+    handleSkip()
+  }
+
+  // HANDLE STEP AFTER CONTACT - SUBMISSION
+  /**
+   *
+   * grab personal information form state
+   * combine with additional information form state
+   * remove empty values
+   * attempt create profile api
+   * reroute if success
+   * move back a step if failed
+   *
+   */
+  const handleAfterContact = async (data: AdditionalInformationForm) => {
+    handleSkip()
+    const personalInformation = getValues()
+    const profileCreateData: ProfileCreateType = {
+      ...personalInformation,
+
+      profileContacts: data.profileContacts
+        .filter(({ value }) => value)
+        .map(c => ({ contactId: c.contactId, value: c.value || '' })),
+
+      profileAddresses: data.profileAddresses
+        .filter(({ addressId, address1, city, state, zipCode }) => addressId && address1 && city && state && zipCode)
+        .map(({ addressId, address1 = '', address2 = '', city = '', state = '', zipCode = '' }) => ({
+          addressId,
+          address1,
+          address2,
+          city,
+          state,
+          zipCode
+        })),
+
+      profileCustomFields: data.customFields
+        .filter(({ value }) => value)
+        .map(({ customFieldId, value = '' }) => ({ customFieldId, value }))
+    }
+
+    const profileId = await createProfile(profileCreateData).unwrap()
+
+    if (typeof profileId === 'string') {
+      personalReset(defaultProfile)
+      additionalReset(additionalInfoDefault)
+      router.push({
+        pathname: `/profiles/${profileId}/debts/`
+      })
+      handleReset()
+    } else {
+      handleBack()
+    }
+  }
+
+  // COMPONENTS FOR EVERY STEP
+  const stepComponents = [
+    <PersonalInformation key={'personal'} control={personalControl} errors={personalErrors} />,
+    <AdditionalInformation key={'customField'} control={additionalControl} errors={additionalErrors} />,
+    <ContactInformation key={'contact'} control={additionalControl} errors={additionalErrors} />
+  ]
+
+  // RENDERS APPROPRIATE BUTTON BASED
+  const renderButton = () => {
+    // CONDITIONAL ASSIGNMENT OF ONCHANGE
+    let onChange
+    if (activeStep === 0) onChange = personalSubmit(handleAfterPersonal)
+    if (activeStep === 1) onChange = () => handleSkip()
+    if (activeStep === 2) onChange = additionalSubmit(handleAfterContact)
+
+    // CONDITIONAL BUTTON ASSIGNMENT
+    return activeStep < 3 ? (
+      <Button variant='contained' onClick={onChange} sx={{ ml: 4 }}>
+        {!isLoading && activeStep > 1 ? 'Create Profile' : 'Next'}
+        {isLoading && <CircularProgress />}
+      </Button>
+    ) : null
+  }
 
   return (
     <Card>
+      <CardHeader title='Create New Profile' />
       <CardContent>
-        <Typography variant='h5'>Create New Profile</Typography>
-        <Divider sx={{ my: 4 }}></Divider>
-
-        <form>
-          <Grid container spacing={4} sx={{ mb: 6 }}>
-            <Grid item xs={12} md={6} lg={4}>
-              <SingleSelect
-                name='campaignId'
-                label='Campaign'
-                defaultLabel='Select Campaign'
-                options={campaignOptions}
-                control={control}
-                errors={errors}
-                required
-              />
-            </Grid>
-            <Grid item xs={0} md={6} lg={8}></Grid>
-            <Grid item xs={12}>
-              <Typography variant='h6'>Personal Information</Typography>
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <TextInput label='First Name' name='firstName' control={control} errors={errors} required />
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <TextInput label='Last Name' name='lastName' control={control} errors={errors} required />
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <TextInput label='Middle Name' name='middleName' control={control} />
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <SelectDate label='Birthdate' name='birthdate' errors={errors} control={control} required />
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <TextInput label='SSN' name='ssn' errors={errors} control={control} required />
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <SingleSelect
-                label='Gender'
-                defaultLabel='Select Gender'
-                name='gender'
-                options={genderOptions}
-                control={control}
-                errors={errors}
-                required
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <Typography variant='h6'>Contact Information</Typography>
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <TextInput
-                label='Primary Phone Number'
-                name='phoneNumber'
-                control={control}
-                placeholder='(123) 456-7890'
-              />
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <TextInput
-                label='Secondary Phone Number'
-                name='phoneNumber2'
-                control={control}
-                placeholder='(123) 456-7890'
-              />
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <TextInput label='Email Address' name='email' control={control} placeholder='example@sample.com' />
-            </Grid>
-            <Grid item xs={12} lg={6}>
-              <TextInput label='Home Address' name='address1' control={control} errors={errors} required />
-            </Grid>
-            <Grid item xs={12} lg={6}>
-              <TextInput label='Address 2' name='address2' control={control} />
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <TextInput label='City' name='city' control={control} errors={errors} required />
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <SingleSelect
-                label='State'
-                defaultLabel='Select State'
-                name='state'
-                options={stateOptions}
-                control={control}
-                errors={errors}
-                required
-              />
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}>
-              <TextInput label='Zipcode' name='zipCode' control={control} errors={errors} required />
-            </Grid>
-            <Grid item xs={12} md={6} lg={4}></Grid>
-          </Grid>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button disabled={isLoading} color='primary' variant='outlined' onClick={handleSubmit(onSubmit)}>
-              {isLoading ? 'Saving...' : 'Save Profile'}
-            </Button>
-          </Box>
-        </form>
+        <StepperWrapper>
+          <Stepper activeStep={activeStep} orientation='vertical'>
+            {steps.map((step, index) => {
+              return (
+                <Step key={index} className={clsx({ active: activeStep === index })}>
+                  <StepLabel StepIconComponent={StepperCustomDot}>
+                    <div className='step-label'>
+                      <Typography className='step-number'>{`0${index + 1}`}</Typography>
+                      <div>
+                        <Typography className='step-title'>{step.title}</Typography>
+                        <Typography className='step-subtitle'>{step.subtitle}</Typography>
+                      </div>
+                    </div>
+                  </StepLabel>
+                  <StepContent>
+                    {stepComponents[index]}
+                    <Box className='button-wrapper' sx={{ mb: 6 }}>
+                      {activeStep < steps.length && (
+                        <Button color='secondary' variant='outlined' onClick={handleBack} disabled={activeStep === 0}>
+                          Back
+                        </Button>
+                      )}
+                      {renderButton()}
+                    </Box>
+                  </StepContent>
+                </Step>
+              )
+            })}
+          </Stepper>
+        </StepperWrapper>
+        {activeStep === steps.length && (
+          <Stack sx={{ mt: 2, display: 'grid', placeItems: 'center' }}>
+            <Typography variant='h6' sx={{ mb: 4 }}>
+              All steps are completed!
+            </Typography>
+            <Typography sx={{ mb: 6 }}>Hold tight while you are routed to the new profile</Typography>
+            <CircularProgress sx={{ mb: 6 }} color='primary' />
+          </Stack>
+        )}
       </CardContent>
     </Card>
   )
 }
+
+export default CreateProfileStepper

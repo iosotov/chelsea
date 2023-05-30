@@ -154,6 +154,7 @@ export const {
 
   // GET document/documentId/preview
   useGetDocumentPreviewQuery,
+  useLazyGetDocumentPreviewQuery,
 
   // POST document/profileId/profile/generate
   usePostDocumentGenerateMutation,
@@ -350,6 +351,7 @@ export const {
 
   // GET profile/quicksearch/keyword
   useGetProfileQuickSearchQuery,
+  useLazyGetProfileQuickSearchQuery,
 
   // GET profile/profileId/labels
   useGetProfileLabelsQuery,
@@ -467,6 +469,7 @@ export const {
 
   // POST setting/addresses/search
   usePostAddressSearchQuery,
+  useLazyPostAddressSearchQuery,
 
   // PUT setting/addresses/addressId
   usePutAddressUpdateMutation,
@@ -503,6 +506,7 @@ export const {
 
   // POST setting/contacts/search
   usePostContactSearchQuery,
+  useLazyPostContactSearchQuery,
 
   // POST setting/contacts
   usePostContactCreateMutation,
@@ -521,6 +525,7 @@ export const {
 
   // POST setting/customFields/search
   usePostCustomFieldSearchQuery,
+  useLazyPostCustomFieldSearchQuery,
 
   // POST setting/customFields
   usePostCustomFieldCreateMutation,
@@ -633,5 +638,7 @@ export const {
   usePutUserRoleUpdateMutation,
 
   // PUT user/userId/password
-  usePutUserPasswordUpdateMutation
+  usePutUserPasswordUpdateMutation,
+
+  useGetUserActivityQuery
 } = userApiSlice

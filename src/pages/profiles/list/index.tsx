@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, MouseEvent, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 
 // ** Next Imports
 import Link from 'next/link'
@@ -7,22 +7,17 @@ import Link from 'next/link'
 // ** MUI Imports
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
-import Menu from '@mui/material/Menu'
 import Grid from '@mui/material/Grid'
 import Divider from '@mui/material/Divider'
-import { DataGrid } from '@mui/x-data-grid'
+import { DataGridPro, GridColDef, GridToolbar } from '@mui/x-data-grid-pro'
 import { styled } from '@mui/material/styles'
 import MenuItem from '@mui/material/MenuItem'
-import IconButton from '@mui/material/IconButton'
 import Typography from '@mui/material/Typography'
 import CardHeader from '@mui/material/CardHeader'
 import InputLabel from '@mui/material/InputLabel'
 import FormControl from '@mui/material/FormControl'
 import CardContent from '@mui/material/CardContent'
 import Select, { SelectChangeEvent } from '@mui/material/Select'
-
-// ** Icon Imports
-import Icon from 'src/@core/components/icon'
 
 // ** Custom Components Imports
 import CustomChip from 'src/@core/components/mui/chip'
@@ -34,25 +29,38 @@ import { ThemeColor } from 'src/@core/layouts/types'
 // ** Custom Table Components Imports
 import { useAppSelector } from 'src/store/hooks'
 import { ProfileInfoType } from 'src/store/api/profileApiSlice'
-import { selectAllProfiles } from 'src/store/profileSlice'
+import { selectAllProfiles, selectProfilesByStatus } from 'src/store/profileSlice'
+import { useGetCampaignsQuery, useGetCompaniesQuery, usePostProfilesSearchQuery, usePostSettingSearchQuery } from 'src/store/api/apiHooks'
+import { format } from 'date-fns'
+import { selectAllCompanies } from 'src/store/companySlice';
+import { selectAllCampaigns } from 'src/store/campaignSlice';
+import { selectSettingByType } from 'src/store/settingSlice';
 
-// import SidebarAddUser from 'src/views/pages/user/list/AddUserDrawer'
-// import TableHeader from 'src/views/pages/user/list/TableHeader'
-import { usePostProfilesSearchQuery } from 'src/store/api/apiHooks'
+const capitalizeWords = (str: string) => {
+  return str.replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase())));
+}
 
+function formatCurrency(value: number): string {
+  return value
+    .toFixed(2) // always two decimal digits
+    .replace(/\d(?=(\d{3})+\.)/g, '$&,') // replace every group of three digits before a dot with that group and a comma
+    .replace(/^/, '$'); // prepend a dollar sign
+}
 interface UserStatusType {
   [key: string]: ThemeColor
 }
 
-interface CellType {
-  row: ProfileInfoType
+const userStatusObj: UserStatusType = {
+  Active: 'success',
+  Pending: 'warning',
+  Inactive: 'error'
 }
 
-const userStatusObj: UserStatusType = {
-  active: 'success',
-  pending: 'warning',
-  inactive: 'secondary'
-}
+export const paymentStatusColor: ThemeColor[] = ["primary", "info", "success", "error", "error", "error", "error", "error", "error", "error", "warning"]
+
+const paymentStatus = ["Open", "Pending", "Cleared", "Returned", "Paused", "Cancelled", "Reversed", "Rejected", "Error", "Voided", "Unknown"]
+
+
 
 const LinkStyled = styled(Link)(({ theme }) => ({
   fontWeight: 600,
@@ -80,303 +88,402 @@ const renderClient = (row: ProfileInfoType) => {
   }
 }
 
-// action column
-const RowOptions = ({ profileId }: { profileId: number | string }) => {
-  // ** State
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-
-  const rowOptionsOpen = Boolean(anchorEl)
-
-  const handleRowOptionsClick = (event: MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget)
-    console.log(profileId)
-  }
-  const handleRowOptionsClose = () => {
-    setAnchorEl(null)
-  }
-
-  const handleDelete = () => {
-    // dispatch(deleteUser(id))
-    handleRowOptionsClose()
-  }
-
-  return (
-    <>
-      <IconButton size='small' onClick={handleRowOptionsClick}>
-        <Icon icon='mdi:dots-vertical' />
-      </IconButton>
-      <Menu
-        keepMounted
-        anchorEl={anchorEl}
-        open={rowOptionsOpen}
-        onClose={handleRowOptionsClose}
-        anchorOrigin={{
-          vertical: 'bottom',
-          horizontal: 'right'
-        }}
-        transformOrigin={{
-          vertical: 'top',
-          horizontal: 'right'
-        }}
-        PaperProps={{ style: { minWidth: '8rem' } }}
-      >
-        <MenuItem
-          component={Link}
-          sx={{ '& svg': { mr: 2 } }}
-          onClick={handleRowOptionsClose}
-          href='/apps/user/view/overview/'
-        >
-          <Icon icon='mdi:eye-outline' fontSize={20} />
-          View
-        </MenuItem>
-        <MenuItem onClick={handleRowOptionsClose} sx={{ '& svg': { mr: 2 } }}>
-          <Icon icon='mdi:pencil-outline' fontSize={20} />
-          Edit
-        </MenuItem>
-        <MenuItem onClick={handleDelete} sx={{ '& svg': { mr: 2 } }}>
-          <Icon icon='mdi:delete-outline' fontSize={20} />
-          Delete
-        </MenuItem>
-      </Menu>
-    </>
-  )
-}
-
-const columns = [
-  {
-    minWidth: 175,
-    field: 'profileId',
-    headerName: 'ID',
-    renderCell: ({ row }: CellType) => {
-      const { profileId } = row
-
-      return <Typography sx={{ textTransform: 'capitalize' }}>{profileId}</Typography>
-    }
-  },
-  {
-    minWidth: 300,
-    field: 'firstName',
-    headerName: 'User',
-    renderCell: ({ row }: CellType) => {
-      const { firstName, lastName, profileId } = row
-
-      return (
-        <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {renderClient(row)}
-          <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-            <LinkStyled href={`/profiles/${profileId}/debts`}>{firstName + ' ' + lastName}</LinkStyled>
-          </Box>
-        </Box>
-      )
-    }
-  },
-  {
-    minWidth: 275,
-    field: 'createdAt',
-    headerName: 'Created Date',
-    renderCell: ({ row }: CellType) => {
-      const { createdAt } = row
-
-      return <Typography variant='body2'>{createdAt}</Typography>
-    }
-  },
-  {
-    minWidth: 200,
-    field: 'createdCompanyName',
-    headerName: 'Data Point',
-    renderCell: ({ row }: CellType) => {
-      const { createdCompanyName } = row
-
-      return <Typography sx={{ textTransform: 'capitalize' }}>{createdCompanyName}</Typography>
-    }
-  },
-  {
-    minWidth: 175,
-    field: 'stageName',
-    headerName: 'Stage',
-    renderCell: ({ row }: CellType) => {
-      return <Typography variant='body2'>{row.stageName}</Typography>
-    }
-  },
-  {
-    minWidth: 175,
-    field: 'stageStatusName',
-    headerName: 'Status',
-    renderCell: ({ row }: CellType) => {
-      return <Typography variant='body2'>{row.stageStatusName}</Typography>
-    }
-  },
-  {
-    minWidth: 175,
-    field: 'statusName',
-    headerName: 'Enrollment Status',
-    renderCell: ({ row }: CellType) => {
-      return (
-        <CustomChip
-          skin='light'
-          size='small'
-          label={row.statusName}
-          color={userStatusObj[row.statusName]}
-          sx={{ textTransform: 'capitalize', padding: 1 }}
-        />
-      )
-    }
-  },
-  {
-    minWidth: 250,
-    field: 'submittedDate',
-    headerName: 'Submitted Date',
-    renderCell: ({ row }: CellType) => {
-      return <Typography variant='body2'>{row.submittedDate}</Typography>
-    }
-  },
-  {
-    minWidth: 250,
-    field: 'enrolledDate',
-    headerName: 'Enrolled Date',
-    renderCell: ({ row }: CellType) => {
-      return <Typography variant='body2'>{row.enrolledDate}</Typography>
-    }
-  },
-  {
-    minWidth: 250,
-    field: 'cancelledDate',
-    headerName: 'Cancelled Date',
-    renderCell: ({ row }: CellType) => {
-      return <Typography variant='body2'>{row.cancelledDate}</Typography>
-    }
-  },
-  {
-    sortable: false,
-    field: 'actions',
-    headerName: 'Actions',
-    renderCell: ({ row }: CellType) => <RowOptions profileId={row.profileId} />
-  }
-]
 
 const ProfileList = () => {
-  // state for search filters
-  const [role, setRole] = useState<string>('')
-  const [plan, setPlan] = useState<string>('')
-  const [status, setStatus] = useState<string>('')
 
-  // global state for profiles
-  const profiles = useAppSelector(selectAllProfiles)
+  // API HOOKS
+  useGetCompaniesQuery({})
+  useGetCampaignsQuery({})
+  usePostSettingSearchQuery({})
   usePostProfilesSearchQuery({})
 
-  // val stores state for header filters
-  // const [value, setValue] = useState<string>('')
-  // const [addUserOpen, setAddUserOpen] = useState<boolean>(false)
+  // LOCAL STATE
+  const [paginationModel, setPaginationModel] = useState({ pageSize: 25, page: 0 })
+  const [status, setStatus] = useState<string>("0")
 
-  // state for UI
-  const [pageSize, setPageSize] = useState<number>(10)
-
-
-  const handleRoleChange = useCallback((e: SelectChangeEvent) => {
-    setRole(e.target.value)
-  }, [])
-
-  const handlePlanChange = useCallback((e: SelectChangeEvent) => {
-    setPlan(e.target.value)
-  }, [])
-
+  // HANDLE FILTER CHANGE
   const handleStatusChange = useCallback((e: SelectChangeEvent) => {
     setStatus(e.target.value)
   }, [])
 
-  // const toggleAddUserDrawer = () => setAddUserOpen(!addUserOpen)
+  // GLOBAL STATE
+  const companies = useAppSelector(selectAllCompanies)
+  const campaigns = useAppSelector(selectAllCampaigns)
+  const statusSettings = useAppSelector(state => selectSettingByType(state, 1))
+  const stageSettings = useAppSelector(state => selectSettingByType(state, 2))
 
-  // const handleFilter = useCallback((val: string) => {
-  //   setValue(val)
-  // }, [])
+  // DATA GRID COLUMNS DEFINITION
+  const columns: GridColDef[] = [
+    {
+      minWidth: 175,
+      field: 'profileId',
+      headerName: 'ID',
+      renderCell: ({ row }) => {
+        const { profileId } = row
+
+        return <Typography sx={{ textTransform: 'capitalize' }}>{profileId}</Typography>
+      }
+    },
+    {
+      minWidth: 300,
+      field: 'name',
+      headerName: 'Name',
+      valueGetter: (params) => {
+        return `${params.row.firstName} ${params.row.lastName}`
+      },
+      renderCell: ({ row }) => {
+        const { firstName, lastName, profileId } = row
+
+        return (
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            {renderClient(row)}
+            <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
+              <LinkStyled href={`/profiles/${profileId}/debts`}>{firstName + ' ' + lastName}</LinkStyled>
+            </Box>
+          </Box>
+        )
+      }
+    },
+    {
+      minWidth: 200,
+      field: 'statusName',
+      headerName: 'Enrollment Status',
+      type: 'singleSelect',
+      valueOptions(params) {
+        console.log(params)
+
+        return ['Active', 'Cancelled', 'Inactive']
+      },
+      align: 'center',
+      renderCell: ({ row }) => {
+        return (
+          <CustomChip
+            skin='light'
+            label={row.statusName}
+            color={userStatusObj[row.statusName]}
+            sx={{ textTransform: 'capitalize', padding: 1, width: '80%' }}
+          />
+        )
+      }
+    },
+    {
+      minWidth: 150,
+      type: 'date',
+      field: 'createdAt',
+      headerName: 'Created Date',
+      valueGetter: (({ value }) => {
+        return value ? new Date(value) : null
+      }),
+      renderCell: ({ value }) => {
+        return <Typography variant='body2'>{value ? format(new Date(value), 'MM/dd/yy') : ""}</Typography>
+      }
+    },
+    {
+      minWidth: 300,
+      field: 'createdCompanyName',
+      type: 'singleSelect',
+      valueOptions: companies.map(c => c.name),
+      headerName: 'Data Point',
+      valueFormatter(params) {
+        return capitalizeWords(params.value)
+      },
+      renderCell: (params) => {
+        const createdCompanyName: string = params.value
+
+        return <Typography variant='body2' sx={{ textTransform: 'capitalize', whiteSpace: 'normal', wordWrap: 'normal' }}>{capitalizeWords(createdCompanyName)}</Typography>
+      }
+    },
+    {
+      minWidth: 150,
+      field: 'stageStatusName',
+      headerName: 'Status',
+      type: 'singleSelect',
+      valueOptions: statusSettings.map(s => s.value),
+      renderCell: ({ row }) => {
+        return <Typography variant='body2'>{row.stageStatusName}</Typography>
+      }
+    },
+    {
+      minWidth: 150,
+      field: 'stageName',
+      headerName: 'Stage',
+      type: 'singleSelect',
+      valueOptions: stageSettings.map(s => s.value),
+      renderCell: ({ row }) => {
+        return <Typography variant='body2'>{row.stageName}</Typography>
+      }
+    },
+    {
+      minWidth: 150,
+      field: 'submittedDate',
+      headerName: 'Submitted Date',
+      type: 'date',
+      valueGetter: (({ value }) => {
+        return value ? new Date(value) : null
+      }),
+      renderCell: ({ value }) => {
+        return <Typography variant='body2'>{value ? format(new Date(value), 'MM/dd/yy') : ""}</Typography>
+      }
+    },
+    {
+      minWidth: 150,
+      field: 'enrolledDate',
+      headerName: 'Enrolled Date',
+      type: 'date',
+      valueGetter: (({ value }) => {
+        return value ? new Date(value) : null
+      }),
+      renderCell: ({ value }) => {
+        return <Typography variant='body2'>{value ? format(new Date(value), 'MM/dd/yy') : ""}</Typography>
+      }
+    },
+    {
+      minWidth: 150,
+      field: 'cancelledDate',
+      headerName: 'Cancelled Date',
+      type: 'date',
+      valueGetter: (({ value }) => {
+        return value ? new Date(value) : null
+      }),
+      renderCell: ({ value }) => {
+        return <Typography variant='body2'>{value ? format(new Date(value), 'MM/dd/yy') : ""}</Typography>
+      }
+    },
+    {
+      minWidth: 150,
+      field: 'campaignName',
+      headerName: 'Campaign',
+      type: 'singleSelect',
+      valueOptions: campaigns.map(c => c.campaignName),
+      renderCell: ({ row }) => {
+        return <Typography variant='body2'>{row.campaignName}</Typography>
+      }
+    },
+    {
+      minWidth: 150,
+      field: 'firstPaymentDate',
+      headerName: 'First Payment Date',
+      type: 'date',
+      valueGetter: (({ value }) => {
+        return value ? new Date(value) : null
+      }),
+      renderCell: ({ value }) => {
+        return <Typography variant='body2'>{value ? format(new Date(value), 'MM/dd/yy') : ""}</Typography>
+      }
+    },
+    {
+      minWidth: 150,
+      field: 'firstPaymentClearedDate',
+      headerName: 'First Payment Cleared Date',
+      type: 'date',
+      valueGetter: (({ value }) => {
+        return value ? new Date(value) : null
+      }),
+      renderCell: ({ value }) => {
+        return <Typography variant='body2'>{value ? format(new Date(value), 'MM/dd/yy') : ""}</Typography>
+      }
+    },
+    {
+      minWidth: 150,
+      field: 'firstPaymentAmount',
+      headerName: 'First Payment Amount',
+      type: 'number',
+      renderCell: ({ value }) => {
+        return <Typography variant='body2'>{value ? formatCurrency(value) : ""}</Typography>
+      }
+    },
+    {
+      minWidth: 150,
+      field: 'firstPaymentClearedAmount',
+      headerName: 'First Payment Cleared Amount',
+      renderCell: ({ value }) => {
+        return <Typography variant='body2'>{value ? formatCurrency(value) : ""}</Typography>
+      }
+    },
+    {
+      minWidth: 150,
+      field: 'lastPaymentAmount',
+      headerName: 'Last Payment Amount',
+      type: 'number',
+      renderCell: ({ value }) => {
+        return <Typography variant='body2'>{value ? formatCurrency(value) : ""}</Typography>
+      }
+    },
+    {
+      minWidth: 175,
+      field: 'lastPaymentStatus',
+      headerName: 'Last Payment Status',
+      type: 'singleSelect',
+      valueOptions: paymentStatus,
+      valueGetter({ value }) {
+        return paymentStatus[value]
+      },
+      renderCell: ({ value }) => {
+        return value ? (
+          <CustomChip
+            skin='light'
+            label={paymentStatus[value]}
+            color={paymentStatusColor[value]}
+            sx={{ textTransform: 'capitalize', padding: 1, width: '100%' }}
+          />
+        ) : ""
+      }
+    },
+    {
+      minWidth: 150,
+      field: 'lastStageStatusModifiedDate',
+      headerName: 'Status Modified Data',
+      type: 'date',
+      valueGetter: (({ value }) => {
+        return value ? new Date(value) : null
+      }),
+      renderCell: ({ value }) => {
+        return <Typography variant='body2'>{value ? format(new Date(value), 'MM/dd/yy') : ""}</Typography>
+      }
+    },
+    {
+      minWidth: 150,
+      field: 'timeInStatus',
+      headerName: 'Time in Status',
+      type: 'number',
+      renderCell: ({ value }) => {
+        return <Typography variant='body2'>{value}</Typography>
+      }
+    },
+    {
+      minWidth: 150,
+      field: 'legalStatus',
+      headerName: 'Legal Status',
+      type: "boolean",
+      renderCell: ({ value }) => {
+        return value ? <CustomChip
+          skin='light'
+          label={"Active"}
+          color={'error'}
+          sx={{ textTransform: 'capitalize', padding: 1, width: '100%' }}
+        /> : ""
+      }
+    },
+  ]
+
+  // FOR DYNAMIC RENDERING OF PRESET LIST FILTERS
+  const profiles = [
+    useAppSelector(selectAllProfiles),
+    useAppSelector(state => selectProfilesByStatus(state, 0)),
+    useAppSelector(state => selectProfilesByStatus(state, 1)),
+    useAppSelector(state => selectProfilesByStatus(state, 2)),
+    useAppSelector(state => selectProfilesByStatus(state, 3)),
+    useAppSelector(state => selectProfilesByStatus(state, 4)),
+    useAppSelector(state => selectProfilesByStatus(state, 5)),
+    useAppSelector(state => selectProfilesByStatus(state, 6)),
+    useAppSelector(state => selectProfilesByStatus(state, 7)),
+    useAppSelector(state => selectProfilesByStatus(state, 8)),
+    useAppSelector(state => selectProfilesByStatus(state, 9)),
+  ]
 
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
         <Card>
-          <CardHeader title='Search Filters' />
+          <CardHeader title='Preset List' />
           <CardContent>
             <Grid container spacing={6}>
-              <Grid item sm={4} xs={12}>
+              <Grid item sm={6} xs={12}>
                 <FormControl fullWidth>
-                  <InputLabel id='role-select'>Select Role</InputLabel>
-                  <Select
-                    fullWidth
-                    value={role}
-                    id='select-role'
-                    label='Select Role'
-                    labelId='role-select'
-                    onChange={handleRoleChange}
-                    inputProps={{ placeholder: 'Select Role' }}
-                  >
-                    <MenuItem value=''>Select Role</MenuItem>
-                    <MenuItem value='admin'>Admin</MenuItem>
-                    <MenuItem value='author'>Author</MenuItem>
-                    <MenuItem value='editor'>Editor</MenuItem>
-                    <MenuItem value='maintainer'>Maintainer</MenuItem>
-                    <MenuItem value='subscriber'>Subscriber</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item sm={4} xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel id='plan-select'>Select Plan</InputLabel>
-                  <Select
-                    fullWidth
-                    value={plan}
-                    id='select-plan'
-                    label='Select Plan'
-                    labelId='plan-select'
-                    onChange={handlePlanChange}
-                    inputProps={{ placeholder: 'Select Plan' }}
-                  >
-                    <MenuItem value=''>Select Plan</MenuItem>
-                    <MenuItem value='basic'>Basic</MenuItem>
-                    <MenuItem value='company'>Company</MenuItem>
-                    <MenuItem value='enterprise'>Enterprise</MenuItem>
-                    <MenuItem value='team'>Team</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
-              <Grid item sm={4} xs={12}>
-                <FormControl fullWidth>
-                  <InputLabel id='status-select'>Select Status</InputLabel>
+                  <InputLabel htmlFor='status'>Enrollment Status</InputLabel>
                   <Select
                     fullWidth
                     value={status}
-                    id='select-status'
-                    label='Select Status'
-                    labelId='status-select'
+                    id='status'
+                    label='Enrollment Status'
+                    labelId='status'
                     onChange={handleStatusChange}
-                    inputProps={{ placeholder: 'Select Role' }}
                   >
-                    <MenuItem value=''>Select Role</MenuItem>
-                    <MenuItem value='pending'>Pending</MenuItem>
-                    <MenuItem value='active'>Active</MenuItem>
-                    <MenuItem value='inactive'>Inactive</MenuItem>
+                    {[
+                      "All Profiles",
+                      "Pending",
+                      "Submitted",
+                      "Enrolled",
+                      "Paused",
+                      "Re-enrolled",
+                      "Cancelled",
+                      "Resume",
+                      "Approved",
+                      "Returned",
+                      "Created"
+                    ].map((s, i) => (
+
+                      <MenuItem key={`${s}-${i}`} value={i}>{s}</MenuItem>
+                    ))}
+
                   </Select>
                 </FormControl>
               </Grid>
             </Grid>
           </CardContent>
           <Divider />
-          {/* <TableHeader value={value} handleFilter={handleFilter} toggle={toggleAddUserDrawer} /> */}
-          {/* <Box sx={{ width: '100%' }}> */}
-
-          <DataGrid
-            autoHeight
-            rows={profiles}
-            getRowId={r => r.profileId}
-            columns={columns}
-            pageSize={pageSize}
-            disableSelectionOnClick
-            rowsPerPageOptions={[10, 25, 50]}
-            onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-          />
-          {/* </Box> */}
         </Card>
       </Grid>
-      {/* <SidebarAddUser open={addUserOpen} toggle={toggleAddUserDrawer} /> */}
+      <Grid item xs={12}>
+        <Card>
+          <CardContent>
+            <DataGridPro
+              rowHeight={75}
+              slots={{
+                toolbar: GridToolbar
+              }}
+              slotProps={{
+                toolbar: {
+                  showQuickFilter: true,
+                  quickFilterProps: { debounceMs: 500 },
+                  sx: { padding: 2 }
+                },
+              }}
+              columns={columns}
+              pagination
+              paginationModel={paginationModel}
+              hideFooterSelectedRowCount
+              onPaginationModelChange={setPaginationModel}
+              pageSizeOptions={[25, 50, 100]}
+              getRowId={row => row.profileId}
+              rows={profiles[+status]}
+              componentsProps={{
+                baseButton: {
+                  variant: 'outlined'
+                },
+              }}
+              initialState={{
+                sorting: {
+                  sortModel: [{ field: 'statusName', sort: 'asc' }]
+                },
+                pagination: {
+                  paginationModel: { pageSize: 25 }
+                },
+                columns: {
+                  columnVisibilityModel: {
+                    // Hide columns status and traderName, the other columns will remain visible
+                    profileId: false,
+                    createdCompanyName: false,
+                    submittedDate: false,
+                    enrolledDate: false,
+                    cancelledDate: false,
+                    firstPaymentDate: false,
+                    firstPaymentClearedDate: false,
+                    firstPaymentAmount: false,
+                    firstPaymentClearedAmount: false,
+                    lastPaymentAmount: false,
+                    lastPaymentStatus: false,
+                    lastStageStatusModifiedDate: false,
+                    timeInStatus: false,
+                    legalStatus: false
+
+                  },
+                }
+              }}
+            />
+          </CardContent>
+        </Card>
+      </Grid>
     </Grid>
   )
 }

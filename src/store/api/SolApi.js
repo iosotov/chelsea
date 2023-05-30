@@ -15,8 +15,6 @@ class SolApi {
   static token = null
 
   static async request(endpoint, data = {}, method = 'get') {
-    console.log('API Call:', endpoint, data, method)
-
     const url = `${baseUrl}${endpoint}`
     const params = method === 'get' ? data : {}
     const headers = { Authorization: `Bearer ${SolApi.token}` }
@@ -187,7 +185,6 @@ class SolApi {
       ]
     }
 
-    console.log(testData)
     const res = await this.request(`/profile`, testData, 'POST')
 
     return res
@@ -195,8 +192,6 @@ class SolApi {
 
   static async TestDeleteProfile(id) {
     const res = await this.request(`/profile/${id}/delete`, {}, 'PUT')
-
-    if (res.success) console.log('profile deleted')
 
     return res
   }

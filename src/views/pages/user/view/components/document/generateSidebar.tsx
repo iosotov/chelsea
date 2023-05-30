@@ -8,10 +8,12 @@ import {
   TextField,
   Drawer,
   IconButton,
-  Button
+  Button,
+  CircularProgress
 } from '@mui/material'
 import { BoxProps } from '@mui/material'
 import { styled } from '@mui/material'
+import { Dispatch, SetStateAction } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { toast } from 'react-hot-toast'
 
@@ -26,6 +28,7 @@ type Props = {
   open: boolean
   toggle: () => void
   profileId: string
+  setTab: Dispatch<SetStateAction<string>>
 }
 
 const Header = styled(Box)<BoxProps>(({ theme }) => ({
@@ -36,10 +39,10 @@ const Header = styled(Box)<BoxProps>(({ theme }) => ({
   backgroundColor: theme.palette.background.default
 }))
 
-export default function GenerateSidebar({ open, toggle, profileId }: Props) {
+export default function GenerateSidebar({ open, toggle, profileId, setTab }: Props) {
 
 
-  const { control, handleSubmit, setValue, reset } = useForm<DocumentGenerateType>({ defaultValues: { templateId: "", title: "", esignService: "", profileId } })
+  const { control, handleSubmit, setValue, reset } = useForm<DocumentGenerateType>({ defaultValues: { templateId: "", title: "", esignService: "Bold Esign", profileId } })
 
   const { isSuccess: templateSuccess } = usePostTemplateSearchQuery({})
   const [generateDoc, { isLoading }] = usePostDocumentGenerateMutation()
@@ -55,7 +58,8 @@ export default function GenerateSidebar({ open, toggle, profileId }: Props) {
   }
 
   function handleClose() {
-    reset({ templateId: "", title: "", esignService: "", profileId })
+    reset({ templateId: "", title: "", esignService: "Bold Esign", profileId })
+    setTab("generated")
     toggle()
 
   }
@@ -69,6 +73,13 @@ export default function GenerateSidebar({ open, toggle, profileId }: Props) {
         ModalProps={{ keepMounted: true }}
         sx={{ '& .MuiDrawer-paper': { width: [300, 400] } }}
       >
+        {isLoading && <CircularProgress
+          sx={{
+            position: 'absolute',
+            right: '50%',
+            top: '25%'
+          }}
+        />}
         <Header>
           <Typography variant='h6'>Generate Document</Typography>
           <IconButton size='small' onClick={handleClose} sx={{ color: 'text.primary' }}>
@@ -102,9 +113,9 @@ export default function GenerateSidebar({ open, toggle, profileId }: Props) {
                         label='Document Template'
                         labelId='document-template'
                         disabled={isLoading}
-                        onChange={e => {
+                        onChange={async (e) => {
                           const template = store.getState().template.entities[e.target.value]
-                          if (template) setValue("title", template.title, { shouldValidate: true })
+                          template && setValue("title", template.title, { shouldValidate: true })
                           onChange(e)
                         }}
                         {...rest}
@@ -134,18 +145,18 @@ export default function GenerateSidebar({ open, toggle, profileId }: Props) {
                       <Select
                         label='E-sign Service'
                         labelId='esignService'
-                        disabled
+                        disabled={isLoading}
                         {...field}
                       >
 
-                        <MenuItem value={""}>BoldSign</MenuItem>
+                        <MenuItem value={"Bold Esign"}>Bold ESign</MenuItem>
                       </Select>)
                   }}
                 />
               </FormControl>
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-              <Button disabled={isLoading} variant='outlined' color='secondary' onClick={handleClose}>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+              <Button sx={{ mr: 1 }} disabled={isLoading} variant='outlined' color='secondary' onClick={handleClose}>
                 Cancel
               </Button>
               <Button disabled={isLoading} variant='outlined' type='submit' >

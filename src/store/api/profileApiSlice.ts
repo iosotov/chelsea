@@ -3,6 +3,21 @@ import SolApi from './SolApi'
 import { apiSlice } from './apiSlice'
 import { LunaResponseType, SearchFilterType } from './sharedTypes'
 
+export type ProfileQuickSearchType = {
+  profileId: string
+  firstName: string
+  lastName: string
+  status: number
+  statusName: string
+  primaryPhoneNumber: string
+  primaryEmail: string
+  address1: string
+  address2: string
+  city: string
+  state: string
+  zipCode: string
+}
+
 export type ProfileInfoType = {
   profileId: string
   firstName: string
@@ -560,6 +575,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         method: 'GET'
       }),
       transformErrorResponse(baseQueryReturnValue) {
+        console.log(baseQueryReturnValue)
+
         return {
           status: baseQueryReturnValue.status,
           message: 'There was an error using search contacts',
