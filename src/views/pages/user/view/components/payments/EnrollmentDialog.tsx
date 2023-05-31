@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 
 // reenable when type selection enabled
 // import { useRef } from 'react'
@@ -47,21 +47,15 @@ import {
 //Redux Store
 import { useAppSelector } from 'src/store/hooks'
 import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
-import { BankingOrCreditCardType, selectPaymentsByProfileId } from 'src/store/bankAccountSlice'
+import { selectPaymentsByProfileId } from 'src/store/bankAccountSlice'
 
 //Utils
 import MoneyConverter from 'src/views/shared/utils/money-converter'
+import DateConverter from 'src/views/shared/utils/date-converter'
 
 //Imported Types
 import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
-import {
-  EnrollmentInfoModel,
-  EnrollmentPreviewMutatedType,
-  EnrollmentSearchResultModel
-} from 'src/store/api/enrollmentApiSlice'
-import DateConverter from 'src/views/shared/utils/date-converter'
-import { BankAccountType } from 'src/store/api/bankAccountApiSlice'
-import { CreditCardType } from 'cleave.js/options/creditCard'
+import { EnrollmentPreviewMutatedType, EnrollmentSearchResultModel } from 'src/store/api/enrollmentApiSlice'
 
 //Typing
 type EnrollmentModalProps = {
@@ -191,8 +185,6 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
   const paymentData = useAppSelector(state => selectPaymentsByProfileId(state, String(profileId)))
 
   const [previewData, setPreviewData] = useState<EnrollmentPreviewMutatedType | null>(null)
-
-  console.log(previewData)
 
   const [getPreview, previewStatus] = useGetEnrollmentPreviewMutation()
   const { isLoading: previewLoading } = previewStatus
@@ -400,7 +392,7 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
         recurringPaymentDate: addMonths(new Date(enrollmentData.firstPaymentDate), 1)
       })
     }
-  }, [enrollmentData])
+  }, [enrollmentData, reset])
 
   // Will implement preview check to make sure up to date before creating preview
   // const shallow1 = useRef(JSON.stringify(getValues()))
@@ -409,7 +401,6 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
   //   if (previewData) {
   //     const shallow2 = JSON.stringify(getValues())
   //     if (shallow1.current !== shallow2) {
-  //       console.log('theyre the same, dont refresh')
   //       shallow1.current = shallow2
   //     }
   //   }

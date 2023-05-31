@@ -34,8 +34,6 @@ export default function PaymentFormType({ control, errors, profileId }: Props): 
     }
   ]
 
-  console.log(paymentData)
-
   return (
     <Grid container sx={{ width: '100%' }} spacing={4}>
       <Grid item xs={12}>

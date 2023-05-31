@@ -41,7 +41,7 @@ const EnrollmentOptions: SingleSelectOption[] = [
   { label: 'Select One...', value: '', disabled: true },
   { label: 'Open', value: 0 },
   { label: 'Pending', value: 1, disabled: true },
-  { label: 'Cleared', value: 2 },
+  { label: 'Cleared', value: 2, disabled: true },
   { label: 'Returned', value: 3, disabled: true },
   { label: 'Paused', value: 4 },
   { label: 'Cancelled', value: 5 },
@@ -95,7 +95,7 @@ export default function TransactionDialog({
   const [editPayment, { isLoading: editLoading }] = usePutPaymentUpdateMutation()
 
   useEffect(() => {
-    if (data !== null) {
+    if (data) {
       reset({
         processedDate: new Date(data.processedDate),
         paymentMethod: data.paymentMethod,
@@ -107,9 +107,10 @@ export default function TransactionDialog({
       })
     }
     if (data === null) {
+      reset(baseValue)
       unregister(['status', 'clearedDate', 'description'])
     }
-  }, [data])
+  }, [data, reset, unregister])
 
   const filterGateway = () => {
     const gate = getValues('paymentMethod')
@@ -175,7 +176,6 @@ export default function TransactionDialog({
   }
 
   const onClose = () => {
-    reset(baseValue)
     toggle()
   }
 
