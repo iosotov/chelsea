@@ -1,6 +1,6 @@
 import { updateEmails } from '../emailSlice'
 import { apiSlice } from './apiSlice'
-import { LunaResponseType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType } from './sharedTypes'
 
 export type EmailType = {
   emailId: string
@@ -72,7 +72,8 @@ export const emailApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateEmails([data]))
         } catch (err: any) {
-          console.error('API error in getEmail:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getEmail:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -103,7 +104,8 @@ export const emailApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateEmails(data))
         } catch (err: any) {
-          console.error('API error in getProfileEmails:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getProfileEmails:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -138,7 +140,8 @@ export const emailApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateEmails(data))
         } catch (err: any) {
-          console.error('API error in getProfileLiabilityEmails:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getProfileLiabilityEmails:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -176,7 +179,8 @@ export const emailApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postProfileEmail:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postProfileEmail:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -210,7 +214,8 @@ export const emailApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postProfileLiabilityEmail:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postProfileLiabilityEmail:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -250,7 +255,8 @@ export const emailApiSlice = apiSlice.injectEndpoints({
 
           // dispatch(updateEmails([data]))
         } catch (err: any) {
-          console.error('API error in  postEmailAttachment:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in  postEmailAttachment:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {

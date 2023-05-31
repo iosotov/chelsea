@@ -1,6 +1,6 @@
 import { setUserActivitys, updateUser } from '../userSlice'
 import { apiSlice } from './apiSlice'
-import { LunaResponseType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType } from './sharedTypes'
 import { v4 as uuid } from 'uuid'
 
 export type UserType = {
@@ -84,7 +84,8 @@ export const userApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateUser(data))
         } catch (err: any) {
-          console.error('API error in getUser:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getUser:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -115,7 +116,8 @@ export const userApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postUserCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postUserCreate:', error.message)
         }
       },
       invalidatesTags: res => (res ? [{ type: 'EMPLOYEE', id: 'LIST' }] : [])
@@ -147,7 +149,8 @@ export const userApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putUserUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putUserUpdate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -181,7 +184,8 @@ export const userApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putUserDisable:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putUserDisable:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -215,7 +219,8 @@ export const userApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putUserEnable:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putUserEnable:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -252,7 +257,8 @@ export const userApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putUserRoleUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putUserRoleUpdate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -289,7 +295,8 @@ export const userApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in getRole:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getRole:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -324,7 +331,8 @@ export const userApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(setUserActivitys(data.map(a => ({ ...a, userActivityId: uuid() }))))
         } catch (err: any) {
-          console.error('API error in getUser:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getUser:', error.message)
         }
       }
     })

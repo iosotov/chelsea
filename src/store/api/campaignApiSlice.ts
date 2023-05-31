@@ -1,6 +1,6 @@
 import { setCampaigns, updateCampaigns } from '../campaignSlice'
 import { apiSlice } from './apiSlice'
-import { LunaResponseType, SearchFilterType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType, SearchFilterType } from './sharedTypes'
 
 export type CampaignCreateType = {
   campaignName: string
@@ -58,7 +58,8 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
 
           if (data) dispatch(updateCampaigns([data]))
         } catch (err: any) {
-          console.error('API error in getCampaign:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getCampaign:', error.message)
         }
       },
       providesTags: result => {
@@ -92,7 +93,8 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
 
           if (data) dispatch(setCampaigns(data))
         } catch (err: any) {
-          console.error('API error in getCampaigns:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getCampaigns:', error.message)
         }
       },
       providesTags: result => {
@@ -128,7 +130,8 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postCampaignCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postCampaignCreate:', error.message)
         }
       },
       invalidatesTags: result => (result ? [{ type: 'CAMPAIGN', id: 'LIST' }] : [])
@@ -159,7 +162,8 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putCampaignUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putCampaignUpdate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'CAMPAIGN', id: arg.campaignId }] : [])
@@ -187,7 +191,8 @@ export const campaignApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in deleteCampaign:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in deleteCampaign:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'CAMPAIGN', id: arg }] : [])

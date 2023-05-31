@@ -17,6 +17,7 @@ import DownloadIcon from '@mui/icons-material/Download'
 import { format } from 'date-fns'
 import { DataGridPro, GridColDef, GridRenderCellParams } from '@mui/x-data-grid-pro'
 import { useLazyGetDocumentPreviewQuery } from 'src/store/api/apiHooks'
+import { useConfirm } from 'material-ui-confirm'
 
 
 const UploadedDocTable = ({ rows }: any) => {
@@ -27,21 +28,32 @@ const UploadedDocTable = ({ rows }: any) => {
   // API HOOKS
   const [previewDoc] = useLazyGetDocumentPreviewQuery()
 
+  // THIRD PARTY HOOKS
+  const confirm = useConfirm()
+
   // HANDLE PREVIEW DOCUMENT
   const previewDocument = useCallback(async (documentId: string) => {
-    const data = await previewDoc(documentId).unwrap()
-    if (data) {
-      const linkSource = `data:${data.contentType};base64,${data.content}`;
-      const downloadLink = document.createElement('a');
-      document.body.appendChild(downloadLink);
 
-      downloadLink.href = linkSource;
-      downloadLink.target = '_self';
-      downloadLink.download = `${data.title}${data.fileExtension}`;
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
-    }
-  }, [previewDoc])
+    confirm({
+      title: 'Confirmation',
+      description: 'Are you sure you want to download document',
+      confirmationText: 'Accept',
+      dialogProps: { maxWidth: 'xs' }
+    }).then(async () => {
+      const data = await previewDoc(documentId).unwrap()
+      if (data) {
+        const linkSource = `data:${data.contentType};base64,${data.content}`;
+        const downloadLink = document.createElement('a');
+        document.body.appendChild(downloadLink);
+
+        downloadLink.href = linkSource;
+        downloadLink.target = '_self';
+        downloadLink.download = `${data.title}${data.fileExtension}`;
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      }
+    })
+  }, [confirm, previewDoc])
 
   // COLUMN DEFINITIONS
   const columns: GridColDef[] = [

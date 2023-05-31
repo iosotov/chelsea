@@ -1,7 +1,7 @@
 import { setCreditReports } from '../creditReportSlice'
 import { apiSlice } from './apiSlice'
 import { CreditReportInfoModel } from './defaultValues'
-import { LunaResponseType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType } from './sharedTypes'
 
 export type CreditScoreType = {
   scoreValue: string
@@ -72,7 +72,8 @@ export const creditReportApiSlice = apiSlice.injectEndpoints({
 
           if (data) dispatch(setCreditReports([data]))
         } catch (err: any) {
-          console.error('API error in getCreditReports:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getCreditReports:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -103,7 +104,8 @@ export const creditReportApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postProfileCreditReport:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postProfileCreditReport:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -138,7 +140,8 @@ export const creditReportApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postCreditReport:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postCreditReport:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (arg.profileId ? [{ type: 'CREDITREPORT', id: arg.profileId }] : [])

@@ -1,6 +1,6 @@
 import { setBankAccounts } from '../bankAccountSlice'
 import { apiSlice } from './apiSlice'
-import { LunaResponseType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType } from './sharedTypes'
 
 export type BankAccountType = {
   bankAccountId: string
@@ -81,7 +81,8 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(setBankAccounts(data))
         } catch (err: any) {
-          console.error('API error in getBankAccounts:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getBankAccounts:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -119,7 +120,8 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postBankAccountCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postBankAccountCreate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'BANKACCOUNT', id: arg.profileId }] : [])
@@ -150,7 +152,8 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putBankAccountUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putBankAccountUpdate:', error.data.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'BANKACCOUNT', id: arg.bankAccountId }] : [])
@@ -178,7 +181,8 @@ export const bankAccountApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in deleteBankAccount:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in deleteBankAccount:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'BANKACCOUNT', id: arg }] : [])

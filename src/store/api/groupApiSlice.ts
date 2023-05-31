@@ -1,6 +1,6 @@
 import { setGroups, updateGroup } from '../groupSlice'
 import { apiSlice } from './apiSlice'
-import { LunaResponseType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType } from './sharedTypes'
 
 export type GroupType = {
   groupId: string
@@ -46,7 +46,8 @@ export const groupApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateGroup(data))
         } catch (err: any) {
-          console.error('API error in getGroup:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getGroup:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -77,7 +78,8 @@ export const groupApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(setGroups(data))
         } catch (err: any) {
-          console.error('API error in getGroups:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getGroups:', error.message)
         }
       },
       providesTags: result => {
@@ -110,7 +112,8 @@ export const groupApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postGroupCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postGroupCreate:', error.message)
         }
       },
       invalidatesTags: res => (res ? [{ type: 'GROUP', id: 'LIST' }] : [])
@@ -142,7 +145,8 @@ export const groupApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putGroupUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putGroupUpdate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'GROUP', id: arg.groupId }] : [])
@@ -170,7 +174,8 @@ export const groupApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in deleteGroup:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in deleteGroup:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'GROUP', id: arg }] : [])
