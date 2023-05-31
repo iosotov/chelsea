@@ -26,8 +26,8 @@ import { alpha } from '@mui/material/styles'
 import { useTheme } from '@mui/material/styles'
 
 // ** Third Party Imports
-import { ApexOptions } from 'apexcharts'
 import { useConfirm } from 'material-ui-confirm'
+import { ApexOptions } from 'apexcharts'
 import ReactApexcharts from 'src/@core/components/react-apexcharts'
 
 // ** Custom Components Imports
@@ -75,16 +75,7 @@ function CreditScore({ id }: Props) {
   const { isSuccess } = useGetCreditReportsQuery(id, { skip: !id })
   const creditReport = useAppSelector(state => selectCreditReportByProfileId(state, String(id)))
 
-  const creditScore = useRef<number>(0)
-
-  useEffect(() => {
-    if (creditReport && creditReport?.creditScores.length > 0) {
-      creditScore.current = (Number(creditReport.creditScores[0].scoreValue) / 850) * 100
-      console.log(creditScore.current)
-    }
-  }, [creditReport])
-
-  const [call] = usePostProfileCreditReportMutation()
+  const [call, { isLoading: newReportLoading }] = usePostProfileCreditReportMutation()
   const pullReport = () => {
     confirm({
       title: 'Confirmation',
@@ -94,6 +85,24 @@ function CreditScore({ id }: Props) {
     }).then(() => {
       call(String(id))
     })
+  }
+
+  const viewReport = () => {
+    if (!creditReport?.referenceFile) {
+      return
+    }
+
+    console.log
+
+    const iframe =
+      `<iframe width='100%' height='100%' src='data:${creditReport.fileType};base64,` +
+      encodeURI(creditReport.referenceFile) +
+      "'></iframe>"
+    const x = window.open()
+
+    x?.document.open()
+    x?.document.write(iframe)
+    x?.document.close()
   }
 
   const options: ApexOptions = {
@@ -135,11 +144,11 @@ function CreditScore({ id }: Props) {
   return (
     <Card sx={{ p: 2, mb: 4 }}>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-        <Button size='small' disabled={creditReport?.creditScores?.length === 0}>
+        <Button onClick={viewReport} size='small' disabled={creditReport?.creditScores?.length === 0}>
           View
         </Button>
-        <Button variant='outlined' size='small' onClick={pullReport}>
-          New Report
+        <Button disabled={newReportLoading} variant='outlined' size='small' onClick={pullReport}>
+          {newReportLoading ? 'Pulling...' : 'New Report'}
         </Button>
       </Box>
       <Grid container spacing={4}>
@@ -154,7 +163,16 @@ function CreditScore({ id }: Props) {
                   mb: 4
                 }}
               >
-                <ReactApexcharts type='radialBar' height={280} series={[creditScore.current]} options={options} />
+                <ReactApexcharts
+                  type='radialBar'
+                  height={280}
+                  series={[
+                    creditReport?.creditScores?.length > 0
+                      ? (Number(creditReport.creditScores[0].scoreValue) / 850) * 100
+                      : 0
+                  ]}
+                  options={options}
+                />
                 <Typography sx={{ mt: 5, mb: 2.5 }} variant='h5'>
                   {creditEval[creditReport.creditScores[0].evaluation] ?? 'Unknown'}
                 </Typography>
