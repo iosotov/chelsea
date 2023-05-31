@@ -56,9 +56,11 @@ const userStatusObj: UserStatusType = {
   Inactive: 'error'
 }
 
-const paymentStatusColor: ThemeColor[] = ["primary", "info", "success", "error", "error", "error", "error", "error", "error", "error", "warning"]
+export const paymentStatusColor: ThemeColor[] = ["primary", "info", "success", "error", "error", "error", "error", "error", "error", "error", "warning"]
 
 const paymentStatus = ["Open", "Pending", "Cleared", "Returned", "Paused", "Cancelled", "Reversed", "Rejected", "Error", "Voided", "Unknown"]
+
+
 
 const LinkStyled = styled(Link)(({ theme }) => ({
   fontWeight: 600,
@@ -429,6 +431,13 @@ const ProfileList = () => {
               rowHeight={75}
               slots={{
                 toolbar: GridToolbar
+              }}
+              slotProps={{
+                toolbar: {
+                  showQuickFilter: true,
+                  quickFilterProps: { debounceMs: 500 },
+                  sx: { padding: 2 }
+                },
               }}
               columns={columns}
               pagination

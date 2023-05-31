@@ -351,6 +351,7 @@ export const {
 
   // GET profile/quicksearch/keyword
   useGetProfileQuickSearchQuery,
+  useLazyGetProfileQuickSearchQuery,
 
   // GET profile/profileId/labels
   useGetProfileLabelsQuery,
@@ -637,5 +638,7 @@ export const {
   usePutUserRoleUpdateMutation,
 
   // PUT user/userId/password
-  usePutUserPasswordUpdateMutation
+  usePutUserPasswordUpdateMutation,
+
+  useGetUserActivityQuery
 } = userApiSlice

@@ -1,6 +1,6 @@
 import { setEmployees, updateEmployee } from '../employeeSlice'
 import { apiSlice } from './apiSlice'
-import { LunaResponseType, SearchFilterType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType, SearchFilterType } from './sharedTypes'
 
 export type EmployeePhoneNumberType = {
   name: string
@@ -113,7 +113,8 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateEmployee(data))
         } catch (err: any) {
-          console.error('API error in getEmployeeInfo:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getEmployeeInfo:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -144,7 +145,8 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateEmployee(data))
         } catch (err: any) {
-          console.error('API error in getEmployeeBasic:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getEmployeeBasic:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -175,7 +177,8 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateEmployee(data))
         } catch (err: any) {
-          console.error('API error in getEmployeeSnapshot:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getEmployeeSnapshot:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -208,7 +211,8 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
 
           if (data) dispatch(setEmployees(data))
         } catch (err: any) {
-          console.error('API error in postEmployeeSearch:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postEmployeeSearch:', error.message)
         }
       },
       providesTags: result => {
@@ -239,7 +243,8 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postEmployeeCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postEmployeeCreate:', error.message)
         }
       },
       invalidatesTags: result => {
@@ -273,7 +278,8 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postEmployeeGrantAuth:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postEmployeeGrantAuth:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -307,7 +313,8 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putEmployeeUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putEmployeeUpdate:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -338,7 +345,8 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putEmployeeDisable:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putEmployeeDisable:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -369,7 +377,8 @@ export const employeeApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putEmployeeEnable:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putEmployeeEnable:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {

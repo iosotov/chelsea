@@ -1,5 +1,6 @@
 import { setCreditReport, setEsign, setStorage } from '../companySettingSlice'
 import { apiSlice } from './apiSlice'
+import { ErrorResponseType } from './sharedTypes'
 
 export type CompanySettingCreditReportType = {
   companyId: string
@@ -51,10 +52,8 @@ export const companySettingApiSlice = apiSlice.injectEndpoints({
 
           dispatch(setCreditReport(creditReportSetting))
         } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error fetching company setting credit report:', error.message)
         }
       },
       providesTags: result => {
@@ -74,7 +73,7 @@ export const companySettingApiSlice = apiSlice.injectEndpoints({
         }
       },
       transformResponse: (res: Record<string, any>) => {
-        if (!res.success) throw new Error('There was an error creating company')
+        if (!res.success) throw new Error('There was an error creating company credit report')
         console.log(res.data)
 
         return res.data
@@ -89,10 +88,8 @@ export const companySettingApiSlice = apiSlice.injectEndpoints({
 
           dispatch(setCreditReport(newCreditReport))
         } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error creating company credit report:', error.message)
         }
       }
     }),
@@ -115,10 +112,8 @@ export const companySettingApiSlice = apiSlice.injectEndpoints({
 
           dispatch(setEsign(esign))
         } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error getting esign settings:', error.message)
         }
       },
       providesTags: result => {
@@ -138,7 +133,7 @@ export const companySettingApiSlice = apiSlice.injectEndpoints({
         }
       },
       transformResponse: (res: Record<string, any>) => {
-        if (!res.success) throw new Error('There was an error creating company')
+        if (!res.success) throw new Error('There was an error creating esign setting')
         console.log(res.data)
 
         return res.data
@@ -153,10 +148,8 @@ export const companySettingApiSlice = apiSlice.injectEndpoints({
 
           dispatch(setEsign(newEsign))
         } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error creating esign setting:', error.message)
         }
       }
     }),
@@ -179,10 +172,8 @@ export const companySettingApiSlice = apiSlice.injectEndpoints({
 
           dispatch(setStorage(storage))
         } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error getting company storage:', error.message)
         }
       },
       providesTags: result => {
@@ -217,10 +208,8 @@ export const companySettingApiSlice = apiSlice.injectEndpoints({
 
           dispatch(setStorage(newStorage))
         } catch (err) {
-          // ************************
-          // NEED TO CREATE ERROR HANDLING
-
-          console.log(err)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error creating storage:', error.message)
         }
       }
     })

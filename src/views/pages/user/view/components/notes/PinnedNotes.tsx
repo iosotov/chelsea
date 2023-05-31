@@ -5,7 +5,7 @@ import { useAppSelector } from "src/store/hooks"
 import { selectPinnedNotesByProfileId } from "src/store/noteSlice"
 import { store } from "src/store/store"
 import CloseIcon from '@mui/icons-material/Close';
-import { Alert, Divider, IconButton, Stack } from "@mui/material"
+import { Alert, IconButton, Stack } from "@mui/material"
 
 
 
@@ -36,26 +36,21 @@ function PinnedNotes({ profileId }: PinnedNotesProps) {
   if (isError) return <>There was an error on this page</>
 
   if (isSuccess) return (
-    <Stack>
+    <Stack width={'100%'}>
       {pinnedNotes.map(n => {
         return (
-          <>
-            <Alert
-              key={n.noteId}
-              severity="info"
-              sx={{
-                width: '100%'
-              }}
-
-              action={
-                <IconButton disabled={updateLoading} onClick={() => handleUpdateImportant(n.noteId)} edge="end" aria-label="delete">
-                  <CloseIcon />
-                </IconButton>
-              }
-            >Pinned Message: {n.content}
-            </Alert>
-            <Divider />
-          </>
+          <Alert
+            severity="info"
+            sx={{
+              mb: .5
+            }}
+            key={n.noteId}
+            action={
+              <IconButton sx={{ pr: 4 }} disabled={updateLoading} onClick={() => handleUpdateImportant(n.noteId)} edge="end" aria-label="delete">
+                <CloseIcon />
+              </IconButton>
+            }
+          >Pinned Message: {n.content}</Alert>
         )
       })}
     </Stack>

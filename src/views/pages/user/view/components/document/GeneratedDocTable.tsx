@@ -17,33 +17,81 @@ import DownloadIcon from '@mui/icons-material/Download'
 import SendIcon from '@mui/icons-material/Send'
 import { format } from 'date-fns'
 import { DataGridPro, GridColDef, GridColumnHeaders, GridRenderCellParams, GridRow } from '@mui/x-data-grid-pro'
-import { useLazyGetDocumentPreviewQuery } from 'src/store/api/apiHooks'
+import { useLazyGetDocumentPreviewQuery, useLazyGetProfileQuickSearchQuery, usePostDocumentEsignMutation } from 'src/store/api/apiHooks'
+import { DocumentEsignType } from 'src/store/api/documentApiSlice'
+import { toast } from 'react-hot-toast'
+import { useConfirm } from 'material-ui-confirm'
 
+interface GeneratedDocTableProps {
+  rows: any
+  profileId: string
+}
 
-
-const GeneratedDocTable = ({ rows }: any) => {
+const GeneratedDocTable = ({ rows, profileId }: GeneratedDocTableProps) => {
 
   // LOCAL STATE
   const [paginationModel, setPaginationModel] = useState({ pageSize: 10, page: 0 })
 
+  const [getProfile] = useLazyGetProfileQuickSearchQuery()
+
   // API HOOKS
   const [previewDoc] = useLazyGetDocumentPreviewQuery()
 
+  const [sendEsign] = usePostDocumentEsignMutation()
+
+  const confirm = useConfirm()
+
   // HANDLE PREVIEW DOCUMENT
   const previewDocument = useCallback(async (documentId: string) => {
-    const data = await previewDoc(documentId).unwrap()
-    if (data) {
-      const linkSource = `data:${data.contentType};base64,${data.content}`;
-      const downloadLink = document.createElement('a');
-      document.body.appendChild(downloadLink);
 
-      downloadLink.href = linkSource;
-      downloadLink.target = '_self';
-      downloadLink.download = `${data.title}${data.fileExtension}`;
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
+    confirm({
+      title: 'Confirmation',
+      description: 'Are you sure you want to download document',
+      confirmationText: 'Accept',
+      dialogProps: { maxWidth: 'xs' }
+    }).then(async () => {
+      const data = await previewDoc(documentId).unwrap()
+      if (data) {
+        const linkSource = `data:${data.contentType};base64,${data.content}`;
+        const downloadLink = document.createElement('a');
+        document.body.appendChild(downloadLink);
+
+        downloadLink.href = linkSource;
+        downloadLink.target = '_self';
+        downloadLink.download = `${data.title}${data.fileExtension}`;
+        downloadLink.click();
+        document.body.removeChild(downloadLink);
+      }
+    })
+  }, [confirm, previewDoc])
+
+  // HANDLE PREVIEW DOCUMENT
+  const handleEsign = useCallback(async (documentId: string) => {
+    const { data: profiles } = await getProfile(profileId)
+    if (profiles?.[0]) {
+      const [profile] = profiles
+      const esignData: DocumentEsignType = {
+        documentId: documentId,
+        profileId,
+        sendingMethod: 1,
+        targetPhoneNumber: profile.primaryPhoneNumber,
+        targetEmail: profile.primaryEmail
+      }
+      console.log(esignData)
+
+      confirm({
+        title: 'Confirmation',
+        description: 'Are you sure you want to send document for signature',
+        confirmationText: 'Accept',
+        dialogProps: { maxWidth: 'xs' }
+      }).then(async () => {
+        const { data: success }: { data?: boolean, error?: any } = await sendEsign(esignData)
+        if (success) {
+          toast.success("You have successfully sent document for signature")
+        }
+      })
     }
-  }, [previewDoc])
+  }, [confirm, getProfile, profileId, sendEsign])
 
   // COLUMN DEFINITIONS
   const columns: GridColDef[] = [
@@ -96,12 +144,12 @@ const GeneratedDocTable = ({ rows }: any) => {
         const { row } = params
 
         return (
-          <Box sx={{ display: 'flex' }}>
-            <IconButton>
-              <DownloadIcon color="primary" fontSize='large' onClick={() => previewDocument(row.documentId)} />
+          <Box sx={{ display: 'flex' }}  >
+            <IconButton onClick={() => previewDocument(row.documentId)}>
+              <DownloadIcon color="primary" fontSize='large' />
             </IconButton>
-            <IconButton disabled>
-              <SendIcon color='secondary' />
+            <IconButton onClick={() => handleEsign(row.documentId)}  >
+              <SendIcon color='primary' />
             </IconButton>
           </Box>
         )
