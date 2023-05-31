@@ -11,7 +11,6 @@ import Button from '@mui/material/Button'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
-import TablePagination from '@mui/material/TablePagination'
 import Table from '@mui/material/Table'
 import TableRow from '@mui/material/TableRow'
 import TableHead from '@mui/material/TableHead'
@@ -193,6 +192,8 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
 
   const [previewData, setPreviewData] = useState<EnrollmentPreviewMutatedType | null>(null)
 
+  console.log(previewData)
+
   const [getPreview, previewStatus] = useGetEnrollmentPreviewMutation()
   const { isLoading: previewLoading } = previewStatus
 
@@ -339,21 +340,6 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
           setPreviewData(res)
         }
       })
-  }
-
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
-
-  // Avoid a layout jump when reaching the last page with empty rows.
-  //PreviewData !== null when empty rows is checked
-
-  const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-    setPage(newPage)
-  }
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10))
-    setPage(0)
   }
 
   //onChange
@@ -554,42 +540,52 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {previewData.transactions
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row: any, i: number) => (
-                      <TableRow key={i}>
-                        <TableCell>{i + 1}</TableCell>
-                        <TableCell align='center'>{DateConverter(row.processDate, 'UTC')}</TableCell>
-                        <TableCell align='center'>{MoneyConverter(row.serviceFee)}</TableCell>
-                        <TableCell align='center'>{MoneyConverter(row.maintenanceFee)}</TableCell>
-                        <TableCell align='center'>{MoneyConverter(row.total)}</TableCell>
-                      </TableRow>
-                    ))}
-                  {page > 0
-                    ? Math.max(0, (1 + page) * rowsPerPage - previewData.transactions.length ?? 0)
-                    : 0 > 0 && (
-                        <TableRow
-                          style={{
-                            height:
-                              50 * page > 0
-                                ? Math.max(0, (1 + page) * rowsPerPage - previewData.transactions.length ?? 0)
-                                : 0
-                          }}
-                        >
-                          <TableCell colSpan={6} />
+                  {previewData.transactions.length <= 9
+                    ? previewData.transactions.map((row: any, i: number) => (
+                        <TableRow key={i + 1}>
+                          <TableCell>{i + 1}</TableCell>
+                          <TableCell align='center'>{DateConverter(row.processDate, 'UTC')}</TableCell>
+                          <TableCell align='center'>{MoneyConverter(row.serviceFee)}</TableCell>
+                          <TableCell align='center'>{MoneyConverter(row.maintenanceFee)}</TableCell>
+                          <TableCell align='center'>{MoneyConverter(row.total)}</TableCell>
                         </TableRow>
-                      )}
+                      ))
+                    : null}
+                  {previewData.transactions.length > 9
+                    ? previewData.transactions.slice(0, 5).map((row: any, i: number) => (
+                        <TableRow key={i + 1}>
+                          <TableCell>{i + 1}</TableCell>
+                          <TableCell align='center'>{DateConverter(row.processDate, 'UTC')}</TableCell>
+                          <TableCell align='center'>{MoneyConverter(row.serviceFee)}</TableCell>
+                          <TableCell align='center'>{MoneyConverter(row.maintenanceFee)}</TableCell>
+                          <TableCell align='center'>{MoneyConverter(row.total)}</TableCell>
+                        </TableRow>
+                      ))
+                    : null}
+                  {previewData.transactions.length > 9 && (
+                    <TableRow
+                      style={{
+                        height: 50
+                      }}
+                    >
+                      <TableCell align='center' colSpan={6}>
+                        .........
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  {previewData.transactions.length > 9
+                    ? previewData.transactions.slice(previewData.transactions.length - 4).map((row: any, i: number) => (
+                        <TableRow key={previewData.transactions.length - 3 + i}>
+                          <TableCell>{previewData.transactions.length - 3 + i}</TableCell>
+                          <TableCell align='center'>{DateConverter(row.processDate, 'UTC')}</TableCell>
+                          <TableCell align='center'>{MoneyConverter(row.serviceFee)}</TableCell>
+                          <TableCell align='center'>{MoneyConverter(row.maintenanceFee)}</TableCell>
+                          <TableCell align='center'>{MoneyConverter(row.total)}</TableCell>
+                        </TableRow>
+                      ))
+                    : null}
                 </TableBody>
               </Table>
-              <TablePagination
-                page={page}
-                component='div'
-                count={previewData.transactions.length}
-                rowsPerPage={rowsPerPage}
-                onPageChange={handleChangePage}
-                rowsPerPageOptions={[5, 10, 25]}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-              />
             </>
           ) : (
             <Box
