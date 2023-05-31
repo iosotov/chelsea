@@ -11,35 +11,26 @@ const navigation = (): VerticalNavItemsType => {
       action: 'manage'
     },
     {
-      sectionTitle: 'Contacts'
+      sectionTitle: 'Profile'
     },
     {
-      title: 'Profiles',
-      icon: 'mdi:account-multiple-outline',
-      subject: ['PROFILE', 'PROFILE:LIST', 'PROFILE:LIST:VIEWALL'],
-      children: [
-        {
-          // disabled: true,
-          title: 'Create New Profile',
-          icon: 'mdi:account-plus-outline',
-          path: '/profiles/create',
-          subject: ['PROFILE', 'PROFILE:CREATE'],
-          action: 'manage'
-        },
-        {
-          title: 'Search Profiles',
-          icon: 'mdi:account-search-outline',
-          path: '/profiles/list',
-          action: 'manage',
-          subject: ['PROFILE', 'PROFILE:LIST', 'PROFILE:LIST:VIEWALL']
-        }
-      ]
+      title: 'Create New Profile',
+      icon: 'mdi:account-plus-outline',
+      path: '/profiles/create',
+      subject: ['PROFILE', 'PROFILE:CREATE'],
+      action: 'manage'
+    },
+    {
+      title: 'Search Profiles',
+      icon: 'mdi:account-search-outline',
+      path: '/profiles/list',
+      action: 'manage',
+      subject: ['PROFILE', 'PROFILE:LIST', 'PROFILE:LIST:VIEWALL']
     },
     {
       sectionTitle: 'Tasks'
     },
     {
-      disabled: true,
       title: 'Search Tasks',
       path: '/tasks/list',
       icon: 'mdi:clipboard-search-outline',

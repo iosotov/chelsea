@@ -110,3 +110,13 @@ export const selectTasksByStatusTypes = createSelector(
     return tasks.filter(task => statusTypes.includes(task.status))
   }
 )
+
+export const selectTasksByStatus = createSelector(
+  selectAllTasks,
+  (_: RootState, statusType: number) => statusType,
+  (tasks, statusType) => {
+    if (statusType < 0) return tasks
+
+    return tasks.filter(t => t.status === statusType)
+  }
+)
