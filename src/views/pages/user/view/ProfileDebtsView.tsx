@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 
 //MUI
 import Box from '@mui/material/Box'
@@ -91,8 +91,6 @@ function CreditScore({ id }: Props) {
     if (!creditReport?.referenceFile) {
       return
     }
-
-    console.log
 
     const iframe =
       `<iframe width='100%' height='100%' src='data:${creditReport.fileType};base64,` +
