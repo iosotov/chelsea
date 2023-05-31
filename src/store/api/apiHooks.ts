@@ -19,6 +19,7 @@ import { settingApiSlice } from './settingApiSlice'
 import { taskApiSlice } from './taskApiSlice'
 import { templateApiSlice } from './templateApiSlice'
 import { userApiSlice } from './userApiSlice'
+import { historyApiSlice } from './historyApiSlice'
 
 // SOL REDUX API POINTS
 
@@ -289,6 +290,10 @@ export const {
   // DELETE group/groupId
   useDeleteGroupMutation
 } = groupApiSlice
+
+// ********************************************** HISTORY
+
+export const { useGetHistoryQuery, useLazyGetHistoryQuery } = historyApiSlice
 
 // ********************************************** LIABILITY
 
