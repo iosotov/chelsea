@@ -23,6 +23,9 @@ import Dialog from '@mui/material/Dialog'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 
+import EmailEditor from './components/email/EmailEditor'
+import EmailDialog from './components/email/EmailDialog'
+
 // ** Styles Import
 import 'react-credit-cards/es/styles-compiled.css'
 
@@ -33,29 +36,27 @@ import { useAppSelector } from 'src/store/hooks'
 import { selectEmailByProfileId } from 'src/store/emailSlice'
 import { EmailProfileCreateType } from 'src/store/api/emailApiSlice'
 
+// import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
+// import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
+
 interface ProfileEmailProps {
   id: string
 }
-
-const fakeTemplate = [
-  { label: 'All Tags Testing', value: 'All Tags Testing' },
-  { label: 'Payment Reminder', value: 'Payment Reminder' },
-  { label: 'New Login Account Created For You', value: 'New Login Account Created For You' },
-  { label: 'Email Template', value: 'Email Template' }
-]
 
 const ProfileEmail = ({ id }: ProfileEmailProps) => {
   const profileId = id
 
   //Drawer Form variables
   const [dialogTitle, setDialogTitle] = useState<string>('Create')
+  const [formMode, setFormMode] = useState<number>(0)
+  const [selectedEmail, setSelectedEmail] = useState<string[]>([])
 
   // const [group, setGroup] = useState<string>('Users')
-  const [template, setTemplate] = useState<string>('')
-  const [subject, setSubject] = useState<string>('')
-  const [body, setBody] = useState<string>('')
-  const [sentTo, setSentTo] = useState<string>('')
-  const [sentFrom, setSentFrom] = useState<string>('')
+  // const [template, setTemplate] = useState<string>('')
+  // const [subject, setSubject] = useState<string>('')
+  // const [body, setBody] = useState<string>('')
+  // const [sentTo, setSentTo] = useState<string>('')
+  // const [sentFrom, setSentFrom] = useState<string>('')
   const [createdAt, setCreatedAt] = useState<string>('')
   const profileEmail = useAppSelector(state => selectEmailByProfileId(state, profileId))
 
@@ -74,81 +75,61 @@ const ProfileEmail = ({ id }: ProfileEmailProps) => {
     return { ...obj, id: index }
   })
   rows = dataWithIndex
+  console.log(rows)
 
   //API CALLS
-  async function handleCreateEmailClick() {
-    const payload: EmailProfileCreateType = {
-      profileId,
-      subject: subject,
-      body: body,
-      sentFrom: sentFrom,
-      sentTo: sentTo
-    }
-    console.log(payload)
-    const createResponse = await triggerCreate(payload).unwrap()
-    console.log(createResponse)
-  }
+  // async function handleCreateEmailClick() {
+  //   const payload: EmailProfileCreateType = {
+  //     profileId,
+  //     subject: subject,
+  //     body: body,
+  //     sentFrom: sentFrom,
+  //     sentTo: sentTo
+  //   }
+  //   console.log(payload)
+  //   const createResponse = await triggerCreate(payload).unwrap()
+  //   console.log(createResponse)
+  // }
 
   const handleEditEmailOpen = () => {
-    setDialogTitle('Edit')
-    setOpenAddEmail(true)
-  }
+    setFormMode(1)
 
-  const actionChecker = () => {
-    if (dialogTitle == 'Edit') {
-      handleEditEmailOpen()
-    } else {
-      handleAddEmailOpen()
-    }
+    setOpenAddEmail(true)
   }
 
   const handleAddEmailOpen = () => {
-    console.log('Created at', createdAt)
-    setCreatedAt('')
-    setSentTo('')
-    setSentFrom('')
-    setSubject('')
-    setBody('')
+    setFormMode(0)
+    setSelectedEmail([])
+
+    // setCreatedAt('')
+    // setSentTo('')
+    // setSentFrom('')
+    // setSubject('')
+    // setBody('')
     setOpenAddEmail(true)
   }
 
-  const handleAddEmailClose = () => {
-    resetForm()
-    setOpenAddEmail(false)
-  }
+  // const handleAddEmailClose = () => {
+  //   resetForm()
+  //   setOpenAddEmail(false)
+  // }
 
-  const handleBlur = () => setFocus(undefined)
-
-  const handleInputChange = ({ target }: ChangeEvent<HTMLInputElement>) => {
-    console.log(focus)
-    if (target.name === 'email-sentTo') {
-      setSentTo(target.value)
-    } else if (target.name === 'email-sentFrom') {
-      setSentFrom(target.value)
-    } else if (target.name === 'email-subject') {
-      setSubject(target.value)
-    } else if (target.name === 'email-body') {
-      setBody(target.value)
-    }
-  }
-
-  const handleEditEmailChange = (params: GridRenderCellParams) => {
+  async function handleEditEmailChange(params: GridRenderCellParams) {
     const myEmail = profileEmail.find(email => email.emailId == params.row.emailId)
     if (myEmail) {
-      setDialogTitle('Edit')
-      setCreatedAt(myEmail.createdAt)
-      setSentFrom(myEmail.sentFrom)
-      setSubject(myEmail.subject)
-      setBody(myEmail.body)
-      setOpenAddEmail(true)
+      // setSelectedEmail(myEmail)
+      handleEditEmailOpen()
+
+      console.log(selectedEmail)
     }
+    console.log(selectedEmail)
   }
 
-  const handleSelectChange = ({ target }: SelectChangeEvent<string>) => {
-    if (target.name === 'email-template') {
-      setTemplate(target.value)
-    }
-  }
+  // const handleSelectChange = ({ target }: SelectChangeEvent<string>) => {
+  //   if (target.name === 'email-template') {
+  //     setTemplate(target.value)
+  //   }
+  // }
 
   const renderEditEmailButton = (params: GridRenderCellParams<any, any, any, GridTreeNodeWithRender>) => {
     return (
@@ -207,16 +188,6 @@ const ProfileEmail = ({ id }: ProfileEmailProps) => {
     }
   ]
 
-  const resetForm = () => {
-    setDialogTitle('Create')
-    setTemplate('')
-    setCreatedAt('')
-    setSentTo('')
-    setSentFrom('')
-    setSubject('')
-    setBody('')
-  }
-
   if (isError) return <div>An error occured</div>
 
   if (isLoading) return <div>Loading</div>
@@ -233,9 +204,8 @@ const ProfileEmail = ({ id }: ProfileEmailProps) => {
               variant='contained'
               color='secondary'
               sx={{ mb: 7, mt: 3, mr: 3 }}
-              onClick={actionChecker}
-
-            // disabled={triggerSuccess}
+              onClick={handleAddEmailOpen}
+              disabled={triggerSuccess}
             >
               Compose Email
             </Button>
@@ -245,12 +215,18 @@ const ProfileEmail = ({ id }: ProfileEmailProps) => {
           <Grid container spacing={6}>
             <Grid item xs={12}>
               <Box sx={{ height: 400, width: '100%' }}>
-                <DataGridPro rows={rows} columns={columns} sx={{ mt: 7 }}></DataGridPro>
+                {/* <DataGridPro rows={rows} columns={columns} sx={{ mt: 7 }}></DataGridPro> */}
+                <DataGridPro
+                  onRowSelectionModelChange={n => setSelectedEmail(n as string[])}
+                  getRowId={r => r.emailId}
+                  rows={rows}
+                  columns={columns}
+                />
               </Box>
             </Grid>
 
             <Grid item xs={12}>
-              <Dialog
+              {/* <Dialog
                 fullWidth
                 open={openAddEmail}
                 maxWidth='md'
@@ -293,18 +269,6 @@ const ProfileEmail = ({ id }: ProfileEmailProps) => {
                           ))}
                         </Select>
 
-                        {/* <TextField
-                            fullWidth
-                            label='Template'
-                            name='email-template'
-                            placeholder='Template'
-                            value={sentTo ?? ''}
-                            onBlur={handleBlur}
-                            onChange={handleInputChange}
-                            inputProps={{ maxLength: 1000 }}
-                            onFocus={e => setFocus(e.target.name as Focused)}
-                            disabled={dialogTitle == 'Edit'}
-                          /> */}
                       </Grid>
                       <Grid item xs={6} sm={6}>
                         <TextField
@@ -346,7 +310,7 @@ const ProfileEmail = ({ id }: ProfileEmailProps) => {
                         />
                       </Grid>
                       <Grid item xs={12}>
-                        {/* ADD WISIWYG FEATURE */}
+
                         <TextField
                           fullWidth
                           name='email-body'
@@ -383,7 +347,14 @@ const ProfileEmail = ({ id }: ProfileEmailProps) => {
                     </Grid>
                   </form>
                 </DialogContent>
-              </Dialog>
+              </Dialog> */}
+              <EmailDialog
+                formMode={formMode}
+                openEmailDialog={openAddEmail}
+                setOpenEmailDialog={setOpenAddEmail}
+                profileId={profileId}
+                selectedEmail={selectedEmail}
+              />
             </Grid>
           </Grid>
         </CardContent>
