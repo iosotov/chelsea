@@ -230,7 +230,8 @@ export default function EditPaymentDialog({ data, open, handleClose }: EditPayme
   return (
     <Dialog open={open} maxWidth='md' fullWidth onClose={onClose} aria-labelledby='form-dialog-title'>
       <DialogTitle id='form-dialog-title'>
-        Update Payment Method
+        Edit {data.accountType === 'ach' ? 'Bank ' : 'Card '}
+        Information
         <IconButton
           aria-label='close'
           onClick={onClose}

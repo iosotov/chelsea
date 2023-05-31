@@ -41,7 +41,7 @@ import { selectLiabilityByProfileId } from 'src/store/liabilitySlice'
 import { selectPaymentsByProfileId } from 'src/store/bankAccountSlice'
 
 //Types
-import { PaymentDetailInfoModel } from 'src/store/api/enrollmentApiSlice'
+import { EnrollmentSearchResultModel, PaymentDetailInfoModel } from 'src/store/api/enrollmentApiSlice'
 import { BankingOrCreditCardType } from 'src/store/bankAccountSlice'
 
 //Utils
@@ -50,6 +50,8 @@ import DateConverter from 'src/views/shared/utils/date-converter'
 
 //Dynamic Imports
 import dynamic from 'next/dynamic'
+import { BankAccountType } from 'src/store/api/bankAccountApiSlice'
+import { CreditCardType } from 'src/store/api/creditCardApiSlice'
 
 const PaymentDialog = dynamic(() => import('./components/payments/PaymentDialog'))
 const EnrollmentDialog = dynamic(() => import('./components/payments/EnrollmentDialog'))
@@ -85,7 +87,7 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
       ) : (
         <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
           <Typography variant='h5'>Payments</Typography>
-          <Button variant='contained' disabled={!(payments && enrollmentId)} size='small' onClick={handleAdd}>
+          <Button variant='contained' disabled={!payments || !enrollmentId} size='small' onClick={handleAdd}>
             New Payment
           </Button>
         </Box>
@@ -313,7 +315,13 @@ function PaymentMethod({ paymentData, enrollmentData, id }: { paymentData: any; 
               <Button
                 variant='contained'
                 size='small'
-                disabled={!enrollmentData?.enrollmentId}
+                disabled={
+                  !enrollmentData?.enrollmentId ||
+                  (paymentData?.filter((payment: BankingOrCreditCardType) => payment.accountType === 'ach').length >=
+                    1 &&
+                    paymentData?.filter((payment: BankingOrCreditCardType) => payment.accountType === 'card').length >=
+                      1)
+                }
                 onClick={handleAdd}
                 sx={{ '& svg': { mr: 1 } }}
               >
@@ -341,15 +349,15 @@ function PaymentMethod({ paymentData, enrollmentData, id }: { paymentData: any; 
                   <Box>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 2 }}>
                       <Icon
-                        icon={item.paymentType === 'card' ? 'material-symbols:credit-card-outline' : 'mdi:bank-outline'}
+                        icon={item.accountType === 'card' ? 'material-symbols:credit-card-outline' : 'mdi:bank-outline'}
                       />
                       <Typography component='h6'>
-                        {item.paymentType === 'card' ? 'Card' : `${item.bankName} - ${item.bankAccountTypeName}`}
+                        {item.accountType === 'card' ? 'Card' : `${item.bankName} - ${item.bankAccountTypeName}`}
                       </Typography>
                     </Box>
                     <Box sx={{ mt: 1, mb: 2.5, display: 'flex', alignItems: 'center' }}>
                       <Typography sx={{ fontWeight: 600 }}>
-                        {item.paymentType === 'card' ? item.name : item.accountName}
+                        {item.accountType === 'card' ? item.name : item.accountName}
                       </Typography>
                       {/* {item.status ? (
                         <CustomChip
@@ -375,7 +383,7 @@ function PaymentMethod({ paymentData, enrollmentData, id }: { paymentData: any; 
                       Delete
                     </Button>
                     <Typography variant='caption' sx={{ mt: 4, display: 'block' }}>
-                      {item.paymentType === 'card' && `Card expires at ${item.expirationMonth}/${item.expirationYear}`}
+                      {item.accountType === 'card' && `Card expires at ${item.expirationMonth}/${item.expirationYear}`}
                     </Typography>
                   </Box>
                 </Box>
@@ -420,8 +428,8 @@ const EnhancedTable = ({
   enrollmentData,
   paymentData
 }: {
-  enrollmentData: any
-  paymentData: number
+  enrollmentData: EnrollmentSearchResultModel
+  paymentData: (BankAccountType | CreditCardType)[]
   id: string
 }) => {
   useGetProfilePaymentsQuery(id)
@@ -564,7 +572,7 @@ const EnhancedTable = ({
               numSelected={selected.length}
               handleAdd={handleAdd}
               handleEdit={handleEdit}
-              payments={paymentData}
+              payments={paymentData.length ?? 0}
               enrollmentId={enrollmentData?.enrollmentId}
             />
             <DataGridPro
@@ -593,7 +601,13 @@ const EnhancedTable = ({
           </CardContent>
         </Card>
       </Grid>
-      <TransactionDialog open={transDialog} toggle={toggleDialog} data={transData} />
+      <TransactionDialog
+        open={transDialog}
+        toggle={toggleDialog}
+        data={transData}
+        paymentData={paymentData as BankingOrCreditCardType[]}
+        profileId={id}
+      />
     </>
   )
 }
@@ -614,7 +628,7 @@ export default function ProfilePayments({ id: profileId }: ProfileProps) {
         <Grid container spacing={4}>
           <Overview enrollmentData={enrollmentData} paymentData={paymentData} id={profileId} />
           <PaymentMethod paymentData={paymentData} enrollmentData={enrollmentData} id={profileId} />
-          <EnhancedTable enrollmentData={enrollmentData} paymentData={paymentData?.length ?? 0} id={profileId} />
+          <EnhancedTable enrollmentData={enrollmentData} paymentData={paymentData} id={profileId} />
         </Grid>
       )}
       {(isUninitialized || isLoading) && <Typography>Loading...</Typography>}
