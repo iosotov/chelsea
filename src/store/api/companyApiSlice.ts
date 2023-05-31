@@ -1,6 +1,6 @@
 import { setCompanies, updateCompanies } from '../companySlice'
 import { apiSlice } from './apiSlice'
-import { LunaResponseType, SearchFilterType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType, SearchFilterType } from './sharedTypes'
 
 export type CompanyCreateType = {
   name: string
@@ -69,7 +69,8 @@ export const companyApiSlice = apiSlice.injectEndpoints({
 
           if (data) dispatch(updateCompanies([data]))
         } catch (err: any) {
-          console.error('API error in getCompany:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getCompany:', error.message)
         }
       },
       providesTags: result => {
@@ -102,7 +103,8 @@ export const companyApiSlice = apiSlice.injectEndpoints({
 
           if (data) dispatch(setCompanies(data))
         } catch (err: any) {
-          console.error('API error in getCompanies:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getCompanies:', error.message)
         }
       },
       providesTags: result => {
@@ -139,7 +141,8 @@ export const companyApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postCompanyCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postCompanyCreate:', error.message)
         }
       },
       invalidatesTags: res => (res ? [{ type: 'COMPANY', id: 'LIST' }] : [])
@@ -171,7 +174,8 @@ export const companyApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putCompanyUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putCompanyUpdate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'COMPANY', id: arg.companyId }] : [])
@@ -200,7 +204,8 @@ export const companyApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error enabling company:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error enabling company:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'COMPANY', id: arg }] : [])
@@ -229,7 +234,8 @@ export const companyApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error disabling company:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error disabling company:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'COMPANY', id: arg }] : [])

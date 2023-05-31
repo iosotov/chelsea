@@ -1,6 +1,6 @@
 import { setDocuments } from '../documentSlice'
 import { apiSlice } from './apiSlice'
-import { LunaResponseType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType } from './sharedTypes'
 
 export type DocumentLiabilityParamsType = {
   profileId: string
@@ -116,7 +116,8 @@ export const documentApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(setDocuments(data))
         } catch (err: any) {
-          console.error('API error in getDocuments:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getDocuments:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -149,7 +150,8 @@ export const documentApiSlice = apiSlice.injectEndpoints({
 
           dispatch(setDocuments([data]))
         } catch (err: any) {
-          console.error('API error in getDocumentByLiability:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getDocumentByLiability:', error.message)
         }
       }
     }),
@@ -178,7 +180,8 @@ export const documentApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(setDocuments([data]))
         } catch (err: any) {
-          console.error('API error in getDocumentPreview:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getDocumentPreview:', error.message)
         }
       },
       providesTags: res => (res ? [{ type: 'DOCUMENT-PREVIEW', id: res.documentId }] : [])
@@ -210,7 +213,8 @@ export const documentApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postDocumentGenerate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postDocumentGenerate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'DOCUMENT', id: arg.profileId }] : [])
@@ -242,7 +246,8 @@ export const documentApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postLiabilityDocumentGenerate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postLiabilityDocumentGenerate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'DOCUMENT', id: arg.profileId }] : [])
@@ -273,7 +278,8 @@ export const documentApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postDocumentUpload:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postDocumentUpload:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'DOCUMENT', id: arg.profileId }] : [])
@@ -304,7 +310,8 @@ export const documentApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postLiabilityDocumentUpload:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postLiabilityDocumentUpload:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'DOCUMENT', id: arg.profileId }] : [])
@@ -336,7 +343,8 @@ export const documentApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postDocumentEsign:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postDocumentEsign:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'DOCUMENT', id: arg.profileId }] : [])
@@ -368,7 +376,8 @@ export const documentApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postLiabilityDocumentEsign:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postLiabilityDocumentEsign:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'DOCUMENT', id: arg.profileId }] : [])

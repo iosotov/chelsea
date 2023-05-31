@@ -1,6 +1,6 @@
 import { setCreditCards } from '../creditCardSlice'
 import { apiSlice } from './apiSlice'
-import { LunaResponseType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType } from './sharedTypes'
 
 export type CreditCardType = {
   creditCardId: string
@@ -86,7 +86,8 @@ export const creditCardApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(setCreditCards(data))
         } catch (err: any) {
-          console.error('API error in getCreditCards:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getCreditCards:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -122,7 +123,8 @@ export const creditCardApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postCreditCardCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postCreditCardCreate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'CREDITCARD', id: arg.profileId }] : [])
@@ -154,7 +156,8 @@ export const creditCardApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putCreditCardUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putCreditCardUpdate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'CREDITCARD', id: arg.creditCardId }] : [])
@@ -182,7 +185,8 @@ export const creditCardApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in deleteCreditCard:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in deleteCreditCard:', error.message)
         }
       },
       invalidatesTags: (res, meta, arg) => (res ? [{ type: 'CREDITCARD', id: arg }] : [])

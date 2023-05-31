@@ -14,7 +14,7 @@ import {
 } from '../settingSlice'
 import { apiSlice } from './apiSlice'
 import { CustomFieldType, ProfileInfoType } from './profileApiSlice'
-import { LunaResponseType, SearchFilterType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType, SearchFilterType } from './sharedTypes'
 import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
 
 export type AddressSettingType = {
@@ -266,7 +266,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateAddresses([data]))
         } catch (err: any) {
-          console.error('API error in getAddress:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getAddress:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -297,7 +298,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(setAddresses(data))
         } catch (err: any) {
-          console.error('API error in getAddresses:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getAddresses:', error.message)
         }
       },
       providesTags: result => {
@@ -331,7 +333,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postAddressCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postAddressCreate:', error.message)
         }
       },
       invalidatesTags: result => {
@@ -363,7 +366,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(setAddresses(data))
         } catch (err: any) {
-          console.error('API error in postAddressSearch:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postAddressSearch:', error.message)
         }
       },
       providesTags: result => {
@@ -402,7 +406,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putAddressUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putAddressUpdate:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -430,7 +435,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putAddressEnable:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putAddressEnable:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -463,7 +469,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putAddressDisable:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putAddressDisable:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -518,7 +525,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
           }
           dispatch(updateAssignees([res]))
         } catch (err: any) {
-          console.error('API error in getAssignee:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getAssignee:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -554,7 +562,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(setAssignees(data))
         } catch (err: any) {
-          console.error('API error in getAssignees:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getAssignees:', error.message)
         }
       },
       providesTags: result => {
@@ -588,7 +597,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postAssigneeCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postAssigneeCreate:', error.message)
         }
       },
       invalidatesTags: result => {
@@ -622,7 +632,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putAssigneeUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putAssigneeUpdate:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -650,7 +661,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putAssigneeEnable:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putAssigneeEnable:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -683,7 +695,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putAssigneeDisable:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putAssigneeDisable:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -722,7 +735,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in getAssigneeDatasource:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getAssigneeDatasource:', error.message)
         }
       }
     }),
@@ -753,7 +767,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
 
           if (data) dispatch(updateContacts([data]))
         } catch (err: any) {
-          console.error('API error in getContact:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getContact:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -790,7 +805,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(setContacts(data))
         } catch (err: any) {
-          console.error('API error in postContactSearch:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postContactSearch:', error.message)
         }
       },
       providesTags: result => {
@@ -824,7 +840,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postContactCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postContactCreate:', error.message)
         }
       },
       invalidatesTags: result => {
@@ -858,7 +875,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putContactUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putContactUpdate:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -886,7 +904,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putContactEnable:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putContactEnable:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -919,7 +938,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putContactDisable:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putContactDisable:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -958,7 +978,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
 
           if (data) dispatch(updateCustomFields([data]))
         } catch (err: any) {
-          console.error('API error in getCustomField:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getCustomField:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -995,7 +1016,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(setCustomFields(data))
         } catch (err: any) {
-          console.error('API error in postCustomFieldSearch:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postCustomFieldSearch:', error.message)
         }
       },
       providesTags: result => {
@@ -1029,7 +1051,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postCustomFieldCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postCustomFieldCreate:', error.message)
         }
       },
       invalidatesTags: result => {
@@ -1063,7 +1086,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putCustomFieldUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putCustomFieldUpdate:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -1091,7 +1115,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putCustomFieldEnable:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putCustomFieldEnable:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -1124,7 +1149,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putCustomFieldDisable:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putCustomFieldDisable:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -1162,7 +1188,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateLabels([data]))
         } catch (err: any) {
-          console.error('API error in getLabel:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getLabel:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -1199,7 +1226,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(setLabels(data))
         } catch (err: any) {
-          console.error('API error in postLabelSearch:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postLabelSearch:', error.message)
         }
       },
       providesTags: result => {
@@ -1235,7 +1263,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postLabelCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postLabelCreate:', error.message)
         }
       },
       invalidatesTags: result => {
@@ -1269,7 +1298,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putLabelUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putLabelUpdate:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -1297,7 +1327,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putLabelEnable:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putLabelEnable:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -1330,7 +1361,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in getRole:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getRole:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -1369,7 +1401,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
 
           if (data) dispatch(updateSettings([data]))
         } catch (err: any) {
-          console.error('API error in getSetting:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getSetting:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -1406,7 +1439,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(setSettings(data))
         } catch (err: any) {
-          console.error('API error in postSettingSearch:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postSettingSearch:', error.message)
         }
       },
       providesTags: result => {
@@ -1437,7 +1471,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postSettingCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postSettingCreate:', error.message)
         }
       },
       invalidatesTags: result => {
@@ -1471,7 +1506,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putSettingUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putSettingUpdate:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -1499,7 +1535,8 @@ export const settingApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in getRole:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getRole:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {

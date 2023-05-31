@@ -1,7 +1,7 @@
 import { setRoles, updateRolePermissions, updateRoles } from '../roleSlice'
 import { apiSlice } from './apiSlice'
 import { PermissionType } from './permissionApiSlice'
-import { LunaResponseType, SearchFilterType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType, SearchFilterType } from './sharedTypes'
 
 export type RoleType = {
   roleId: string
@@ -57,7 +57,8 @@ export const roleApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateRoles([data]))
         } catch (err: any) {
-          console.error('API error in getRole:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getRole:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -89,7 +90,8 @@ export const roleApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateRolePermissions([data]))
         } catch (err: any) {
-          console.error('API error in getRolePermissions:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getRolePermissions:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -121,7 +123,8 @@ export const roleApiSlice = apiSlice.injectEndpoints({
 
           if (data) dispatch(setRoles(data))
         } catch (err: any) {
-          console.error('API error in getRoles:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getRoles:', error.message)
         }
       },
       providesTags: result => {
@@ -158,7 +161,8 @@ export const roleApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(setRoles(data))
         } catch (err: any) {
-          console.error('API error in postRoleSearch:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postRoleSearch:', error.message)
         }
       }
     }),
@@ -187,7 +191,8 @@ export const roleApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postRoleCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postRoleCreate:', error.message)
         }
       },
       invalidatesTags: res => (res ? [{ type: 'ROLE', id: 'LIST' }] : [])
@@ -217,7 +222,8 @@ export const roleApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postRoleAssignPermissions:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postRoleAssignPermissions:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'ROLE', id: arg.roleId }] : [])
@@ -248,7 +254,8 @@ export const roleApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putRoleUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putRoleUpdate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'ROLE', id: arg.roleId }] : [])
@@ -277,7 +284,8 @@ export const roleApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in deleteRole:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in deleteRole:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'ROLE', id: arg }] : [])
