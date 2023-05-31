@@ -133,6 +133,7 @@ export type PaymentDetailInfoModel = {
   transactionId: string
   description: string
   processor: string
+  paymentMethod: number
 }
 
 // Enrollment Search /api/Enrollment/search
@@ -186,6 +187,7 @@ export type EnrollmentSearchResultModel = {
   paymentAmount: number
   processor: string
   dayToProcess: string
+  gateway: string
 }
 
 export type PaymentInfoParams = {
@@ -212,27 +214,30 @@ export type EnrollmentPreviewType = {
 
 export type PaymentCreateType = {
   profileId: string
-  processedDate?: string
-  clearedDate?: string
+  processedDate?: string | Date
+  clearedDate?: string | Date
   amount?: number
   memo?: string
   processor: string
   paymentName?: string
   description?: string
   paymentType?: PaymentType
+  paymentMethod?: number
 }
 
 export type PaymentUpdateType = {
   paymentId: string
   profileId: string
-  processedDate?: string
-  clearedDate?: string
+  processedDate?: string | Date
+  clearedDate?: string | Date
   amount?: number
   memo?: string
   processor: string
   paymentName?: string
   description?: string
   paymentType?: PaymentType
+  status?: number
+  paymentMethod?: number
 }
 
 export type AdditionalFeesType = {

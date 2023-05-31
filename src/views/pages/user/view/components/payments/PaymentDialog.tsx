@@ -191,7 +191,7 @@ const PaymentDialog = ({ open, handleClose, paymentMethod, profileId }: PaymentD
   const getStepContent = (activeStep: number) => {
     switch (activeStep) {
       case 0:
-        return <PaymentFormType control={paymentType.control} errors={typeErrors} />
+        return <PaymentFormType control={paymentType.control} errors={typeErrors} profileId={profileId} />
       case 1:
         return (
           <PaymentFormInformation

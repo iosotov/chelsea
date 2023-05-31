@@ -20,7 +20,7 @@ export type CreditCardType = {
   firstName: string
   lastName: string
   expYear: string
-  paymentType?: 'card'
+  accountType?: 'card'
 }
 
 export enum CreditCardTypeEnum {
@@ -76,7 +76,7 @@ export const creditCardApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: LunaResponseType) => {
         if (!res.success) return null
         const data = res.data.map((card: CreditCardType) => {
-          return { ...card, paymentType: 'card' }
+          return { ...card, accountType: 'card' }
         })
 
         return data
