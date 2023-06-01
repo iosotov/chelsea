@@ -8,12 +8,12 @@ import Link from 'next/link'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import Grid from '@mui/material/Grid'
-import Divider from '@mui/material/Divider'
+
 import { DataGridPro, GridColDef, GridToolbar } from '@mui/x-data-grid-pro'
 import { styled } from '@mui/material/styles'
 import MenuItem from '@mui/material/MenuItem'
 import Typography from '@mui/material/Typography'
-import CardHeader from '@mui/material/CardHeader'
+
 import InputLabel from '@mui/material/InputLabel'
 import FormControl from '@mui/material/FormControl'
 import CardContent from '@mui/material/CardContent'
@@ -118,7 +118,15 @@ const renderClient = (row: ProfileInfoType) => {
   }
 }
 
-const ProfileList = () => {
+// usePostProfilesSearchQuery({})
+// const employee = useAppSelector(state => state.auth.employee)
+// console.log(employee)
+// const profiles = useAppSelector(selectAllProfiles)
+// console.log(profiles)
+// const urgentProfiles = useAppSelector(state => selectProfilesByProfileAssignee(state, employee.employeeId))
+// console.log(urgentProfiles)
+
+const MyContactsTable = () => {
   // API HOOKS
   const employee = useAppSelector(state => state.auth.employee)
   console.log(employee)
@@ -528,4 +536,4 @@ const ProfileList = () => {
   )
 }
 
-export default ProfileList
+export default MyContactsTable
