@@ -18,6 +18,7 @@ export default function ProfileActivity({ id }: { id: string }): ReactElement {
   } = useGetHistoryQuery(profileId, { refetchOnMountOrArgChange: true })
   const profileHistory: HistoryType[] = useAppSelector(state => selectHistoriesByProfileId(state, profileId))
   const data = profileHistory
+  console.log(historySuccess)
 
   return (
     <>
@@ -28,6 +29,7 @@ export default function ProfileActivity({ id }: { id: string }): ReactElement {
           <HistoryTable data={data} />
         </Box>
       )}
+
     </>
   )
 }
