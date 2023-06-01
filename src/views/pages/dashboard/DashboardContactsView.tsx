@@ -1,4 +1,3 @@
-
 // ** Styled Component Import
 import { Grid } from '@mui/material'
 import ApexChartWrapper from 'src/@core/styles/libs/react-apexcharts'
@@ -6,10 +5,8 @@ import FallbackSpinner from 'src/@core/components/spinner'
 import { usePostProfilesSearchQuery } from 'src/store/api/apiHooks'
 import MyContactsTable from './components/MyContactsTable'
 
-export default function DashboardTasksView() {
-
+export default function DashboardContactsView() {
   const { isLoading, isSuccess } = usePostProfilesSearchQuery({})
-
 
   return (
     <>
@@ -18,7 +15,6 @@ export default function DashboardTasksView() {
     </>
   )
 }
-
 
 function DashboardContact() {
   return (
