@@ -32,10 +32,8 @@ import { format } from 'date-fns'
 import { selectAllCompanies } from 'src/store/companySlice';
 import { selectAllEmployeeSelectOptions } from 'src/store/employeeSlice'
 import { selectTasksByStatus } from 'src/store/taskSlice'
+import { capitalizeWords } from 'src/pages/profiles/list'
 
-const capitalizeWords = (str: string) => {
-  return str.replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase())));
-}
 
 export const taskStatusColor: ThemeColor[] = ["primary", "info", "success", "secondary"]
 
@@ -89,7 +87,7 @@ const TaskList = () => {
       field: 'taskName',
       headerName: 'Name',
       renderCell: ({ value }) => {
-        return <Typography>{value}</Typography>
+        return <Typography>{capitalizeWords(value)}</Typography>
       }
     },
     {
@@ -111,7 +109,7 @@ const TaskList = () => {
         return (
           <CustomChip
             skin='light'
-            label={row.statusName}
+            label={capitalizeWords(row.statusName)}
             color={taskStatusColor[row.status]}
             sx={{ textTransform: 'capitalize', padding: 1, width: '80%' }}
           />
@@ -282,6 +280,7 @@ const TaskList = () => {
           <CardContent>
             <DataGridPro
               rowHeight={75}
+              disableRowSelectionOnClick
               slots={{
                 toolbar: GridToolbar
               }}
