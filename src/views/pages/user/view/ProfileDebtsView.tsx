@@ -34,7 +34,6 @@ import ReactApexcharts from 'src/@core/components/react-apexcharts'
 import CustomChip from 'src/@core/components/mui/chip'
 import DebtsDialog from './components/debts/DebtsDialog'
 import AddDebtDrawer from './components/debts/AddDebtDrawer'
-import ViewCreditReportDialog from "./components/debts/ViewCreditReportDialog";
 
 //API Hooks
 import { useGetCreditReportsQuery, useGetProfileLiabilitiesQuery } from 'src/store/api/apiHooks'
@@ -76,11 +75,7 @@ function CreditScore({ id }: Props) {
   const { isSuccess } = useGetCreditReportsQuery(id, { skip: !id })
   const creditReport = useAppSelector(state => selectCreditReportByProfileId(state, String(id)))
 
-  const [viewCreditReportDialog, setCreditReportDialog] = useState<boolean>(false)
-  const toggleCreditReportDialog = () => setCreditReportDialog(!viewCreditReportDialog)
-
   const [call, { isLoading: newReportLoading }] = usePostProfileCreditReportMutation()
-
   const pullReport = () => {
     confirm({
       title: 'Confirmation',
@@ -206,43 +201,24 @@ function CreditScore({ id }: Props) {
                         </TableCell>
                         <TableCell align='left'>{row.scoreFactorText}</TableCell>
                       </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {creditReport.creditScores?.[0]?.creditScoreCodes.map((row: CreditScoreCodeType, i: number) => (
-                        <TableRow
-                          key={`score-${row.scoreFactorCode}-${i}`}
-                          sx={{
-                            '&:last-of-type td, &:last-of-type th': {
-                              border: 0
-                            }
-                          }}
-                        >
-                          <TableCell component='th' scope='row'>
-                            {row.scoreFactorCode}
-                          </TableCell>
-                          <TableCell align='left'>{row.scoreFactorText}</TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Grid>
-            </>
-          ) : (
-            <Grid item xs={12}>
-              <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', my: 12 }}>
-                <Typography mb={2} variant='caption'>
-                  No credit report found.
-                </Typography>
-                <Typography variant='body2'>Please pull a report to get started.</Typography>
-              </Box>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
             </Grid>
-          )}
-        </Grid>
-      </Card>
-      {viewCreditReportDialog && <ViewCreditReportDialog open={viewCreditReportDialog} handleClose={toggleCreditReportDialog} data={creditReport?.referenceFile} />}
-    </>
-
+          </>
+        ) : (
+          <Grid item xs={12}>
+            <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', my: 12 }}>
+              <Typography mb={2} variant='caption'>
+                No credit report found.
+              </Typography>
+              <Typography variant='body2'>Please pull a report to get started.</Typography>
+            </Box>
+          </Grid>
+        )}
+      </Grid>
+    </Card>
   )
 }
 
