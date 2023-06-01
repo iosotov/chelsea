@@ -146,7 +146,7 @@ const ProfileEmail = ({ id }: ProfileEmailProps) => {
               size='medium'
               type='submit'
               variant='contained'
-              color='secondary'
+              color='primary'
               sx={{ mb: 7, mt: 3, mr: 3 }}
               onClick={handleAddEmailOpen}
             >

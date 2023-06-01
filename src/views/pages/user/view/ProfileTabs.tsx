@@ -55,8 +55,8 @@ export default function ProfileTabs({ id, tab }: Props) {
           <Tab label='Notes' value='notes' />
           <Tab label='Tasks' value='tasks' />
           <Tab label='Budget' value='budget' />
-          <Tab label='Activity' value='activity' />
           <Tab label='Email' value='email' />
+          <Tab label='Activity' value='activity' />
         </TabList>
       </Box>
       {/* Add tab views here */}
@@ -88,11 +88,11 @@ export default function ProfileTabs({ id, tab }: Props) {
             <TabPanel value='budget'>
               <ProfileBudget id={id} />
             </TabPanel>
-            <TabPanel value='activity'>
-              <ProfileActivity id={id} />
-            </TabPanel>
             <TabPanel value='email'>
               <ProfileEmail id={id} />
+            </TabPanel>
+            <TabPanel value='activity'>
+              <ProfileActivity id={id} />
             </TabPanel>
           </>
         )}
