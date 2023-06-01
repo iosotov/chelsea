@@ -266,7 +266,7 @@ const TaskList = () => {
                     {[
                       "All",
                       "Open",
-                      "Processing",
+                      "Attempted",
                       "Completed",
                       "Closed"
                     ].map((s, i) => (

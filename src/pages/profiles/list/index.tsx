@@ -64,7 +64,7 @@ export const paymentStatus = ["Open", "Pending", "Cleared", "Returned", "Paused"
 
 
 
-const LinkStyled = styled(Link)(({ theme }) => ({
+export const LinkStyled = styled(Link)(({ theme }) => ({
   fontWeight: 600,
   fontSize: '1rem',
   cursor: 'pointer',
