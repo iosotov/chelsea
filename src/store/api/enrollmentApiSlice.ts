@@ -1,4 +1,4 @@
-import { updateEnrollments } from '../enrollmentSlice'
+import { setTransactions, updateEnrollments } from '../enrollmentSlice'
 import { setPayments } from '../paymentSlice'
 import { apiSlice } from './apiSlice'
 import { EnrollmentDefaultModel } from './defaultValues'
@@ -617,14 +617,19 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
 
         return res.data.data
       },
-      async onQueryStarted(body, { queryFulfilled }) {
+      async onQueryStarted(body, { dispatch, queryFulfilled }) {
         try {
-          await queryFulfilled
+          const { data } = await queryFulfilled
+          if (data) dispatch(setTransactions(data))
         } catch (err: any) {
           const { error } = err as { error: ErrorResponseType }
           console.error('API error in postEnrollmentSearch:', error.message)
         }
-      }
+      },
+      providesTags: res =>
+        res
+          ? [{ type: 'ENROLLMENT', id: 'LIST' }, ...res.map(e => ({ type: 'ENROLLMENT' as const, id: e.enrollmentId }))]
+          : []
     }),
 
     // ***************************************************** POST enrollment/profileId/profile/pause
