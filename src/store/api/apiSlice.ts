@@ -15,8 +15,9 @@ const baseQuery = fetchBaseQuery({
 
     return headers
   },
-  mode: "cors",
-  credentials: 'same-origin'
+
+  credentials: 'include'
+
 })
 
 export const apiSlice = createApi({
