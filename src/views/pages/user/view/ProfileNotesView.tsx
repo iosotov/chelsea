@@ -224,7 +224,7 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
                         <Select
                           label='Note Template'
                           labelId='note-template'
-                          // disabled={isLoading}
+
                           onChange={async e => {
                             const { error, data } = await getTemplate(e.target.value)
                             if (data) {
@@ -272,7 +272,7 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
                           label='Notify Users'
                           labelId='note-targets'
                           multiple
-                          // disabled={isLoading}
+
                           {...field}
                         >
                           {employeeSuccess &&
