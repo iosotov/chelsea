@@ -1,3 +1,4 @@
+import { ReactElement } from 'react'
 import Box from '@mui/material/Box'
 import HistoryTable from 'src/views/pages/user/view/components/history/HistoryTable'
 
@@ -6,7 +7,7 @@ import { useAppSelector } from 'src/store/hooks'
 import { selectHistoriesByProfileId } from 'src/store/historySlice'
 import { HistoryType } from 'src/store/api/historyApiSlice'
 
-export default function ProfileActivity({ id }: { id: string }) {
+export default function ProfileActivity({ id }: { id: string }): ReactElement {
   const profileId = id
   console.log(profileId)
 
@@ -18,16 +19,15 @@ export default function ProfileActivity({ id }: { id: string }) {
   const profileHistory: HistoryType[] = useAppSelector(state => selectHistoriesByProfileId(state, profileId))
   const data = profileHistory
 
-  if (historyError) return <div>An error occured</div>
-
-  if (historyLoading) return <div>Loading</div>
-
-  if (historySuccess)
-    return (
-      <>
+  return (
+    <>
+      {historyError && <div>An error occured</div>}
+      {historyLoading && <div>Loading</div>}
+      {historySuccess && (
         <Box sx={{ height: 800, width: '100%' }}>
           <HistoryTable data={data} />
         </Box>
-      </>
-    )
+      )}
+    </>
+  )
 }
