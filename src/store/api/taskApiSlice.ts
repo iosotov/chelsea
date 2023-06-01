@@ -1,7 +1,7 @@
 import { deleteTask } from '../taskSlice'
 import { setTasks, updateTasks } from '../taskSlice'
 import { apiSlice } from './apiSlice'
-import { LunaResponseType, SearchFilterType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType, SearchFilterType } from './sharedTypes'
 
 export type TaskType = {
   taskId: string
@@ -90,7 +90,8 @@ export const taskApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateTasks([data]))
         } catch (err: any) {
-          console.error('API error in getTask:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getTask:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -121,7 +122,8 @@ export const taskApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(setTasks(data))
         } catch (err: any) {
-          console.error('API error in getProfileTasks:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getProfileTasks:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -156,7 +158,8 @@ export const taskApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postTaskCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postTaskCreate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -194,7 +197,8 @@ export const taskApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(setTasks(data))
         } catch (err: any) {
-          console.error('API error in postTaskSearch:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postTaskSearch:', error.message)
         }
       },
       providesTags: res =>
@@ -226,7 +230,8 @@ export const taskApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putTaskUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putTaskUpdate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -261,7 +266,8 @@ export const taskApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(deleteTask(data))
         } catch (err: any) {
-          console.error('API error in deleteTask:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in deleteTask:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -296,7 +302,8 @@ export const taskApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putTasksBulkUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putTasksBulkUpdate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>

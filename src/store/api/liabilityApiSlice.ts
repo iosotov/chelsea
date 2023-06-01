@@ -1,6 +1,6 @@
 import { updateLiabilities } from '../liabilitySlice'
 import { apiSlice } from './apiSlice'
-import { LunaResponseType, SearchFilterType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType, SearchFilterType } from './sharedTypes'
 
 export type LiabilityType = {
   liabilityId: string
@@ -146,7 +146,8 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateLiabilities([data]))
         } catch (err: any) {
-          console.error('API error in getLiability:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getLiability:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -178,7 +179,8 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateLiabilities(data))
         } catch (err: any) {
-          console.error('API error in getEnrollment:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getEnrollment:', error.message)
         }
       },
       providesTags: (res, error, arg) => (res ? [{ type: 'LIABILITY', id: arg }] : [])
@@ -210,7 +212,8 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in  postLiabilityCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in  postLiabilityCreate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'LIABILITY', id: arg.profileId }] : [])
@@ -243,7 +246,8 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) updateLiabilities(data)
         } catch (err: any) {
-          console.error('API error in postLiabilitiesSearch:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postLiabilitiesSearch:', error.message)
         }
       },
       providesTags: res => (res ? res.map(liability => ({ type: 'LIABILITY', id: liability.liabilityId })) : [])
@@ -275,7 +279,8 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putLiabilityUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putLiabilityUpdate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -314,7 +319,8 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putLiabilitiesWithdraw:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putLiabilitiesWithdraw:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -350,7 +356,8 @@ export const liabilityApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putLiabilitiesEnroll:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putLiabilitiesEnroll:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>

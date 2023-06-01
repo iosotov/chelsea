@@ -1,5 +1,5 @@
 import { apiSlice } from './apiSlice'
-import { LunaResponseType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType } from './sharedTypes'
 import { deleteNote, updateNotes } from '../noteSlice'
 
 export type NoteCreateType = {
@@ -84,7 +84,8 @@ export const noteApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateNotes([data]))
         } catch (err: any) {
-          console.error('API error in getNote:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getNote:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -116,7 +117,8 @@ export const noteApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateNotes(data))
         } catch (err: any) {
-          console.error('API error in getProfileNotes:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getProfileNotes:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -149,7 +151,8 @@ export const noteApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postNoteCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postNoteCreate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'NOTE', id: arg.profileId }] : [])
@@ -180,7 +183,8 @@ export const noteApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putNoteUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putNoteUpdate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'NOTE', id: arg.noteId }] : [])
@@ -209,7 +213,8 @@ export const noteApiSlice = apiSlice.injectEndpoints({
           await queryFulfilled
           dispatch(deleteNote(noteId))
         } catch (err: any) {
-          console.error('API error in getDocuments:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getDocuments:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'NOTE', id: arg }] : [])

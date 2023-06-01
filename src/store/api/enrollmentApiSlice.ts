@@ -1,8 +1,8 @@
-import { updateEnrollments } from '../enrollmentSlice'
+import { setTransactions, updateEnrollments } from '../enrollmentSlice'
 import { setPayments } from '../paymentSlice'
 import { apiSlice } from './apiSlice'
 import { EnrollmentDefaultModel } from './defaultValues'
-import { LunaResponseType, SearchFilterType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType, SearchFilterType } from './sharedTypes'
 
 export enum EnrollmentPaymentMethod {
   'ach',
@@ -133,6 +133,7 @@ export type PaymentDetailInfoModel = {
   transactionId: string
   description: string
   processor: string
+  paymentMethod: number
 }
 
 // Enrollment Search /api/Enrollment/search
@@ -186,6 +187,7 @@ export type EnrollmentSearchResultModel = {
   paymentAmount: number
   processor: string
   dayToProcess: string
+  gateway: string
 }
 
 export type PaymentInfoParams = {
@@ -212,27 +214,30 @@ export type EnrollmentPreviewType = {
 
 export type PaymentCreateType = {
   profileId: string
-  processedDate?: string
-  clearedDate?: string
+  processedDate?: string | Date
+  clearedDate?: string | Date
   amount?: number
   memo?: string
   processor: string
   paymentName?: string
   description?: string
   paymentType?: PaymentType
+  paymentMethod?: number
 }
 
 export type PaymentUpdateType = {
   paymentId: string
   profileId: string
-  processedDate?: string
-  clearedDate?: string
+  processedDate?: string | Date
+  clearedDate?: string | Date
   amount?: number
   memo?: string
   processor: string
   paymentName?: string
   description?: string
   paymentType?: PaymentType
+  status?: number
+  paymentMethod?: number
 }
 
 export type AdditionalFeesType = {
@@ -308,7 +313,8 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           dispatch(updateEnrollments([data]))
         } catch (err: any) {
-          console.error('API error in getEnrollment:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getEnrollment:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -342,7 +348,8 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateEnrollments([data]))
         } catch (err: any) {
-          console.error('API error in postEnrollmentCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postEnrollmentCreate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -379,7 +386,8 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putEnrollmentUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putEnrollmentUpdate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -420,7 +428,8 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           dispatch(setPayments(data))
         } catch (err: any) {
-          console.error('API error in getProfilePayments:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getProfilePayments:', error.message)
         }
       },
       providesTags: (res, error, arg) =>
@@ -503,7 +512,8 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           console.log(data)
         } catch (err: any) {
-          console.error('API error in getEnrollmentPreview:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getEnrollmentPreview:', error.message)
         }
       }
     }),
@@ -534,7 +544,8 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           console.log(data)
         } catch (err: any) {
-          console.error('API error in postPaymentCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postPaymentCreate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -571,7 +582,8 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putPaymentUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putPaymentUpdate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -605,13 +617,19 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
 
         return res.data.data
       },
-      async onQueryStarted(body, { queryFulfilled }) {
+      async onQueryStarted(body, { dispatch, queryFulfilled }) {
         try {
-          await queryFulfilled
+          const { data } = await queryFulfilled
+          if (data) dispatch(setTransactions(data))
         } catch (err: any) {
-          console.error('API error in postEnrollmentSearch:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postEnrollmentSearch:', error.message)
         }
-      }
+      },
+      providesTags: res =>
+        res
+          ? [{ type: 'ENROLLMENT', id: 'LIST' }, ...res.map(e => ({ type: 'ENROLLMENT' as const, id: e.enrollmentId }))]
+          : []
     }),
 
     // ***************************************************** POST enrollment/profileId/profile/pause
@@ -636,7 +654,8 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postEnrollmentPause:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postEnrollmentPause:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -670,7 +689,8 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postEnrollmentResume:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postEnrollmentResume:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -707,7 +727,8 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postEnrollmentCancel:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postEnrollmentCancel:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -744,7 +765,8 @@ export const enrollmentApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putPaymentUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putPaymentUpdate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>

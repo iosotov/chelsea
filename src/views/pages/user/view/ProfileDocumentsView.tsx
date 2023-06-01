@@ -18,7 +18,7 @@ import Tab from '@mui/material/Tab'
 import CircularProgress from '@mui/material/CircularProgress'
 
 // import TabList from '@mui/lab/TabList'
-import { Grid } from '@mui/material'
+import { Grid, Stack } from '@mui/material'
 import MuiTabList, { TabListProps } from '@mui/lab/TabList'
 
 import StepperCustomDot from './components/document/stepperCustomDot'
@@ -47,6 +47,7 @@ import { toast } from 'react-hot-toast'
 import GeneratedDocTable from './components/document/GeneratedDocTable'
 import UploadedDocTable from './components/document/UploadedDocTable'
 import ContactDocTable from './components/document/ContractDocTable'
+import { useConfirm } from 'material-ui-confirm'
 
 const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
   '& .MuiTabs-indicator': {
@@ -65,19 +66,19 @@ const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
   }
 }))
 
-
-
 export default function ProfileDocuments({ id }: { id: string }) {
+
+  // LOCAL STATE
   const [openUploadDialog, setUploadDialog] = useState<boolean>(false)
   const [openGenerateDrawer, setGenerateDrawer] = useState<boolean>(false)
   const [tab, setTab] = useState<string>('esign')
   const [tabLoading, setTabLoading] = useState<boolean>(false)
 
-  //rows for tables
-
+  // API HOOKS
   const { isSuccess: docSuccess } = useGetDocumentsQuery(id, { skip: !id })
   const { isSuccess: employeeSuccess } = usePostEmployeeSearchQuery({})
 
+  // GLOBAL STATE
   const esignDocs = useAppSelector(state => selectDocumentsByProfileIdAndType(state, id, 1))
   const generateDocs = useAppSelector(state => selectDocumentsByProfileIdAndType(state, id, 3))
   const uploadedDocs = useAppSelector(state => selectDocumentsByProfileIdAndType(state, id, 0))
@@ -149,13 +150,19 @@ export default function ProfileDocuments({ id }: { id: string }) {
                   ) : (
                     <>
                       <TabPanel value='esign'>
-                        {docSuccess && employeeSuccess && <ContactDocTable rows={esignDocs} />}
+                        <Stack height={500}>
+                          {docSuccess && employeeSuccess && <ContactDocTable rows={esignDocs} />}
+                        </Stack>
                       </TabPanel>
                       <TabPanel value='generated'>
-                        {docSuccess && employeeSuccess && <GeneratedDocTable rows={generateDocs} />}
+                        <Stack height={500}>
+                          {docSuccess && employeeSuccess && <GeneratedDocTable rows={generateDocs} profileId={id} />}
+                        </Stack>
                       </TabPanel>
                       <TabPanel value='uploaded'>
-                        {docSuccess && employeeSuccess && <UploadedDocTable rows={uploadedDocs} />}
+                        <Stack height={500}>
+                          {docSuccess && employeeSuccess && <UploadedDocTable rows={uploadedDocs} />}
+                        </Stack>
                       </TabPanel>
                     </>
                   )}
@@ -177,10 +184,6 @@ type DialogProps = {
   profileId: string
   setTab: Dispatch<SetStateAction<string>>
 }
-
-//Dialog
-
-
 export interface UploadFormValueType {
   title: string
   description: string
@@ -196,11 +199,16 @@ const uploadDefaultValue: UploadFormValueType = {
 }
 
 const UploadDialog = ({ open, toggle, profileId, setTab }: DialogProps) => {
+
+  // LOCAL STATE
   const [activeStep, setActiveStep] = useState<number>(0)
 
-  const { reset, handleSubmit, control, setValue, watch, formState: { errors } } = useForm<UploadFormValueType>({ defaultValues: uploadDefaultValue })
-
+  // API HOOKS
   const [uploadDoc, { isLoading }] = usePostDocumentUploadMutation()
+
+  // THIRD PARTY HOOKS
+  const { reset, handleSubmit, control, setValue, watch, formState: { errors }, getValues, setError, clearErrors } = useForm<UploadFormValueType>({ defaultValues: uploadDefaultValue })
+  const confirm = useConfirm()
 
   const steps = [
     {
@@ -216,7 +224,14 @@ const UploadDialog = ({ open, toggle, profileId, setTab }: DialogProps) => {
   ]
 
   const handleNext = () => {
-    setActiveStep(activeStep + 1)
+    if (activeStep < 1) {
+      const { file } = getValues()
+      if (file.length) {
+        setActiveStep(activeStep + 1)
+      }
+      else setError("file", { type: 'required', message: 'Please upload a document' })
+    }
+    else setActiveStep(activeStep + 1)
   }
   const handlePrev = () => {
     if (activeStep !== 0) {
@@ -225,26 +240,35 @@ const UploadDialog = ({ open, toggle, profileId, setTab }: DialogProps) => {
   }
 
   const handleUpload = async (data: UploadFormValueType) => {
-    console.log(data)
-    const formData = new FormData();
-    formData.append("title", data.title);
-    formData.append("category", data.category);
-    formData.append("file", data.file[0]);
-    formData.append("description", data.description);
-    const uploadData: DocumentUploadType = {
-      profileId,
-      data: formData
-    }
+    confirm({
+      title: 'Confirmation',
+      description: 'Are you sure you want to upload document',
+      confirmationText: 'Accept',
+      dialogProps: { maxWidth: 'xs' }
+    }).then(async () => {
+      const formData = new FormData();
+      formData.append("title", data.title);
+      formData.append("category", data.category);
+      formData.append("file", data.file[0]);
+      formData.append("description", data.description);
+      const uploadData: DocumentUploadType = {
+        profileId,
+        data: formData
+      }
 
-    const { data: postData }: { data?: any, error?: any } = await uploadDoc(uploadData)
+      const { data: postData }: { data?: any, error?: any } = await uploadDoc(uploadData)
 
-    if (postData) {
-      toast.success("You successfully uploaded document")
-      reset(uploadDefaultValue)
-      setTab("uploaded")
-      toggle()
-      setActiveStep(0)
-    }
+      if (postData) {
+        toast.success("You successfully uploaded document")
+        reset(uploadDefaultValue)
+        setTab("uploaded")
+        toggle()
+        setActiveStep(0)
+      } else {
+        setActiveStep(0)
+        setError("file", { type: "custom", message: "There was an error trying to download document, please try again" })
+      }
+    })
   }
 
   const renderContent = () => {
@@ -254,7 +278,7 @@ const UploadDialog = ({ open, toggle, profileId, setTab }: DialogProps) => {
   const getStepContent = (activeStep: number) => {
     switch (activeStep) {
       case 0:
-        return <FileUploaderSingle setValue={setValue} watch={watch} />
+        return <FileUploaderSingle setValue={setValue} watch={watch} errors={errors} clearErrors={clearErrors} />
       case 1:
         return <FileUploadForm errors={errors} control={control} />
       default:

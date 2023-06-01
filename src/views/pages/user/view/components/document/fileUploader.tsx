@@ -8,8 +8,9 @@ import Typography, { TypographyProps } from '@mui/material/Typography'
 
 // ** Third Party Imports
 import { useDropzone } from 'react-dropzone'
-import { UseFormSetValue, UseFormWatch } from 'react-hook-form'
+import { FieldErrors, UseFormClearErrors, UseFormSetValue, UseFormWatch } from 'react-hook-form'
 import { UploadFormValueType } from '../../ProfileDocumentsView'
+import { FormHelperText } from '@mui/material'
 
 interface FileProp {
   name: string
@@ -41,11 +42,15 @@ const HeadingTypography = styled(Typography)<TypographyProps>(({ theme }) => ({
 interface FileUploaderSingleProps {
   setValue: UseFormSetValue<UploadFormValueType>
   watch: UseFormWatch<UploadFormValueType>
+  errors: FieldErrors<UploadFormValueType>
+  clearErrors: UseFormClearErrors<UploadFormValueType>
 }
 
-const FileUploaderSingle = ({ setValue, watch }: FileUploaderSingleProps) => {
+const FileUploaderSingle = ({ setValue, watch, errors, clearErrors }: FileUploaderSingleProps) => {
   // ** State
   const files = watch("file")
+
+  console.log(errors)
 
   // ** Hook
   const { getRootProps, getInputProps } = useDropzone({
@@ -55,7 +60,10 @@ const FileUploaderSingle = ({ setValue, watch }: FileUploaderSingleProps) => {
       'application/pdf': ['.pdf']
     },
     onDrop: (acceptedFiles: File[]) => {
-      setValue("file", acceptedFiles.map((file: File) => Object.assign(file)))
+      if (acceptedFiles.length) {
+        setValue("file", acceptedFiles.map((file: File) => Object.assign(file)))
+        clearErrors("file")
+      }
     }
   })
 
@@ -88,8 +96,18 @@ const FileUploaderSingle = ({ setValue, watch }: FileUploaderSingleProps) => {
               thorough your machine
             </Typography>
           </Box>
+
         </Box>
       )}
+      <Box sx={{ mt: 1, ml: 4 }}>
+        {errors.file
+          ? (
+            <FormHelperText sx={{ color: 'error.main' }} id='validation-basic-select'>
+              {errors.file?.message || "Required"}
+            </FormHelperText>
+          )
+          : null}
+      </Box>
     </Box>
   )
 }
