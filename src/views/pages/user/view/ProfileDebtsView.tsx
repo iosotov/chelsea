@@ -34,6 +34,7 @@ import ReactApexcharts from 'src/@core/components/react-apexcharts'
 import CustomChip from 'src/@core/components/mui/chip'
 import DebtsDialog from './components/debts/DebtsDialog'
 import AddDebtDrawer from './components/debts/AddDebtDrawer'
+import ViewCreditReportDialog from "./components/debts/ViewCreditReportDialog";
 
 //API Hooks
 import { useGetCreditReportsQuery, useGetProfileLiabilitiesQuery } from 'src/store/api/apiHooks'
@@ -77,10 +78,12 @@ function CreditScore({ id }: Props) {
 
   const creditScore = useRef<number>(0)
 
+  const [viewCreditReportDialog, setCreditReportDialog] = useState<boolean>(false)
+  const toggleCreditReportDialog = () => setCreditReportDialog(!viewCreditReportDialog)
+
   useEffect(() => {
     if (creditReport && creditReport?.creditScores.length > 0) {
       creditScore.current = (Number(creditReport.creditScores[0].scoreValue) / 850) * 100
-      console.log(creditScore.current)
     }
   }, [creditReport])
 
@@ -133,76 +136,80 @@ function CreditScore({ id }: Props) {
   }
 
   return (
-    <Card sx={{ p: 2, mb: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-        <Button size='small' disabled={creditReport?.creditScores?.length === 0}>
-          View
-        </Button>
-        <Button variant='outlined' size='small' onClick={pullReport}>
-          New Report
-        </Button>
-      </Box>
-      <Grid container spacing={4}>
-        {isSuccess && creditReport && creditReport.creditScores.length > 0 ? (
-          <>
-            <Grid item xs={12} lg={6}>
-              <CardContent
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  flexDirection: 'column',
-                  mb: 4
-                }}
-              >
-                <ReactApexcharts type='radialBar' height={280} series={[creditScore.current]} options={options} />
-                <Typography sx={{ mt: 5, mb: 2.5 }} variant='h5'>
-                  {creditEval[creditReport.creditScores[0].evaluation] ?? 'Unknown'}
-                </Typography>
-                <Typography variant='caption'>{creditReport?.creditScores?.[0]?.scoreName ?? 'N/A'}</Typography>
-              </CardContent>
-            </Grid>
-            <Grid item xs={12} lg={6}>
-              <TableContainer sx={{ maxHeight: '250px' }} component={Paper}>
-                <Table aria-label='simple table'>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell>Code</TableCell>
-                      <TableCell align='left'>Description</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {creditReport.creditScores?.[0]?.creditScoreCodes.map((row: CreditScoreCodeType, i: number) => (
-                      <TableRow
-                        key={`score-${row.scoreFactorCode}-${i}`}
-                        sx={{
-                          '&:last-of-type td, &:last-of-type th': {
-                            border: 0
-                          }
-                        }}
-                      >
-                        <TableCell component='th' scope='row'>
-                          {row.scoreFactorCode}
-                        </TableCell>
-                        <TableCell align='left'>{row.scoreFactorText}</TableCell>
+    <>
+      <Card sx={{ p: 2, mb: 4 }}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+          <Button variant='outlined' size='small' disabled={creditReport?.creditScores?.length === 0} onClick={toggleCreditReportDialog}>
+            View
+          </Button>
+          <Button variant='outlined' size='small' onClick={pullReport}>
+            New Report
+          </Button>
+        </Box>
+        <Grid container spacing={4}>
+          {isSuccess && creditReport && creditReport.creditScores.length > 0 ? (
+            <>
+              <Grid item xs={12} lg={6}>
+                <CardContent
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    flexDirection: 'column',
+                    mb: 4
+                  }}
+                >
+                  <ReactApexcharts type='radialBar' height={280} series={[creditScore.current]} options={options} />
+                  <Typography sx={{ mt: 5, mb: 2.5 }} variant='h5'>
+                    {creditEval[creditReport.creditScores[0].evaluation] ?? 'Unknown'}
+                  </Typography>
+                  <Typography variant='caption'>{creditReport?.creditScores?.[0]?.scoreName ?? 'N/A'}</Typography>
+                </CardContent>
+              </Grid>
+              <Grid item xs={12} lg={6}>
+                <TableContainer sx={{ maxHeight: '250px' }} component={Paper}>
+                  <Table aria-label='simple table'>
+                    <TableHead>
+                      <TableRow>
+                        <TableCell>Code</TableCell>
+                        <TableCell align='left'>Description</TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
+                    </TableHead>
+                    <TableBody>
+                      {creditReport.creditScores?.[0]?.creditScoreCodes.map((row: CreditScoreCodeType, i: number) => (
+                        <TableRow
+                          key={`score-${row.scoreFactorCode}-${i}`}
+                          sx={{
+                            '&:last-of-type td, &:last-of-type th': {
+                              border: 0
+                            }
+                          }}
+                        >
+                          <TableCell component='th' scope='row'>
+                            {row.scoreFactorCode}
+                          </TableCell>
+                          <TableCell align='left'>{row.scoreFactorText}</TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </TableContainer>
+              </Grid>
+            </>
+          ) : (
+            <Grid item xs={12}>
+              <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', my: 12 }}>
+                <Typography mb={2} variant='caption'>
+                  No credit report found.
+                </Typography>
+                <Typography variant='body2'>Please pull a report to get started.</Typography>
+              </Box>
             </Grid>
-          </>
-        ) : (
-          <Grid item xs={12}>
-            <Box sx={{ display: 'flex', alignItems: 'center', flexDirection: 'column', my: 12 }}>
-              <Typography mb={2} variant='caption'>
-                No credit report found.
-              </Typography>
-              <Typography variant='body2'>Please pull a report to get started.</Typography>
-            </Box>
-          </Grid>
-        )}
-      </Grid>
-    </Card>
+          )}
+        </Grid>
+      </Card>
+      {viewCreditReportDialog && <ViewCreditReportDialog open={viewCreditReportDialog} handleClose={toggleCreditReportDialog} data={creditReport?.referenceFile} />}
+    </>
+
   )
 }
 
