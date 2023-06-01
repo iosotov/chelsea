@@ -17,17 +17,17 @@ export default function ProfileActivity({ id }: { id: string }) {
   } = useGetHistoryQuery(profileId, { refetchOnMountOrArgChange: true })
   const profileHistory: HistoryType[] = useAppSelector(state => selectHistoriesByProfileId(state, profileId))
   const data = profileHistory
+  console.log(historySuccess)
 
   if (historyError) return <div>An error occured</div>
 
   if (historyLoading) return <div>Loading</div>
 
-  if (historySuccess)
-    return (
-      <>
-        <Box sx={{ height: 800, width: '100%' }}>
-          <HistoryTable data={data} />
-        </Box>
-      </>
-    )
+  return (
+    <>
+      <Box sx={{ height: 800, width: '100%' }}>
+        <HistoryTable data={data} />
+      </Box>
+    </>
+  )
 }
