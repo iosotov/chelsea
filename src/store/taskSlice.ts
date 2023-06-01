@@ -120,3 +120,16 @@ export const selectTasksByStatus = createSelector(
     return tasks.filter(t => t.status === statusType)
   }
 )
+
+export const selectTasksByStatusAndAssignee = createSelector(
+  selectAllTasks,
+  (_: RootState, statusType: number, assignee: string) => ({ statusType, assignee }),
+  (tasks, { statusType, assignee }) => {
+    if (statusType < 0 && !assignee) return tasks
+    if (statusType < 0 && assignee) return tasks.filter(t => t.assignedTo === assignee)
+    if (!assignee) return tasks.filter(t => t.status === statusType)
+    if (!statusType) return tasks.filter(t => t.assignedTo === assignee)
+
+    return tasks.filter(t => t.status === statusType && t.assignedTo === assignee)
+  }
+)

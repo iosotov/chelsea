@@ -31,7 +31,7 @@ import { useGetCompaniesQuery, usePostEmployeeSearchQuery, usePostTaskSearchQuer
 import { format } from 'date-fns'
 import { selectAllCompanies } from 'src/store/companySlice';
 import { selectAllEmployeeSelectOptions } from 'src/store/employeeSlice'
-import { selectTasksByStatus } from 'src/store/taskSlice'
+import { selectTasksByStatusAndAssignee } from 'src/store/taskSlice'
 import { capitalizeWords } from 'src/pages/profiles/list'
 
 
@@ -60,10 +60,16 @@ const TaskList = () => {
   // LOCAL STATE
   const [paginationModel, setPaginationModel] = useState({ pageSize: 25, page: 0 })
   const [status, setStatus] = useState<string>("-1")
+  const [assignee, setAssignee] = useState<string>("")
 
   // HANDLE FILTER CHANGE
   const handleStatusChange = useCallback((e: SelectChangeEvent) => {
     setStatus(e.target.value)
+  }, [])
+
+
+  const handleAssigneeChange = useCallback((e: SelectChangeEvent) => {
+    setAssignee(e.target.value)
   }, [])
 
   // GLOBAL STATE
@@ -237,7 +243,7 @@ const TaskList = () => {
   ]
 
   // FOR DYNAMIC RENDERING OF PRESET LIST FILTERS
-  const tasks = useAppSelector(state => selectTasksByStatus(state, +status))
+  const tasks = useAppSelector(state => selectTasksByStatusAndAssignee(state, +status, assignee))
 
   return (
     <Grid container spacing={6}>
@@ -265,6 +271,26 @@ const TaskList = () => {
                       "Closed"
                     ].map((s, i) => (
                       <MenuItem key={`${s}-${i}`} value={i - 1}>{s}</MenuItem>
+                    ))}
+
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item sm={6} xs={12}>
+                <FormControl fullWidth>
+                  <InputLabel htmlFor='assigned'>Assigned To</InputLabel>
+                  <Select
+                    fullWidth
+                    value={assignee}
+                    id='assigned'
+                    label='Assigned To'
+                    labelId='assigned'
+                    onChange={handleAssigneeChange}
+                    defaultValue={""}
+                  >
+                    <MenuItem value={""}>All</MenuItem>
+                    {employees.map(({ label, value }) => (
+                      <MenuItem key={value} value={value}>{label}</MenuItem>
                     ))}
 
                   </Select>
