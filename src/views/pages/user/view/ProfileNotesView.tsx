@@ -39,7 +39,7 @@ import { store } from 'src/store/store'
 import { DataGridPro, GridColDef, GridRowId } from '@mui/x-data-grid-pro'
 import { toast } from 'react-hot-toast'
 import { format } from 'date-fns'
-import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined';
+import PushPinOutlinedIcon from '@mui/icons-material/PushPinOutlined'
 
 const defaultValues = {
   content: '',
@@ -56,7 +56,6 @@ interface FormValues {
   mentionedEmails: string
   usedTemplate: string
   targets: string[]
-
 }
 
 const ProfileNotes = ({ id }: ProfileNotesProps) => {
@@ -80,16 +79,14 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
   const [selectionModel, setSelectionModel] = useState<GridRowId[]>([])
   const [dialogMode, setDialogMode] = useState<boolean>(false)
 
-
   // USE HOOK FORM
   const {
     control,
     handleSubmit,
     setValue,
     reset,
-    formState: { }
+    formState: {}
   } = useForm<FormValues>({ defaultValues })
-
 
   // SUBMIT HANDLER
   const onSubmit = async (data: FormValues) => {
@@ -99,7 +96,7 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
 
     const success = await triggerCreate(createData).unwrap()
     if (success) {
-      toast.success("You have successfully created a note for profile")
+      toast.success('You have successfully created a note for profile')
       reset({ ...defaultValues })
     }
   }
@@ -110,26 +107,28 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
     else setDialogMode(false)
   }, [selectionModel.length])
 
-
   // UPDATES IMPORTANT STATUS = PINNING
   async function handleUpdateImportant(noteId: string) {
     const note = store.getState().note.entities[noteId]
 
     if (note) {
-      const { data = undefined }: { data?: any, error?: any } = await triggerUpdate({ noteId: note.noteId, content: note.content, important: !note.important })
+      const { data = undefined }: { data?: any; error?: any } = await triggerUpdate({
+        noteId: note.noteId,
+        content: note.content,
+        important: !note.important
+      })
       if (data) {
-        toast.success("You have updated note")
+        toast.success('You have updated note')
       }
     }
   }
 
   // HANDLE DELETE
   async function handleDeleteButton(noteId: string) {
-    const { data = undefined }: { data?: any, error?: any } = await triggerDelete(noteId)
+    const { data = undefined }: { data?: any; error?: any } = await triggerDelete(noteId)
     if (data) {
-      toast.success("You have successfully deleted note")
+      toast.success('You have successfully deleted note')
     }
-
   }
 
   const columns: GridColDef[] = [
@@ -139,7 +138,7 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
       width: 90,
       renderCell: params => (
         <Stack>
-          <Typography variant='body2'>{params.row.type || "General"}</Typography>
+          <Typography variant='body2'>{params.row.type || 'General'}</Typography>
         </Stack>
       )
     },
@@ -150,25 +149,27 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
       width: 190,
       renderCell: params => (
         <Stack>
-          <Typography sx={{ overflow: "wrap" }} variant='body2'>{params.row.content}</Typography>
+          <Typography sx={{ overflow: 'wrap' }} variant='body2'>
+            {params.row.content}
+          </Typography>
         </Stack>
       )
     },
     {
-      flex: .5,
+      flex: 0.5,
       field: 'createdByName',
       headerName: 'created By',
       minWidth: 150,
       renderCell: params => (
         <Stack>
           <Typography variant='body2'>{params.row.createdByName}</Typography>
-          <Typography variant='body2'>{format(new Date(params.row.createdAt), "MM/dd/yyyy")}</Typography>
+          <Typography variant='body2'>{format(new Date(params.row.createdAt), 'MM/dd/yyyy')}</Typography>
         </Stack>
       )
     },
     {
       field: 'Pin Note',
-      flex: .25,
+      flex: 0.25,
       minWidth: 70,
       renderCell: params => (
         <IconButton
@@ -185,7 +186,7 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
     {
       field: 'Delete',
 
-      flex: .25,
+      flex: 0.25,
       minWidth: 70,
       renderCell: params => (
         <IconButton
@@ -205,7 +206,6 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
 
   if (isLoading) return <div>Loading</div>
 
-
   return (
     <>
       <Card>
@@ -224,15 +224,19 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
                         <Select
                           label='Note Template'
                           labelId='note-template'
-
                           // disabled={isLoading}
-                          onChange={async (e) => {
+                          onChange={async e => {
                             const { error, data } = await getTemplate(e.target.value)
                             if (data) {
                               const { content, presetNotifiedEmployees, presetCCEmails } = data
-                              content && setValue("content", content, { shouldValidate: true })
-                              presetCCEmails?.length && setValue("mentionedEmails", presetCCEmails.join(", "), { shouldValidate: true })
-                              presetNotifiedEmployees?.length && setValue("targets", presetNotifiedEmployees.map(e => e.toUpperCase()))
+                              content && setValue('content', content, { shouldValidate: true })
+                              presetCCEmails?.length &&
+                                setValue('mentionedEmails', presetCCEmails.join(', '), { shouldValidate: true })
+                              presetNotifiedEmployees?.length &&
+                                setValue(
+                                  'targets',
+                                  presetNotifiedEmployees.map(e => e.toUpperCase())
+                                )
                             }
                             console.log(error, data)
                             onChange(e)
@@ -242,12 +246,16 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
                           <MenuItem value='' disabled>
                             Select Template
                           </MenuItem>
-                          {templateSuccess && noteTemplates.map(t => {
-                            return (
-                              <MenuItem key={t.id} value={t.id}>{t.name}</MenuItem>
-                            )
-                          })}
-                        </Select>)
+                          {templateSuccess &&
+                            noteTemplates.map(t => {
+                              return (
+                                <MenuItem key={t.id} value={t.id}>
+                                  {t.name}
+                                </MenuItem>
+                              )
+                            })}
+                        </Select>
+                      )
                     }}
                   />
                 </FormControl>
@@ -264,31 +272,32 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
                           label='Notify Users'
                           labelId='note-targets'
                           multiple
-
                           // disabled={isLoading}
                           {...field}
                         >
-                          {employeeSuccess && users.map(t => {
-                            return (
-                              <MenuItem key={t.employeeId} value={t.employeeId.toUpperCase()}>{t.employeeAlias}</MenuItem>
-                            )
-                          })}
-                        </Select>)
+                          {employeeSuccess &&
+                            users.map(t => {
+                              return (
+                                <MenuItem key={t.employeeId} value={t.employeeId.toUpperCase()}>
+                                  {t.employeeAlias}
+                                </MenuItem>
+                              )
+                            })}
+                        </Select>
+                      )
                     }}
                   />
                 </FormControl>
               </Grid>
 
-              <Grid item xs={12} >
+              <Grid item xs={12}>
                 <FormControl fullWidth>
                   <Controller
                     name='mentionedEmails'
                     control={control}
                     render={({ field }) => {
-
-                      return <TextField disabled={dialogMode} label='Mention Email' {...field} />
+                      return <TextField disabled={dialogMode} label='Mentioned Emails' {...field} />
                     }}
-
                   />
                 </FormControl>
               </Grid>
@@ -299,10 +308,8 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
                     name='content'
                     control={control}
                     render={({ field }) => {
-
-                      return <TextField disabled={dialogMode} multiline rows={4} label='content' {...field} />
+                      return <TextField disabled={dialogMode} multiline rows={4} label='Message' {...field} />
                     }}
-
                   />
                 </FormControl>
               </Grid>
@@ -327,23 +334,32 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
         <CardHeader title='Notes' />
         <CardContent>
           <Box sx={{ height: 400, width: '100%' }}>
-            <DataGridPro checkboxSelection onRowSelectionModelChange={(props) => {
-              setSelectionModel((state) =>
-                props.filter((newId: GridRowId) => !state.includes(newId))
-              );
+            <DataGridPro
+              checkboxSelection
+              onRowSelectionModelChange={props => {
+                setSelectionModel(state => props.filter((newId: GridRowId) => !state.includes(newId)))
 
-              if (props.length) {
-                const note = store.getState().note.entities[props[0]]
-                if (note) reset({ content: note.content, mentionedEmails: note.mentionedEmails || "", targets: note.targets?.map(t => t.value.toUpperCase()) })
-              } else {
-                reset(defaultValues)
-              }
+                if (props.length) {
+                  const note = store.getState().note.entities[props[0]]
+                  if (note)
+                    reset({
+                      content: note.content,
+                      mentionedEmails: note.mentionedEmails || '',
+                      targets: note.targets?.map(t => t.value.toUpperCase())
+                    })
+                } else {
+                  reset(defaultValues)
+                }
 
-              console.log(props)
-            }}
+                console.log(props)
+              }}
               rowSelectionModel={selectionModel}
               rowHeight={100}
-              getRowId={r => r.noteId} rows={profileNotes} columns={columns} sx={{ mt: 7 }} />
+              getRowId={r => r.noteId}
+              rows={profileNotes}
+              columns={columns}
+              sx={{ mt: 7 }}
+            />
           </Box>
         </CardContent>
       </Card>
@@ -352,4 +368,3 @@ const ProfileNotes = ({ id }: ProfileNotesProps) => {
 }
 
 export default ProfileNotes
-
