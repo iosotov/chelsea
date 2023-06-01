@@ -15,8 +15,6 @@ export default function FileUploadForm({ control, errors }: FileUploadedFormProp
   usePostSettingSearchQuery({})
   const categories = useAppSelector(state => selectSettingByType(state, 8))
 
-  console.log(categories)
-
   return (
     <>
       <Grid container spacing={4}>
@@ -25,6 +23,12 @@ export default function FileUploadForm({ control, errors }: FileUploadedFormProp
             <Controller
               name='title'
               control={control}
+              rules={{
+                required: {
+                  value: true,
+                  message: "Required"
+                }
+              }}
               render={({ field }) => (
                 <TextField label='Title' error={Boolean(errors.title)} {...field} />
               )}
@@ -77,6 +81,12 @@ export default function FileUploadForm({ control, errors }: FileUploadedFormProp
             <Controller
               name='description'
               control={control}
+              rules={{
+                required: {
+                  value: true,
+                  message: "Required"
+                }
+              }}
               render={({ field }) => (
                 <TextField label='Description' multiline rows={4} error={Boolean(errors.description)} {...field} />
               )}

@@ -5,18 +5,14 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 
-
 // ** Styles Import
 import 'react-credit-cards/es/styles-compiled.css'
 
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
 
-
 // ** API hooks
-import {
-  useGetProfileTasksQuery,
-} from 'src/store/api/apiHooks'
+import { useGetProfileTasksQuery } from 'src/store/api/apiHooks'
 import { useAppSelector } from 'src/store/hooks'
 import { selectTaskByProfileId } from 'src/store/taskSlice'
 import { DrawerTitles, TaskForm } from './components/task/TaskForm'
@@ -42,7 +38,6 @@ const ProfileTasks = ({ id }: ProfileTasksProps) => {
   const [selectedTasks, setSelectedTasks] = useState<string[]>([])
   const [openTaskModal, setOpenTaskModal] = useState<boolean>(false)
 
-
   const getCompletedDate = (params: GridValueGetterParams) => {
     if (`${params.row.completedDate}`) {
       return 'Incomplete'
@@ -55,12 +50,12 @@ const ProfileTasks = ({ id }: ProfileTasksProps) => {
     {
       field: 'taskName',
       headerName: 'Task Name',
-      width: 200,
+      width: 200
     },
     {
       field: 'assignedToName',
       headerName: 'Assigned To ',
-      width: 200,
+      width: 200
     },
     {
       field: 'dueDate',
@@ -89,7 +84,7 @@ const ProfileTasks = ({ id }: ProfileTasksProps) => {
       headerName: 'Status',
 
       // type: 'text',
-      width: 150,
+      width: 150
     },
     {
       field: 'createdAt',
@@ -110,7 +105,7 @@ const ProfileTasks = ({ id }: ProfileTasksProps) => {
       valueGetter: row => {
         const employee = store.getState().employee.entities[row.value]
 
-        return employee?.employeeAlias ? employee.employeeAlias : "SYSTEM"
+        return employee?.employeeAlias ? employee.employeeAlias : 'SYSTEM'
       }
     }
   ]
@@ -119,7 +114,6 @@ const ProfileTasks = ({ id }: ProfileTasksProps) => {
 
   if (isLoading) return <div>Loading</div>
 
-
   return (
     <>
       <Card>
@@ -127,13 +121,12 @@ const ProfileTasks = ({ id }: ProfileTasksProps) => {
           <Grid container spacing={6}>
             <Grid item xs={12}>
               <Box sx={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-
                 <Typography variant='h5'>Tasks</Typography>
                 <Button
                   size='medium'
                   type='submit'
                   variant='contained'
-                  color='secondary'
+                  color='primary'
                   onClick={() => setOpenTaskModal(true)}
                 >
                   {DrawerTitles[selectedTasks.length > 2 ? 2 : selectedTasks.length]}
@@ -141,14 +134,27 @@ const ProfileTasks = ({ id }: ProfileTasksProps) => {
               </Box>
             </Grid>
             <Grid item xs={12}>
-              <DataGridPro checkboxSelection onRowSelectionModelChange={(n) => setSelectedTasks(n as string[])} getRowId={r => r.taskId} rows={profileTasks} columns={columns} sx={!profileTasks.length ? { height: '250px' } : { height: '500px' }} />
+              <DataGridPro
+                checkboxSelection
+                onRowSelectionModelChange={n => setSelectedTasks(n as string[])}
+                getRowId={r => r.taskId}
+                rows={profileTasks}
+                columns={columns}
+                sx={!profileTasks.length ? { height: '250px' } : { height: '500px' }}
+              />
             </Grid>
             <Grid item xs={12}>
-              <TaskForm formMode={selectedTasks.length} calendarMode={false} openTaskModal={openTaskModal} setOpenTaskModal={setOpenTaskModal} selectedTasks={selectedTasks} profileId={profileId} />
+              <TaskForm
+                formMode={selectedTasks.length}
+                calendarMode={false}
+                openTaskModal={openTaskModal}
+                setOpenTaskModal={setOpenTaskModal}
+                selectedTasks={selectedTasks}
+                profileId={profileId}
+              />
             </Grid>
           </Grid>
         </CardContent>
-
       </Card>
     </>
   )

@@ -9,6 +9,7 @@ import CircularProgress from '@mui/material/CircularProgress'
 import TabList from '@mui/lab/TabList'
 import { useRouter } from 'next/router'
 import DashboardTasksView from './DashboardTasksView'
+import DashboardContactsView from './DashboardContactsView'
 
 interface DashboardTabsProps {
   tab: string
@@ -38,9 +39,10 @@ export default function DashboardTabs({ tab }: DashboardTabsProps) {
         <TabList value={activeTab} variant='scrollable' scrollButtons='auto' onChange={handleChange}>
           <Tab label='Tasks' value='tasks' />
           <Tab label='Contacts' value='contacts' />
-          <Tab label='Emails' value='emails' />
+
+          {/* <Tab label='Emails' value='emails' />
           <Tab label='Notes' value='notes' />
-          <Tab label='Docs' value='docs' />
+          <Tab label='Docs' value='docs' /> */}
         </TabList>
       </Box>
       {/* Add tab views here */}
@@ -56,17 +58,19 @@ export default function DashboardTabs({ tab }: DashboardTabsProps) {
               <DashboardTasksView />
             </TabPanel>
             <TabPanel value='contacts'>
-              Contacts Panel
+              <DashboardContactsView />
             </TabPanel>
-            <TabPanel value='emails'>
+
+            {/* <TabPanel value='emails'>
               Emails Panel
             </TabPanel>
             <TabPanel value='notes'>
+
               Notes Panel
             </TabPanel>
             <TabPanel value='docs'>
               Documents Panel
-            </TabPanel>
+            </TabPanel> */}
           </>
         )}
       </Box>

@@ -53,8 +53,17 @@ export const {
 export const selectProfilesByStatus = createSelector(
   selectAllProfiles,
   (_: RootState, status: number) => status,
-  (tasks, status) => {
-    return tasks.filter(t => t.status === status)
+  (profiles, status) => {
+    return profiles.filter(t => t.status === status)
+  }
+)
+export const selectProfilesByProfileAssignee = createSelector(
+  selectAllProfiles,
+  (_: RootState, employeeId: string) => employeeId,
+  (profiles, employeeId) => {
+    return profiles.filter(p => {
+      return p.profileAssignees.some(a => a.employeeId === employeeId)
+    })
   }
 )
 

@@ -122,7 +122,6 @@ export default function AddDebtDrawer({ open, toggle, profileId }: Props) {
   }
 
   const onSubmit = () => {
-    console.log(getValues())
     const data: LiabilityCreateType = getValues() as LiabilityCreateType
     createDebt({ ...data, profileId })
     handleClose()

@@ -1,7 +1,7 @@
 import { updateProfiles, updateStatus } from '../profileSlice'
 import SolApi from './SolApi'
 import { apiSlice } from './apiSlice'
-import { LunaResponseType, SearchFilterType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType, SearchFilterType } from './sharedTypes'
 
 export type ProfileQuickSearchType = {
   profileId: string
@@ -318,7 +318,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateProfiles(data))
         } catch (err: any) {
-          console.error('API error in postProfilesSearch:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postProfilesSearch:', error.message)
         }
       },
       providesTags: result => {
@@ -497,7 +498,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateProfiles([data]))
         } catch (err: any) {
-          console.error('API error in getProfileInfo:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getProfileInfo:', error.message)
         }
       },
       providesTags: result => {
@@ -528,7 +530,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateProfiles([data]))
         } catch (err: any) {
-          console.error('API error in getProfileBasic:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getProfileBasic:', error.message)
         }
       }
     }),
@@ -560,7 +563,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateStatus([data]))
         } catch (err: any) {
-          console.error('API error in getProfileStatus:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getProfileStatus:', error.message)
         }
       },
       providesTags: result => {
@@ -569,7 +573,7 @@ export const profileApiSlice = apiSlice.injectEndpoints({
     }),
 
     // ***************************************************** GET profile/quicksearch/keyword
-    getProfileQuickSearch: builder.query<ProfileStatusType[], string>({
+    getProfileQuickSearch: builder.query<ProfileQuickSearchType[], string>({
       query: keyword => ({
         url: `/profile/quicksearch/${keyword}`,
         method: 'GET'
@@ -609,7 +613,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postProfileCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postProfileCreate:', error.message)
         }
       },
       invalidatesTags: res => {
@@ -642,7 +647,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postProfileAssign:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postProfileAssign:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => (result ? [{ type: 'PROFILE', id: arg.profileId }] : [])
@@ -674,7 +680,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postProfileCustomFieldCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postProfileCustomFieldCreate:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => (result ? [{ type: 'PROFILE', id: arg.profileId }] : [])
@@ -703,7 +710,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postProfileSubmit:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postProfileSubmit:', error.message)
         }
       },
       invalidatesTags: (result, err, arg) => (result ? [{ type: 'PROFILE', id: arg }] : [])
@@ -732,7 +740,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postProfileApprove:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postProfileApprove:', error.message)
         }
       },
       invalidatesTags: (result, err, arg) => (result ? [{ type: 'PROFILE', id: arg }] : [])
@@ -761,7 +770,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postProfileReject:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postProfileReject:', error.message)
         }
       },
       invalidatesTags: (result, err, arg) => (result ? [{ type: 'PROFILE', id: arg }] : [])
@@ -790,7 +800,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postProfileEnroll:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postProfileEnroll:', error.message)
         }
       },
       invalidatesTags: (result, err, arg) => [
@@ -826,7 +837,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postProfileGrantAuth:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postProfileGrantAuth:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'PROFILE', id: arg.profileId }] : [])
@@ -855,7 +867,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postProfileDisableAuth:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postProfileDisableAuth:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'PROFILE', id: arg }] : [])
@@ -887,7 +900,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putProfileStatusUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putProfileStatusUpdate:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -926,7 +940,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putProfileUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putProfileUpdate:', error.message)
         }
       },
       invalidatesTags: (result, error, arg) => {
@@ -957,7 +972,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putProfileDelete:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putProfileDelete:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'PROFILE', id: arg }] : [])
@@ -1018,7 +1034,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
             dispatch(updateProfiles([newLabels]))
           }
         } catch (err: any) {
-          console.error('API error in getProfileLabels:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getProfileLabels:', error.message)
         }
       },
       providesTags: (res, meta, arg) =>
@@ -1056,7 +1073,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postProfileLabelCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postProfileLabelCreate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -1092,7 +1110,8 @@ export const profileApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateProfiles([data]))
         } catch (err: any) {
-          console.error('API error in getProfileSSN:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getProfileSSN:', error.message)
         }
       },
       providesTags: (res, error, arg) => (res ? [{ type: 'PROFILE', id: arg }] : [])

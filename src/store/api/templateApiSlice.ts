@@ -1,7 +1,7 @@
 import { setTemplates, updateTemplate } from '../templateSlice'
 import { apiSlice } from './apiSlice'
 import { FeeType } from './enrollmentApiSlice'
-import { LunaResponseType, SearchFilterType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType, SearchFilterType } from './sharedTypes'
 
 export type TemplateCreateType = {
   name?: string
@@ -105,7 +105,8 @@ export const templateApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           dispatch(updateTemplate(data))
         } catch (err: any) {
-          console.error('API error in getTemplate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getTemplate:', error.message)
         }
       },
       providesTags: res => {
@@ -134,7 +135,8 @@ export const templateApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postTemplateCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postTemplateCreate:', error.message)
         }
       },
       invalidatesTags: res => {
@@ -167,7 +169,8 @@ export const templateApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postTemplateRender:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postTemplateRender:', error.message)
         }
       }
     }),
@@ -196,7 +199,8 @@ export const templateApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(setTemplates(data))
         } catch (err: any) {
-          console.error('API error in postTemplateSearch:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postTemplateSearch:', error.message)
         }
       },
       providesTags: res => {
@@ -227,7 +231,8 @@ export const templateApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postTemplateEnrollmentCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postTemplateEnrollmentCreate:', error.message)
         }
       },
       invalidatesTags: res => {

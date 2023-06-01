@@ -36,11 +36,13 @@ import { selectAllCompanies } from 'src/store/companySlice';
 import { selectAllCampaigns } from 'src/store/campaignSlice';
 import { selectSettingByType } from 'src/store/settingSlice';
 
-const capitalizeWords = (str: string) => {
-  return str.replace(/\w\S*/g, (w) => (w.replace(/^\w/, (c) => c.toUpperCase())));
+export function capitalizeWords(s: string): string {
+  return s.split(' ')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .join(' ');
 }
 
-function formatCurrency(value: number): string {
+export function formatCurrency(value: number): string {
   return value
     .toFixed(2) // always two decimal digits
     .replace(/\d(?=(\d{3})+\.)/g, '$&,') // replace every group of three digits before a dot with that group and a comma
@@ -58,11 +60,11 @@ const userStatusObj: UserStatusType = {
 
 export const paymentStatusColor: ThemeColor[] = ["primary", "info", "success", "error", "error", "error", "error", "error", "error", "error", "warning"]
 
-const paymentStatus = ["Open", "Pending", "Cleared", "Returned", "Paused", "Cancelled", "Reversed", "Rejected", "Error", "Voided", "Unknown"]
+export const paymentStatus = ["Open", "Pending", "Cleared", "Returned", "Paused", "Cancelled", "Reversed", "Rejected", "Error", "Voided", "Unknown"]
 
 
 
-const LinkStyled = styled(Link)(({ theme }) => ({
+export const LinkStyled = styled(Link)(({ theme }) => ({
   fontWeight: 600,
   fontSize: '1rem',
   cursor: 'pointer',

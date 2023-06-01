@@ -1,5 +1,6 @@
+import { setHistories } from '../historySlice'
 import { apiSlice } from './apiSlice'
-import { LunaResponseType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType } from './sharedTypes'
 
 export type HistoryType = {
   id: string
@@ -27,11 +28,13 @@ export const historyApiSlice = apiSlice.injectEndpoints({
       transformResponse: (res: LunaResponseType) => {
         return res.data
       },
-      async onQueryStarted(profileId, { queryFulfilled }) {
+      async onQueryStarted(profileId, { dispatch, queryFulfilled }) {
         try {
-          await queryFulfilled
+          const { data } = await queryFulfilled
+          dispatch(setHistories(data))
         } catch (err: any) {
-          console.error('API error in getHistory:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getHistory:', error.message)
         }
       }
     })

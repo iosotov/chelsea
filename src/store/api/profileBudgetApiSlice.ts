@@ -1,6 +1,6 @@
 import { removeBudget, setBudget, updateBudget, updateProfileBudget } from '../profileBudgetSlice'
 import { apiSlice } from './apiSlice'
-import { LunaResponseType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType } from './sharedTypes'
 import SolApi from './SolApi'
 
 export type ProfileBudget = {
@@ -99,7 +99,8 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateProfileBudget(data))
         } catch (err: any) {
-          console.error('API error in getProfileBudgets:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getProfileBudgets:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -137,7 +138,8 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putProfileBudgetsUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putProfileBudgetsUpdate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'PROFILE-BUDGET', id: arg.profileId }] : [])
@@ -166,7 +168,8 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(setBudget(data))
         } catch (err: any) {
-          console.error('API error in getBudgets:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getBudgets:', error.message)
         }
       },
       providesTags: result => {
@@ -200,7 +203,8 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postBudgetCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postBudgetCreate:', error.message)
         }
       },
       invalidatesTags: res => (res ? [{ type: 'BUDGET', id: 'LIST' }] : [])
@@ -229,7 +233,8 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updateBudget([data]))
         } catch (err: any) {
-          console.error('API error in getBudgetInfo:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getBudgetInfo:', error.message)
         }
       },
       providesTags: (res, error, arg) => (res ? [{ type: 'BUDGET', id: arg }] : [])
@@ -260,7 +265,8 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putBudgetUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putBudgetUpdate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -295,7 +301,8 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(removeBudget(budgetId))
         } catch (err: any) {
-          console.error('API error in putBudgetDisable:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putBudgetDisable:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
@@ -329,7 +336,8 @@ export const profileBudgetApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putBudgetEnable:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putBudgetEnable:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) =>
