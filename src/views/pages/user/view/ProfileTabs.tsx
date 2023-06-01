@@ -89,7 +89,7 @@ export default function ProfileTabs({ id, tab }: Props) {
               <ProfileBudget id={id} />
             </TabPanel>
             <TabPanel value='activity'>
-              <ProfileActivity />
+              <ProfileActivity id={id} />
             </TabPanel>
             <TabPanel value='email'>
               <ProfileEmail id={id} />

@@ -1,6 +1,6 @@
 import { setPermissions, updatePermission } from '../permissionSlice'
 import { apiSlice } from './apiSlice'
-import { LunaResponseType } from './sharedTypes'
+import { ErrorResponseType, LunaResponseType } from './sharedTypes'
 
 export type PermissionType = {
   permissionId: string
@@ -50,7 +50,8 @@ export const permissionApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(updatePermission(data))
         } catch (err: any) {
-          console.error('API error in getPermission:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getPermission:', error.message)
         }
       },
       providesTags: (result, error, arg) => {
@@ -82,7 +83,8 @@ export const permissionApiSlice = apiSlice.injectEndpoints({
 
           if (data) dispatch(setPermissions(data))
         } catch (err: any) {
-          console.error('API error in getPermissions:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in getPermissions:', error.message)
         }
       },
       providesTags: result => {
@@ -119,7 +121,8 @@ export const permissionApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in postPermissionCreate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postPermissionCreate:', error.message)
         }
       },
       invalidatesTags: res => (res ? [{ type: 'PERMISSION', id: 'LIST' }] : [])
@@ -151,7 +154,8 @@ export const permissionApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in putPermissionUpdate:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in putPermissionUpdate:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'PERMISSION', id: arg.permissionId }] : [])
@@ -179,7 +183,8 @@ export const permissionApiSlice = apiSlice.injectEndpoints({
         try {
           await queryFulfilled
         } catch (err: any) {
-          console.error('API error in deletePermission:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in deletePermission:', error.message)
         }
       },
       invalidatesTags: (res, error, arg) => (res ? [{ type: 'PERMISSION', id: arg }] : [])

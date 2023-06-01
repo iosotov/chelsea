@@ -11,7 +11,6 @@ import Button from '@mui/material/Button'
 import CardContent from '@mui/material/CardContent'
 import Typography from '@mui/material/Typography'
 import Grid from '@mui/material/Grid'
-import TablePagination from '@mui/material/TablePagination'
 import Table from '@mui/material/Table'
 import TableRow from '@mui/material/TableRow'
 import TableHead from '@mui/material/TableHead'
@@ -48,14 +47,15 @@ import {
 //Redux Store
 import { useAppSelector } from 'src/store/hooks'
 import { selectEnrollmentByProfileId } from 'src/store/enrollmentSlice'
+import { selectPaymentsByProfileId } from 'src/store/bankAccountSlice'
 
 //Utils
 import MoneyConverter from 'src/views/shared/utils/money-converter'
+import DateConverter from 'src/views/shared/utils/date-converter'
 
 //Imported Types
 import { SingleSelectOption } from 'src/types/forms/selectOptionTypes'
-import { EnrollmentPreviewMutatedType } from 'src/store/api/enrollmentApiSlice'
-import DateConverter from 'src/views/shared/utils/date-converter'
+import { EnrollmentPreviewMutatedType, EnrollmentSearchResultModel } from 'src/store/api/enrollmentApiSlice'
 
 //Typing
 type EnrollmentModalProps = {
@@ -143,7 +143,6 @@ const serviceFeeOptions: SingleSelectOption[] = [
 
 const generateLengthOptions = (): SingleSelectOption[] => {
   const options: SingleSelectOption[] = []
-  console.log('generated')
   for (let i = 1; i <= 60; i++) {
     options.push({
       label: `${i} Payments`,
@@ -179,7 +178,12 @@ const generateLengthOptions = (): SingleSelectOption[] => {
 
 const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalProps) => {
   //Data
-  const enrollmentData = useAppSelector(state => selectEnrollmentByProfileId(state, profileId))
+  const enrollmentData: EnrollmentSearchResultModel | undefined = useAppSelector(state =>
+    selectEnrollmentByProfileId(state, profileId)
+  )
+
+  const paymentData = useAppSelector(state => selectPaymentsByProfileId(state, String(profileId)))
+
   const [previewData, setPreviewData] = useState<EnrollmentPreviewMutatedType | null>(null)
 
   const [getPreview, previewStatus] = useGetEnrollmentPreviewMutation()
@@ -194,17 +198,19 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
   const lengthOptions = useMemo(generateLengthOptions, [profileId])
   const servicePercentageOptions = useMemo(generateServicePercentageOptions, [profileId])
 
-  const defaultValues = {
-    maintenanceFee: 80.0,
-    programLength: 12,
-    serviceFeeType: 1,
-    serviceFee: 0.35,
-    firstPaymentDate: new Date(),
-    recurringType: 1,
-    recurringPaymentDate: addMonths(new Date(), 1)
-  }
+  const enrollmentForm = useForm({
+    defaultValues: {
+      paymentMethod: 2,
+      maintenanceFee: 80.0,
+      programLength: 12,
+      serviceFeeType: 1,
+      serviceFee: 0.35,
+      firstPaymentDate: new Date(),
+      recurringType: 1,
+      recurringPaymentDate: addMonths(new Date(), 1)
+    }
+  })
 
-  const enrollmentForm = useForm({ defaultValues, ...enrollmentData })
   const {
     handleSubmit,
     control,
@@ -212,19 +218,54 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
     setValue,
     watch,
     reset,
+    unregister,
     formState: { errors }
   } = enrollmentForm
+
+  // function to check and return hardcoded gateways based on paymentMethod selected
+  const checkGateway = () => {
+    const method = getValues('paymentMethod')
+
+    switch (method) {
+      case 0:
+        //ach
+        return '53660F30-725B-4484-A70D-C43C35B96362'
+      case 1:
+        //cc
+        return '8D9F32FB-DB1A-49CA-9C33-773E660D1397'
+      default:
+        return 'EA3EDF07-4706-405A-B9A2-8263001E06F8'
+    }
+  }
+
+  //disables options based on paymentmethods provided
+  const paymentMethodOptions: SingleSelectOption[] = [
+    {
+      label: 'ACH',
+      value: 0,
+      disabled: paymentData?.filter(payment => payment.accountType === 'ach').length === 0 ? true : false
+    },
+    {
+      label: 'CC',
+      value: 1,
+      disabled: paymentData?.filter(payment => payment.accountType === 'card').length === 0 ? true : false
+    },
+    {
+      label: 'None',
+      value: 2
+    }
+  ]
 
   const onSubmit = () => {
     const data = {
       profileId: profileId,
-      paymentMethod: 2,
+      paymentMethod: getValues('paymentMethod') ?? 2,
       basePlan: 'Base Plan',
       serviceFeeType: getValues('serviceFeeType'),
       recurringType: getValues('recurringType'),
       enrollmentFee: getValues('serviceFee'),
       programLength: getValues('programLength'),
-      gateway: 'settingservice_paymentprocessor_nacha',
+      gateway: checkGateway(),
       firstPaymentDate: getValues('firstPaymentDate'),
       recurringPaymentDate: getValues('recurringPaymentDate'),
       initialFeeAmount: null,
@@ -238,6 +279,7 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
         }
       ]
     }
+
     enrollmentData?.enrollmentId
       ? editEnrollment(data)
           .unwrap()
@@ -260,12 +302,12 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
   const previewRequest = () => {
     getPreview({
       profileId: profileId,
-      paymentMethod: 2,
+      paymentMethod: getValues('paymentMethod') ?? 2,
       basePlan: 'Base Plan',
       serviceFeeType: getValues('serviceFeeType'),
       enrollmentFee: getValues('serviceFee'),
       programLength: getValues('programLength'),
-      gateway: 'settingservice_paymentprocessor_nacha',
+      gateway: checkGateway(),
       firstPaymentDate: getValues('firstPaymentDate'),
       recurringType: getValues('recurringType'),
       recurringPaymentDate: getValues('recurringPaymentDate'),
@@ -273,7 +315,7 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
       //if initialFeeAmount is not a null value, check backend to make sure numbers match up.
       //currently returned total service fee is dividing by original plan length rather than plan length - 1 to account for initial down payment
 
-      initialFeeAmount: null,
+      // initialFeeAmount: null,
       additionalFees: [
         {
           feeName: 'Maintenance Fee',
@@ -290,21 +332,6 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
           setPreviewData(res)
         }
       })
-  }
-
-  const [page, setPage] = useState(0)
-  const [rowsPerPage, setRowsPerPage] = useState(10)
-
-  // Avoid a layout jump when reaching the last page with empty rows.
-  //PreviewData !== null when empty rows is checked
-
-  const handleChangePage = (event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-    setPage(newPage)
-  }
-
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setRowsPerPage(parseInt(event.target.value, 10))
-    setPage(0)
   }
 
   //onChange
@@ -344,6 +371,29 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
     }
   }, [selectedRecurringType, selectedFirstPaymentDate, setValue, getValues])
 
+  useEffect(() => {
+    if (!enrollmentData?.enrollmentId) {
+      unregister('paymentMethod')
+    }
+  }, [enrollmentData, unregister])
+
+  useEffect(() => {
+    if (enrollmentData?.enrollmentId) {
+      reset({
+        paymentMethod: enrollmentData.paymentMethod,
+
+        // maint fee hardcoded, will need to grab from enrollment api another time
+        maintenanceFee: 80,
+        programLength: enrollmentData.programLength,
+        serviceFeeType: 1,
+        serviceFee: enrollmentData.enrollmentFee,
+        firstPaymentDate: new Date(enrollmentData.firstPaymentDate),
+        recurringType: 1,
+        recurringPaymentDate: addMonths(new Date(enrollmentData.firstPaymentDate), 1)
+      })
+    }
+  }, [enrollmentData, reset])
+
   // Will implement preview check to make sure up to date before creating preview
   // const shallow1 = useRef(JSON.stringify(getValues()))
 
@@ -351,7 +401,6 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
   //   if (previewData) {
   //     const shallow2 = JSON.stringify(getValues())
   //     if (shallow1.current !== shallow2) {
-  //       console.log('theyre the same, dont refresh')
   //       shallow1.current = shallow2
   //     }
   //   }
@@ -372,6 +421,17 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
       <DialogContent sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' } }}>
         <CardContainer>
           <form>
+            {enrollmentData?.enrollmentId && (
+              <Box mb={4}>
+                <SingleSelect
+                  label='Payment Method'
+                  name='paymentMethod'
+                  errors={errors}
+                  control={control}
+                  options={paymentMethodOptions}
+                />
+              </Box>
+            )}
             <Box mb={4}>
               <SingleSelect
                 label='Plan Length'
@@ -471,42 +531,52 @@ const EnrollmentDialog = ({ open, handleClose, id: profileId }: EnrollmentModalP
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {previewData.transactions
-                    .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                    .map((row: any, i: number) => (
-                      <TableRow key={i}>
-                        <TableCell>{i + 1}</TableCell>
-                        <TableCell align='center'>{DateConverter(row.processDate, 'UTC')}</TableCell>
-                        <TableCell align='center'>{MoneyConverter(row.serviceFee)}</TableCell>
-                        <TableCell align='center'>{MoneyConverter(row.maintenanceFee)}</TableCell>
-                        <TableCell align='center'>{MoneyConverter(row.total)}</TableCell>
-                      </TableRow>
-                    ))}
-                  {page > 0
-                    ? Math.max(0, (1 + page) * rowsPerPage - previewData.transactions.length ?? 0)
-                    : 0 > 0 && (
-                        <TableRow
-                          style={{
-                            height:
-                              50 * page > 0
-                                ? Math.max(0, (1 + page) * rowsPerPage - previewData.transactions.length ?? 0)
-                                : 0
-                          }}
-                        >
-                          <TableCell colSpan={6} />
+                  {previewData.transactions.length <= 9
+                    ? previewData.transactions.map((row: any, i: number) => (
+                        <TableRow key={i + 1}>
+                          <TableCell>{i + 1}</TableCell>
+                          <TableCell align='center'>{DateConverter(row.processDate, 'UTC')}</TableCell>
+                          <TableCell align='center'>{MoneyConverter(row.serviceFee)}</TableCell>
+                          <TableCell align='center'>{MoneyConverter(row.maintenanceFee)}</TableCell>
+                          <TableCell align='center'>{MoneyConverter(row.total)}</TableCell>
                         </TableRow>
-                      )}
+                      ))
+                    : null}
+                  {previewData.transactions.length > 9
+                    ? previewData.transactions.slice(0, 5).map((row: any, i: number) => (
+                        <TableRow key={i + 1}>
+                          <TableCell>{i + 1}</TableCell>
+                          <TableCell align='center'>{DateConverter(row.processDate, 'UTC')}</TableCell>
+                          <TableCell align='center'>{MoneyConverter(row.serviceFee)}</TableCell>
+                          <TableCell align='center'>{MoneyConverter(row.maintenanceFee)}</TableCell>
+                          <TableCell align='center'>{MoneyConverter(row.total)}</TableCell>
+                        </TableRow>
+                      ))
+                    : null}
+                  {previewData.transactions.length > 9 && (
+                    <TableRow
+                      style={{
+                        height: 50
+                      }}
+                    >
+                      <TableCell align='center' colSpan={6}>
+                        .........
+                      </TableCell>
+                    </TableRow>
+                  )}
+                  {previewData.transactions.length > 9
+                    ? previewData.transactions.slice(previewData.transactions.length - 4).map((row: any, i: number) => (
+                        <TableRow key={previewData.transactions.length - 3 + i}>
+                          <TableCell>{previewData.transactions.length - 3 + i}</TableCell>
+                          <TableCell align='center'>{DateConverter(row.processDate, 'UTC')}</TableCell>
+                          <TableCell align='center'>{MoneyConverter(row.serviceFee)}</TableCell>
+                          <TableCell align='center'>{MoneyConverter(row.maintenanceFee)}</TableCell>
+                          <TableCell align='center'>{MoneyConverter(row.total)}</TableCell>
+                        </TableRow>
+                      ))
+                    : null}
                 </TableBody>
               </Table>
-              <TablePagination
-                page={page}
-                component='div'
-                count={previewData.transactions.length}
-                rowsPerPage={rowsPerPage}
-                onPageChange={handleChangePage}
-                rowsPerPageOptions={[5, 10, 25]}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-              />
             </>
           ) : (
             <Box

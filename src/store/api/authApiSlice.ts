@@ -66,7 +66,8 @@ export const authApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(setCredentials(data))
         } catch (err: any) {
-          console.error('API error in postAuthLogin:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postAuthLogin:', error.message)
         }
 
         dispatch(setInit())
@@ -94,7 +95,8 @@ export const authApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(logOut())
         } catch (err: any) {
-          console.error('API error in postAuthRevokeToken:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postAuthRevokeToken:', error.message)
         }
       }
     }),
@@ -134,8 +136,8 @@ export const authApiSlice = apiSlice.injectEndpoints({
           const { data } = await queryFulfilled
           if (data) dispatch(setCredentials(data))
         } catch (err: any) {
-          console.log(err)
-          console.error('API error in postAuthLogin:', err.error.data.message)
+          const { error } = err as { error: ErrorResponseType }
+          console.error('API error in postAuthLogin:', error.message)
         }
 
         dispatch(setInit())
