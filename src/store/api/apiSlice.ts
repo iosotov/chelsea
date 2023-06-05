@@ -15,7 +15,9 @@ const baseQuery = fetchBaseQuery({
 
     return headers
   },
+
   credentials: 'include'
+
 })
 
 export const apiSlice = createApi({

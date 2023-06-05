@@ -7,7 +7,8 @@ class SolApi {
   static axiosInstance = axios.create({
     baseURL: baseUrl,
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': `${process.env.NEXT_PUBLIC_API_BASE_URL}`
     },
 
     withCredentials: true
