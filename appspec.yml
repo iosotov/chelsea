@@ -1,5 +1,5 @@
 version: 0.0
 os: windows
 files:
-  - source: out
+  - source: /
     destination: C:\inetpub\wwwroot\chelsea\build
